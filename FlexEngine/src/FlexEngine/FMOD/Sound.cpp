@@ -1,3 +1,14 @@
+/* WLVERSE[https://wlverse.web.app]
+// sound.cpp
+// 
+// Sound implementation
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+*/
 #pragma once
 
 #include "FMODWrapper.h"

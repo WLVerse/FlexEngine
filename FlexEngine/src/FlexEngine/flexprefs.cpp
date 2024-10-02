@@ -1,3 +1,14 @@
+/** WLVerse
+ * \file flexprefs.cpp
+ *
+ * \brief
+ *   Implementation of flexprefs via rapidjson
+ *
+ * \authors
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
 #include "pch.h"
 
 #include "flexprefs.h"

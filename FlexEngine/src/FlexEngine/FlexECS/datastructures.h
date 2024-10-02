@@ -1,3 +1,16 @@
+/** WLVerse
+ * \file datastructures.h
+ *
+ * \brief Interface to the ECS implementation via a Scene for contextualization
+ *
+ * \authors
+ *   [15%] Yew Chong (yewchong.k\@digipen.edu)
+ *   - SaveEntityAsPrefab, CloneEntity
+ *   [85%] Chan Wen Loong (wenloong.c\@digipen.edu)
+ *   - Class setup
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
 #pragma once
 
 #include "flx_api.h"

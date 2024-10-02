@@ -6,11 +6,7 @@
  *   This system uses FMOD studio as a basis for playing music
  *
  * \authors
- *   Yew Chong (yewchong.k\@digipen.edu)
- *
- * \link <https://portylstudios.notion.site/WLVerse-GAM150-Plan-d3460d6a24db417ca86f9ed54deaf365?pvs=4>
- *   WLVerse GAM150 Plan
- * \endlink
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
  *
  * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
  */

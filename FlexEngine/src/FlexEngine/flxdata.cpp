@@ -1,11 +1,21 @@
-/*
-    For now, to create file need to use like this...
-    //Asset::FlxData flex("/data/flxer.flxdata");
-    //flex.SetBool("test", true);
-    //flex.SetString("tester", "Hello2 World!");
-    //flex.SetInt("testint", 1243);
-    //flex.Save();
-*/
+/** WLVerse
+ * \file flxdata.cpp
+ *
+ * \brief
+ *   FlxData is a class that allows for easy reading and writing of data to a file. Mostly extends the same functionality as flexprefs.
+ *   For now, to create file need to use like this until we get an editor...
+ *  //Asset::FlxData flex("/data/flxer.flxdata");
+ *  //flex.SetBool("test", true);
+ *  //flex.SetString("tester", "Hello2 World!");
+ *  //flex.SetInt("testint", 1243);
+ *  //flex.Save();
+ *
+ * \authors
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
+
 #pragma once
 
 #include "pch.h" // Logger

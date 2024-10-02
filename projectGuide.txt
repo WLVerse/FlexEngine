@@ -1,0 +1,14 @@
+FlexEngine contains the core part of the engine in the Flexengine project. 
+
+Build, set as start project and run the MicroChess sub-project (will be renamed in the future), it will build all required dependencies.
+
+Press Control + Q to quit the application. Closing the console window also works but it's an abrupt shutdown.
+
+Rubrics requirements:
+- See .log for the log file under x64/Release
+- Press WASD to move around.
+- Debug lines for the 
+- Press F & G to test scaling.
+- Press Q & E to test rotation.
+- Press 1 & 2 to test fmod.
+- Press 0 to toggle 2500 objects

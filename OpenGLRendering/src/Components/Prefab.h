@@ -1,16 +1,22 @@
-/*
-* \author Yew Chong
-  \brief This file contains the function to spawn an entity from a prefab file.
-         This function only works within the context of the project, and the using namespace needs to be edited for it to work in other projects.
-
-         Usage: Include Prefab.h in the source file where you want to spawn entities from prefab files.
-                EntityID e = SpawnEntityFromPrefab("test") where test is the name of the prefab
-         
-                From there, you can use the entityID handle to manipulate the entity as you wish.
-
-         Note: The prefab creation function is available from the Scene class and can be invoked as follows:
-                FlexECS::Scene::GetActiveScene()->SaveEntityAsPrefab(object.Get() , "test");
-*/
+/** WLVerse
+ * \file prefab.h
+ *
+ * \brief This file contains the function to spawn an entity from a prefab file.
+ *       This function only works within the context of the project, and the using namespace needs to be edited for it to work in other projects.
+ *
+ *       Usage: Include Prefab.h in the source file where you want to spawn entities from prefab files.
+ *              EntityID e = SpawnEntityFromPrefab("test") where test is the name of the prefab
+ *       
+ *              From there, you can use the entityID handle to manipulate the entity as you wish.
+ *
+ *       Note: The prefab creation function is available from the Scene class and can be invoked as follows:
+ *              FlexECS::Scene::GetActiveScene()->SaveEntityAsPrefab(object.Get() , "test");
+ *
+ * \authors
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
 #pragma once
 #include <FlexEngine.h> // Utility functions
 #include "Components/Components.h" // Definition of all game level components.

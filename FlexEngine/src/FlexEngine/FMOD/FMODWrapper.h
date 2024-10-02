@@ -17,7 +17,7 @@
  *   Core API reference: https://www.fmod.com/docs/2.02/api/core-api-system.html#system_playsound
  * 
  * \authors
- *   Yew Chong (yewchong.k\@digipen.edu)
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
  * 
  * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
  */

@@ -1,14 +1,21 @@
-/*
-* \author Yew Chong
-  \brief FlexPrefs is a class that allows you to save and load player preferences in a JSON file.
+/** WLVerse
+ * \file flexprefs.h
+ *
+ * \brief
+ *   FlexPrefs is a class that allows you to save and load player preferences in a JSON file.
+ *   Usage: Include this header file in the required file.
+ *          - Call FlexPrefs::Load() to load the FlexPrefs file. It will automatically create one if none is available.
+ *          - Use the getters and setters to get and set values. Eg FlexPrefs::SetInt("score", 100);
+ *          - Call FlexPrefs::Save() to update changes made by the getters/setters and save the FlexPrefs file.
+ *   Note: Will generate warnings in the console.
+ *
+ * \authors
+ *   [100%] Yew Chong (yewchong.k\@digipen.edu)
+ *   - Incorporate flxdata, flxsound, flxprefab
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
 
-         Usage: Include this header file in the required file.
-                - Call FlexPrefs::Load() to load the FlexPrefs file. It will automatically create one if none is available.
-                - Use the getters and setters to get and set values. Eg FlexPrefs::SetInt("score", 100);
-                - Call FlexPrefs::Save() to update changes made by the getters/setters and save the FlexPrefs file.
-         
-         Note: Will generate warnings in the console.
-*/
 #pragma once
 
 #include "flx_api.h"

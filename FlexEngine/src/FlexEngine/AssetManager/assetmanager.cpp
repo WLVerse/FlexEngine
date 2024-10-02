@@ -1,3 +1,19 @@
+/** WLVerse
+ * \file AssetManager.cpp
+ *
+ * \brief
+ *   Asset Manager used to load and unload assets
+ *
+ * \authors
+ *   [97%] Chan Wen Loong (wenloong.c\@digipen.edu)
+ *   - AssetManager class
+ *   - AddTexture, Load, Unload, Get, DefaultDirectory, Dump
+ * 
+ *   [3%] Yew Chong (yewchong.k\@digipen.edu)
+ *   - Incorporate flxdata, flxsound, flxprefab
+ *
+ * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
+ */
 #include "pch.h"
 
 #include "assetmanager.h"
