@@ -7,6 +7,11 @@
  * 
  *   It doesn't handle any of the audio playing, and meant to be run in a system in the game layer.
  * 
+ *   Usage: Anywhere FlexEngine.h is included, you can call FMODWrapper::Core to use its features. 
+ *          Do not call FMODWrapper directly - It is only used for lower level layer classes
+ *          FMODWrapper::Core::PlaySound("mario", FLX_ASSET_GET(Asset::Sound, AssetKey("/audio/test.mp3")));
+ *          FMODWrapper::Core::StopSound("mario");
+ * 
  *   Now here's the sauce...
  *   For a quick start: https://www.fmod.com/docs/2.02/api/white-papers-getting-started.html#fmod-core-api-initialization-do-not-use-this-if-using-fmod-studio-api-initialization
  *   Core API reference: https://www.fmod.com/docs/2.02/api/core-api-system.html#system_playsound
@@ -53,13 +58,7 @@ public:
     static std::map<std::string, FMOD::Channel*> channels; // Stores all instances of channels in existence
 
   public:
-    /*
-      Usage: FMODWrapper::Core::PlaySound("mario", FLX_ASSET_GET(Asset::Sound, AssetKey("/audio/test.mp3")));
-    */
     static void PlaySound(std::string const&, Asset::Sound const&);
-    /*
-      Usage: FMODWrapper::Core::StopSound("mario2");
-    */
     static void StopSound(std::string const&);
   };
 

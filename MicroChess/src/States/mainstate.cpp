@@ -10,7 +10,7 @@ namespace ChronoShift
   {
     window = Application::OpenWindow(
       {
-        "FlexEngine - MicroChess by Wen Loong",
+        "FlexEngine",
         1280, 720 + 30, // 30 pixels for the title bar
         {
           FLX_DEFAULT_WINDOW_HINTS,
