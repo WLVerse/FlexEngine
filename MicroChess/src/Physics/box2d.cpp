@@ -11,7 +11,7 @@ namespace ChronoShift
   void Box2D()
   {
     Vector2 mouse_position = Input::GetMousePosition();
-    bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
+    //bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
     //On Hover
     //for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, Parent, Position, Scale, Rotation, Transform, BoundingBox2D, OnHover>())

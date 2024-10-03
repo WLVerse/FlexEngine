@@ -1,3 +1,21 @@
+/* Start Header
+*****************************************************************/
+/*!
+WLVERSE [https://wlverse.web.app]
+\file      turnorderdisplay.cpp
+\author    [100%] Ho Jin Jie Donovan, h.jinjiedonovan, 2301233
+\par       h.jinjiedonovan\@digipen.edu
+\date      03 October 2024
+\brief     This file contains the definition of the function
+					 that will display the turn order of both the players
+					 and enemies on the left side of the screen
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 #include "turnorderdisplay.h"
 #include "Components/battlecomponents.h"
 #include "Components/rendering.h"

@@ -202,6 +202,9 @@
     <ClCompile Include="src\FlexEngine\flxdata.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\opengldebugrenderer.cpp">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -384,6 +387,9 @@
     <ClInclude Include="src\FlexEngine\flxdata.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugrenderer.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\FlexEngine\FlexECS\entity.inl">
@@ -391,12 +397,6 @@
     </None>
     <None Include="src\FlexEngine\FlexECS\scene.inl">
       <Filter>src\FlexEngine\FlexECS</Filter>
-    </None>
-    <None Include="src\FlexEngine\Renderer\DebugRenderer\debugrenderer.vert">
-      <Filter>src\FlexEngine\Renderer\DebugRenderer</Filter>
-    </None>
-    <None Include="src\FlexEngine\Renderer\DebugRenderer\debugrenderer.frag">
-      <Filter>src\FlexEngine\Renderer\DebugRenderer</Filter>
     </None>
   </ItemGroup>
 </Project>

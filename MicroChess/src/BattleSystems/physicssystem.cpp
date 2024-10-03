@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// physicssystem.h
+//
+// Simple AABB Physics system
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #include "physicssystem.h"
 #include "Components/physics.h"
 #include "Components/rendering.h"	//position, scale, rotate still over here
@@ -13,6 +26,13 @@ namespace ChronoShift
 {
 	std::vector<std::pair<FlexECS::Entity, FlexECS::Entity>> collisions {};
 
+
+	/*!***************************************************************************
+	* @brief
+	* Recalculates the AABB bounding box for an entity.
+	* @param entity
+	* The entity to recalculate for.
+	******************************************************************************/
 	void RecomputeBounds(FlexECS::Entity entity) 
 	{
 		auto& position = entity.GetComponent<Position>()->position;
@@ -24,22 +44,32 @@ namespace ChronoShift
 		entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
 	}
 
+
+	/*!***************************************************************************
+	* @brief
+	* Updates Positions of all rigidbodies based on their velocity.
+	******************************************************************************/
 	void UpdatePositions() 
 	{
 		float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
-		for (auto& entity : FlexECS::Scene::GetActiveScene()->View<Position, Rigidbody>())
+		for (auto& entity : FlexECS::Scene::GetActiveScene()->View<Transform, Rigidbody>())
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
 			auto& position = entity.GetComponent<Position>()->position;
+			entity.GetComponent<Transform>()->is_dirty = true;
 
 			position.x += velocity.x * dt;
 			position.y += velocity.y * dt;
 		}
 	}
 	
+	/*!***************************************************************************
+	* @brief
+	* Recalculates the AABB bounding box for all entities.
+	******************************************************************************/
 	void UpdateBounds()
 	{
-		for (auto& entity : FlexECS::Scene::GetActiveScene()->View<Position, Scale, Rigidbody, BoundingBox2D>()) 
+		for (auto& entity : FlexECS::Scene::GetActiveScene()->View<Transform, Rigidbody, BoundingBox2D>())
 		{
 			auto& position = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
@@ -49,21 +79,25 @@ namespace ChronoShift
 			entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x;
 			entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
 		}
-
 	}
 
+	/*!***************************************************************************
+	* @brief
+	* Finds all collisions between rigidbodies.
+	* If Rigidbody is static, skips the check.
+	******************************************************************************/
 	void FindCollisions() 
 	{
 		collisions.clear();
 		
-		for (auto& entity_a : FlexECS::Scene::GetActiveScene()->View<Position, Scale, Rigidbody, BoundingBox2D>())
+		for (auto& entity_a : FlexECS::Scene::GetActiveScene()->View<Transform, Rigidbody, BoundingBox2D>())
 		{
 			if(entity_a.GetComponent<Rigidbody>()->is_static) continue;
 			//construct aabb
 			auto& max_a = entity_a.GetComponent<BoundingBox2D>()->max;
 			auto& min_a = entity_a.GetComponent<BoundingBox2D>()->min;
 			
-			for (auto& entity_b : FlexECS::Scene::GetActiveScene()->View<Position, Scale, Rigidbody, BoundingBox2D>()) 
+			for (auto& entity_b : FlexECS::Scene::GetActiveScene()->View<Transform, Rigidbody, BoundingBox2D>())
 			{
 				if (entity_a == entity_b) continue;
 
@@ -78,20 +112,27 @@ namespace ChronoShift
 
 	}
 
+	/*!***************************************************************************
+	* @brief
+	* Adds pushback for colliding entities to make sure they don't overlap.
+	******************************************************************************/
 	void ResolveCollisions() 
 	{
-		float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+		//float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
 		for (auto collision : collisions)
 		{
-			auto& a_velocity = collision.first.GetComponent<Rigidbody>()->velocity;
+			//auto& a_velocity = collision.first.GetComponent<Rigidbody>()->velocity;
 			auto& a_position = collision.first.GetComponent<Position>()->position;
-			auto& b_velocity = collision.second.GetComponent<Rigidbody>()->velocity;
+			//auto& b_velocity = collision.second.GetComponent<Rigidbody>()->velocity;
 			auto& b_position = collision.second.GetComponent<Position>()->position;
 
 			auto& a_max = collision.first.GetComponent<BoundingBox2D>()->max;
 			auto& a_min = collision.first.GetComponent<BoundingBox2D>()->min;
 			auto& b_max = collision.second.GetComponent<BoundingBox2D>()->max;
 			auto& b_min = collision.second.GetComponent<BoundingBox2D>()->min;
+
+			collision.first.GetComponent<Transform>()->is_dirty = true;
+			collision.second.GetComponent<Transform>()->is_dirty = true;
 
 			//Check if already resolved
 			if (a_max.x < b_min.x || a_max.y < b_min.y || a_min.x > b_max.x || a_min.y > b_max.y) continue;
@@ -157,7 +198,5 @@ namespace ChronoShift
 		UpdateBounds();
 		FindCollisions();
 		ResolveCollisions();
-
 	}
-
 }

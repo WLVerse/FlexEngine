@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// physicssystem.h
+//
+// Simple AABB Physics system
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #pragma once
 
 

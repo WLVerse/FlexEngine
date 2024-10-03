@@ -1,3 +1,19 @@
+/* Start Header
+*****************************************************************/
+/*!
+WLVERSE [https://wlverse.web.app]
+\file      base.cpp
+\author    [100%] Rocky Sutarius
+\par       rocky.sutarius\@digipen.edu
+\date      03 October 2024
+\brief     This file 
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 #include "base.h"
 
 #include "States.h"
@@ -23,15 +39,15 @@ namespace ChronoShift
 
     //window->PushLayer(std::make_shared<MenuLayer>());
     //window->PushLayer(std::make_shared<BoardLayer>());
-    //window->PushLayer(std::make_shared<ChronoShift::BattleLayer>());
-    window->PushLayer(std::make_shared<ChronoShift::OverworldLayer>());
-    window->PushLayer(std::make_shared<ChronoShift::DebugLayer>());
+    window->PushLayer(std::make_shared<ChronoShift::BattleLayer>());
+    //window->PushLayer(std::make_shared<ChronoShift::OverworldLayer>());
+    //window->PushLayer(std::make_shared<ChronoShift::EditorLayer>());
 
     // Renderer Setup
 
     OpenGLRenderer::EnableBlending();
-    Vector2 temp{ static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()) };
-    OpenGLSpriteRenderer::InitBloomFBO(temp);
+    Vector2 windowsize{ static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()) };
+    OpenGLSpriteRenderer::Init(windowsize);
   }
 
   void BaseLayer::OnDetach()

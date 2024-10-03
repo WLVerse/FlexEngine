@@ -1,3 +1,22 @@
+/* Start Header
+*****************************************************************/
+/*!
+WLVERSE [https://wlverse.web.app]
+\file      battlecomponents.cpp
+\author    [75%] Rocky Sutarius
+\par       rocky.sutarius@digipen.edu
+\co-author [25%] Ho Jin Jie Donovan, h.jinjiedonovan, 2301233
+\par       h.jinjiedonovan\@digipen.edu
+\date      03 October 2024
+\brief     This file is where the classes are registered as
+           components to be utilized by the battle system 
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 #include "battlecomponents.h"
 
 namespace ChronoShift 
@@ -17,34 +36,7 @@ namespace ChronoShift
     FLX_REFL_REGISTER_PROPERTY(speed)
   FLX_REFL_REGISTER_END;
 
-  /*FLX_REFL_REGISTER_START(MoveList)
-    FLX_REFL_REGISTER_PROPERTY(move_one)
-    FLX_REFL_REGISTER_PROPERTY(move_two)
-    FLX_REFL_REGISTER_PROPERTY(move_three)
-    FLX_REFL_REGISTER_PROPERTY(move_four)
-  FLX_REFL_REGISTER_END;*/
-
-  FLX_REFL_REGISTER_START(CharacterStatus)
-    FLX_REFL_REGISTER_PROPERTY(character_status)
-  FLX_REFL_REGISTER_END;
-
   #pragma endregion
-
-
-  #pragma region Move Components
-  FLX_REFL_REGISTER_START(MoveID)
-    FLX_REFL_REGISTER_PROPERTY(move_name)
-  FLX_REFL_REGISTER_END;
-  
-  FLX_REFL_REGISTER_START(MoveDuration)
-    FLX_REFL_REGISTER_PROPERTY(move_duration)
-  FLX_REFL_REGISTER_END;
-  
-  FLX_REFL_REGISTER_START(MoveCooldown)
-    FLX_REFL_REGISTER_PROPERTY(move_cooldown)
-  FLX_REFL_REGISTER_END;
-  #pragma endregion
-
 
   #pragma region Battle Components
   FLX_REFL_REGISTER_START(BattleState)
@@ -83,22 +75,32 @@ namespace ChronoShift
 
   #pragma endregion
 
-  FLX_REFL_REGISTER_START(ChronoGear)
-    FLX_REFL_REGISTER_PROPERTY(chrono_gear_name)
-    FLX_REFL_REGISTER_PROPERTY(chrono_gear_description)
-    FLX_REFL_REGISTER_PROPERTY(main_stat)
-    FLX_REFL_REGISTER_PROPERTY(sub_stat_one)
-    FLX_REFL_REGISTER_PROPERTY(sub_stat_two)
-    FLX_REFL_REGISTER_PROPERTY(sub_stat_three)
-  FLX_REFL_REGISTER_END;
+  FLX_REFL_REGISTER_START(Character)
+    FLX_REFL_REGISTER_PROPERTY(is_player)
+    FLX_REFL_REGISTER_PROPERTY(character_name)
+    FLX_REFL_REGISTER_PROPERTY(character_status) // Character Status Effects Description
+    FLX_REFL_REGISTER_PROPERTY(character_class)  // Character Class and Weapon Type needs to be the same
+    FLX_REFL_REGISTER_PROPERTY(base_health)
+    FLX_REFL_REGISTER_PROPERTY(current_health)
+    FLX_REFL_REGISTER_PROPERTY(base_speed)
+    FLX_REFL_REGISTER_PROPERTY(current_speed)
 
-  FLX_REFL_REGISTER_START(Weapon)
     FLX_REFL_REGISTER_PROPERTY(weapon_name)
     FLX_REFL_REGISTER_PROPERTY(weapon_description)
     FLX_REFL_REGISTER_PROPERTY(weapon_type)
     FLX_REFL_REGISTER_PROPERTY(weapon_move_one)
     FLX_REFL_REGISTER_PROPERTY(weapon_move_two)
     FLX_REFL_REGISTER_PROPERTY(weapon_move_three)
+
+    FLX_REFL_REGISTER_PROPERTY(chrono_gear_name)
+    FLX_REFL_REGISTER_PROPERTY(chrono_gear_description)
+    FLX_REFL_REGISTER_PROPERTY(chrono_gear_cooldown)
+
+    FLX_REFL_REGISTER_PROPERTY(character_ultimate)
+    FLX_REFL_REGISTER_PROPERTY(character_ultimate_cooldown)
+
+    FLX_REFL_REGISTER_PROPERTY(character_passive_name)
+    FLX_REFL_REGISTER_PROPERTY(character_passive_description)
   FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(Stat)
