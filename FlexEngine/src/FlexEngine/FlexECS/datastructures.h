@@ -360,15 +360,15 @@ namespace FlexEngine
       template <typename T>
       void RemoveComponent();
 
+      // INTERNAL FUNCTION
+      // Used to create a new archetype
+      static Archetype& Internal_CreateArchetype(ComponentIDList type);
+
       #pragma endregion
 
     private:
       // Allow the scene class to access internal functions
       friend class FlexECS::Scene;
-
-      // INTERNAL FUNCTION
-      // Used to create a new archetype
-      static Archetype& Internal_CreateArchetype(ComponentIDList type);
 
       // INTERNAL FUNCTION
       // Used to move an entity from one archetype to another

@@ -83,6 +83,77 @@ namespace FlexEngine
         archetype.archetype_table.push_back(Column()); // create a column for each component
       }
 
+      /* -----------------------------------------------------------------------------------------------------  */
+      // Build links to other archetypes that are one step away
+      ComponentIDList component_list = archetype.type;
+      for (auto& [old_list, a_storage] : ARCHETYPE_INDEX)
+      {
+        int has_components{ 0 };
+        // Old could be a subset of new, which means that the previous archetype is a subset of the new archetype
+        if (old_list.size() + 1 == component_list.size())
+        {
+          has_components = 1;
+          // If any component in the old list is not in the new list, then it is not a subset 
+          for (auto& component : old_list)
+          {
+            if (std::find(component_list.begin(), component_list.end(), component) == component_list.end())
+            {
+              has_components = 0;
+              break;
+            }
+          }
+        }
+        else if (old_list.size() - 1 == component_list.size()) // New could be a subset of old
+        {
+          has_components = -1;
+          for (auto& component : component_list)
+          {
+            if (std::find(old_list.begin(), old_list.end(), component) == old_list.end())
+            {
+              has_components = 0;
+              break;
+            }
+          }
+        }
+        else continue; // Not a subset
+
+        // Link the archetypes
+        if (has_components == 1) // Old is a subset of new
+        {
+          // Find the missing component
+          ComponentID missing_component;
+          for (auto& component : component_list)
+          {
+            if (std::find(old_list.begin(), old_list.end(), component) == old_list.end())
+            {
+              missing_component = component;
+              break;
+            }
+          }
+
+          // Link the archetypes, created archetype links to remove, old archetype links to add
+          archetype.edges[missing_component].remove = &a_storage;
+          a_storage.edges[missing_component].add = &archetype;
+        }
+        else if (has_components == -1)
+        {
+          // Find the missing component
+          ComponentID missing_component;
+          for (auto& component : old_list)
+          {
+            if (std::find(component_list.begin(), component_list.end(), component) == component_list.end())
+            {
+              missing_component = component;
+              break;
+            }
+          }
+
+          // Link the archetypes, created archetype links to add, old archetype links to remove
+          archetype.edges[missing_component].add = &a_storage;
+          a_storage.edges[missing_component].remove = &archetype;
+        }
+      }
+
       return archetype;
     }
 
