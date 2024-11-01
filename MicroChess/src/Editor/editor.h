@@ -27,6 +27,7 @@
 #include "FlexEngine/Core/imguiwrapper.h"
 #include "FlexEngine/Renderer/DebugRenderer/debugrenderer.h"
 #include "FlexEngine.h"
+#include "ImGuizmo/ImGuizmo.h"
 
 #include <memory>
 

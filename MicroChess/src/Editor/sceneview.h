@@ -24,5 +24,8 @@ namespace ChronoShift
 		void Update();
 		void EditorUI();
 		void Shutdown();
+
+	private:
+
 	};
 }

@@ -69,7 +69,7 @@ namespace ChronoShift
 
     // setup dockspace
     //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
-    ImGuiDockNodeFlags dockspace_flags = 0;
+    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
     #pragma warning(suppress: 4189) // local variable is initialized but not referenced
     ImGuiID dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
     

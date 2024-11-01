@@ -14,6 +14,7 @@
 #pragma once
 #include "editor.h"
 
+
 #pragma region ImGuiStyles
 void SetupImGuiStyle()
 {
@@ -90,6 +91,7 @@ void SetupImGuiStyle()
 	//style.Colors[ImGuiCol_TabActive] = ImVec4(0.1176470592617989f, 0.1333333402872086f, 0.1490196138620377f, 1.0f);
 	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.0784313753247261f, 0.08627451211214066f, 0.1019607856869698f, 1.0f);
 	//style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.1249424293637276f, 0.2735691666603088f, 0.5708154439926147f, 1.0f);
+	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.208f, 0.239f, 0.302f, 1.0f);
 	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.5215686559677124f, 0.6000000238418579f, 0.7019608020782471f, 1.0f);
 	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.03921568766236305f, 0.9803921580314636f, 0.9803921580314636f, 1.0f);
 	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.8841201663017273f, 0.7941429018974304f, 0.5615870356559753f, 1.0f);
@@ -143,6 +145,7 @@ namespace ChronoShift
 	void Editor::Update()
 	{
 		EditorGUI::StartFrame();
+		//ImGuizmo::BeginFrame();
 
 		for (auto& panel : m_panels)
 		{
