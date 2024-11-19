@@ -40,7 +40,7 @@ namespace ChronoShift
     window->PushLayer(std::make_shared<ChronoShift::BattleLayer>());
     window->PushLayer(std::make_shared<ChronoShift::OverworldLayer>());
     window->PushLayer(std::make_shared<ChronoShift::EditorLayer>());
-
+    window->PushLayer(std::make_shared<ScriptingLayer>());
 
     // Renderer Setup
 

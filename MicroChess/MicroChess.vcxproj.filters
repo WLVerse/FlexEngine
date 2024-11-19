@@ -36,6 +36,9 @@
     <Filter Include="src\Editor">
       <UniqueIdentifier>{fbdd6626-7250-4b66-a9d0-6bd2380b98f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Scripting">
+      <UniqueIdentifier>{f5b3af7d-da74-49f8-ac24-050e4b9a34c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\texture.frag">
@@ -160,6 +163,12 @@
     <ClInclude Include="src\Renderer\camera2d.h">
       <Filter>src\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Scripting\ScriptingSystem.h">
+      <Filter>src\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\scripting.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -252,6 +261,12 @@
     </ClCompile>
     <ClCompile Include="src\Renderer\camera2d.cpp">
       <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\ScriptingSystem.cpp">
+      <Filter>src\Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\scripting.cpp">
+      <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

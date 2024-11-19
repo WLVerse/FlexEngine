@@ -21,3 +21,4 @@
 #include "Layers/battle.h"
 #include "Layers/overworld.h"
 #include "Layers/editorlayer.h"
+#include "Layers/scripting.h"
