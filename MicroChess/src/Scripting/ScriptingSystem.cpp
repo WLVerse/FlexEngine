@@ -5,6 +5,9 @@
 #include <functional>
 #include "flexlogger.h"
 
+std::map<std::string, ScriptingSystem::GenericFunction> ScriptingSystem::functions;
+std::map<std::string, ScriptingSystem::ScriptFunction> ScriptingSystem::ecs_functions;
+
 void ScriptingSystem::LoadDLL(std::string const& dll_path)
 {
   dllHandle = LoadLibraryA(dll_path.c_str());
@@ -15,7 +18,7 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
   // TODO: Load all functions from the DLL and perhaps identify where they're coming from so that we can figure out which functions
   // to slot into what hooks in the engine. ie some are supposed to be update
 
-  GetFunction("EditingAValue"); // Temporarily put here for now
+  GetFunction("RunPhysicsSystem"); // Temporarily put here for now
 }
 
 void ScriptingSystem::GetFunction(const std::string& function_name)
@@ -24,11 +27,10 @@ void ScriptingSystem::GetFunction(const std::string& function_name)
   ScriptFunction func = (ScriptFunction)GetProcAddress(dllHandle, function_name.c_str());
   if (!func) {
     FreeLibrary(dllHandle); // Unload the DLL if function is not found
-    throw std::runtime_error("Failed to find function 'EditingAValue' in DLL");
+    throw std::runtime_error("Failed to find function" + function_name + " in DLL");
   }
 
-  float f = func(100.0f); // Call the function temporarily
-  FlexEngine::Log::Debug("Function 'EditingAValue' returned: " + std::to_string(f));
+  ecs_functions[function_name] = func;
 }
 
 void ScriptingSystem::UnloadDLL()

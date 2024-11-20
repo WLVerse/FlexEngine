@@ -64,6 +64,10 @@ namespace ChronoShift {
 
   void BattleLayer::Update()
   {
+    // Testing
+    if (Input::GetKeyDown(GLFW_KEY_F))
+      ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::Scene::GetActiveScene());
+
     if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
 
     // Include a check whether battle system has been activated

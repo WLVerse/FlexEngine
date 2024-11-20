@@ -1,6 +1,8 @@
-#include <iostream>
+//Component includes
+#include "ScriptLibrary.h"
 
-extern "C" __declspec(dllexport) float EditingAValue(float deltaTime) {
-  std::cout << "Custom script logic with deltaTime = " << deltaTime << std::endl;
-  return deltaTime * 2.0f;
+#include <iostream>
+void RunPhysicsSystem(std::shared_ptr<FlexEngine::FlexECS::Scene> s)
+{
+  std::cout << "Just to test this works, find the DLL again to test scene changes" << std::endl;
 }
