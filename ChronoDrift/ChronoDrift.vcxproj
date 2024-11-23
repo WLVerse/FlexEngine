@@ -188,6 +188,7 @@
     <ClInclude Include="src\Renderer\battledisplay.h" />
     <ClInclude Include="src\Renderer\camera2d.h" />
     <ClInclude Include="src\Renderer\sprite2d.h" />
+    <ClInclude Include="src\Scripting\ScriptingSystem.h" />
     <ClInclude Include="src\States.h" />
     <ClInclude Include="src\States\mainstate.h" />
   </ItemGroup>
@@ -221,6 +222,7 @@
     <ClCompile Include="src\Renderer\battledisplay.cpp" />
     <ClCompile Include="src\Renderer\camera2d.cpp" />
     <ClCompile Include="src\Renderer\sprite2d.cpp" />
+    <ClCompile Include="src\Scripting\ScriptingSystem.cpp" />
     <ClCompile Include="src\States\mainstate.cpp" />
   </ItemGroup>
   <ItemGroup>

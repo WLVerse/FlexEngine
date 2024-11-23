@@ -8,6 +8,7 @@ class ScriptingSystem
   using GenericFunction = void(*)(void*); // Takes in all information as void* which requires reinterpret casting, use with caution.
 
   void GetFunction(const std::string& function_name);
+  void GetGenericFunction(const std::string& function_name);
 public:
   void LoadDLL(std::string const& dll_path);
   void UnloadDLL();

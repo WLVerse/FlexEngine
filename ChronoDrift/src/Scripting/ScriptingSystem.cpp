@@ -19,6 +19,7 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
   // to slot into what hooks in the engine. ie some are supposed to be update
 
   GetFunction("RunPhysicsSystem"); // Temporarily put here for now
+  GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
 }
 
 void ScriptingSystem::GetFunction(const std::string& function_name)
@@ -31,6 +32,18 @@ void ScriptingSystem::GetFunction(const std::string& function_name)
   }
 
   ecs_functions[function_name] = func;
+}
+
+void ScriptingSystem::GetGenericFunction(const std::string& function_name)
+{
+  // Retrieve the function pointer
+  GenericFunction func = (GenericFunction)GetProcAddress(dllHandle, function_name.c_str());
+  if (!func) {
+    FreeLibrary(dllHandle); // Unload the DLL if function is not found
+    throw std::runtime_error("Failed to find function" + function_name + " in DLL");
+  }
+
+  functions[function_name] = func;
 }
 
 void ScriptingSystem::UnloadDLL()
