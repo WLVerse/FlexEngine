@@ -1,6 +1,6 @@
 #include "scripting.h"
 
-namespace ChronoShift {
+namespace ChronoDrift {
 
   void ScriptingLayer::OnAttach()
   {

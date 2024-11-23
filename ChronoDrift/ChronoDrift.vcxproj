@@ -184,11 +184,11 @@
     <ClInclude Include="src\Layers\battle.h" />
     <ClInclude Include="src\Layers\editorlayer.h" />
     <ClInclude Include="src\Layers\overworld.h" />
+    <ClInclude Include="src\Layers\scripting.h" />
     <ClInclude Include="src\Physics\box2d.h" />
     <ClInclude Include="src\Renderer\battledisplay.h" />
     <ClInclude Include="src\Renderer\camera2d.h" />
     <ClInclude Include="src\Renderer\sprite2d.h" />
-    <ClInclude Include="src\Scripting\ScriptingSystem.h" />
     <ClInclude Include="src\States.h" />
     <ClInclude Include="src\States\mainstate.h" />
   </ItemGroup>
@@ -217,12 +217,12 @@
     <ClCompile Include="src\Layers\battle.cpp" />
     <ClCompile Include="src\Layers\editorlayer.cpp" />
     <ClCompile Include="src\Layers\overworld.cpp" />
+    <ClCompile Include="src\Layers\scripting.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Physics\box2d.cpp" />
     <ClCompile Include="src\Renderer\battledisplay.cpp" />
     <ClCompile Include="src\Renderer\camera2d.cpp" />
     <ClCompile Include="src\Renderer\sprite2d.cpp" />
-    <ClCompile Include="src\Scripting\ScriptingSystem.cpp" />
     <ClCompile Include="src\States\mainstate.cpp" />
   </ItemGroup>
   <ItemGroup>

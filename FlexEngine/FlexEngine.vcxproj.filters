@@ -50,6 +50,9 @@
     <Filter Include="src\FlexEngine\Renderer\DebugRenderer">
       <UniqueIdentifier>{3792cc46-98cd-41a4-ab7a-6cba05726b5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\Scripting">
+      <UniqueIdentifier>{89edae6e-2578-4763-9f43-9784ae9fe354}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -225,6 +228,9 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ChronoDrift\src\Scripting\ScriptingSystem.cpp">
+      <Filter>src\FlexEngine\Scripting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -434,6 +440,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ChronoDrift\src\Scripting\ScriptingSystem.h">
+      <Filter>src\FlexEngine\Scripting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

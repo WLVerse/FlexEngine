@@ -20,6 +20,8 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
 
   GetFunction("RunPhysicsSystem"); // Temporarily put here for now
   GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
+
+  std::cout << "DLL Loaded: !!!!!!!!!!!!!!!!!!" << dll_path << std::endl;
 }
 
 void ScriptingSystem::GetFunction(const std::string& function_name)

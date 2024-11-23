@@ -40,6 +40,7 @@ namespace ChronoDrift
     window->PushLayer(std::make_shared<ChronoDrift::BattleLayer>());
     window->PushLayer(std::make_shared<ChronoDrift::OverworldLayer>());
     window->PushLayer(std::make_shared<ChronoDrift::EditorLayer>());
+    window->PushLayer(std::make_shared<ChronoDrift::ScriptingLayer>());
    
     // Renderer Setup
 

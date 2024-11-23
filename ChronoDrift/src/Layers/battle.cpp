@@ -67,8 +67,8 @@ namespace ChronoDrift {
     // Testing
     if (Input::GetKeyDown(GLFW_KEY_F))
     {
-      Log::Debug("Value of the pointer is: " + std::to_string(*tempptr));
-      //ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::Scene::GetActiveScene());
+      //Log::Debug("Value of the pointer is: " + std::to_string(*tempptr));
+      ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::Scene::GetActiveScene());
     }
 
     if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle

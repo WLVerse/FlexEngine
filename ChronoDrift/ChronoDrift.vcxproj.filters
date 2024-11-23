@@ -39,9 +39,6 @@
     <Filter Include="src\CharacterPrefab">
       <UniqueIdentifier>{7f238e5f-2eaa-4dc0-8853-3a799245ca10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Scripting">
-      <UniqueIdentifier>{7e1aa0b7-2154-4e4c-b218-4a7d12a7ccf6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\texture.frag">
@@ -166,8 +163,8 @@
     <ClInclude Include="resource.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\ScriptingSystem.h">
-      <Filter>src\Scripting</Filter>
+    <ClInclude Include="src\Layers\scripting.h">
+      <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -261,8 +258,8 @@
     <ClCompile Include="src\CharacterPrefab\characterprefab.cpp">
       <Filter>src\CharacterPrefab</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\ScriptingSystem.cpp">
-      <Filter>src\Scripting</Filter>
+    <ClCompile Include="src\Layers\scripting.cpp">
+      <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
