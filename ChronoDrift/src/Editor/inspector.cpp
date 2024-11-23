@@ -32,7 +32,7 @@ namespace ChronoDrift
 	{
 		ImGui::Begin("Inspector");
 
-		auto scene = FlexECS::ecs_manager.GetActiveScene();
+		auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
 		auto entity = Editor::GetInstance().GetSelectedEntity();
 
 		if (entity != FlexECS::Entity::Null)

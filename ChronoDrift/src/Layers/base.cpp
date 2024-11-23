@@ -104,10 +104,10 @@ namespace ChronoDrift
               {
                 // Clear the scene and reset statics
                 CameraManager::RemoveCameraEntities();
-                FlexECS::ecs_manager.SetActiveScene(std::make_shared<FlexECS::Scene>());
+                FlexECS::Manager::GetInstance().SetActiveScene(std::make_shared<FlexECS::Scene>());
 
                 // Every default scene should have a camera.
-                FlexECS::Entity camera = FlexECS::ecs_manager.CreateEntity("MainCamera");
+                FlexECS::Entity camera = FlexECS::Manager::GetInstance().CreateEntity("MainCamera");
                 camera.AddComponent<Position>({ {-150, 300 } });
                 camera.AddComponent<Scale>({ { 0.5,0.5 } });
                 camera.AddComponent<Rotation>({ });
@@ -144,11 +144,11 @@ namespace ChronoDrift
                 current_save_name = file.path.stem().string();
 
                 // load the scene
-                FlexECS::ecs_manager.SetActiveScene(FlexECS::ecs_manager.Load(file));
+                FlexECS::Manager::GetInstance().SetActiveScene(FlexECS::Manager::GetInstance().Load(file));
 
                 // TODO: Delete this when camera is properly done. This sets the camera to be the one from the scene
                 //CameraManager::RemoveCameraEntities(); // Nuclear clear for scene loading.
-                std::vector<FlexECS::Entity> camera_list = FlexECS::ecs_manager.GetActiveScene()->Query<Camera>();
+                std::vector<FlexECS::Entity> camera_list = FlexECS::Manager::GetInstance().GetActiveScene()->Query<Camera>();
                 if (camera_list.size() > 0)
                 {
                   FlexECS::Entity camera = camera_list[0];
@@ -166,7 +166,7 @@ namespace ChronoDrift
               [this]()
               {
                 Path current_save_path = current_save_directory.append(current_save_name + ".flxscene");
-                FlexECS::ecs_manager.SaveActiveScene(File::Open(current_save_path));
+                FlexECS::Manager::GetInstance().SaveActiveScene(File::Open(current_save_path));
                 Log::Info("Saved scene to: " + current_save_path.string());
               }
             });
@@ -201,7 +201,7 @@ namespace ChronoDrift
                 File& file = File::Open( Path(file_path) );
 
                 // save the scene
-                FlexECS::ecs_manager.SaveActiveScene(file);
+                FlexECS::Manager::GetInstance().SaveActiveScene(file);
                 Log::Info("Saved scene to: " + file.path.string());
 
                 // update the current save directory and name
@@ -359,7 +359,7 @@ namespace ChronoDrift
       if (ImGui::CollapsingHeader("Scene", tree_node_flags))
       {
         ImGui::Text("Active Scene: %s", current_save_name.c_str());
-        ImGui::Text("Entities: %d", FlexECS::ecs_manager.GetActiveScene()->CachedQuery<EntityName>().size());
+        ImGui::Text("Entities: %d", FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<EntityName>().size());
         ImGui::Text("Archetypes: %d", ARCHETYPE_INDEX.size());
       }
 

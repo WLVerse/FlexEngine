@@ -297,15 +297,15 @@ namespace ChronoDrift
     FLX_REFL_SERIALIZABLE
   public:
     int idle_cols = 1;
-    FlexECS::Scene::StringIndex idle_movement = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex idle_movement = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
     int right_cols = 1;
-    FlexECS::Scene::StringIndex right_movement = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex right_movement = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
     int left_cols = 1;
-    FlexECS::Scene::StringIndex left_movement = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex left_movement = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
     int up_cols = 1;
-    FlexECS::Scene::StringIndex up_movement = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex up_movement = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
     int down_cols = 1;
-    FlexECS::Scene::StringIndex down_movement = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex down_movement = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
 
   };
 

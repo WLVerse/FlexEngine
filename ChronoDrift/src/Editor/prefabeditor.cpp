@@ -11,8 +11,8 @@ namespace ChronoDrift {
 
     // Save/Load Prefabs
     if (ImGui::Button("Save Prefab")) {
-      FlexECS::EntityID temp_entity = FlexECS::ecs_manager.CreateEntity("Temp");
-      FlexECS::ecs_manager.SaveEntityAsPrefab(temp_entity, "test");
+      FlexECS::EntityID temp_entity = FlexECS::Manager::GetInstance().CreateEntity("Temp");
+      FlexECS::Manager::GetInstance().SaveEntityAsPrefab(temp_entity, "test");
     }
     if (ImGui::Button("Load Prefab")) {
       // LoadPrefabAsEntity (Do i need to create a function for this?)

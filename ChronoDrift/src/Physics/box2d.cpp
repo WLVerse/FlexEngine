@@ -14,7 +14,7 @@ namespace ChronoDrift
     //bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
     //On Hover
-    //for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Parent, Position, Scale, Rotation, Transform, BoundingBox2D, OnHover>())
+    //for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Parent, Position, Scale, Rotation, Transform, BoundingBox2D, OnHover>())
     //{
     //  if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -77,7 +77,7 @@ namespace ChronoDrift
     //  //}
     //}
     //On Click
-    //for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Parent, Position, Scale, Rotation, Transform, BoundingBox2D, OnClick>())
+    //for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Parent, Position, Scale, Rotation, Transform, BoundingBox2D, OnClick>())
     //{
     //  if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -119,7 +119,7 @@ namespace ChronoDrift
     
     //TODO -> RUN THROUGH FOR LOOP FOR CHILDREN
     //No parent
-    //for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Transform>())
+    //for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Transform>())
     //{
     //    Parent* test = nullptr;
     //    if (!entity.GetComponent<IsActive>()->is_active /*|| entity.TryGetComponent<Parent>(test)*/) continue;
@@ -139,10 +139,10 @@ namespace ChronoDrift
     //
     //    local_transform = local_translation_matrix * rotation_matrix * scale_matrix;
     //    
-    //    Log::Debug(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()));
+    //    Log::Debug(FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()));
     //}
     //// With parent
-    //for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Transform, Parent>())
+    //for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Transform, Parent>())
     //{
     //    if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -163,7 +163,7 @@ namespace ChronoDrift
 
     //    local_transform = parent_transform * local_translation_matrix * rotation_matrix * scale_matrix;
 
-    //    Log::Debug(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()));
+    //    Log::Debug(FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()));
     //}
   }
 

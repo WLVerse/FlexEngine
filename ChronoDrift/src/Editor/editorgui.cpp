@@ -127,7 +127,7 @@ namespace ChronoDrift
 		std::string entity_name{ "(no entity)" };
 		if (entity != FlexECS::Entity::Null)
 		{
-			entity_name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
+			entity_name = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
 		}
 
 		ImGui::BeginGroup();

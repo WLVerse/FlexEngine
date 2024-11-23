@@ -2,15 +2,16 @@
 #include "ScriptLibrary.h"
 
 #include <iostream>
-void RunPhysicsSystem(std::shared_ptr<FlexEngine::FlexECS::Scene> s)
-//void RunPhysicsSystem(FlexEngine::FlexECS::Manager& s)
+//void RunPhysicsSystem(std::shared_ptr<FlexEngine::FlexECS::Scene> s)
+void RunPhysicsSystem(FlexEngine::FlexECS::Manager& s)
 {
   //std::cout << "Just to test this works, find the DLL again to test scene changes" << std::endl;
   
-  FlexEngine::FlexECS::ecs_manager.CreateEntity("PhysicsEntity");
-  s->DumpEntityIndex();
+  //FlexEngine::FlexECS::Manager::GetInstance().CreateEntity("PhysicsEntity");
+  //s->DumpEntityIndex();
   
-  //s.CreateEntity("PhysicsEntity");
+  //s.GetActiveScene()->DumpEntityIndex();
+  s.CreateEntity("PhysicsEntity");
   //s.GetActiveScene()->DumpEntityIndex();
 }
 

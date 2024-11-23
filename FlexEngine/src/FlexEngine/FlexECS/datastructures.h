@@ -196,21 +196,41 @@ namespace FlexEngine
     // Macros for access to the ECS data structures
 
     // Find an archetype by its list of component ids
-    #define ARCHETYPE_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->archetype_index
+    #define ARCHETYPE_INDEX FlexEngine::FlexECS::Manager::GetInstance().GetActiveScene()->archetype_index
+    #define INTERNAL_ARCHETYPE_INDEX active_scene->archetype_index
 
     // Find the archetype for an entity
-    #define ENTITY_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->entity_index
+    #define ENTITY_INDEX FlexEngine::FlexECS::Manager::GetInstance().GetActiveScene()->entity_index
+    #define INTERNAL_ENTITY_INDEX active_scene->entity_index
 
     // Find the column for a component in an archetype
-    #define COMPONENT_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->component_index
+    #define COMPONENT_INDEX FlexEngine::FlexECS::Manager::GetInstance().GetActiveScene()->component_index
+    #define INTERNAL_COMPONENT_INDEX active_scene->component_index
 
     // This provides functions to create, load, and save the active scene.
     // This was previously handled in the Scene class as static functions.
     class __FLX_API Manager
     {
-      std::shared_ptr<Scene> active_scene;
+      #pragma region Singleton Pattern
 
     public:
+      static Manager& GetInstance()
+      {
+        static Manager instance;
+        return instance;
+      }
+
+    private:
+      Manager() = default;
+      Manager(const Manager&) = delete;
+      Manager& operator=(const Manager&) = delete;
+
+      #pragma endregion
+
+    private:
+      // Prefer GetActiveScene() and SetActiveScene() instead of directly accessing this variable.
+      std::shared_ptr<Scene> active_scene;
+
       #pragma region Scene management functions
 
     public:
@@ -255,7 +275,7 @@ namespace FlexEngine
 
     };
 
-    extern Manager ecs_manager;
+    //static Manager ecs_manager;
 
     // The scene holds all the entities and components.
     class __FLX_API Scene

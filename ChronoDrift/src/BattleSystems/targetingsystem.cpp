@@ -31,7 +31,7 @@ namespace ChronoDrift
 		Vector2 mouse_position = Input::GetMousePosition();
 		bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
-		for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Position, Scale, OnHover, BattleSlot>())
+		for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Position, Scale, OnHover, BattleSlot>())
 		{
 			if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -65,7 +65,7 @@ namespace ChronoDrift
 		}
 	
   
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Position, Scale, OnHover, OnClick, BattleSlot>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Position, Scale, OnHover, OnClick, BattleSlot>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -92,7 +92,7 @@ namespace ChronoDrift
     Vector2 mouse_position = Input::GetMousePosition();
     bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Position, Scale, OnHover, MoveButton>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Position, Scale, OnHover, MoveButton>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -126,7 +126,7 @@ namespace ChronoDrift
     }
 
 
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, Position, Scale, OnHover, OnClick, MoveButton>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, Position, Scale, OnHover, OnClick, MoveButton>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 

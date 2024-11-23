@@ -21,7 +21,8 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
   GetFunction("RunPhysicsSystem"); // Temporarily put here for now
   GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
 
-  std::cout << "DLL Loaded: !!!!!!!!!!!!!!!!!!" << dll_path << std::endl;
+  //std::cout << "DLL Loaded: !!!!!!!!!!!!!!!!!!" << dll_path << std::endl;
+  FlexEngine::Log::Debug("DLL Loaded: " + dll_path);
 }
 
 void ScriptingSystem::GetFunction(const std::string& function_name)

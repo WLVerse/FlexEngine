@@ -4,8 +4,8 @@
 
 class ScriptingSystem 
 {
-  using ScriptFunction = void(*)(std::shared_ptr<FlexEngine::FlexECS::Scene>);
-  //using ScriptFunction = void(*)(FlexEngine::FlexECS::Manager&);
+  //using ScriptFunction = void(*)(std::shared_ptr<FlexEngine::FlexECS::Scene>);
+  using ScriptFunction = void(*)(FlexEngine::FlexECS::Manager&);
   using GenericFunction = void(*)(void*); // Takes in all information as void* which requires reinterpret casting, use with caution.
 
   void GetFunction(const std::string& function_name);

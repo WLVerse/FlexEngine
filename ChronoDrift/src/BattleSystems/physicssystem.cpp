@@ -52,7 +52,7 @@ namespace ChronoDrift
 	void UpdatePositions() 
 	{
 		float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
-		for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Transform, Rigidbody>())
+		for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Transform, Rigidbody>())
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
 			auto& position = entity.GetComponent<Position>()->position;
@@ -63,7 +63,7 @@ namespace ChronoDrift
 		}
 
 		// Reset collision data from the previous frame
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<BoundingBox2D>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<BoundingBox2D>())
     {
       entity.GetComponent<BoundingBox2D>()->isColliding = false;
     }
@@ -75,7 +75,7 @@ namespace ChronoDrift
 	******************************************************************************/
 	void UpdateBounds()
 	{
-		for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
+		for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
 		{
 			auto& position = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
@@ -96,14 +96,14 @@ namespace ChronoDrift
 	{
 		collisions.clear();
 		
-		for (auto& entity_a : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
+		for (auto& entity_a : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
 		{
 			if(entity_a.GetComponent<Rigidbody>()->is_static) continue;
 			//construct aabb
 			auto& max_a = entity_a.GetComponent<BoundingBox2D>()->max;
 			auto& min_a = entity_a.GetComponent<BoundingBox2D>()->min;
 			
-			for (auto& entity_b : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
+			for (auto& entity_b : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
 			{
 				if (entity_a == entity_b) continue;
 

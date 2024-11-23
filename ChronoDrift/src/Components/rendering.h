@@ -118,7 +118,7 @@ using namespace FlexEngine;
   class Shader
   { FLX_REFL_SERIALIZABLE
   public:
-    FlexECS::Scene::StringIndex shader = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)");;
+    FlexECS::Scene::StringIndex shader = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)");;
   };
   /*!***************************************************************************
   * \class Sprite
@@ -130,7 +130,7 @@ using namespace FlexEngine;
   class Sprite
   { FLX_REFL_SERIALIZABLE
   public:
-    FlexECS::Scene::StringIndex texture = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex texture = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
     Vector3 color_to_add = Vector3::Zero;
     Vector3 color_to_multiply = Vector3::One;
     int alignment = Renderer2DProps::Alignment_Center;
@@ -142,7 +142,7 @@ using namespace FlexEngine;
   {
       FLX_REFL_SERIALIZABLE
   public:
-      FlexECS::Scene::StringIndex spritesheet = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+      FlexECS::Scene::StringIndex spritesheet = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
       GLuint rows = 1;
       GLuint cols = 0;
       GLuint max_sprites = 0;
@@ -158,8 +158,8 @@ using namespace FlexEngine;
   class Text
   { FLX_REFL_SERIALIZABLE
   public:
-      FlexECS::Scene::StringIndex fonttype = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New(R"(..\\..\\..\\FlexEngine\\assets\\fonts\\Noto_Sans\\static\\NotoSans-Regular.ttf)");
-      FlexECS::Scene::StringIndex text = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("TEST");
+      FlexECS::Scene::StringIndex fonttype = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New(R"(..\\..\\..\\FlexEngine\\assets\\fonts\\Noto_Sans\\static\\NotoSans-Regular.ttf)");
+      FlexECS::Scene::StringIndex text = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("TEST");
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
       std::pair<int,int> alignment = {Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle}; // Default value: centered (all bits set)
@@ -208,7 +208,7 @@ using namespace FlexEngine;
   public:
     bool should_play;
     bool is_looping;
-    FlexECS::Scene::StringIndex audio_file = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex audio_file = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New("");
   };
 
   void RegisterRenderingComponents();

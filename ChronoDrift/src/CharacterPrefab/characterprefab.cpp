@@ -27,7 +27,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "characterprefab.h"
 
 void ResetCharacters() {
-  auto scene = FlexECS::ecs_manager.GetActiveScene();
+  auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
   for (auto& entity : scene->Query<ChronoDrift::Character>()) {
     auto character = entity.GetComponent<Character>();
     character->current_health = character->base_health;
@@ -55,14 +55,14 @@ void ResetCharacters() {
 }
 
 void CreateCharacter(Character parameters) {
-  auto scene = FlexECS::ecs_manager.GetActiveScene();
+  auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
   std::string character_name = scene->Internal_StringStorage_Get(parameters.character_name);
-  FlexECS::Entity new_character = FlexECS::ecs_manager.CreateEntity(character_name);
+  FlexECS::Entity new_character = FlexECS::Manager::GetInstance().CreateEntity(character_name);
   new_character.AddComponent<Character>(parameters);
 }
 
 void EditCharacter(std::string character_name, Character parameters) {
-  auto scene = FlexECS::ecs_manager.GetActiveScene();
+  auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
   for (auto& entity : scene->Query<ChronoDrift::Character>()) {
     std::string name_to_check = scene->Internal_StringStorage_Get(*(entity.GetComponent<EntityName>()));
     if (name_to_check == character_name) {

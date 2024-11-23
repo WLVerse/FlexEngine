@@ -124,7 +124,7 @@ namespace ChronoDrift
         static std::unordered_set<FlexECS::EntityID> t_processedEntities;
         t_processedEntities.clear();
 
-        for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, Transform>())
+        for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, Transform>())
         {
             // Check if this entity has already been processed
             if (t_processedEntities.find(entity.Get()) != t_processedEntities.end() || !entity.GetComponent<IsActive>()->is_active) continue; //Skip
@@ -177,7 +177,7 @@ namespace ChronoDrift
                 // Update the parent's global transform to pass it down to the next child
                 globaltransform = (*it)->GetComponent<Transform>()->transform;
 
-                //Log::Debug(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*(*it)->GetComponent<EntityName>()));
+                //Log::Debug(FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(*(*it)->GetComponent<EntityName>()));
             }
             // Log::Debug(" ");
             t_entitystack.clear();
@@ -185,7 +185,7 @@ namespace ChronoDrift
         //Log::Debug("****************************************************************");
 
         //Ensure all entities is no longer dirty
-        for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, Transform>())
+        for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, Transform>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -201,19 +201,19 @@ namespace ChronoDrift
     {
         FunctionQueue pp_render_queue, non_pp_render_queue;
 
-        for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>())
+        for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
 
             auto& z_index = entity.GetComponent<ZIndex>()->z;
             Matrix4x4 transform = entity.GetComponent<Transform>()->transform;
-            auto& shader = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Shader>()->shader);
+            auto& shader = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Shader>()->shader);
             auto sprite = entity.GetComponent<Sprite>();
 
             Renderer2DProps props;
             props.shader = shader;
             props.transform = transform;
-            props.texture = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(sprite->texture);
+            props.texture = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(sprite->texture);
             props.color_to_add = sprite->color_to_add;
             props.color_to_multiply = sprite->color_to_multiply;
             props.alignment = static_cast<Renderer2DProps::Alignment>(sprite->alignment);
@@ -243,14 +243,14 @@ namespace ChronoDrift
     {
         std::unordered_map<std::string, Sprite_Batch_Inst> batchMap;
 
-        for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>())
+        for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
 
             Matrix4x4 transform = entity.GetComponent<Transform>()->transform;
             auto sprite = entity.GetComponent<Sprite>();
 
-            std::string batchKey = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(sprite->texture);
+            std::string batchKey = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(sprite->texture);
             if (batchMap.find(batchKey) == batchMap.end())
             {
                 batchMap[batchKey] = Sprite_Batch_Inst();
@@ -264,19 +264,19 @@ namespace ChronoDrift
 
         FunctionQueue anim_render_queue;
 
-        for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
+        for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
 
             auto& z_index = entity.GetComponent<ZIndex>()->z;
             Matrix4x4 transform = entity.GetComponent<Transform>()->transform;
-            auto& shader = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Shader>()->shader);
+            auto& shader = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Shader>()->shader);
             auto anim = entity.GetComponent<Animation>();
 
             Renderer2DProps props;
             props.shader = shader;
             props.transform = transform;
-            props.texture = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(anim->spritesheet);
+            props.texture = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(anim->spritesheet);
             anim->m_animationTimer += FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
             if (anim->m_animationTimer >= anim->m_animationDurationPerFrame)
             {
@@ -327,17 +327,17 @@ namespace ChronoDrift
         FunctionQueue text_render_queue;
         constexpr float FONT_SCALE_FACTOR = 3.0f;
 
-        for (auto& txtentity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
+        for (auto& txtentity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
         {
             if (!txtentity.GetComponent<IsActive>()->is_active) continue;
 
             Matrix4x4& transform = txtentity.GetComponent<Transform>()->transform;
-            auto shader = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
+            auto shader = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
             auto* textComponent = txtentity.GetComponent<Text>();
-            auto font = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(textComponent->fonttype);
+            auto font = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(textComponent->fonttype);
             
             Renderer2DText sample;
-            sample.m_words = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(textComponent->text);
+            sample.m_words = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(textComponent->text);
             sample.m_shader = shader;
             sample.m_fonttype = font;
             sample.m_transform = transform;

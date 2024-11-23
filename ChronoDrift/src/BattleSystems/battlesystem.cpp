@@ -52,10 +52,10 @@ namespace ChronoDrift {
   {
   }
   void BattleSystem::SetUpBattleScene() {
-    auto scene = FlexECS::ecs_manager.CreateScene();
+    auto scene = FlexECS::Manager::GetInstance().CreateScene();
 
     for (int i = 0; i < (players_displayed + enemies_displayed); i++) {
-      FlexECS::Entity slot; //FlexECS::ecs_manager.CreateEntity("Slot" + std::to_string(i));
+      FlexECS::Entity slot; //FlexECS::Manager::GetInstance().CreateEntity("Slot" + std::to_string(i));
       if (i < players_displayed) slot = m_players[i];
       else slot = m_enemies[i - players_displayed];
       slot.AddComponent<OnClick>({});
@@ -89,7 +89,7 @@ namespace ChronoDrift {
     {
       Vector2 position = { 900.f, 450.f + (80.f * i) };
 
-      FlexECS::Entity move_button = FlexECS::ecs_manager.CreateEntity();
+      FlexECS::Entity move_button = FlexECS::Manager::GetInstance().CreateEntity();
       move_button.AddComponent<MoveButton>({ i });
       move_button.AddComponent<OnHover>({});
       move_button.AddComponent<OnClick>({});
@@ -112,27 +112,27 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::AddCharacters(std::vector<FlexECS::Entity> characters) {
-    /*auto scene = FlexECS::ecs_manager.GetActiveScene();
+    /*auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
     for (auto& t : scene->Query<BattleSlot>()) {
-      FlexECS::ecs_manager.DestroyEntity(t);
+      FlexECS::Manager::GetInstance().DestroyEntity(t);
     }*/
     if (!m_characters.empty()) m_characters.clear();
     if (!m_enemies.empty()) {
       for (auto& e : m_enemies) {
-        FlexECS::ecs_manager.DestroyEntity(e);
+        FlexECS::Manager::GetInstance().DestroyEntity(e);
       }
       m_enemies.clear();
     }
     if (!m_players.empty()) {
       for (auto& p : m_players) {
-        FlexECS::ecs_manager.DestroyEntity(p);
+        FlexECS::Manager::GetInstance().DestroyEntity(p);
       }
       m_players.clear();
     }
     // positions of character sprites should be updated according to the slot positions
     for (size_t i = 0; i < characters.size(); i++) {
       m_characters.push_back(characters[i]);
-      FlexECS::Entity temp_character = FlexECS::ecs_manager.CreateEntity("Slot " + std::to_string(i));
+      FlexECS::Entity temp_character = FlexECS::Manager::GetInstance().CreateEntity("Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
@@ -149,7 +149,7 @@ namespace ChronoDrift {
   {
     std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
 
-    auto scene = FlexECS::ecs_manager.GetActiveScene();
+    auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
     std::cout << "Beginning Stack Order:\nName / HP / Speed \n";
     for (auto& entity : m_characters)
     {
@@ -166,13 +166,13 @@ namespace ChronoDrift {
     }
     std::cout << "\n";
 
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
   }
 
   void BattleSystem::UpdateSpeedStack()
   {
-    auto scene = FlexECS::ecs_manager.GetActiveScene();
+    auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
     int speed_to_decrease = m_characters.front().GetComponent<Character>()->current_speed;
     FlexECS::Scene::StringIndex front_character = m_characters.front().GetComponent<Character>()->character_name;
     std::cout << scene->Internal_StringStorage_Get(front_character) << " turn:" << std::endl;
@@ -185,7 +185,7 @@ namespace ChronoDrift {
     }
     std::cout << "\n";
 
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     //battle_state.GetComponent<BattleState>()->active_character = m_characters.front();
     battle_state.GetComponent<BattleState>()->phase = BP_STATUS_RUN;
   }
@@ -194,7 +194,7 @@ namespace ChronoDrift {
     std::vector<FlexECS::Entity> dead_character;
     dead_character.clear();
     FlexECS::Entity current_active = m_characters.front();
-    std::string name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(current_active.GetComponent<Character>()->character_name);
+    std::string name = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(current_active.GetComponent<Character>()->character_name);
     if (current_active.HasComponent<Shock>()) {
       current_active.GetComponent<Character>()->current_health -= current_active.GetComponent<Shock>()->damage_value;
       std::cout << name << " lost ";
@@ -267,7 +267,7 @@ namespace ChronoDrift {
     }
     // Just a note that the stun should be the last check for now cause if stun then i would rather just go
     // to next character and skip his turn
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     if (current_active.HasComponent<Stun>()) {
       std::cout << name << " is stunned. So moving on~" << std::endl;
       current_active.GetComponent<Character>()->current_speed += current_active.GetComponent<Character>()->base_speed;
@@ -290,7 +290,7 @@ namespace ChronoDrift {
 
   void BattleSystem::Update()
   {
-    auto query = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>();
+    auto query = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>();
     if (query.empty()) return; // Guard for resetted battle scene
 
     FlexECS::Entity battle_state = query[0];
@@ -315,7 +315,7 @@ namespace ChronoDrift {
     }*/
     if (Input::GetKeyDown(GLFW_KEY_R)) {
       ResetCharacters();
-      AddCharacters(FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Character>());
+      AddCharacters(FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Character>());
       BeginBattle();
     }
 
@@ -348,24 +348,24 @@ namespace ChronoDrift {
       else if (Input::GetKeyDown(GLFW_KEY_3)) move_decision = 2;
       if (Input::GetKeyDown(GLFW_KEY_1) || Input::GetKeyDown(GLFW_KEY_2) || Input::GetKeyDown(GLFW_KEY_3)) {
         Move player_move = MoveRegistry::GetMove(
-        FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(
+        FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(
           character_moves[move_decision]));
         std::cout << "Move Selected: " << player_move.name << std::endl;
         if (player_move.is_target_enemy) selected_num = m_enemies.begin();
         else selected_num = m_players.begin();
       }
-      /*for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<IsActive, MoveButton>()) {
+      /*for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<IsActive, MoveButton>()) {
         entity.GetComponent<IsActive>()->is_active = true;
       }*/
       // move selection system by mouse click for players
       //GetMoveSelection();
-      //for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->Query<OnClick, MoveButton>())
+      //for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->Query<OnClick, MoveButton>())
       //{
       //  auto& click_status = entity.GetComponent<OnClick>()->is_clicked;
       //  if (click_status == true) {
       //    move_decision = entity.GetComponent<MoveButton>()->move_number;
       //    Move player_move = MoveRegistry::GetMove(
-      //      FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(
+      //      FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(
       //        character_moves[move_decision]));
       //    std::cout << "Move Selected: " << player_move.name << std::endl;
       //    if (player_move.is_target_enemy) selected_num = m_enemies.begin();
@@ -377,7 +377,7 @@ namespace ChronoDrift {
     }
     if (move_decision == -1) return;
     Move selected_move = MoveRegistry::GetMove(
-            FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(
+            FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(
               character_moves[move_decision]));
     std::vector<FlexECS::Entity> result;
     auto max_targets = m_enemies.end();
@@ -487,9 +487,9 @@ namespace ChronoDrift {
   void BattleSystem::ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets)
   {
     //get the move user
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     FlexECS::Entity user = m_characters.front();//battle_state.GetComponent<BattleState>()->active_character;
-    Move move = MoveRegistry::GetMove(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(move_id));
+    Move move = MoveRegistry::GetMove(FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(move_id));
     std::vector<FlexECS::Entity> targets;
     targets.insert(targets.begin(), selected_targets.begin(), selected_targets.end());
     //execute move
@@ -504,7 +504,7 @@ namespace ChronoDrift {
     user.GetComponent<Action>()->move_to_use = FlexECS::Entity::Null;
     std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
 
-    auto scene = FlexECS::ecs_manager.GetActiveScene();
+    auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
     //Display Character Move and target selection
     std::cout << scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
       << " executed " << move.name
@@ -539,7 +539,7 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::DeathProcession(std::vector<FlexECS::Entity> list_of_deaths) {
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     for (auto it = list_of_deaths.begin(); it != list_of_deaths.end(); it++) {
       for (auto c = m_characters.begin(); c != m_characters.end(); c++) {
         if (*c == *it) {
@@ -551,7 +551,7 @@ namespace ChronoDrift {
       if ((*it).GetComponent<Character>()->is_player) {
         for (auto p = m_players.begin(); p != m_players.end(); p++) {
           if ((*p).GetComponent<BattleSlot>()->character == *it) {
-            FlexECS::ecs_manager.DestroyEntity(*p);
+            FlexECS::Manager::GetInstance().DestroyEntity(*p);
             m_players.erase(p);
             players_displayed--;
             std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from player list" << std::endl;
@@ -562,7 +562,7 @@ namespace ChronoDrift {
       else {
         for (auto e = m_enemies.begin(); e != m_enemies.end(); e++) {
           if ((*e).GetComponent<BattleSlot>()->character == *it) {
-            FlexECS::ecs_manager.DestroyEntity(*e);
+            FlexECS::Manager::GetInstance().DestroyEntity(*e);
             m_enemies.erase(e);
             enemies_displayed--;
             std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from enemy list" << std::endl;
@@ -574,7 +574,7 @@ namespace ChronoDrift {
     battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
   }
   void BattleSystem::EndBattleScene() {
-    FlexECS::Entity battle_state = FlexECS::ecs_manager.GetActiveScene()->Query<BattleState>()[0];
+    FlexECS::Entity battle_state = FlexECS::Manager::GetInstance().GetActiveScene()->Query<BattleState>()[0];
     if (m_enemies.empty()) {
       std::cout << "VICTORY!!!! Click R to fight again." << std::endl;
       battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;

@@ -48,7 +48,7 @@ namespace ChronoDrift {
     MoveRegistry::RegisterMoveFunctions();
     MoveRegistry::RegisterStatusFunctions();
 
-    m_battlesystem.AddCharacters(FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Character>());
+    m_battlesystem.AddCharacters(FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<Character>());
     m_battlesystem.BeginBattle();
   }
 
@@ -69,16 +69,17 @@ namespace ChronoDrift {
     {
       //Log::Debug("Value of the pointer is: " + std::to_string(*tempptr));
 
-      std::shared_ptr<FlexECS::Scene> test_scene = FlexECS::ecs_manager.GetActiveScene();
-      ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
+      //std::shared_ptr<FlexECS::Scene> test_scene = FlexECS::Manager::GetInstance().GetActiveScene();
+      //ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
 
-      //ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::ecs_manager);
+      FlexECS::Manager& manager = FlexECS::Manager::GetInstance();
+      ScriptingSystem::ecs_functions["RunPhysicsSystem"](manager);
     }
 
     if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
 
     // Include a check whether battle system has been activated
-    auto scene = FlexECS::ecs_manager.GetActiveScene();
+    auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 
     if (!scene->CachedQuery<CharacterInput, Character>().empty()) {
@@ -114,7 +115,7 @@ namespace ChronoDrift {
       CameraManager::UpdateData(cam_entity, curr_cam);
     }
 
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<CharacterInput>())
     {
       entity.GetComponent<CharacterInput>()->up = Input::GetKey(GLFW_KEY_W);
       entity.GetComponent<CharacterInput>()->down = Input::GetKey(GLFW_KEY_S);
@@ -122,7 +123,7 @@ namespace ChronoDrift {
       entity.GetComponent<CharacterInput>()->right = Input::GetKey(GLFW_KEY_D);
     }
 
-    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
+    for (auto& entity : FlexECS::Manager::GetInstance().GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
     {
       auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
       velocity.x = 0.0f;

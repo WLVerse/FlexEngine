@@ -30,7 +30,7 @@ namespace ChronoDrift
 
 	void HierarchyView::EditorUI()
 	{
-		auto scene = FlexECS::ecs_manager.GetActiveScene();
+		auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
 
 
 
@@ -49,15 +49,15 @@ namespace ChronoDrift
 			std::string image_key(image);
 			std::filesystem::path path = image_key;
 
-			FlexECS::Entity new_entity = FlexECS::ecs_manager.CreateEntity(path.filename().string());
+			FlexECS::Entity new_entity = FlexECS::Manager::GetInstance().CreateEntity(path.filename().string());
 			new_entity.AddComponent<IsActive>({true});
 			new_entity.AddComponent<Position>({ Vector2::One * 500.0f });
 			new_entity.AddComponent<Rotation>({});
 			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 			new_entity.AddComponent<Transform>({});
 			new_entity.AddComponent<ZIndex>({});
-			new_entity.AddComponent<Sprite>({ FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New(image_key) });
-			new_entity.AddComponent<Shader>({ FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+			new_entity.AddComponent<Sprite>({ FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New(image_key) });
+			new_entity.AddComponent<Shader>({ FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
 			EditorGUI::EndPayloadReceiver();
 		}
 
@@ -72,7 +72,7 @@ namespace ChronoDrift
 			if (ImGui::MenuItem("Create Entity"))
 			{
 				//Add default components
-				FlexECS::Entity new_entity = FlexECS::ecs_manager.CreateEntity();
+				FlexECS::Entity new_entity = FlexECS::Manager::GetInstance().CreateEntity();
 				new_entity.AddComponent<IsActive>({});
 				new_entity.AddComponent<Position>({});
 				new_entity.AddComponent<Rotation>({});
@@ -88,7 +88,7 @@ namespace ChronoDrift
 			ImGui::PushID(imgui_id++);
 			FlexECS::Entity entity(id);
 
-			std::string name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
+			std::string name = FlexECS::Manager::GetInstance().GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
 			ImGuiTreeNodeFlags node_flags =
 				ImGuiTreeNodeFlags_DefaultOpen |
 				ImGuiTreeNodeFlags_FramePadding |
@@ -127,11 +127,11 @@ namespace ChronoDrift
 			{
 				if (ImGui::MenuItem("Duplicate Entity"))
 				{
-					FlexECS::ecs_manager.CloneEntity(entity);
+					FlexECS::Manager::GetInstance().CloneEntity(entity);
 				}
 				if (ImGui::MenuItem("Destroy Entity"))
 				{
-					delete_queue.Insert({ [scene, entity]() {FlexECS::ecs_manager.DestroyEntity(entity); }, "", 0 });
+					delete_queue.Insert({ [scene, entity]() {FlexECS::Manager::GetInstance().DestroyEntity(entity); }, "", 0 });
 					Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
 				}
 				ImGui::EndPopup();

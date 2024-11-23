@@ -72,7 +72,7 @@ namespace FlexEngine
       ComponentID component = Reflection::TypeResolver<T>::Get()->name;
 
       // type erasure
-      T data_copy = Manager::GetActiveScene()->Internal_StringStorage_New(name);
+      T data_copy = active_scene->Internal_StringStorage_New(name);
       void* data_copy_ptr = reinterpret_cast<void*>(&data_copy);
       ComponentData<void> data_ptr = Internal_CreateComponentData(sizeof(T), data_copy_ptr);
 
@@ -80,21 +80,21 @@ namespace FlexEngine
       ComponentIDList type = { component };
 
       // create a new archetype if it doesn't exist
-      if (ARCHETYPE_INDEX.count(type) == 0)
+      if (INTERNAL_ARCHETYPE_INDEX.count(type) == 0)
       {
         Entity::Internal_CreateArchetype(type);
       }
 
       // create entity id
-      EntityID entity_id = ID::Create(ID::Flags::Flag_None, Manager::GetActiveScene()->_flx_id_next, Manager::GetActiveScene()->_flx_id_unused);
+      EntityID entity_id = ID::Create(ID::Flags::Flag_None, active_scene->_flx_id_next, active_scene->_flx_id_unused);
 
       // update entity vector
-      Archetype& archetype = ARCHETYPE_INDEX[type];
+      Archetype& archetype = INTERNAL_ARCHETYPE_INDEX[type];
       archetype.entities.push_back(entity_id);
 
       // update entity records
       EntityRecord entity_record = { &archetype, archetype.id, archetype.entities.size() - 1 };
-      ENTITY_INDEX[entity_id] = entity_record;
+      INTERNAL_ENTITY_INDEX[entity_id] = entity_record;
 
       // store the component data in the archetype
       //ArchetypeMap& archetype_map = COMPONENT_INDEX[component];
@@ -110,7 +110,7 @@ namespace FlexEngine
       FLX_FLOW_FUNCTION();
 
       // guard: entity does not exist
-      if (ENTITY_INDEX.count(entity) == 0)
+      if (INTERNAL_ENTITY_INDEX.count(entity) == 0)
       {
         Log::Warning("Attempted to destroy entity that does not exist.");
         return;
@@ -118,7 +118,7 @@ namespace FlexEngine
 
       // Get the important data
       // The entity's archetype and row are needed to remove the entity from the archetype
-      EntityRecord& entity_record = ENTITY_INDEX[entity];
+      EntityRecord& entity_record = INTERNAL_ENTITY_INDEX[entity];
       Archetype& archetype = *entity_record.archetype;
       std::size_t row = entity_record.row;
 
@@ -150,7 +150,7 @@ namespace FlexEngine
         if (row < last_row_index)
         {
           EntityID swapped_entity = archetype.entities[last_row_index];
-          ENTITY_INDEX[swapped_entity].row = row;
+          INTERNAL_ENTITY_INDEX[swapped_entity].row = row;
 
           // Replace the entity's row in the entities vector
           archetype.entities[row] = swapped_entity;
@@ -161,10 +161,10 @@ namespace FlexEngine
       archetype.entities.pop_back();
 
       // Remove the entity from the entity index
-      ENTITY_INDEX.erase(entity);
+      INTERNAL_ENTITY_INDEX.erase(entity);
 
       // Destroy the entity id
-      ID::Destroy(entity, Manager::GetActiveScene()->_flx_id_unused);
+      ID::Destroy(entity, active_scene->_flx_id_unused);
     }
 
     void Manager::SetEntityFlags(EntityID& entity, const uint8_t flags)
@@ -173,14 +173,14 @@ namespace FlexEngine
       ID::SetFlags(updated_entity, flags);
 
       // update the entity in the archetype entity vector
-      EntityRecord& entity_record = ENTITY_INDEX[entity];
+      EntityRecord& entity_record = INTERNAL_ENTITY_INDEX[entity];
       Archetype& archetype = *entity_record.archetype;
       std::size_t row = entity_record.row;
       archetype.entities[row] = updated_entity;
 
       // move the entity record to the new key
-      ENTITY_INDEX[updated_entity] = entity_record;
-      ENTITY_INDEX.erase(entity);
+      INTERNAL_ENTITY_INDEX[updated_entity] = entity_record;
+      INTERNAL_ENTITY_INDEX.erase(entity);
 
       entity = updated_entity;
     }
@@ -193,18 +193,18 @@ namespace FlexEngine
     EntityID Manager::CloneEntity(EntityID entity_to_copy)
     {
       // Get the archetype of the entity to copy
-      EntityRecord& entity_record = ENTITY_INDEX[entity_to_copy];
+      EntityRecord& entity_record = INTERNAL_ENTITY_INDEX[entity_to_copy];
       Archetype& archetype = *entity_record.archetype;
 
       // First we need to assign this new entity an ID
-      EntityID new_entity = ID::Create(ID::Flags::Flag_None, Manager::GetActiveScene()->_flx_id_next, Manager::GetActiveScene()->_flx_id_unused);
+      EntityID new_entity = ID::Create(ID::Flags::Flag_None, active_scene->_flx_id_next, active_scene->_flx_id_unused);
       
       // Secondly, we update the scene's archetype by telling it we want to add one more entity of this index...
       archetype.entities.push_back(new_entity);
 
       // ... then update entity records of this new entity
       EntityRecord new_entity_record = { &archetype, archetype.id, archetype.entities.size() - 1 };
-      ENTITY_INDEX[new_entity] = new_entity_record;
+      INTERNAL_ENTITY_INDEX[new_entity] = new_entity_record;
 
       // Now, after the setup is complete, we copy the entire row over
       for (std::size_t i{}; i < archetype.archetype_table.size(); i++)
@@ -226,7 +226,7 @@ namespace FlexEngine
     void Manager::SaveEntityAsPrefab(EntityID entityToSave, const std::string& prefabName)
     {
       // Get the current entity to write to prefab
-      EntityRecord& entity_record = ENTITY_INDEX[entityToSave];
+      EntityRecord& entity_record = INTERNAL_ENTITY_INDEX[entityToSave];
       Archetype& archetype = *entity_record.archetype;
 
       // Create a new prefab file in asset manager directory, then open this file
@@ -289,7 +289,7 @@ namespace FlexEngine
 
     void Manager::SaveActiveScene(File& file)
     {
-      Manager::GetActiveScene()->Save(file);
+      active_scene->Save(file);
     }
 
     #pragma endregion
