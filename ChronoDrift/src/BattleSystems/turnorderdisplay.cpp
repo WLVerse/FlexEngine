@@ -26,7 +26,7 @@ namespace ChronoDrift
 	//The Sprite2d renderer will automatically draw it, so we just set the positions, colors, etc.
 	void DisplayTurnOrder(std::vector<FlexECS::Entity>& queue)
 	{
-		auto scene = FlexECS::Scene::GetActiveScene();
+		auto scene = FlexECS::ecs_manager.GetActiveScene();
 
 		int i{ 0 };
 		for (auto entity : scene->Query<TurnOrderDisplay, IsActive, ZIndex, Position, Scale, Shader, Sprite>())

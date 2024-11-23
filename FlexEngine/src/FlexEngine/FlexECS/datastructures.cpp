@@ -4,6 +4,8 @@ namespace FlexEngine
 {
   namespace FlexECS
   {
+    // extern
+    Manager ecs_manager = FlexECS::Manager();
 
     #pragma region Reflection
 

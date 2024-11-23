@@ -147,23 +147,23 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
   EditorGUI::Color3(entity.GetComponent<T>()->name, #name); 
 
 	#define COMPONENT_VIEWER_EDITABLE_STRING(name) \
-	std::string& str_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	std::string& str_##name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::EditableTextField(str_##name, #name);
 
 	#define COMPONENT_VIEWER_SHADER_PATH(name) \
-	std::string& path_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	std::string& path_##name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::ShaderPath(path_##name);
 
 	#define COMPONENT_VIEWER_TEXTURE_PATH(name) \
-	std::string& path_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	std::string& path_##name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::TexturePath(path_##name);
 
 	#define COMPONENT_VIEWER_AUDIO_PATH(name) \
-	std::string& path_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	std::string& path_##name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::AudioPath(path_##name);
 
 	#define COMPONENT_VIEWER_STRING(name) \
-	std::string& str_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	std::string& str_##name = FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::TextField(str_##name);
 
 	#define COMPONENT_VIEWER_BOOL(name) \

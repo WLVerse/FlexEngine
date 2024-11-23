@@ -37,8 +37,8 @@ namespace ChronoDrift
 
     if (ImGui::Button("Spawn 2500 Objects"))
     {
-      auto scene = FlexECS::Scene::GetActiveScene();
-      FlexECS::Entity thing = FlexECS::Scene::CreateEntity("White Queen");
+      auto scene = FlexECS::ecs_manager.GetActiveScene();
+      FlexECS::Entity thing = FlexECS::ecs_manager.CreateEntity("White Queen");
       thing.AddComponent<IsActive>({ true });
       thing.AddComponent<Position>({ {0,0} });
       thing.AddComponent<Rotation>({ });
@@ -58,7 +58,7 @@ namespace ChronoDrift
       {
         for (size_t y = 0; y < 50; y++)
         {
-          FlexECS::Entity cloned_thing = scene->CloneEntity(thing);
+          FlexECS::Entity cloned_thing = FlexECS::ecs_manager.CloneEntity(thing);
           auto& position = cloned_thing.GetComponent<Position>()->position;
           position.x = static_cast<float>(15 * (x + 1));
           position.y = static_cast<float>(15 * (y + 1));
@@ -70,7 +70,7 @@ namespace ChronoDrift
 
     if (show_colliders)
     {
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<BoundingBox2D>())
+      for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<BoundingBox2D>())
       {
         const Vector3& max = entity.GetComponent<BoundingBox2D>()->max;
         const Vector3& min = entity.GetComponent<BoundingBox2D>()->min;

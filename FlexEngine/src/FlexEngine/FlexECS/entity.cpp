@@ -95,7 +95,7 @@ namespace FlexEngine
       }
 
       // update caches with this archetype if needed
-      for (auto& a : Scene::GetActiveScene()->query_cache)
+      for (auto& a : ecs_manager.GetActiveScene()->query_cache)
       {
         // check if query is a subset of the new archetype
         bool skip = false;

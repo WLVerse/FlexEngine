@@ -48,7 +48,7 @@ namespace ChronoDrift {
     MoveRegistry::RegisterMoveFunctions();
     MoveRegistry::RegisterStatusFunctions();
 
-    m_battlesystem.AddCharacters(FlexECS::Scene::GetActiveScene()->CachedQuery<Character>());
+    m_battlesystem.AddCharacters(FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Character>());
     m_battlesystem.BeginBattle();
   }
 
@@ -68,13 +68,17 @@ namespace ChronoDrift {
     if (Input::GetKeyDown(GLFW_KEY_F))
     {
       //Log::Debug("Value of the pointer is: " + std::to_string(*tempptr));
-      ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::Scene::GetActiveScene());
+
+      std::shared_ptr<FlexECS::Scene> test_scene = FlexECS::ecs_manager.GetActiveScene();
+      ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
+
+      //ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::ecs_manager);
     }
 
     if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
 
     // Include a check whether battle system has been activated
-    auto scene = FlexECS::Scene::GetActiveScene();
+    auto scene = FlexECS::ecs_manager.GetActiveScene();
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 
     if (!scene->CachedQuery<CharacterInput, Character>().empty()) {
@@ -110,7 +114,7 @@ namespace ChronoDrift {
       CameraManager::UpdateData(cam_entity, curr_cam);
     }
 
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput>())
+    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput>())
     {
       entity.GetComponent<CharacterInput>()->up = Input::GetKey(GLFW_KEY_W);
       entity.GetComponent<CharacterInput>()->down = Input::GetKey(GLFW_KEY_S);
@@ -118,7 +122,7 @@ namespace ChronoDrift {
       entity.GetComponent<CharacterInput>()->right = Input::GetKey(GLFW_KEY_D);
     }
 
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
+    for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
     {
       auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
       velocity.x = 0.0f;

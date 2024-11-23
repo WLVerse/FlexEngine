@@ -184,6 +184,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\DataStructures\functionqueue.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\datastructures.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\entity.cpp" />
+    <ClCompile Include="src\FlexEngine\FlexECS\manager.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\scene.cpp" />
     <ClCompile Include="src\FlexEngine\flexformatter.cpp" />
     <ClCompile Include="src\FlexEngine\FlexMath\mathconversions.cpp" />

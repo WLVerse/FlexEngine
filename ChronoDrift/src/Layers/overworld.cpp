@@ -18,11 +18,11 @@ namespace ChronoDrift
 {
     void OverworldLayer::SetupWorld()
     {
-        auto scene = FlexECS::Scene::GetActiveScene();
+        auto scene = FlexECS::ecs_manager.GetActiveScene();
 
         //Camera 
         #if 1
-        FlexECS::Entity camera = FlexECS::Scene::CreateEntity("MainCamera");
+        FlexECS::Entity camera = FlexECS::ecs_manager.CreateEntity("MainCamera");
         camera.AddComponent<IsActive>({ true });
         camera.AddComponent<Position>({ {-150, 300 } });
         camera.AddComponent<Scale>({ { 0.5,0.5 } });
@@ -42,8 +42,8 @@ namespace ChronoDrift
         FLX_FLOW_BEGINSCOPE();
 
         // ECS Setup
-        auto scene = FlexECS::Scene::CreateScene();
-        FlexECS::Scene::SetActiveScene(scene);
+        auto scene = FlexECS::ecs_manager.GetActiveScene();
+        FlexECS::ecs_manager.SetActiveScene(scene);
 
         // Setup for level editor
         RegisterRenderingComponents();
@@ -62,7 +62,7 @@ namespace ChronoDrift
       Profiler profiler;
 
       profiler.StartCounter("Custom Query Loops");
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput>())
+      for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput>())
       {
           entity.GetComponent<CharacterInput>()->up = Input::GetKey(GLFW_KEY_W);
           entity.GetComponent<CharacterInput>()->down = Input::GetKey(GLFW_KEY_S);
@@ -70,7 +70,7 @@ namespace ChronoDrift
           entity.GetComponent<CharacterInput>()->right = Input::GetKey(GLFW_KEY_D);
       }
 
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
+      for (auto& entity : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<CharacterInput, Rigidbody>())
       {
           auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
           velocity.x = 0.0f;
@@ -100,7 +100,7 @@ namespace ChronoDrift
   
       profiler.StartCounter("Audio");
       // Audio system...
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+      for (auto& element : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Audio>())
       {
         if (!element.GetComponent<IsActive>()->is_active) continue; // skip non active entities
 
@@ -108,13 +108,13 @@ namespace ChronoDrift
         {
           if (element.GetComponent<Audio>()->is_looping)
           {
-            FMODWrapper::Core::PlayLoopingSound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
-                                                FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+            FMODWrapper::Core::PlayLoopingSound(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
+                                                FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
           }
           else
           {
-            FMODWrapper::Core::PlaySound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
-                                         FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+            FMODWrapper::Core::PlaySound(FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
+                                         FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::ecs_manager.GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
           }
 
           element.GetComponent<Audio>()->should_play = false;
@@ -128,7 +128,7 @@ namespace ChronoDrift
 
       profiler.StartCounter("Button Callbacks");
       // System to handle button collider callbacks
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
+      for (auto& element : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<Button, Sprite>())
       {
         if (!element.GetComponent<IsActive>()->is_active) continue;
 
@@ -173,7 +173,7 @@ namespace ChronoDrift
       }
 
       // Regen Cam
-      //for (auto& currCam : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Camera>())
+      //for (auto& currCam : FlexECS::ecs_manager.GetActiveScene()->CachedQuery<IsActive, Camera>())
       //{
       //    if (!CameraManager::HasCameraEntity(currCam.Get()))
       //    {

@@ -46,6 +46,7 @@ namespace FlexEngine
 
     // Forward declarations
 
+    class Manager;
     class Scene;
     class Entity;
     struct ArchetypeEdge;
@@ -195,14 +196,66 @@ namespace FlexEngine
     // Macros for access to the ECS data structures
 
     // Find an archetype by its list of component ids
-    #define ARCHETYPE_INDEX FlexEngine::FlexECS::Scene::GetActiveScene()->archetype_index
+    #define ARCHETYPE_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->archetype_index
 
     // Find the archetype for an entity
-    #define ENTITY_INDEX FlexEngine::FlexECS::Scene::GetActiveScene()->entity_index
+    #define ENTITY_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->entity_index
 
     // Find the column for a component in an archetype
-    #define COMPONENT_INDEX FlexEngine::FlexECS::Scene::GetActiveScene()->component_index
+    #define COMPONENT_INDEX FlexEngine::FlexECS::ecs_manager.GetActiveScene()->component_index
 
+    // This provides functions to create, load, and save the active scene.
+    // This was previously handled in the Scene class as static functions.
+    class __FLX_API Manager
+    {
+      std::shared_ptr<Scene> active_scene;
+
+    public:
+      #pragma region Scene management functions
+
+    public:
+      std::shared_ptr<Scene> CreateScene();
+      std::shared_ptr<Scene> GetActiveScene();
+      void SetActiveScene(const Scene& scene);
+      void SetActiveScene(std::shared_ptr<Scene> scene);
+
+      #pragma endregion
+
+      #pragma region Entity management functions
+      // All these functions work on the active scene.
+
+    public:
+      // Creates a new entity and gives it the default archetype which is for storing the entity's name.
+      // Entities are registered this way. They are not stored in the scene, but in the actual ECS.
+      Entity CreateEntity(const std::string& name = "New Entity");
+
+      // Removes an entity from the ECS
+      void DestroyEntity(EntityID entity);
+
+      // Passthrough functions to edit the entity's flags.
+      // They only work on the current active scene.
+      void SetEntityFlags(EntityID& entity, const uint8_t flags);
+
+      EntityID CloneEntity(EntityID entityToCopy);
+
+      void SaveEntityAsPrefab(EntityID entityToSave, const std::string& prefabName);
+
+      #pragma endregion
+
+      #pragma region Scene serialization functions
+
+    public:
+      // Use this interface to save and load scenes.
+      // All these functions work on the active scene.
+
+      std::shared_ptr<Scene> Load(File& file);
+      void SaveActiveScene(File& file);
+
+      #pragma endregion
+
+    };
+
+    extern Manager ecs_manager;
 
     // The scene holds all the entities and components.
     class __FLX_API Scene
@@ -211,10 +264,7 @@ namespace FlexEngine
       // TODO: Implement reusing entity ids
       //EntityID next_entity_id = 0;
 
-      static std::shared_ptr<Scene> s_active_scene;
-
     public:
-
       // Null scene for when the active scene is set to null
       static Scene Null;
 
@@ -249,7 +299,7 @@ namespace FlexEngine
 
       #pragma endregion
 
-      #pragma region ECS View
+      #pragma region ECS Query
 
     public:
       // Returns an entity list based off the list of components
@@ -298,36 +348,6 @@ namespace FlexEngine
 
       #pragma endregion
 
-      #pragma region Scene management functions
-
-    public:
-      static std::shared_ptr<Scene> CreateScene();
-      static std::shared_ptr<Scene> GetActiveScene();
-      static void SetActiveScene(const Scene& scene);
-      static void SetActiveScene(std::shared_ptr<Scene> scene);
-
-      #pragma endregion
-
-      #pragma region Entity management functions
-
-    public:
-      // Creates a new entity and gives it the default archetype which is for storing the entity's name.
-      // Entities are registered this way. They are not stored in the scene, but in the actual ECS.
-      static Entity CreateEntity(const std::string& name = "New Entity");
-
-      // Removes an entity from the ECS
-      static void DestroyEntity(EntityID entity);
-
-      // Passthrough functions to edit the entity's flags.
-      // They only work on the current active scene.
-      static void SetEntityFlags(EntityID& entity, const uint8_t flags);
-
-      static EntityID CloneEntity(EntityID entityToCopy);
-
-      static void SaveEntityAsPrefab(EntityID entityToSave, const std::string& prefabName);
-
-      #pragma endregion
-
       #pragma region Scene serialization functions
 
     public:
@@ -335,12 +355,13 @@ namespace FlexEngine
       // the ECS data structures. Use this interface to save and load scenes.
 
       void Save(File& file);
-      static std::shared_ptr<Scene> Load(File& file);
-      static void SaveActiveScene(File& file);
 
       #pragma endregion
 
     private:
+      // Allow the manager class to access internal functions
+      friend class FlexECS::Manager;
+
       // INTERNAL FUNCTION
       // After reconstructing the ECS from a saved state, the archetype pointers in the entity_index
       // need to be reconnected to the archetype_index.
@@ -415,7 +436,8 @@ namespace FlexEngine
       #pragma endregion
 
     private:
-      // Allow the scene class to access internal functions
+      // Allow the scene and manager class to access internal functions
+      friend class FlexECS::Manager;
       friend class FlexECS::Scene;
 
       // INTERNAL FUNCTION

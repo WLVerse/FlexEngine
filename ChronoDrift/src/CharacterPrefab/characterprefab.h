@@ -34,7 +34,7 @@ using namespace ChronoDrift; // This is solution specific...
                 From there, you can use the entityID handle to manipulate the entity as you wish.
 
          Note: The prefab creation function is available from the Scene class and can be invoked as follows:
-                FlexECS::Scene::GetActiveScene()->SaveEntityAsPrefab(object.Get() , "test");
+                FlexECS::ecs_manager.GetActiveScene()->SaveEntityAsPrefab(object.Get() , "test");
 */
 FlexECS::Entity& LoadCharacter(const std::string& prefabName);
 /*

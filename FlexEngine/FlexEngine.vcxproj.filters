@@ -232,6 +232,9 @@
     <ClCompile Include="..\ChronoDrift\src\Scripting\ScriptingSystem.cpp">
       <Filter>src\FlexEngine\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\FlexECS\manager.cpp">
+      <Filter>src\FlexEngine\FlexECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
