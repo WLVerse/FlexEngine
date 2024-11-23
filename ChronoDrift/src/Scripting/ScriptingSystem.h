@@ -1,10 +1,11 @@
 #include <windows.h>
 #include <string>
 #include "FlexEngine/FlexECS/datastructures.h"
+#include "../../Scripting/ScriptingInterface.h"
 
 class ScriptingSystem 
 {
-  using ScriptFunction = void(*)(std::shared_ptr<FlexEngine::FlexECS::Scene>);
+  using ScriptFunction = IScript*(*)(void);
   //using ScriptFunction = void(*)(FlexEngine::FlexECS::Manager&);
   using GenericFunction = void(*)(void*); // Takes in all information as void* which requires reinterpret casting, use with caution.
 

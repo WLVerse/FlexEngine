@@ -1,17 +1,20 @@
 //Component includes
 #include "ScriptLibrary.h"
 
+class PhysicsScript : public IScript
+{
+public:
+  void onUpdate(std::shared_ptr<FlexEngine::FlexECS::Scene> ecs) override
+  {
+    FlexEngine::FlexECS::ecs_manager.CreateEntity("PhysicsEntity");
+  }
+};
+
 #include <iostream>
-void RunPhysicsSystem(std::shared_ptr<FlexEngine::FlexECS::Scene> s)
+IScript* RunPhysicsSystem(void)
 //void RunPhysicsSystem(FlexEngine::FlexECS::Manager& s)
 {
-  //std::cout << "Just to test this works, find the DLL again to test scene changes" << std::endl;
-  
-  FlexEngine::FlexECS::ecs_manager.CreateEntity("PhysicsEntity");
-  s->DumpEntityIndex();
-  
-  //s.CreateEntity("PhysicsEntity");
-  //s.GetActiveScene()->DumpEntityIndex();
+  return new PhysicsScript();
 }
 
 // Ok I know this works, tested it on an int* and it does indeed modify the value at the exe.

@@ -4,12 +4,17 @@
 #include <map>
 #include <functional>
 #include "flexlogger.h"
+#include "FlexEngine/FlexECS/datastructures.h"
 
 std::map<std::string, ScriptingSystem::GenericFunction> ScriptingSystem::functions;
 std::map<std::string, ScriptingSystem::ScriptFunction> ScriptingSystem::ecs_functions;
 
 void ScriptingSystem::LoadDLL(std::string const& dll_path)
 {
+  //if (GetModuleHandleW(L"Scripting.dll")) {
+  //  throw std::runtime_error("DLL already loaded");
+  //}
+
   dllHandle = LoadLibraryA(dll_path.c_str());
   if (!dllHandle) {
     throw std::runtime_error("Failed to load DLL: " + dll_path);
@@ -20,8 +25,6 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
 
   GetFunction("RunPhysicsSystem"); // Temporarily put here for now
   GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
-
-  std::cout << "DLL Loaded: !!!!!!!!!!!!!!!!!!" << dll_path << std::endl;
 }
 
 void ScriptingSystem::GetFunction(const std::string& function_name)
@@ -33,7 +36,9 @@ void ScriptingSystem::GetFunction(const std::string& function_name)
     throw std::runtime_error("Failed to find function" + function_name + " in DLL");
   }
 
-  ecs_functions[function_name] = func;
+  auto result = func(); // Call the function to test if it works (for now, will be removed later
+  result->onUpdate(FlexEngine::FlexECS::ecs_manager.GetActiveScene());
+  std::cout << "Function " << function_name << " called successfully" << std::endl;
 }
 
 void ScriptingSystem::GetGenericFunction(const std::string& function_name)
