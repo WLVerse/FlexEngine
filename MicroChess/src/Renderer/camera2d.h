@@ -53,23 +53,13 @@ namespace FlexEngine
 
         #pragma region Camera Movement
 
-        static void Move(CameraData& curr, const Vector2& movement);
         static void MoveTo(CameraData& curr, const Vector3& targetPosition);
         static void LerpTo(CameraData& curr, const Vector3& targetPosition, float t);
-        //static void Cam_Rotate(CameraData& curr, const Vector3& axis, float angle);
-
+        
         #pragma endregion
 
         #pragma region Camera Transitions
 
-        /*!************************************************************************
-        * \brief 
-        * Initializes a camera as either orthographic or perspective.
-        * \param curr The CameraData to initialize.
-        * \param ortho True for orthographic, false for perspective.
-        * //DO NOT USE - LEGACY
-        *************************************************************************/
-        
         /*!************************************************************************
         * \brief
         * Points the camera at a target position.
@@ -93,12 +83,6 @@ namespace FlexEngine
         *        or perspective), FOV, aspect ratio, and clipping planes.
         *************************************************************************/
         static void UpdateProjectionMatrix(CameraData& curr);
-
-        //// World to Screen Space
-        //static Vector3 WorldToScreen(const CameraData& curr, const Vector2& screenDimensions);
-
-        //// Screen to World Space
-        //static Vector3 ScreenToWorld(const Vector2& screenPosition, const Vector2& screenDimensions);
 
         #pragma endregion
     };

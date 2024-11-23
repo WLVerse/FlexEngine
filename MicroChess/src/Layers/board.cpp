@@ -290,7 +290,7 @@ namespace MicroChess
     }
     destroy_queue.Flush();
 
-    RendererSprite2D();
+    RenderSprite2D();
   }
 
 

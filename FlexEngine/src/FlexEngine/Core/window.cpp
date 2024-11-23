@@ -8,6 +8,7 @@
 #include "imguiwrapper.h"
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
+#include "FMOD/FMODWrapper.h"
 
 namespace
 {
@@ -36,7 +37,8 @@ namespace
 
 namespace FlexEngine
 {
-
+  // Create a function to check whether 
+  // Flag to indicate whether full screen
   Window::Window(WindowProps const& props)
     : s_props(props)
   {
@@ -66,7 +68,7 @@ namespace FlexEngine
     //glfwSetWindowSizeCallback(m_glfwwindow, WindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_glfwwindow, FramebufferSizeCallback);
     //glfwSetWindowCloseCallback(m_glfwwindow, WindowCloseCallback);
-    //glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallback);
+    glfwSetWindowFocusCallback(m_glfwwindow, FMODWrapper::Core::WindowFocusCallback); // For now only audio requires this, but someone else should handle this centrally.
     //glfwSetCharCallback(m_glfwwindow, CharCallback);
     //glfwSetDropCallback(m_glfwwindow, DropCallback);
 
@@ -195,6 +197,28 @@ namespace FlexEngine
   bool Window::IsFocused() const
   {
     return glfwGetWindowAttrib(m_glfwwindow, GLFW_FOCUSED);
+  }
+
+  bool Window::IsFullScreen() 
+  {
+    return glfwGetWindowMonitor(GetGLFWWindow()) != nullptr;
+  }
+
+  void Window::CacheMiniWindowParams() {
+    int xpos = 0, ypos = 0;
+    c_params.cached_mini_window_width = s_props.width;
+    c_params.cached_mini_window_height = s_props.height;
+
+    // get the position of the window
+    glfwGetWindowPos(m_glfwwindow, &xpos, &ypos);
+    c_params.cached_mini_window_xpos = xpos;
+    c_params.cached_mini_window_ypos = ypos;
+  }
+
+  std::pair<int, int> Window::UnCacheMiniWindowsParams() {
+    s_props.width = c_params.cached_mini_window_width;
+    s_props.height = c_params.cached_mini_window_height;
+    return std::make_pair(c_params.cached_mini_window_xpos, c_params.cached_mini_window_ypos);
   }
 
   void Window::SetIcon(const Asset::Texture& icon) const

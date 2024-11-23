@@ -83,9 +83,9 @@ namespace FlexEngine
 
         glLineWidth(line_width);
 
-        OpenGLSpriteRenderer::SetEditorFrameBuffer();
+        OpenGLFrameBuffer::SetEditorFrameBuffer();
         glDrawArrays(GL_LINES, 0, 2);
-        OpenGLSpriteRenderer::SetDefaultFrameBuffer();
+        OpenGLFrameBuffer::SetDefaultFrameBuffer();
 
         glBindVertexArray(0);
     }

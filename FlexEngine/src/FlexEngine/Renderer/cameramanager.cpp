@@ -37,7 +37,7 @@ namespace FlexEngine
 	#pragma region Reflection
     FLX_REFL_REGISTER_START(CameraData)
         FLX_REFL_REGISTER_PROPERTY(position)
-        FLX_REFL_REGISTER_PROPERTY(direction)
+        FLX_REFL_REGISTER_PROPERTY(target)
         FLX_REFL_REGISTER_PROPERTY(up)
         FLX_REFL_REGISTER_PROPERTY(right)
         FLX_REFL_REGISTER_PROPERTY(viewMatrix)

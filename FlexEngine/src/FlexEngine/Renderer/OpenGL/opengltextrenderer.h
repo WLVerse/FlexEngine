@@ -24,6 +24,7 @@
 #include "openglfont.h"
 #include <glad/glad.h>
 
+#include "../cameramanager.h"
 #include <string>
 
 #define DRAW_TEXT_MAX_STRLEN 2048
@@ -58,6 +59,7 @@ namespace FlexEngine
         std::string m_fonttype = R"()";                     /*!< Font type to use for rendering; empty means an error will occur */
         std::string m_words;                                /*!< The actual text to render */
         Vector3 m_color = Vector3::Zero;                    /*!< Color of the text */
+        Vector2 m_window_size = Vector2(800.0f, 600.0f);
         Matrix4x4 m_transform = Matrix4x4::Identity;        /*!< Transformation matrix for positioning the text */
         std::pair<AlignmentX, AlignmentY> m_alignment;      /*!< Pair indicating X and Y alignment settings */
     };
@@ -130,7 +132,7 @@ namespace FlexEngine
         * \param text A Renderer2DText object containing text properties, including
         * words to render, shader, font type, color, and alignment settings.
         ***************************************************************************/
-        static void DrawText2D(const Renderer2DText& text);
+        static void DrawText2D(const Renderer2DText& text, bool followcam = false);
 
         #pragma region Getter functions
 

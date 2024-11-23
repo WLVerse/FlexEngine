@@ -88,7 +88,7 @@ namespace FlexEngine
     * A Renderer2DText object containing properties for the text,
     * including words to render, color, shader, and alignment settings.
     *****************************************************************************/
-    void OpenGLTextRenderer::DrawText2D(const Renderer2DText& text)
+    void OpenGLTextRenderer::DrawText2D(const Renderer2DText& text, bool followcam)
     {
         auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
         asset_shader.Use();
@@ -97,12 +97,14 @@ namespace FlexEngine
             Log::Fatal("Text Renderer: Unknown font type! Please check what you wrote!");
         if (text.m_words.empty())
             return;
+        if (followcam && CameraManager::GetMainCamera() <= -1)
+            followcam = false;
 
         asset_shader.SetUniform_vec3("u_color", text.m_color);
         asset_shader.SetUniform_mat4("u_model", text.m_transform);
         static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
-        Matrix4x4 projection_view = Matrix4x4::Orthographic(0.0f, 1280, 750, 0.0f, -2.0f, 2.0f) * view_matrix;
-        asset_shader.SetUniform_mat4("projection", projection_view);
+        Matrix4x4 projection_view = Matrix4x4::Orthographic(0.0f, text.m_window_size.x, text.m_window_size.y, 0.0f, -2.0f, 2.0f) * view_matrix;
+        asset_shader.SetUniform_mat4("projection", followcam ? CameraManager::GetCameraData(CameraManager::GetMainCamera())->proj_viewMatrix : projection_view);
 
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(m_VAO);
@@ -181,7 +183,7 @@ namespace FlexEngine
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
+    
     /*!***************************************************************************
     * \brief 
     * Calculates the width of a given text line in pixels.

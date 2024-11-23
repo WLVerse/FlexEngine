@@ -60,7 +60,7 @@ namespace FlexEngine
             std::map<char, Glyph> m_glyphs; /*!< Stores glyphs for ASCII characters */
 
             // Font properties
-            int m_fontSize = 16;          // Default font size
+            int m_fontSize = 50;          // Default font size
             bool m_hintingEnabled = true; // Hinting flag
             bool m_kerningEnabled = true; // Kerning flag
 

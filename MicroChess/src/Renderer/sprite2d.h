@@ -46,5 +46,5 @@ namespace ChronoShift
     * steps for rendering, including setting up shader properties, handling
     * post-processing, and batch rendering for efficiency.
     *****************************************************************************/
-	void RendererSprite2D();
+	void RenderSprite2D();
 }

@@ -14,10 +14,8 @@
 
 #include "Renderer/camera2d.h"
 
-namespace ChronoShift {
-    float OverworldLayer::m_ScaleDebugTest = 0.8f;
-    Vector3 OverworldLayer::m_RotateDebugTest = Vector3(0.f, 0.f, 0.f);
-
+namespace ChronoShift 
+{
     void OverworldLayer::SetupWorld()
     {
         auto scene = FlexECS::Scene::GetActiveScene();
@@ -62,7 +60,8 @@ namespace ChronoShift {
   void OverworldLayer::Update()
   {
       Profiler profiler;
-      profiler.StartCounter("Misc");
+
+      profiler.StartCounter("Custom Query Loops");
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput>())
       {
           entity.GetComponent<CharacterInput>()->up = Input::GetKey(GLFW_KEY_W);
@@ -97,42 +96,9 @@ namespace ChronoShift {
               velocity.x = 300.0f;
           }
         }
-      profiler.EndCounter("Misc");
-
-      //For testing 2500 objects
-      //Create one, then clone the rest
-      if (Input::GetKeyDown(GLFW_KEY_0))
-      {
-          auto scene = FlexECS::Scene::GetActiveScene();
-
-            FlexECS::Entity thing = FlexECS::Scene::CreateEntity("White Queen");
-            thing.AddComponent<IsActive>({ true });
-            thing.AddComponent<Position>({ {0,0} });
-            thing.AddComponent<Rotation>({ });
-            thing.AddComponent<Scale>({ { 15,15 } });
-            thing.AddComponent<ZIndex>({ 10 });
-            thing.AddComponent<Transform>({ });
-            thing.AddComponent<Sprite>({
-              scene->Internal_StringStorage_New(R"(\images\chess_queen.png)"),
-              Vector3::One,
-              Vector3::Zero,
-              Vector3::One,
-              Renderer2DProps::Alignment_Center
-             });
-            thing.AddComponent<Shader>({ scene->Internal_StringStorage_New(R"(\shaders\texture)") });
-
-            for (size_t x = 0; x < 50; x++)
-            {
-                for (size_t y = 0; y < 50; y++)
-                {
-                    FlexECS::Entity cloned_thing = scene->CloneEntity(thing);
-                    auto& position = cloned_thing.GetComponent<Position>()->position;
-                    position.x = static_cast<float>(15 * (x + 1));
-                    position.y = static_cast<float>(15 * (y + 1));
-                }
-            }
-        }
-
+      profiler.EndCounter("Custom Query Loops");
+  
+      profiler.StartCounter("Audio");
       // Audio system...
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
       {
@@ -154,11 +120,13 @@ namespace ChronoShift {
           element.GetComponent<Audio>()->should_play = false;
         }
       }
+      profiler.EndCounter("Audio");
 
       profiler.StartCounter("Physics");
       UpdatePhysicsSystem();
       profiler.EndCounter("Physics");
 
+      profiler.StartCounter("Button Callbacks");
       // System to handle button collider callbacks
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
       {
@@ -175,6 +143,7 @@ namespace ChronoShift {
           element.GetComponent<Sprite>()->color_to_add.x = 0;
         }
       }
+      profiler.EndCounter("Button Callbacks");
 
       #pragma region Camera Movement -> Should be moved to scripting
 
@@ -216,7 +185,8 @@ namespace ChronoShift {
       
       //Render All Entities
       profiler.StartCounter("Graphics");
-      RendererSprite2D();
+      UpdateAllEntitiesMatrix();
+      RenderSprite2D();
       profiler.EndCounter("Graphics");
 
       profiler.ShowProfilerWindow();

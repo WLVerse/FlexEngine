@@ -87,7 +87,6 @@ namespace ChronoShift
 
     void UpdateCamMatrix(FlexECS::Entity& currCam)
     {
-        auto& local_transform = currCam.GetComponent<Transform>()->transform;
         if (!currCam.GetComponent<Transform>()->is_dirty) return;
 
         auto& local_position = currCam.GetComponent<Position>()->position;
@@ -229,8 +228,8 @@ namespace ChronoShift
         bool blending = OpenGLRenderer::IsBlendingEnabled();
         if (!blending) OpenGLRenderer::EnableBlending();
 
-        OpenGLSpriteRenderer::SetEditorFrameBuffer();
-        OpenGLSpriteRenderer::ClearFrameBuffer();
+        OpenGLFrameBuffer::SetEditorFrameBuffer();
+        OpenGLFrameBuffer::ClearFrameBuffer();
 
         pp_render_queue.Flush();
         OpenGLSpriteRenderer::DrawPostProcessingLayer();
@@ -304,8 +303,8 @@ namespace ChronoShift
         bool blending = OpenGLRenderer::IsBlendingEnabled();
         if (!blending) OpenGLRenderer::EnableBlending();
 
-        OpenGLSpriteRenderer::SetEditorFrameBuffer();
-        OpenGLSpriteRenderer::ClearFrameBuffer();
+        OpenGLFrameBuffer::SetEditorFrameBuffer();
+        OpenGLFrameBuffer::ClearFrameBuffer();
 
         Renderer2DProps props;
 
@@ -326,27 +325,42 @@ namespace ChronoShift
     void RenderTextEntities()
     {
         FunctionQueue text_render_queue;
+        constexpr float FONT_SCALE_FACTOR = 3.0f;
 
         for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
         {
             if (!txtentity.GetComponent<IsActive>()->is_active) continue;
 
-            Matrix4x4 transform = txtentity.GetComponent<Transform>()->transform;
+            Matrix4x4& transform = txtentity.GetComponent<Transform>()->transform;
             auto shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
-            auto font = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Text>()->fonttype);
-
+            auto* textComponent = txtentity.GetComponent<Text>();
+            auto font = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->fonttype);
+            
             Renderer2DText sample;
-            sample.m_words = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Text>()->text);
+            sample.m_words = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->text);
             sample.m_shader = shader;
             sample.m_fonttype = font;
             sample.m_transform = transform;
+            sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
             sample.m_alignment = {
-                static_cast<Renderer2DText::AlignmentX>(txtentity.GetComponent<Text>()->alignment.first),
-                static_cast<Renderer2DText::AlignmentY>(txtentity.GetComponent<Text>()->alignment.second)
+                static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second)
             };
-            sample.m_color = txtentity.GetComponent<Text>()->color;
+            sample.m_color = textComponent->color;
 
-            text_render_queue.Insert({ [sample]() { OpenGLTextRenderer::DrawText2D(sample); }, "", 0 });
+            //Refocus font
+            if (textComponent && textComponent->refocus) 
+            {
+                // Adjust font size
+                auto& assetFont = FLX_ASSET_GET(Asset::Font, sample.m_fonttype);
+                assetFont.SetFontSize(static_cast<int>(sample.m_transform.m00 * FONT_SCALE_FACTOR));
+                transform /= FONT_SCALE_FACTOR;
+                Log::Debug("Font: " + sample.m_fonttype + " has been resized to " + std::to_string(sample.m_transform.m00 * FONT_SCALE_FACTOR));
+                // Reset refocus flag
+                textComponent->refocus = false;
+            }
+
+            text_render_queue.Insert({ [sample]() { OpenGLTextRenderer::DrawText2D(sample, true); }, "", 0 });
         }
 
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
@@ -355,9 +369,34 @@ namespace ChronoShift
         bool blending = OpenGLRenderer::IsBlendingEnabled();
         if (!blending) OpenGLRenderer::EnableBlending();
 
-        OpenGLSpriteRenderer::SetEditorFrameBuffer();
+        OpenGLFrameBuffer::SetEditorFrameBuffer();
         text_render_queue.Flush();
-        OpenGLSpriteRenderer::SetDefaultFrameBuffer();
+        OpenGLFrameBuffer::SetDefaultFrameBuffer();
+
+        if (depth_test) OpenGLRenderer::EnableDepthTest();
+        if (!blending) OpenGLRenderer::DisableBlending();
+    }
+
+    void ForceRenderToScreen()
+    {
+        bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
+        if (depth_test) OpenGLRenderer::DisableDepthTest();
+
+        bool blending = OpenGLRenderer::IsBlendingEnabled();
+        if (!blending) OpenGLRenderer::EnableBlending();
+
+        OpenGLFrameBuffer::SetDefaultFrameBuffer();
+
+        Renderer2DProps data;
+        data.shader = "\\shaders\\texture";
+        int width = FlexEngine::Application::GetCurrentWindow()->GetWidth();
+        int height = FlexEngine::Application::GetCurrentWindow()->GetHeight();
+        data.transform = Matrix4x4(static_cast<float>(width), 0, 0, 0,
+                                   0, static_cast<float>(height), 0, 0,
+                                   0,0,1.f,0,
+                                   -static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f,0,1.f);
+        data.vbo_id = Renderer2DProps::VBO_BasicInverted;
+        OpenGLSpriteRenderer::DrawTexture2D(OpenGLFrameBuffer::GetCreatedTexture(OpenGLFrameBuffer::CreatedTextureID::CID_finalRender), data);
 
         if (depth_test) OpenGLRenderer::EnableDepthTest();
         if (!blending) OpenGLRenderer::DisableBlending();
@@ -370,7 +409,7 @@ namespace ChronoShift
     * steps for rendering, including setting up shader properties, handling
     * post-processing, and batch rendering for efficiency.
     *****************************************************************************/
-    void RendererSprite2D()
+    void RenderSprite2D()
     {
         //Update Transformation Matrix of All Entities
         UpdateAllEntitiesMatrix();
@@ -387,5 +426,10 @@ namespace ChronoShift
         //RenderNormalEntities();
         RenderBatchedEntities();
         RenderTextEntities();
+
+        //What Rocky wants (TO DELETE)
+        #ifndef _DEBUG
+        ForceRenderToScreen();
+        #endif
     }
 }

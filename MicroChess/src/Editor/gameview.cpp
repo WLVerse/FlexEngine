@@ -38,7 +38,7 @@ namespace ChronoShift
 
 			ImGui::SetCursorPos(viewport_position);
 			//Note: need to invert UVs vertically.
-			ImGui::Image((ImTextureID)static_cast<uintptr_t>(FlexEngine::OpenGLSpriteRenderer::GetCreatedTexture(FlexEngine::OpenGLSpriteRenderer::CreatedTextureID::CID_finalRender)),
+			ImGui::Image((ImTextureID)static_cast<uintptr_t>(FlexEngine::OpenGLFrameBuffer::GetCreatedTexture(FlexEngine::OpenGLFrameBuffer::CreatedTextureID::CID_finalRender)),
 				viewport_size, ImVec2(0, 1), ImVec2(1, 0));
     
 			

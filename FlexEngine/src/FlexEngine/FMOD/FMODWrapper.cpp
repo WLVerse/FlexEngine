@@ -119,6 +119,34 @@ void FMODWrapper::Core::StopSound(std::string const& identifier)
   else Log::Warning("Tried to stop channel that does not exist for identifier: " + identifier);
 }
 
+void FMODWrapper::Core::StopAll()
+{
+  for (auto& channel : channels)
+  {
+    channel.second->setPaused(true);
+  }
+}
+
+void FMODWrapper::Core::ResumeAll()
+{
+  for (auto& channel : channels)
+  {
+    channel.second->setPaused(false);
+  }
+}
+
+void FMODWrapper::Core::WindowFocusCallback([[maybe_unused]] GLFWwindow* window, int focused) // Forced to use this signature, but don't need the window pointer itself.
+{
+  if (focused == GLFW_FALSE)
+  {
+    StopAll();
+  }
+  else
+  {
+    ResumeAll();
+  }
+}
+
 }// namespace FlexEngine
 
   //// Sample code to get if the channel is playing...

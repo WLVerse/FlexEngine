@@ -27,6 +27,7 @@
 #include "FMOD/core/fmod_errors.h"     // FMOD error handling for macro
 #include <cassert>
 #include "FMOD/Sound.h"                // Definition of the asset
+#include "GLFW/glfw3.h"                // For focus/unfocus callback
 
 // Most of the FMOD functions return an FMOD_RESULT, we want to watch for this with FMOD assert macro to crash fast for debugging
 // This function forces the compiler to not optimize out our error string...
@@ -74,6 +75,14 @@ public:
       \param identifier The identifier of the sound to stop
     */
     static void StopSound(std::string const&);
+
+    // Function to support GLFW callback
+    static void WindowFocusCallback(GLFWwindow* window, int focused);
+
+  private:
+    // The below 2 functions are used for manually silencing FMOD. This is meant for things like alt tabbing.
+    static void StopAll();
+    static void ResumeAll();
   };
 
   // Static fmod variables

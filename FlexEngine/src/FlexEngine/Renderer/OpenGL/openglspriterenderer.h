@@ -30,12 +30,15 @@
 #include "flx_api.h"
 #include "FlexMath/vector4.h"
 #include "opengltexture.h"
+#include "openglframebuffer.h"
+#include "openglpostprocessing.h"
 #include "../cameramanager.h"
 
 #include <glad/glad.h>
 
 namespace FlexEngine
 {
+    #pragma region Data-types
     /*!***************************************************************************
     * \struct Renderer2DProps
     * \brief
@@ -118,6 +121,7 @@ namespace FlexEngine
         std::vector<Matrix4x4> m_transformationData;
         std::vector<Vector3> m_colorAddData, m_colorMultiplyData;
     };
+    #pragma endregion
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +137,7 @@ namespace FlexEngine
     *****************************************************************************/
     class __FLX_API OpenGLSpriteRenderer
     {
+        #pragma region Static Variables
         static uint32_t m_draw_calls;                 /*!< Total number of draw calls made */
         static uint32_t m_draw_calls_last_frame;      /*!< Draw calls made in the last frame */
         static uint32_t m_maxInstances; // Maximum number of instances allowed in one batch
@@ -141,39 +146,9 @@ namespace FlexEngine
 
         static std::vector<MeshBuffer> m_vbos; /*!< Vector of Vertex Buffer Objects */
         static std::vector<GLuint> m_batchSSBOs;
-
-        static Asset::Shader m_bloom_brightness_shader;
-        static Asset::Shader m_bloom_gaussianblur_shader;
-        static Asset::Shader m_bloom_finalcomp_shader;
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
-        // TODO:
-        //  ALL FBOS should be moved to seperate files  to handle post-processing
-        //////////////////////////////////////////////////////////////////////////////////////////////////////
-        static GLuint m_editorFBO;           //replace default framebuffer
-        static GLuint m_postProcessingFBO;         //framebuffer to handle post-processing
-        static GLuint m_bloomFBO;           //framebuffer to handle bloom exclusively
-         
-        //4 Textures going to be created, 2 for post_processing and 2 for editor and game
-        static GLuint m_pingpongTex[2];            /*!< Ping-pong buffers for intermediate processing */
-        static GLuint m_postProcessingTex;
-        static GLuint m_editorTex;
-        static GLuint m_finalRenderTex;
-        static float m_PPopacity;
-
-        // Testing variables (subject to change)
-        //static GLuint samples;                         /*!< Number of samples per pixel for MSAA anti-aliasing */
-        //static float gamma;                            /*!< Controls the gamma function */
+        #pragma endregion
     public:
-
-        enum __FLX_API CreatedTextureID
-        {
-            CID_editor,
-            CID_finalRender,
-            CID_brightnessPass,
-            CID_blur,
-        };
-
+        #pragma region Wrapper Func
         /*!***************************************************************************
         * \brief
         * Retrieves the total number of draw calls made.
@@ -232,41 +207,13 @@ namespace FlexEngine
 
         /*!***************************************************************************
         * \brief
-        * Sets the default framebuffer for rendering.
-        *****************************************************************************/
-        static void SetDefaultFrameBuffer();
-
-        /*!***************************************************************************
-        * \brief
-        * Sets the framebuffer to the editor's framebuffer for rendering.
-        *****************************************************************************/
-        static void SetEditorFrameBuffer();
-
-        /*!***************************************************************************
-        * \brief
-        * Enables post-processing effects for rendering.
-        *****************************************************************************/
-        static void SetPPFrameBuffer();
-
-        /*!***************************************************************************
-        * \brief
-        * Sets the framebuffer specifically for bloom post-processing effects.
-        *****************************************************************************/
-        static void SetBloomFrameBuffer();
-
-        /*!***************************************************************************
-        * \brief
-        * Clears the current framebuffer.
-        *****************************************************************************/
-        static void ClearFrameBuffer();
-
-        /*!***************************************************************************
-        * \brief
         * Clears the color buffer with a specified color.
         *
         * \param color The color to clear the buffer to, represented as a Vector4.
         *****************************************************************************/
         static void ClearColor(const Vector4& color);
+
+        #pragma endregion
 
         /*!***************************************************************************
         * \brief
@@ -277,7 +224,7 @@ namespace FlexEngine
         *****************************************************************************/
         static GLuint GetVAO_ID(Renderer2DProps::VBO_Type type);
 
-        static GLuint GetCreatedTexture(CreatedTextureID id = CID_editor);
+        #pragma region Initialization
         /*!***************************************************************************
         * \brief
         * Creates a VAO and VBO with the specified vertices.
@@ -314,6 +261,9 @@ namespace FlexEngine
         *****************************************************************************/
         static void Init(const Vector2& windowSize);
 
+        #pragma endregion
+
+        #pragma region Draw
         /*!***************************************************************************
         * \brief
         * Draws a 2D texture using the specified properties.
@@ -347,39 +297,6 @@ namespace FlexEngine
         * Draws the post-processing layer after all other rendering operations.
         *****************************************************************************/
         static void DrawPostProcessingLayer();
-
-        /*!***************************************************************************
-        * \brief
-        * Applies a brightness threshold pass for the bloom effect.
-        *
-        * \param threshold The brightness threshold to apply.
-        *****************************************************************************/
-        static void ApplyBrightnessPass(float threshold = 1.0f);
-        
-        /*!***************************************************************************
-        * \brief
-        * Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
-        *
-        * \param blurDrawPasses The number of passes to apply for the blur.
-        * \param blurDistance The distance factor for the blur effect.
-        * \param intensity The intensity of the blur.
-        *****************************************************************************/
-        static void ApplyGaussianBlur(int blurDrawPasses = 4, float blurDistance = 10.0f, int intensity = 12);
-        
-        /*!***************************************************************************
-        * \brief
-        * Applies the final bloom composition with a specified opacity level.
-        *
-        * \param opacity The opacity level for the bloom composition.
-        *****************************************************************************/
-        static void ApplyBloomFinalComposition(float opacity = 1.0f);
+        #pragma endregion
     };
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//TODO:: SPlit up file into OpenglFrameBuffer(Stores textures and switching of frame buffer)
-// , OpenGLPostprocessing (handles post-processing), 
-// OpenglBatchHandler (handles batching, instancing and texture aliasing)
-// 
-// could have added pragma but meh
-///////////////////////////////////////////////////////////////////////////////////////////////////////

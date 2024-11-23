@@ -69,7 +69,10 @@ namespace FlexEngine
         // - textures
         // - shaders
         // - models
-
+        // - audio
+        // - flxscene data
+        // - font
+        
         auto file_extension = file.path.extension();
 
         if (FLX_EXTENSIONS_CHECK_SAFETY("image", file_extension.string()))

@@ -32,6 +32,7 @@
 
 namespace FlexEngine
 {
+    #pragma region Static Variables
     // static member initialization
     uint32_t OpenGLSpriteRenderer::m_draw_calls = 0;
     uint32_t OpenGLSpriteRenderer::m_draw_calls_last_frame = 0;
@@ -41,36 +42,9 @@ namespace FlexEngine
 
     std::vector<MeshBuffer> OpenGLSpriteRenderer::m_vbos;
     std::vector<GLuint> OpenGLSpriteRenderer::m_batchSSBOs;
+    #pragma endregion
 
-    std::filesystem::path curr_file_path = __FILE__;
-    std::filesystem::path shared_vert_path(curr_file_path.parent_path() / "../../../../assets/shader/Shared.vert");
-    std::filesystem::path bloom_brightness_frag_path(curr_file_path.parent_path() / "../../../../assets/shader/bloom/bloom_bright_extraction.frag");
-    std::filesystem::path bloom_blur_frag_path(curr_file_path.parent_path() / "../../../../assets/shader/bloom/bloom_gaussian_blurN.frag");
-    std::filesystem::path bloom_final_frag_path(curr_file_path.parent_path() / "../../../../assets/shader/bloom/bloom_final_composite.frag");
-    Asset::Shader OpenGLSpriteRenderer::m_bloom_brightness_shader;
-    Asset::Shader OpenGLSpriteRenderer::m_bloom_gaussianblur_shader;
-    Asset::Shader OpenGLSpriteRenderer::m_bloom_finalcomp_shader;
-
-    //////////////////////////////////////////////////////////////
-    //GLuint OpenGLSpriteRenderer::samples = 8;
-    //float OpenGLSpriteRenderer::gamma = 2.2f;
-    float OpenGLSpriteRenderer::m_PPopacity = 0.8f;
-
-    GLuint OpenGLSpriteRenderer::m_editorFBO = 0;
-    GLuint OpenGLSpriteRenderer::m_postProcessingFBO = 0;
-    GLuint OpenGLSpriteRenderer::m_bloomFBO = 0;
-
-    GLuint OpenGLSpriteRenderer::m_pingpongTex[2] = {};
-    GLuint OpenGLSpriteRenderer::m_postProcessingTex = 0;
-    GLuint OpenGLSpriteRenderer::m_editorTex = {};
-    GLuint OpenGLSpriteRenderer::m_finalRenderTex = {};
-
-    float width, height;
-
-    //////////////////////////////////////////////////////////////
-
-    //////////////////////////////////////////////////////////////////////////////////////////
-    // WRAPPER FUNCTIONS
+    #pragma region Wrapper Func
     /*!***************************************************************************
     * \brief
     * Retrieves the total number of draw calls made.
@@ -85,11 +59,6 @@ namespace FlexEngine
     * \return Total draw calls from the last frame as a uint32_t.
     *****************************************************************************/
     uint32_t OpenGLSpriteRenderer::GetDrawCallsLastFrame() { return m_draw_calls_last_frame; }
-
-    void OpenGLSpriteRenderer::SetDefaultFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
-    void OpenGLSpriteRenderer::SetEditorFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_editorFBO); }
-    void OpenGLSpriteRenderer::SetPPFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_postProcessingFBO); }
-    void OpenGLSpriteRenderer::SetBloomFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_bloomFBO); }
 
     /*!***************************************************************************
     * \brief
@@ -142,11 +111,7 @@ namespace FlexEngine
         m_blending = false;
         glDisable(GL_BLEND);
     }
-    /*!***************************************************************************
-    * \brief
-    * Clears the current framebuffer.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::ClearFrameBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+    
     /*!***************************************************************************
     * \brief
     * Clears the color buffer with a specified color.
@@ -159,6 +124,8 @@ namespace FlexEngine
         m_draw_calls_last_frame = m_draw_calls;
         m_draw_calls = 0;
     }
+    #pragma endregion
+
     /*!***************************************************************************
     * \brief
     * Retrieves the VAO ID for a specified VBO type.
@@ -168,22 +135,9 @@ namespace FlexEngine
     *****************************************************************************/
     GLuint OpenGLSpriteRenderer::GetVAO_ID(Renderer2DProps::VBO_Type type) { return m_vbos[type].vao; }
 
-    GLuint OpenGLSpriteRenderer::GetCreatedTexture(CreatedTextureID id)
-    {
-        switch (id)
-        {
-        case CreatedTextureID::CID_finalRender:
-            return m_finalRenderTex;
-        case CreatedTextureID::CID_blur:
-            return m_pingpongTex[0];
-        case CreatedTextureID::CID_editor:
-        default:
-            return m_editorTex;
-        }
-    }
     //////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////
-
+    #pragma region Initialization
     /*!***************************************************************************
     * \brief
     * Creates a VAO and VBO with the specified vertices.
@@ -343,102 +297,15 @@ namespace FlexEngine
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Linking shaders
-        m_bloom_brightness_shader.Create(shared_vert_path, bloom_brightness_frag_path);
-        m_bloom_gaussianblur_shader.Create(shared_vert_path, bloom_blur_frag_path);
-        m_bloom_finalcomp_shader.Create(shared_vert_path, bloom_final_frag_path);
-        FreeQueue::Push(
-          [=]()
-        {
-            m_bloom_brightness_shader.Destroy();
-            m_bloom_gaussianblur_shader.Destroy();
-            m_bloom_finalcomp_shader.Destroy();
-        }
-        );
-        Log::Info("All post-processing shaders are created.");
+        OpenGLPostProcessing::Init(m_vbos[Renderer2DProps::VBO_Type::VBO_PProcessing].vao);
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////
-        // Create relevant FBO 
-        GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-        glGenFramebuffers(1, &m_postProcessingFBO); //For final composite post-process
-        SetPPFrameBuffer();
-        width = windowSize.x;
-        height = windowSize.y;
-
-        // Create Post-processing FBO
-        glGenTextures(1, &m_postProcessingTex);
-        glBindTexture(GL_TEXTURE_2D, m_postProcessingTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_postProcessingTex, 0);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            Log::Fatal("Post-Processing Framebuffer error: " + glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-        // Create Specialized Post-processing FBO : BLOOM
-        glGenFramebuffers(1, &m_bloomFBO); //For gaussian blurring
-        SetBloomFrameBuffer();
-        glGenTextures(2, m_pingpongTex);
-        glBindTexture(GL_TEXTURE_2D, m_pingpongTex[0]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pingpongTex[0], 0);
-        glBindTexture(GL_TEXTURE_2D, m_pingpongTex[1]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_pingpongTex[1], 0);
-        glDrawBuffers(2, drawBuffers);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            Log::Fatal("Bloom Framebuffer error: " + glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-        // Create editor FBO
-        glGenFramebuffers(1, &m_editorFBO);
-        SetEditorFrameBuffer();
-        glGenTextures(1, &m_editorTex);
-        glBindTexture(GL_TEXTURE_2D, m_editorTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_editorTex, 0);
-        glGenTextures(1, &m_finalRenderTex);
-        glBindTexture(GL_TEXTURE_2D, m_finalRenderTex);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, static_cast<GLsizei>(width), static_cast<GLsizei>(height), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_finalRenderTex, 0);
-        glDrawBuffers(2, drawBuffers);
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            Log::Fatal("Editor Framebuffer error: " + glCheckFramebufferStatus(GL_FRAMEBUFFER));
-
-        // Unbind frame buffer
-        SetDefaultFrameBuffer();
-
-        FreeQueue::Push(
-        [=]()
-        {
-            glDeleteFramebuffers(1, &m_postProcessingFBO);
-            glDeleteFramebuffers(1, &m_editorFBO);
-            glDeleteFramebuffers(1, &m_bloomFBO);
-
-            glDeleteTextures(1, &m_postProcessingTex);
-            glDeleteTextures(1, &m_editorTex);
-            glDeleteTextures(1, &m_finalRenderTex);
-            glDeleteTextures(2, m_pingpongTex);
-        }
-        );
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        //// Create relevant FBO 
+        OpenGLFrameBuffer::Init(windowSize);
     }
+    #pragma endregion
 
+    #pragma region Draw
     /*!***************************************************************************
     * \brief
     * Draws a 2D texture using the specified properties.
@@ -517,7 +384,7 @@ namespace FlexEngine
         asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
         asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
 
-        // Transformation & Orthographic Projection
+        // Transformation & Orthographic Projection -> Must be hardcoded due to no need of change
         asset_shader.SetUniform_mat4("u_model", props.transform);
         static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
         Matrix4x4 projection_view = Matrix4x4::Orthographic(
@@ -657,7 +524,7 @@ namespace FlexEngine
     *****************************************************************************/
     void OpenGLSpriteRenderer::DrawPostProcessingLayer()
     {
-        SetPPFrameBuffer(); // Initial Frame Buffer Setup
+        OpenGLFrameBuffer::SetPostProcessingFrameBuffer(); // Initial Frame Buffer Setup
 
         //CURRENT POST-PROCESS(PP) BEING HANDLED:
         // 1) Reflection / Gloss
@@ -667,16 +534,16 @@ namespace FlexEngine
         // 2) Bloom
         {
             // Step 1: Set to bloom frame buffer -> you do not want to mess with the other effects textures
-            SetBloomFrameBuffer();
+            OpenGLFrameBuffer::SetBloomFrameBuffer();
 
             // Step 2: Brightness Extraction
-            ApplyBrightnessPass(0.55f);
+            OpenGLPostProcessing::ApplyBrightnessPass(0.55f);
 
             // Step 3: Gaussian Blur
-            ApplyGaussianBlur(4, 10.0f, 12);
+            OpenGLPostProcessing::ApplyGaussianBlur(4, 10.0f, 12);
 
             // Step 4: Final Composition
-            ApplyBloomFinalComposition(m_PPopacity);
+            OpenGLPostProcessing::ApplyBloomFinalComposition(0.8f);
         }
         // 3) Blur / Focal Adjust
         {
@@ -692,89 +559,5 @@ namespace FlexEngine
         glDrawBuffers(2, drawBuffers);
         glBindVertexArray(0);
     }
-
-    /*!***************************************************************************
-    * \brief
-    * Applies a brightness threshold pass for the bloom effect.
-    *
-    * \param threshold The brightness threshold to apply.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::ApplyBrightnessPass(float threshold)
-    {
-        GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-        glDrawBuffers(2, drawBuffers);
-
-        m_bloom_brightness_shader.Use();
-        m_bloom_brightness_shader.SetUniform_float("u_Threshold", threshold);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_finalRenderTex); // Input: scene texture
-        m_bloom_brightness_shader.SetUniform_int("scene", 0);
-
-        glBindVertexArray(m_vbos[Renderer2DProps::VBO_Type::VBO_PProcessing].vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        m_draw_calls++;
-    }
-
-    /*!***************************************************************************
-    * \brief
-    * Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
-    *
-    * \param blurDrawPasses The number of passes to apply for the blur.
-    * \param blurDistance The distance factor for the blur effect.
-    * \param intensity The intensity of the blur.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::ApplyGaussianBlur(int blurDrawPasses, float blurDistance, int intensity)
-    {
-        m_bloom_gaussianblur_shader.Use();
-        bool horizontal = true;
-
-        for (int i = 0; i < blurDrawPasses; ++i)
-        {
-            GLenum drawBuffer = horizontal ? GL_COLOR_ATTACHMENT0 : GL_COLOR_ATTACHMENT1;
-            glDrawBuffers(1, &drawBuffer);
-
-            m_bloom_gaussianblur_shader.SetUniform_int("horizontal", horizontal);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, m_pingpongTex[horizontal]);
-            m_bloom_gaussianblur_shader.SetUniform_int("scene", 0);
-            m_bloom_gaussianblur_shader.SetUniform_float("blurDistance", blurDistance);
-            m_bloom_gaussianblur_shader.SetUniform_int("intensity", intensity);
-
-            glBindVertexArray(m_vbos[Renderer2DProps::VBO_Type::VBO_PProcessing].vao);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            m_draw_calls++;
-
-            horizontal = !horizontal;
-        }
-    }
-
-    /*!***************************************************************************
-    * \brief
-    * Applies the final bloom composition with a specified opacity level.
-    *
-    * \param opacity The opacity level for the bloom composition.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::ApplyBloomFinalComposition(float opacity)
-    {
-        SetEditorFrameBuffer();
-        //GLenum drawBuffer = GL_COLOR_ATTACHMENT1;
-        GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT1 };
-        glDrawBuffers(1, drawBuffers);
-
-        m_bloom_finalcomp_shader.Use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_editorTex); // Original scene texture
-        m_bloom_finalcomp_shader.SetUniform_int("screenTex", 0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_pingpongTex[0]); // Blur Vertical
-        m_bloom_finalcomp_shader.SetUniform_int("bloomVTex", 1);
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_pingpongTex[1]); // Blur Horizontal
-        m_bloom_finalcomp_shader.SetUniform_int("bloomHTex", 2);
-        m_bloom_finalcomp_shader.SetUniform_float("opacity", opacity);
-
-        glBindVertexArray(m_vbos[Renderer2DProps::VBO_Type::VBO_PProcessing].vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        m_draw_calls++;
-    }
+    #pragma endregion
 }

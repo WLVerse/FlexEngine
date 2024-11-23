@@ -77,6 +77,7 @@ namespace ChronoShift
 				new_entity.AddComponent<Position>({});
 				new_entity.AddComponent<Rotation>({});
 				new_entity.AddComponent<Scale>({});
+				new_entity.AddComponent<Transform>({});
 			}
 			ImGui::EndPopup();
 		}

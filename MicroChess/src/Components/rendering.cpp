@@ -86,7 +86,7 @@ namespace ChronoShift
   FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(Camera)
-      FLX_REFL_REGISTER_PROPERTY(camera) //Must put lah or error
+      FLX_REFL_REGISTER_PROPERTY(camera)
   FLX_REFL_REGISTER_END
 
   FLX_REFL_REGISTER_START(Text)
@@ -94,11 +94,19 @@ namespace ChronoShift
       FLX_REFL_REGISTER_PROPERTY(text)
       FLX_REFL_REGISTER_PROPERTY(color)
       FLX_REFL_REGISTER_PROPERTY(alignment)
-      //FLX_REFL_REGISTER_PROPERTY(vbo_id)
+      FLX_REFL_REGISTER_PROPERTY(refocus)
   FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Button)
-      FLX_REFL_REGISTER_PROPERTY(behavior)
+        FLX_REFL_REGISTER_PROPERTY(interactable)
+        FLX_REFL_REGISTER_PROPERTY(targetGraphic)
+        FLX_REFL_REGISTER_PROPERTY(normalColor)
+        FLX_REFL_REGISTER_PROPERTY(highlightedColor)
+        FLX_REFL_REGISTER_PROPERTY(pressedColor)
+        FLX_REFL_REGISTER_PROPERTY(selectedColor)
+        FLX_REFL_REGISTER_PROPERTY(disabledColor)
+        FLX_REFL_REGISTER_PROPERTY(colorMultiplier)
+        FLX_REFL_REGISTER_PROPERTY(fadeDuration)
     FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Audio)
@@ -161,12 +169,6 @@ namespace ChronoShift
   COMPONENT_VIEWER_END(Animation)
 
   COMPONENT_VIEWER_START(Camera)
-    //Testing
-    {
-        COMPONENT_VIEWER_DRAG_VECTOR3(camera.direction)
-        COMPONENT_VIEWER_DRAG_VECTOR3(camera.up)
-        COMPONENT_VIEWER_DRAG_VECTOR3(camera.right)
-    }
      COMPONENT_VIEWER_DRAG_FLOAT(camera.fieldOfView)
      COMPONENT_VIEWER_DRAG_FLOAT(camera.aspectRatio)
      COMPONENT_VIEWER_DRAG_FLOAT(camera.nearClip)
@@ -179,11 +181,19 @@ namespace ChronoShift
       COMPONENT_VIEWER_STRING(fonttype)
       COMPONENT_VIEWER_EDITABLE_STRING(text)
       COMPONENT_VIEWER_COLOR3(color)
-      //COMPONENT_VIEWER(alignment)
+      COMPONENT_VIEWER_CHECKBOX(refocus)
   COMPONENT_VIEWER_END(Text)
 
   COMPONENT_VIEWER_START(Button)
-     COMPONENT_VIEWER_DRAG_INT(behavior)
+     COMPONENT_VIEWER_CHECKBOX(interactable)
+     COMPONENT_VIEWER_TEXTURE_PATH(targetGraphic)
+     COMPONENT_VIEWER_COLOR3(normalColor)
+     COMPONENT_VIEWER_COLOR3(highlightedColor)
+     COMPONENT_VIEWER_COLOR3(pressedColor)
+     COMPONENT_VIEWER_COLOR3(selectedColor)
+     COMPONENT_VIEWER_COLOR3(disabledColor)
+     COMPONENT_VIEWER_DRAG_FLOAT(colorMultiplier)
+     COMPONENT_VIEWER_DRAG_FLOAT(fadeDuration)
   COMPONENT_VIEWER_END(Button)
 
   COMPONENT_VIEWER_START(Audio)
@@ -206,7 +216,7 @@ namespace ChronoShift
     REGISTER_COMPONENT_VIEWER(Text);
     REGISTER_COMPONENT_VIEWER(Camera);
     REGISTER_COMPONENT_VIEWER(Animation);
-    REGISTER_COMPONENT_VIEWER(Button); // I am going to slot here for now, please clean this up - YC
-    REGISTER_COMPONENT_VIEWER(Audio);                                    // Gonna be honest im just gonna leave it - wj
+    REGISTER_COMPONENT_VIEWER(Button);
+    REGISTER_COMPONENT_VIEWER(Audio); 
   }
 }

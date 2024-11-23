@@ -35,13 +35,12 @@ namespace ChronoShift
     FlexEngine::Window* window = Application::GetCurrentWindow();
     window->SetTargetFPS(60);
     window->SetVSync(false);
-    window->SetIcon(FLX_ASSET_GET(Asset::Texture, R"(\images\flexengine\flexengine_icon_white.png)"));
+    window->SetIcon(FLX_ASSET_GET(Asset::Texture, R"(\images\flexengine\flexengine-256.png)"));
 
     window->PushLayer(std::make_shared<ChronoShift::BattleLayer>());
     window->PushLayer(std::make_shared<ChronoShift::OverworldLayer>());
     window->PushLayer(std::make_shared<ChronoShift::EditorLayer>());
-    window->PushLayer(std::make_shared<ScriptingLayer>());
-
+   
     // Renderer Setup
 
     OpenGLRenderer::EnableBlending();
@@ -222,29 +221,48 @@ namespace ChronoShift
           ImGui::EndMenu();
         }
 
-//if (ImGui::BeginMenu("Edit"))
-//{
-//  if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
-//  if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
-//  ImGui::EndMenu();
-//}
+        //if (ImGui::BeginMenu("Edit"))
+        //{
+        //  if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
+        //  if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
+        //  ImGui::EndMenu();
+        //}
 
-if (ImGui::BeginMenu("View"))
-{
-  if (ImGui::MenuItem("Center Window"))
-  {
-    function_queue.Insert({
-      [this]()
-      {
-        Application::GetCurrentWindow()->CenterWindow();
-      }
-    });
-  }
+        if (ImGui::BeginMenu("View"))
+        {
+          if (ImGui::MenuItem("Center Window"))
+          {
+            function_queue.Insert({
+              [this]()
+              {
+                Application::GetCurrentWindow()->CenterWindow();
+              }
+            });
+          }
+          ImGui::EndMenu();
+        }
 
-  ImGui::EndMenu();
-}
+        // Set full screen
+        Window* window = Application::GetCurrentWindow();
+        if (ImGui::Button("Full Screen") && !window->IsFullScreen()) {
+          window->CacheMiniWindowParams();
 
-ImGui::EndMainMenuBar();
+          // Get the primary monitor
+          GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+          // Get the video mode of the monitor
+          const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+          // Switch to fullscreen
+          glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        }
+
+        // Minimize!!!
+        if ((ImGui::Button("Esc") || Input::GetKeyDown(GLFW_KEY_ESCAPE)) && window->IsFullScreen()) {
+          std::pair<int, int> window_pos = window->UnCacheMiniWindowsParams();
+          glfwSetWindowMonitor(window->GetGLFWWindow(), NULL, window_pos.first, window_pos.second, window->GetWidth(), window->GetHeight(), window->GetFPS());
+        }
+
+        ImGui::EndMainMenuBar();
       }
       function_queue.Flush();
 

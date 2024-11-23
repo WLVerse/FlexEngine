@@ -163,6 +163,7 @@ using namespace FlexEngine;
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
       std::pair<int,int> alignment = {Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle}; // Default value: centered (all bits set)
+      bool refocus;
   };
 
   /*!***************************************************************************
@@ -180,12 +181,23 @@ using namespace FlexEngine;
       CameraData camera;
   };
 
-  // Button class for UI, holding an int to decide what behavior it should have
+  // Button class for UI
   class Button
   {
       FLX_REFL_SERIALIZABLE
   public:
-      int behavior;
+      bool interactable;             // Whether the button is interactable
+      //std::string transition;        // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
+      FlexECS::Scene::StringIndex targetGraphic;             // Reference to the graphic for the button
+      Vector3 normalColor;           // RGBA values for normal color
+      Vector3 highlightedColor;      // RGBA values for highlighted color
+      Vector3 pressedColor;          // RGBA values for pressed color
+      Vector3 selectedColor;         // RGBA values for selected color
+      Vector3 disabledColor;         // RGBA values for disabled color
+      float colorMultiplier;         // Multiplier for the color tint
+      float fadeDuration;            // Duration for color fading transitions
+      //std::string navigation;        // Navigation mode (e.g., "Automatic", "None")
+      //std::vector<std::function<void()>> onClickEvents;  // List of functions to execute on click
   };
 
 
