@@ -69,12 +69,8 @@ namespace ChronoDrift {
     {
       //Log::Debug("Value of the pointer is: " + std::to_string(*tempptr));
 
-      //std::shared_ptr<FlexECS::Scene> test_scene = FlexECS::ecs_manager.GetActiveScene();
-      //ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
-
-      //FlexEngine::FlexECS::Entity(FlexEngine::FlexECS::Manager:: * funcPtr)(const std::string&) = &FlexEngine::FlexECS::Manager::CreateEntity;
-      //void* fn = reinterpret_cast<void*>(&funcPtr);
-      //std::cout << "Memory address in the EXE is " << fn << std::endl;
+      std::shared_ptr<FlexECS::Scene> test_scene = FlexECS::ecs_manager.GetActiveScene();
+      ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
 
       //ScriptingSystem::ecs_functions["RunPhysicsSystem"](FlexECS::ecs_manager);
     }

@@ -206,7 +206,7 @@ namespace FlexEngine
 
     // This provides functions to create, load, and save the active scene.
     // This was previously handled in the Scene class as static functions.
-    class Manager //__FLX_API Manager
+    class __FLX_API Manager
     {
       std::shared_ptr<Scene> active_scene;
 

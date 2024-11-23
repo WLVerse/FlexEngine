@@ -23,8 +23,5 @@
     <ClInclude Include="ScriptLibrary.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptingInterface.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
