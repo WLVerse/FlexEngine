@@ -53,7 +53,13 @@ namespace FlexEngine
       // Copy the data
       memcpy(reinterpret_cast<std::size_t*>(ptr) + 1, data, size);
 
-      return ComponentData<void>(ptr, [](void* ptr) { delete[] reinterpret_cast<char*>(ptr); });
+      return ComponentData<void>(
+        ptr,
+        [](void* ptr)
+        {
+          if (ptr) delete[] reinterpret_cast<char*>(ptr);
+        }
+      );
     }
 
     __FLX_API std::pair<std::size_t, void*> Internal_GetComponentData(ComponentData<void> data)
