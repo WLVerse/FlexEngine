@@ -67,6 +67,7 @@ namespace FlexEngine
 
     FramerateController m_frameratecontroller;
     LayerStack m_layerstack;
+    std::shared_ptr<Layer> editorLayer; // Yet another scuffed edit I must do to make the editor layer independent of the code layers.
 
     GLFWwindow* m_glfwwindow{ nullptr };
     ImGuiContext* m_imguicontext{ nullptr };
@@ -101,6 +102,8 @@ namespace FlexEngine
     // Sets the current window as the active window
     // Clears the screen and runs the layer stack
     void Update();
+
+    bool pauseLayers = false; // To suspend update...
 
     // Closes the window
     void Close();

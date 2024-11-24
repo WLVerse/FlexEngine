@@ -207,10 +207,9 @@ namespace ChronoDrift
       //}
       #pragma endregion
       
-      //Render All Entities
+      // Update transformation matrix for all entities, whilst rendering is handled by the main window loop.
       profiler.StartCounter("Graphics");
       UpdateAllEntitiesMatrix();
-      RenderSprite2D();
       profiler.EndCounter("Graphics");
 
       profiler.ShowProfilerWindow();

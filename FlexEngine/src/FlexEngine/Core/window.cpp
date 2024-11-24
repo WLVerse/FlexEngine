@@ -9,6 +9,8 @@
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
 #include "FMOD/FMODWrapper.h"
+#include "../../ChronoDrift/src/Renderer/sprite2d.h" // This is in the wrong place right now, but I will do it this way so that I can get the code to compile.
+#include "../../ChronoDrift/src/Layers/editorlayer.h" // This shouldn't have been like this, but I am decoupling the editor layer from the code layers.
 
 namespace
 {
@@ -80,6 +82,8 @@ namespace FlexEngine
     // always move the window to the center of the screen
     // this is done after the window is created to avoid the window being created off-center
     CenterWindow();
+
+    editorLayer = std::make_shared<ChronoDrift::EditorLayer>();
   }
 
   Window::~Window()
@@ -118,7 +122,14 @@ namespace FlexEngine
     ImGuiWrapper::BeginFrame();
 
     // update layer stack
-    m_layerstack.Update();
+    if (!pauseLayers)
+    {
+      m_layerstack.Update();
+      ChronoDrift::RenderSprite2D();
+    }
+    editorLayer->Update();
+
+    // Rendering loop should never have been inside the layer stack...
 
     ImGuiWrapper::EndFrame();
     m_frameratecontroller.EndFrame();
@@ -131,6 +142,10 @@ namespace FlexEngine
   {
     // remove all layers from the layer stack
     m_layerstack.Clear();
+
+    // Cleanup the editor layer.
+    editorLayer->OnDetach();
+    editorLayer.reset();
 
     // shutdown imgui
     // the imgui initialization is done in the window constructor
