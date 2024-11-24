@@ -229,11 +229,11 @@
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="..\ChronoDrift\src\Scripting\ScriptingSystem.cpp">
-      <Filter>src\FlexEngine\Scripting</Filter>
-    </ClCompile>
     <ClCompile Include="src\FlexEngine\FlexECS\manager.cpp">
       <Filter>src\FlexEngine\FlexECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Scripting\ScriptingSystem.cpp">
+      <Filter>src\FlexEngine\Scripting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -444,7 +444,10 @@
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="..\ChronoDrift\src\Scripting\ScriptingSystem.h">
+    <ClInclude Include="src\FlexEngine\Scripting\ScriptingSystem.h">
+      <Filter>src\FlexEngine\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Scripting\IScript.h">
       <Filter>src\FlexEngine\Scripting</Filter>
     </ClInclude>
   </ItemGroup>
