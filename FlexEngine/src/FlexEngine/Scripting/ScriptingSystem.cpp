@@ -5,8 +5,9 @@
 #include <functional>
 #include "flexlogger.h"
 
-std::map<std::string, ScriptingSystem::GenericFunction> ScriptingSystem::functions;
-std::map<std::string, ScriptingSystem::ScriptFunction> ScriptingSystem::ecs_functions;
+//std::map<std::string, ScriptingSystem::GenericFunction> ScriptingSystem::functions;
+//std::map<std::string, ScriptingSystem::ScriptFunction> ScriptingSystem::ecs_functions;
+std::map<std::string, IScript*> ScriptingSystem::ecs_functions;
 
 void ScriptingSystem::LoadDLL(std::string const& dll_path)
 {
@@ -18,8 +19,20 @@ void ScriptingSystem::LoadDLL(std::string const& dll_path)
   // TODO: Load all functions from the DLL and perhaps identify where they're coming from so that we can figure out which functions
   // to slot into what hooks in the engine. ie some are supposed to be update
 
-  GetFunction("RunPhysicsSystem"); // Temporarily put here for now
-  GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
+  //GetFunction("CreateAddPhysicsEntityScript");
+
+  ScriptFunction func = (ScriptFunction)GetProcAddress(dllHandle, "CreateAddPhysicsEntityScript");
+  if (!func) {
+    FreeLibrary(dllHandle); // Unload the DLL if function is not found
+    throw std::runtime_error(std::string("Failed to find function") + "CreateAddPhysicsEntityScript" + " in DLL");
+  }
+
+  IScript* script = func();
+
+  ecs_functions["CreateAddPhysicsEntityScript"] = script;
+
+  //GetFunction("RunPhysicsSystem"); // Temporarily put here for now
+  //GetGenericFunction("ModifyAnInt"); // Temporarily put here for now
 
   //std::cout << "DLL Loaded: !!!!!!!!!!!!!!!!!!" << dll_path << std::endl;
   FlexEngine::Log::Debug("DLL Loaded: " + dll_path);
@@ -34,23 +47,30 @@ void ScriptingSystem::GetFunction(const std::string& function_name)
     throw std::runtime_error("Failed to find function" + function_name + " in DLL");
   }
 
-  ecs_functions[function_name] = func;
+  IScript* script = func();
+
+  ecs_functions[function_name] = script;
 }
 
-void ScriptingSystem::GetGenericFunction(const std::string& function_name)
-{
-  // Retrieve the function pointer
-  GenericFunction func = (GenericFunction)GetProcAddress(dllHandle, function_name.c_str());
-  if (!func) {
-    FreeLibrary(dllHandle); // Unload the DLL if function is not found
-    throw std::runtime_error("Failed to find function" + function_name + " in DLL");
-  }
-
-  functions[function_name] = func;
-}
+//void ScriptingSystem::GetGenericFunction(const std::string& function_name)
+//{
+//  // Retrieve the function pointer
+//  GenericFunction func = (GenericFunction)GetProcAddress(dllHandle, function_name.c_str());
+//  if (!func) {
+//    FreeLibrary(dllHandle); // Unload the DLL if function is not found
+//    throw std::runtime_error("Failed to find function" + function_name + " in DLL");
+//  }
+//
+//  functions[function_name] = func;
+//}
 
 void ScriptingSystem::UnloadDLL()
 {
+  for (auto& [key, value] : ecs_functions)
+  {
+    delete value;
+  }
+
   if (!dllHandle) return; // If the DLL is not loaded, return (no need to unload it)
   FreeLibrary(dllHandle);
 }

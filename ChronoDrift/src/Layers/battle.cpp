@@ -73,7 +73,11 @@ namespace ChronoDrift {
       //ScriptingSystem::ecs_functions["RunPhysicsSystem"](test_scene);
 
       FlexECS::Manager& manager = FlexECS::Manager::GetInstance();
-      ScriptingSystem::ecs_functions["RunPhysicsSystem"](manager);
+      IScript* fn = ScriptingSystem::ecs_functions["CreateAddPhysicsEntityScript"];
+      if (fn != nullptr)
+        fn->Update(manager);
+      else
+        Log::Error("Function not found");
     }
 
     if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
