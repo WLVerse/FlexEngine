@@ -241,7 +241,7 @@ namespace ChronoDrift
             
             auto anim = entity.GetComponent<Animation>();
 
-            if (anim->is_paused) continue;
+            if (anim->is_paused || anim->max_sprites == 0 || anim->cols == 0 || anim->rows == 0) continue;
             anim->m_animationTimer += anim->m_animation_speed * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
             if (anim->m_animationTimer >= 1.0/GameTimeSpeedModifier) 
             {
