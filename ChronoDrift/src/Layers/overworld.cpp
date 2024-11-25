@@ -42,8 +42,7 @@ namespace ChronoDrift
         FLX_FLOW_BEGINSCOPE();
 
         // ECS Setup
-        auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
-        FlexECS::Manager::GetInstance().SetActiveScene(scene);
+        FlexECS::Manager::GetInstance().CreateScene(FlexECS::Scene::Null);
 
         // Setup for level editor
         RegisterRenderingComponents();

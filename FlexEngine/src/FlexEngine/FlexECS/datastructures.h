@@ -255,7 +255,8 @@ namespace FlexEngine
       void DestroyScene(Scene* scene);
 
       Scene* GetActiveScene();
-      void SetActiveScene(const Scene& scene);
+
+      // This does not delete the scene, it swaps it with the provided pointer.
       void SetActiveScene(Scene* scene);
 
       #pragma endregion

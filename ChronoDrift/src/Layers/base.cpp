@@ -108,11 +108,9 @@ namespace ChronoDrift
                 CameraManager::RemoveCameraEntities();
 
                 // Destroy the old scene and create a new one
-                // You cannot call DestroyScene on the active scene so we need to switch scenes first
-                auto old_scene = manager.GetActiveScene();
-                auto new_scene = manager.CreateScene(FlexECS::Scene::Null);
-                manager.SetActiveScene(new_scene);
-                if (old_scene) manager.DestroyScene(old_scene);
+                auto scene = manager.CreateScene(FlexECS::Scene::Null);
+                manager.SetActiveScene(scene);
+                manager.DestroyScene(scene);
 
                 // Every default scene should have a camera.
                 FlexECS::Entity camera = manager.CreateEntity("MainCamera");
@@ -151,12 +149,16 @@ namespace ChronoDrift
                 current_save_directory = file.path.parent_path();
                 current_save_name = file.path.stem().string();
 
+                FlexECS::Manager& manager = FlexECS::Manager::GetInstance();
+
                 // load the scene
-                FlexECS::Manager::GetInstance().SetActiveScene(FlexECS::Manager::GetInstance().Load(file));
+                FlexECS::Scene* loaded_scene = manager.Load(file);
+                manager.SetActiveScene(loaded_scene);
+                manager.DestroyScene(loaded_scene);
 
                 // TODO: Delete this when camera is properly done. This sets the camera to be the one from the scene
                 //CameraManager::RemoveCameraEntities(); // Nuclear clear for scene loading.
-                std::vector<FlexECS::Entity> camera_list = FlexECS::Manager::GetInstance().GetActiveScene()->Query<Camera>();
+                std::vector<FlexECS::Entity> camera_list = manager.GetActiveScene()->Query<Camera>();
                 if (camera_list.size() > 0)
                 {
                   FlexECS::Entity camera = camera_list[0];

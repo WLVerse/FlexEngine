@@ -76,10 +76,6 @@ namespace FlexEngine
       return active_scene;
     }
 
-    void Manager::SetActiveScene(const Scene& scene)
-    {
-      SetActiveScene(CreateScene(scene));
-    }
     void Manager::SetActiveScene(Scene* scene)
     {
       FLX_FLOW_FUNCTION();
@@ -87,12 +83,17 @@ namespace FlexEngine
       // guard
       if (scene == nullptr)
       {
-        Log::Warning("Use the Scene::Null to set the scene to null instead.");
-        SetActiveScene(Scene::Null);
+        Log::Warning("No scene was provided. Active scene did not change.");
+
+        //Scene* scene = CreateScene(Scene::Null);
+        //std::swap(active_scene, scene);
+        //DestroyScene(scene);
+
         return;
       }
 
-      active_scene = scene;
+      // swap scene pointers
+      std::swap(active_scene, scene);
     }
 
     #pragma endregion
