@@ -36,6 +36,8 @@
 
 namespace ChronoDrift
 {
+    constexpr float FONT_SCALE_FACTOR = 3.0f;
+
     #pragma region Update Matrix / Parent & Child
 
     /*!***************************************************************************
@@ -345,7 +347,6 @@ namespace ChronoDrift
     void RenderTextEntities()
     {
         FunctionQueue text_render_queue;
-        constexpr float FONT_SCALE_FACTOR = 3.0f;
 
         for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
         {
