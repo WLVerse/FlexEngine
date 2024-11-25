@@ -138,7 +138,7 @@ namespace ChronoDrift
 
 	void SceneView::HandleMouseAndKeyboardEvents()
 	{
-		if (ImGui::IsWindowFocused() )
+		if (ImGui::IsWindowFocused())
 		{
 			if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 			{
@@ -169,11 +169,18 @@ namespace ChronoDrift
 			{
 				m_current_gizmo_type = GizmoType::ROTATE;
 			}
+
+			//Delete Entity
+			if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+			{
+				Editor::GetInstance().DeleteSelectedEntity();
+			}
 		}
 	}
 
 	void SceneView::DrawGizmos()
 	{
+		m_gizmo_hovered = false;
 		FlexECS::Entity selected_entity = Editor::GetInstance().GetSelectedEntity();
 		if (selected_entity == FlexECS::Entity::Null) return;
 
@@ -268,7 +275,6 @@ namespace ChronoDrift
 			ImGui::SetCursorPos(m_viewport_position);
 			ImGui::Image((ImTextureID)static_cast<uintptr_t>(FlexEngine::OpenGLFrameBuffer::GetCreatedTexture(FlexEngine::OpenGLFrameBuffer::CreatedTextureID::CID_editor)),
 				m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
-
 
 			HandleMouseAndKeyboardEvents();
 			DrawGizmos();
