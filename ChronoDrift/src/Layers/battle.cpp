@@ -64,7 +64,7 @@ namespace ChronoDrift {
 
   void BattleLayer::Update()
   {
-    if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
+    //if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
 
     // Include a check whether battle system has been activated
     auto scene = FlexECS::Scene::GetActiveScene();
