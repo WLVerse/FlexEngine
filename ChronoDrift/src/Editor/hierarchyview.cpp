@@ -48,12 +48,20 @@ namespace ChronoDrift
 		//Drag a sprite from assets to window to create entity with the sprite.
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 		{
+			//calculate position to place, at center
+			CameraManager& cam_manager = Editor::GetInstance().GetCamManager();
+			Vector3 position = cam_manager.GetCameraData(cam_manager.GetEditorCamera())->position;
+			float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+			float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+			position.x += width / 2;
+			position.y += height / 2;
+
 			std::string image_key(image);
 			std::filesystem::path path = image_key;
 
 			FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
 			new_entity.AddComponent<IsActive>({true});
-			new_entity.AddComponent<Position>({ Vector2::One * 500.0f });
+			new_entity.AddComponent<Position>({ {position.x, position.y} });
 			new_entity.AddComponent<Rotation>({});
 			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 			new_entity.AddComponent<Transform>({});
