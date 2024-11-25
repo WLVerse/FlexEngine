@@ -16,7 +16,6 @@ namespace ChronoDrift
 
 	void SceneView::Update()
 	{
-		UpdateEditorCam();
 	}
 
 	void SceneView::Shutdown()
@@ -120,6 +119,10 @@ namespace ChronoDrift
 		{
 			auto& pos = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
+			//auto& transform = entity.GetComponent<Transform>()->transform;
+			//Vector2 pos = { -transform.m30, transform.m31 };
+			//Vector2 scale = { transform.m00, transform.m11 };
+
 			if (mouse_world_pos.x >= (pos.x - (scale.x / 2)) &&
 					mouse_world_pos.x <= (pos.x + (scale.x / 2)) &&
 					mouse_world_pos.y >= (pos.y - (scale.y / 2)) &&
@@ -188,21 +191,21 @@ namespace ChronoDrift
 		if (selected_entity == FlexECS::Entity::Null) return;
 
 		selected_entity.GetComponent<Transform>()->is_dirty = true;
-		//auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
+		auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 		auto& entity_position = selected_entity.GetComponent<Position>()->position;
 		auto& entity_scale		= selected_entity.GetComponent<Scale>()->scale;
 
-		//Maybe pass in the projection matrix
-		//Will probably fix parented objects not being able to be selected
+		//Global pos for accuracy (esp for entities with parent)
+		Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
+		Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
 
 		//Find out where on the screen to draw the gizmos
 		//Take entity position and convert it back to screen position
-		ImVec2 gizmo_origin_pos = WorldToScreen(entity_position);
-
+		ImVec2 gizmo_origin_pos = WorldToScreen(global_pos);
 		//Display an imgui rect around the sprite so we know where we are clicking, at least
-		Vector2 half_scale = entity_scale; half_scale /= 2;
-		ImVec2 entity_min = WorldToScreen(entity_position - half_scale);
-		ImVec2 entity_max = WorldToScreen(entity_position + half_scale);
+		Vector2 half_scale = global_scale; half_scale /= 2;
+		ImVec2 entity_min = WorldToScreen(global_pos - half_scale);
+		ImVec2 entity_max = WorldToScreen(global_pos + half_scale);
 
 		ImRect bounding_box (entity_min, entity_max);
 		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
@@ -281,6 +284,7 @@ namespace ChronoDrift
 
 			HandleMouseAndKeyboardEvents();
 			DrawGizmos();
+			UpdateEditorCam();
 
 			//Create new entity when dragging an image from assets to scene
 			if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
@@ -307,10 +311,38 @@ namespace ChronoDrift
 
 	void SceneView::UpdateEditorCam()
 	{
-		//Add controls
-		if (Input::GetMouseButton(GLFW_MOUSE_BUTTON_MIDDLE)) //Use middle mouse button to drag and move
+		if (ImGui::IsMouseDown(2)) //Use middle mouse button to drag and move
 		{
-			//TODO Not sure what functions to call for this @Rocky
+			ImVec2 drag_delta = ImGui::GetMouseDragDelta(2);
+			if(drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
+			Vector2 camera_pos_change{-drag_delta.x, -drag_delta.y};
+
+			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
+		}
+		else if (ImGui::IsMouseDown(1) && ImGui::IsKeyDown(ImGuiKey_LeftAlt)) //This additional control is because my middle mouse button is broken T_T
+		{
+			ImVec2 drag_delta = ImGui::GetMouseDragDelta(1);
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
+			Vector2 camera_pos_change{ -drag_delta.x, -drag_delta.y };
+
+			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
+		}
+
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.MouseWheel != 0.0f)
+		{
+			if (io.MouseWheel > 0.0f)
+			{
+				//zoom in
+			}
+			else
+			{
+				//zoom out
+			}
 		}
 
 		//Update data
