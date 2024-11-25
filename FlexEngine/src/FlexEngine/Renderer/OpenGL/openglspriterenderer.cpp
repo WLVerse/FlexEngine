@@ -324,6 +324,8 @@ namespace FlexEngine
     *
     * \param props The properties for rendering the texture, including shader,
     *              texture, color, and transformations.
+    * 
+    * LEGACY - Avoid using / use batch renderer
     *****************************************************************************/
     void OpenGLSpriteRenderer::DrawTexture2D(const Renderer2DProps& props)
     {
@@ -418,6 +420,65 @@ namespace FlexEngine
     
     /*!***************************************************************************
     * \brief
+    * Draws an animated 2D texture with the given properties and texture coordinates.
+    *
+    * \param props The rendering properties, including shaders, textures, and transformations.
+    * \param uv The texture coordinates for the animation frame.
+    * 
+    * LEGACY - Avoid using / use batch renderer
+    *****************************************************************************/
+    void OpenGLSpriteRenderer::DrawAnim2D(const Renderer2DProps& props, const Vector4 uv)
+    {
+        // Guard
+        if (props.vbo_id >= m_vbos.size() || props.vbo_id < 0)
+            Log::Fatal("Vbo_id is invalid. Pls Check or revert to 0.");
+        if (props.shader == "" || props.transform == Matrix4x4::Zero || m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
+            return;
+
+        // Bind all
+        glBindVertexArray(m_vbos[props.vbo_id].vao);
+
+        // Apply Shader
+        auto& asset_shader = FLX_ASSET_GET(Asset::Shader, props.shader);
+        asset_shader.Use();
+
+        // Apply Texture
+        if (props.texture != "")
+        {
+            asset_shader.SetUniform_bool("u_use_texture", true);
+            auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
+            //std::cout << props.texture << "\n";
+            asset_texture.Bind(asset_shader, "u_texture", 0);
+        }
+        else
+        {
+            asset_shader.SetUniform_bool("u_use_texture", false);
+            asset_shader.SetUniform_vec3("u_color", props.color_to_add);
+        }
+
+        asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
+        asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
+        float u_min = uv.x;
+        float v_min = uv.y;
+        float u_max = uv.z;
+        float v_max = uv.w;
+        asset_shader.SetUniform_vec2("u_UvMin", Vector2{ u_min, v_min });
+        asset_shader.SetUniform_vec2("u_UvMax", Vector2{ u_max, v_max });
+
+        // Transformation & Orthographic Projection
+        asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
+            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
+        )->proj_viewMatrix);
+        asset_shader.SetUniform_mat4("u_model", props.transform);
+        // Draw
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        m_draw_calls++;
+
+        glBindVertexArray(0);
+    }
+
+    /*!***************************************************************************
+    * \brief
     * Draws a batch of 2D textures using the specified properties and batch data.
     *
     * \param props The rendering properties, including shaders, textures, and transformations.
@@ -476,63 +537,6 @@ namespace FlexEngine
             )->proj_viewMatrix);
         // Draw
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, dataSize);
-        m_draw_calls++;
-
-        glBindVertexArray(0);
-    }
-
-    /*!***************************************************************************
-    * \brief
-    * Draws an animated 2D texture with the given properties and texture coordinates.
-    *
-    * \param props The rendering properties, including shaders, textures, and transformations.
-    * \param uv The texture coordinates for the animation frame.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::DrawAnim2D(const Renderer2DProps& props, const Vector4 uv)
-    {
-        // Guard
-        if (props.vbo_id >= m_vbos.size() || props.vbo_id < 0)
-            Log::Fatal("Vbo_id is invalid. Pls Check or revert to 0.");
-        if (props.shader == "" || props.transform == Matrix4x4::Zero || m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
-            return;
-
-        // Bind all
-        glBindVertexArray(m_vbos[props.vbo_id].vao);
-
-        // Apply Shader
-        auto& asset_shader = FLX_ASSET_GET(Asset::Shader, props.shader);
-        asset_shader.Use();
-
-        // Apply Texture
-        if (props.texture != "")
-        {
-            asset_shader.SetUniform_bool("u_use_texture", true);
-            auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
-            //std::cout << props.texture << "\n";
-            asset_texture.Bind(asset_shader, "u_texture", 0);
-        }
-        else
-        {
-            asset_shader.SetUniform_bool("u_use_texture", false);
-            asset_shader.SetUniform_vec3("u_color", props.color_to_add);
-        }
-
-        asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
-        asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
-        float u_min = uv.x;
-        float v_min = uv.y;
-        float u_max = uv.z;
-        float v_max = uv.w;
-        asset_shader.SetUniform_vec2("u_UvMin", Vector2{ u_min, v_min });
-        asset_shader.SetUniform_vec2("u_UvMax", Vector2{ u_max, v_max });
-
-        // Transformation & Orthographic Projection
-        asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
-            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
-            )->proj_viewMatrix);
-        asset_shader.SetUniform_mat4("u_model", props.transform);
-        // Draw
-        glDrawArrays(GL_TRIANGLES, 0, 6);
         m_draw_calls++;
 
         glBindVertexArray(0);
