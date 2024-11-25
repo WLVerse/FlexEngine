@@ -50,9 +50,9 @@ namespace ChronoDrift
 			height = content_size.y - TOP_PADDING;
 			width = height * aspect_ratio;
 		}
-
 		m_viewport_size = { width, height };
 		m_viewport_position = { (panel_size.x - m_viewport_size.x) / 2.0f, title_bar_height + TOP_PADDING / 2.0f }; // relative to imgui window
+		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
 	}
 
 	Vector4 SceneView::GetWorldClickPosition()
@@ -112,7 +112,7 @@ namespace ChronoDrift
 	{
 		FlexECS::Entity clicked_entity = FlexECS::Entity::Null;
 		int selected_z_index = INT_MIN;
-		Vector4 mouse_world_pos = GetWorldClickPosition();	//Note: need to check if mouse click is within viewport
+		Vector4 mouse_world_pos = GetWorldClickPosition();
 
 		//AABB tiem
 		auto scene = FlexECS::Scene::GetActiveScene();
@@ -144,8 +144,11 @@ namespace ChronoDrift
 			{
 				if (!m_gizmo_hovered)
 				{
+					//check if mouse click was within the viewport
+					bool within_viewport = (ImGui::GetMousePos().x >= m_viewport_screen_position.x && ImGui::GetMousePos().x <= m_viewport_screen_position.x + m_viewport_size.x &&
+																	ImGui::GetMousePos().y >= m_viewport_screen_position.y && ImGui::GetMousePos().y <= m_viewport_screen_position.y + m_viewport_size.y);
 					FlexECS::Entity entity = FindClickedEntity();
-					if (entity != FlexECS::Entity::Null)
+					if (entity != FlexECS::Entity::Null && within_viewport)
 					{
 						Editor::GetInstance().SelectEntity(entity);
 					}
