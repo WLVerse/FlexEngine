@@ -36,14 +36,15 @@ namespace
   void WindowFocusCallBack(GLFWwindow* window, int focused)
   {
     FlexEngine::FMODWrapper::Core::WindowFocusCallback(window, focused);
-    if (focused)
+    // Commented out as it causes tab down when clicking outside window
+    /*if (focused)
     {
       glfwRestoreWindow(window);
     }
     else
     {
       glfwIconifyWindow(window);
-    }
+    }*/
   }
 
 }

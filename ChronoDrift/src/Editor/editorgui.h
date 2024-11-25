@@ -24,7 +24,7 @@ namespace ChronoDrift
 
 	/* =======================================================================================================================
 	Brief:
-	As of now, all the functions are only intended to be used within the inspector panel.
+	As of now, most of the functions are only intended to be used within the inspector panel.
 	Will work on making a more general wrapper.
 
 	Regarding function parameters:
@@ -102,6 +102,38 @@ namespace ChronoDrift
 		static void EndPayloadReceiver();
 
 		/*!***************************************************************************
+		* @brief Gizmos
+		* I could probably shift gizmos to its own class...
+
+		* @param p_x_axis_change / p_y_axis_change
+			* pass in a out float value, the function will return how much the gizmo was moved, in screen space
+
+		* @param origin
+			* origin location to draw the gizmo starting point.
+
+		* @param hovering
+			* pass in a bool, function will tell you whether the gizmo is being hovered over
+		
+		* @param value
+			* move two axises at once, at the same value
+		******************************************************************************/
+		static void GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static void GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+		static void GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+
+		static void Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static void Gizmo_Scale_Y(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static void Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering);
+
+		static void Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering);
+
+
+		/*!***************************************************************************
+		Mouse Pos click -> World Coords, Mouse intersection, etc 
+		******************************************************************************/
+		static bool CheckCircleMouseCollision(ImVec2 circle_origin, float circle_size, float circle_thickness);	//This is only in screen space!
+
+		/*!***************************************************************************
 		* @brief
 		* Similar to ImGui::StartFrame() and ImGui::EndFrame(), 
 		* just call these two once at start and end of frame.
@@ -112,7 +144,6 @@ namespace ChronoDrift
 		static int PushID();
 		static void PopID();
 	private:
-
 		static int m_id;
 	};
 
