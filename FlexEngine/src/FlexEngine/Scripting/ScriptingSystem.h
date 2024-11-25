@@ -24,5 +24,5 @@ public:
   static std::map<std::string, IScript*> ecs_functions;
 
 private:
-  HMODULE dllHandle;
+  HMODULE dllHandle = nullptr;
 };

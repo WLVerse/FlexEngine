@@ -26,7 +26,7 @@
 
 #include <algorithm> // std::sort
 #include <typeindex> // std::type_index
-#include <memory> // std::shared_ptr
+//#include <memory> // std::shared_ptr
 
 namespace FlexEngine
 {
@@ -126,8 +126,11 @@ namespace FlexEngine
     // ComponentData<void> is a special internal type that can hold any component data.
     // The void* it holds is type erased and must be cast to the correct type.
     // The first sizeof(std::size_t) bytes are used to store the size of the data.
+    //template <typename T = void>
+    //using ComponentData = std::shared_ptr<T>;
+
     template <typename T = void>
-    using ComponentData = std::shared_ptr<T>;
+    using ComponentData = T*;
 
     // Create a new ComponentData<void>
     __FLX_API ComponentData<void> Internal_CreateComponentData(std::size_t size, void* data);
@@ -221,7 +224,14 @@ namespace FlexEngine
       }
 
     private:
-      Manager() = default;
+      Manager()
+      {
+      }
+      ~Manager()
+      {
+        Internal_FreeSceneRegistry();
+      }
+
       Manager(const Manager&) = delete;
       Manager& operator=(const Manager&) = delete;
 
@@ -229,15 +239,24 @@ namespace FlexEngine
 
     private:
       // Prefer GetActiveScene() and SetActiveScene() instead of directly accessing this variable.
-      std::shared_ptr<Scene> active_scene;
+      Scene* active_scene = nullptr;
 
       #pragma region Scene management functions
 
     public:
-      std::shared_ptr<Scene> CreateScene();
-      std::shared_ptr<Scene> GetActiveScene();
+      // can potentially add support for named scenes in the future
+      std::vector<Scene*> scene_registry;
+
+      // INTERNAL FUNCTION
+      // Used to free all known scenes
+      void Internal_FreeSceneRegistry();
+
+      Scene* CreateScene(const Scene& scene);
+      void DestroyScene(Scene* scene);
+
+      Scene* GetActiveScene();
       void SetActiveScene(const Scene& scene);
-      void SetActiveScene(std::shared_ptr<Scene> scene);
+      void SetActiveScene(Scene* scene);
 
       #pragma endregion
 
@@ -268,7 +287,7 @@ namespace FlexEngine
       // Use this interface to save and load scenes.
       // All these functions work on the active scene.
 
-      std::shared_ptr<Scene> Load(File& file);
+      Scene* Load(File& file);
       void SaveActiveScene(File& file);
 
       #pragma endregion
@@ -283,6 +302,10 @@ namespace FlexEngine
 
       // TODO: Implement reusing entity ids
       //EntityID next_entity_id = 0;
+
+    public:
+      ~Scene() { Internal_FreeComponents(); }
+      void Internal_FreeComponents();
 
     public:
       // Null scene for when the active scene is set to null

@@ -81,6 +81,23 @@ namespace FlexEngine
 
     #pragma region Internal Functions
 
+    void Scene::Internal_FreeComponents()
+    {
+      FLX_FLOW_FUNCTION();
+
+      // free all component data
+      for (auto& [id, archetype] : archetype_index)
+      {
+        for (auto& column : archetype.archetype_table)
+        {
+          for (auto& data : column)
+          {
+            delete[] data;
+          }
+        }
+      }
+    }
+
     // relink entity archetype pointers
     // for each entity in the entity index, set the archetype pointer to the archetype in the archetype index
     void Scene::Internal_RelinkEntityArchetypePointers()

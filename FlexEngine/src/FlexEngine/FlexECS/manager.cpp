@@ -9,38 +9,78 @@ namespace FlexEngine
 
     #pragma region Scene Management Functions
 
-    std::shared_ptr<Scene> Manager::CreateScene()
+    void Manager::Internal_FreeSceneRegistry()
     {
       FLX_FLOW_FUNCTION();
+
+      for (Scene* scene : scene_registry)
+      {
+        if (scene) delete scene;
+      }
+      scene_registry.clear();
+    }
+
+    Scene* Manager::CreateScene(const Scene& scene)
+    {
+      FLX_FLOW_FUNCTION();
+
+      scene_registry.push_back(new Scene(scene));
 
       // set itself as the active scene unless there is already an active scene
       if (active_scene == nullptr)
       {
-        active_scene = std::make_shared<Scene>(Scene::Null);
-        return active_scene;
+        active_scene = scene_registry.back();
       }
-      else
-      {
-        return std::make_shared<Scene>(Scene::Null);
-      }
+
+      return scene_registry.back();
     }
 
-    std::shared_ptr<Scene> Manager::GetActiveScene()
+    void Manager::DestroyScene(Scene* scene)
+    {
+      FLX_FLOW_FUNCTION();
+
+      // guard: scene does not exist
+      if (scene == nullptr)
+      {
+        Log::Warning("Attempted to destroy scene that does not exist.");
+        return;
+      }
+
+      // guard: scene is the active scene
+      if (scene == active_scene)
+      {
+        Log::Warning("Attempted to destroy the active scene. Set another scene as active before destroying this scene.");
+        return;
+      }
+
+      // remove the scene from the registry
+      scene_registry.erase(std::remove(scene_registry.begin(), scene_registry.end(), scene), scene_registry.end());
+      delete scene;
+    }
+
+    Scene* Manager::GetActiveScene()
     {
       // create a new scene if there isn't one
       if (active_scene == nullptr)
       {
         Log::Warning("No active scene found. Creating a new scene.");
-        CreateScene();
+        Scene* new_scene = CreateScene(Scene::Null);
+
+        // guard
+        if (new_scene != active_scene)
+        {
+          Log::Fatal("This should never happen. CreateScene did not set the active scene.");
+          return nullptr;
+        }
       }
       return active_scene;
     }
 
     void Manager::SetActiveScene(const Scene& scene)
     {
-      SetActiveScene(std::make_shared<Scene>(scene));
+      SetActiveScene(CreateScene(scene));
     }
-    void Manager::SetActiveScene(std::shared_ptr<Scene> scene)
+    void Manager::SetActiveScene(Scene* scene)
     {
       FLX_FLOW_FUNCTION();
 
@@ -261,13 +301,13 @@ namespace FlexEngine
     #pragma region Scene Serialization Functions
 
     // static function
-    std::shared_ptr<Scene> Manager::Load(File& file)
+    Scene* Manager::Load(File& file)
     {
       Reflection::TypeDescriptor* type_desc = Reflection::TypeResolver<FlexECS::Scene>::Get();
 
       // get scene data
       FlxFmtFile flxfmtfile = FlexFormatter::Parse(file, FlxFmtFileType::Scene);
-      if (flxfmtfile == FlxFmtFile::Null) return std::make_shared<Scene>(Scene::Null);
+      if (flxfmtfile == FlxFmtFile::Null) return CreateScene(Scene::Null);
 
       // deserialize
       Document document;
@@ -275,11 +315,11 @@ namespace FlexEngine
       if (document.HasParseError())
       {
         Log::Error("Failed to parse scene data.");
-        return std::make_shared<Scene>(Scene::Null);
+        return CreateScene(Scene::Null);
       }
 
-      std::shared_ptr<Scene> deserialized_scene = std::make_shared<Scene>();
-      type_desc->Deserialize(deserialized_scene.get(), document);
+      Scene* deserialized_scene = nullptr;
+      type_desc->Deserialize(deserialized_scene, document);
 
       // relink entity archetype pointers
       deserialized_scene->Internal_RelinkEntityArchetypePointers();

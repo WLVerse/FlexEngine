@@ -52,7 +52,7 @@ namespace ChronoDrift {
   {
   }
   void BattleSystem::SetUpBattleScene() {
-    auto scene = FlexECS::Manager::GetInstance().CreateScene();
+    auto scene = FlexECS::Manager::GetInstance().CreateScene(FlexECS::Scene::Null);
 
     for (int i = 0; i < (players_displayed + enemies_displayed); i++) {
       FlexECS::Entity slot; //FlexECS::Manager::GetInstance().CreateEntity("Slot" + std::to_string(i));

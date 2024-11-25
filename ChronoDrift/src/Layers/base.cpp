@@ -102,12 +102,20 @@ namespace ChronoDrift
             function_queue.Insert({
               [this]()
               {
+                FlexECS::Manager& manager = FlexECS::Manager::GetInstance();
+
                 // Clear the scene and reset statics
                 CameraManager::RemoveCameraEntities();
-                FlexECS::Manager::GetInstance().SetActiveScene(std::make_shared<FlexECS::Scene>());
+
+                // Destroy the old scene and create a new one
+                // You cannot call DestroyScene on the active scene so we need to switch scenes first
+                auto old_scene = manager.GetActiveScene();
+                auto new_scene = manager.CreateScene(FlexECS::Scene::Null);
+                manager.SetActiveScene(new_scene);
+                if (old_scene) manager.DestroyScene(old_scene);
 
                 // Every default scene should have a camera.
-                FlexECS::Entity camera = FlexECS::Manager::GetInstance().CreateEntity("MainCamera");
+                FlexECS::Entity camera = manager.CreateEntity("MainCamera");
                 camera.AddComponent<Position>({ {-150, 300 } });
                 camera.AddComponent<Scale>({ { 0.5,0.5 } });
                 camera.AddComponent<Rotation>({ });

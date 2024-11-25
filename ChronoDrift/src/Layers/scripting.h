@@ -17,6 +17,6 @@ namespace ChronoDrift
     virtual void Update() override;
 
   private:
-    ScriptingSystem scriptingSystem;
+    ScriptingSystem scriptingSystem = ScriptingSystem();
   };
 }

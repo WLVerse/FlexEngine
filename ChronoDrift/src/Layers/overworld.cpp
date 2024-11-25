@@ -18,7 +18,7 @@ namespace ChronoDrift
 {
     void OverworldLayer::SetupWorld()
     {
-        auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
+        //auto scene = FlexECS::Manager::GetInstance().GetActiveScene();
 
         //Camera 
         #if 1
