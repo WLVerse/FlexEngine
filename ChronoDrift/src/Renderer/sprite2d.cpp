@@ -448,7 +448,7 @@ namespace ChronoDrift
 
         #pragma region Draw Scene Entities
         //RenderNormalEntities();
-        RenderBatchedEntities();
+        RenderBatchedEntities(false); //Dont show PP yet until m4
         RenderTextEntities();
         #pragma endregion
 
