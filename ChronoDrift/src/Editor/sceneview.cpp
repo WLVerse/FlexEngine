@@ -217,8 +217,8 @@ namespace ChronoDrift
 			//Scale the change in position with relation to screen size
 			//pos_change represents how much the gizmo moved in absolute screen coordinates.
 			//Need to convert screen space to world space
-			pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / m_viewport_size.x;
-			pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / m_viewport_size.y;
+			pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth()  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_position += pos_change;
 		}
 		else if (m_current_gizmo_type == GizmoType::SCALE)
@@ -240,8 +240,8 @@ namespace ChronoDrift
 				scale_change.y = -scale_change.y;
 			}
 
-			scale_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / m_viewport_size.x;
-			scale_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / m_viewport_size.y;
+			scale_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			scale_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_scale += scale_change;
 		}
 		else if (m_current_gizmo_type == GizmoType::ROTATE)
