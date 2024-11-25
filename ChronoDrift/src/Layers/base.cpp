@@ -258,12 +258,31 @@ namespace ChronoDrift
 
           // Switch to fullscreen
           glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        
+          //Force update view of all cameras
+          std::vector<FlexECS::Entity> camera_list = FlexECS::Scene::GetActiveScene()->Query<Camera>();
+          if (!camera_list.empty())
+          {
+              for (auto& camera : camera_list)
+              {
+                  camera.GetComponent<Transform>()->is_dirty = true;
+              }
+          }
         }
 
         // Minimize!!!
         if ((ImGui::Button("Esc") || Input::GetKeyDown(GLFW_KEY_ESCAPE)) && window->IsFullScreen()) {
           std::pair<int, int> window_pos = window->UnCacheMiniWindowsParams();
           glfwSetWindowMonitor(window->GetGLFWWindow(), NULL, window_pos.first, window_pos.second, window->GetWidth(), window->GetHeight(), window->GetFPS());
+        
+          std::vector<FlexECS::Entity> camera_list = FlexECS::Scene::GetActiveScene()->Query<Camera>();
+          if (!camera_list.empty())
+          {
+              for (auto& camera : camera_list)
+              {
+                  camera.GetComponent<Transform>()->is_dirty = true;
+              }
+          }
         }
 
         ImGui::EndMainMenuBar();
