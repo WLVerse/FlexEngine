@@ -227,6 +227,28 @@ namespace ChronoDrift
 		PopID();
 	}
 
+	void EditorGUI::FontPath(std::string& path, std::string title)
+	{
+		PushID();
+
+		std::filesystem::path current_texture = path;
+		std::string filename = current_texture.filename().string();
+		if (filename == "") filename = "(no font)";
+		//default "\fonts\Bangers\Bangers-Regular.ttf"
+		ImGui::Text(title.c_str());
+		ImGui::SameLine();
+		ImGui::Button(filename.c_str());
+
+		if (const char* data = StartPayloadReceiver<const char>(PayloadTags::FONT))
+		{
+			std::string new_file_path(data);
+			path = new_file_path;
+			EndPayloadReceiver();
+		}
+
+		PopID();
+	}
+
 	void EditorGUI::Color3(Vector3& data, std::string title)
 	{
 		PushID();
