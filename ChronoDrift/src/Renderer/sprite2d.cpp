@@ -99,7 +99,6 @@ namespace ChronoDrift
         //    local_rotation = currCam.GetComponent<Rotation>();
 
         //Update CamData
-        if (!currCam.GetComponent<Transform>()->is_dirty) return; //TODO Check is this necessary
         auto& local_camData = currCam.GetComponent<Camera>()->camera;
         local_camData.position = local_position;
         Camera2D::UpdateProjectionMatrix(local_camData);
@@ -441,10 +440,9 @@ namespace ChronoDrift
         // 1. the order of post-processed objects is rendered first, then non-post-processed (For the sake of text box)
 
         //TODO @WEIJIE 
-        // 1. BUTTONS DONT FORGET LEH
-        // 2. Bloom fix in fullscreen
-        // 3. Merge text with batch queue (merge text renderer to sprite renderer)
-        // 4. Change the shader name to not be hardcoded for the different rendering process
+        // 1. Bloom fix in fullscreen
+        // 2. Merge text with batch queue (merge text renderer to sprite renderer)
+        // 3. Change the shader name to not be hardcoded for the different rendering process
         //    - either auto add shader component -> auto set correct shader
 
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
