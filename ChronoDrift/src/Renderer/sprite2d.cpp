@@ -296,7 +296,7 @@ namespace ChronoDrift
         FunctionQueue batch_render_queue;
         std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
         //Sprite
-        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>()) 
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Sprite>()) 
         {
             if (entity.GetComponent<IsActive>()->is_active) 
             {
@@ -305,7 +305,7 @@ namespace ChronoDrift
             }
         }
         //Animation
-        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Animation>())
         {
             if (entity.GetComponent<IsActive>()->is_active)
             {

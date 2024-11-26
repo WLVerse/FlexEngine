@@ -185,11 +185,15 @@ using namespace FlexEngine;
   // Button class for UI
   class Button
   {
+      //TODO 
+      // Right now bounding box requires rigidbody in order to auto set, it shouldnt rely on rigidbody no?
+      // 
       FLX_REFL_SERIALIZABLE
   public:
-      bool interactable;             // Whether the button is interactable
-      //std::string transition;        // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
-      FlexECS::Scene::StringIndex targetGraphic;             // Reference to the graphic for the button
+      bool is_interactable;             // Whether the button is interactable
+      bool is_hovering;                 // Whether the button is hovered over -> Should link with OnHover
+      bool is_clicked;                  // Whether the button is clicked  -> Should link with OnClicked
+      // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color
       Vector3 pressedColor;          // RGBA values for pressed color
