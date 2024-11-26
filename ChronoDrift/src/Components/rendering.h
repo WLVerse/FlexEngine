@@ -191,8 +191,6 @@ using namespace FlexEngine;
       FLX_REFL_SERIALIZABLE
   public:
       bool is_interactable;             // Whether the button is interactable
-      bool is_hovering;                 // Whether the button is hovered over -> Should link with OnHover
-      bool is_clicked;                  // Whether the button is clicked  -> Should link with OnClicked
       // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color
@@ -200,7 +198,10 @@ using namespace FlexEngine;
       Vector3 selectedColor;         // RGBA values for selected color
       Vector3 disabledColor;         // RGBA values for disabled color
       float colorMultiplier;         // Multiplier for the color tint
-      float fadeDuration;            // Duration for color fading transitions
+      float fadeDuration;            // Duration for color fading transitions -> not done
+
+      //Do not show
+      Vector3 finalColorMul;         
       //std::string navigation;        // Navigation mode (e.g., "Automatic", "None")
       //std::vector<std::function<void()>> onClickEvents;  // List of functions to execute on click
   };

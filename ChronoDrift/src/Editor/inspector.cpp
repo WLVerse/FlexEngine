@@ -192,6 +192,7 @@ namespace ChronoDrift
 								ComponentViewRegistry::AddComponent("OnHover", entity);
 								ComponentViewRegistry::AddComponent("OnClick", entity);
 								ComponentViewRegistry::AddComponent("BoundingBox2D", entity);
+								ComponentViewRegistry::AddComponent("Rigidbody", entity);
 							}
 							ImGui::CloseCurrentPopup();
 						}

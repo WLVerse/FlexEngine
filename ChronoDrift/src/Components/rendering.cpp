@@ -100,8 +100,6 @@ namespace ChronoDrift
 
     FLX_REFL_REGISTER_START(Button)
         FLX_REFL_REGISTER_PROPERTY(is_interactable)
-        FLX_REFL_REGISTER_PROPERTY(is_hovering)
-        FLX_REFL_REGISTER_PROPERTY(is_clicked)
         FLX_REFL_REGISTER_PROPERTY(normalColor)
         FLX_REFL_REGISTER_PROPERTY(highlightedColor)
         FLX_REFL_REGISTER_PROPERTY(pressedColor)
@@ -109,6 +107,7 @@ namespace ChronoDrift
         FLX_REFL_REGISTER_PROPERTY(disabledColor)
         FLX_REFL_REGISTER_PROPERTY(colorMultiplier)
         FLX_REFL_REGISTER_PROPERTY(fadeDuration)
+        FLX_REFL_REGISTER_PROPERTY(finalColorMul)
     FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Audio)

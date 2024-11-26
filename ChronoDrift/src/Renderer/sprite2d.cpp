@@ -197,7 +197,7 @@ namespace ChronoDrift
 
     #pragma endregion
 
-    #pragma region Batching helper
+    #pragma region Batch helper
     void AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Sprite_Batch_Inst& batch, GLuint vbo_id)
     {
         if (!batch.m_zindex.empty())
@@ -215,19 +215,26 @@ namespace ChronoDrift
         batch.m_zindex.push_back(z_index);
         batch.m_transformationData.push_back(entity.GetComponent<Transform>()->transform);
 
+        //Checks for other components present that would influence batch
+        Vector3 colorAdd, colorMul;
+        if (entity.HasComponent<Button>())
+        {
+            colorMul += entity.GetComponent<Button>()->finalColorMul;
+        }
+
         if (type == "Sprite")
         {
             auto sprite = entity.GetComponent<Sprite>();
-            batch.m_colorAddData.push_back(sprite->color_to_add);
-            batch.m_colorMultiplyData.push_back(sprite->color_to_multiply);
+            batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
+            batch.m_colorMultiplyData.push_back(colorMul + sprite->color_to_multiply);
             batch.m_UVmap.push_back(Vector4(0, 0, 1, 1)); // Basic sprite UV
             batch.m_vboid = sprite->vbo_id;
         }
         else if (type == "Animation")
         {
             auto anim = entity.GetComponent<Animation>();
-            batch.m_colorAddData.push_back(anim->color_to_add);
-            batch.m_colorMultiplyData.push_back(anim->color_to_multiply);
+            batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
+            batch.m_colorMultiplyData.push_back(colorMul + anim->color_to_multiply);
             batch.m_UVmap.push_back(anim->m_currUV);
         }
     }
