@@ -435,7 +435,8 @@ namespace ChronoDrift
 
         //TODO @WEIJIE 
         // 1. BUTTONS DONT FORGET LEH
-        // 2. Bloom in fullscreen
+        // 2. Bloom fix in fullscreen
+        // 3. Merge text with batch queue (merge text renderer to sprite renderer)
 
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();
