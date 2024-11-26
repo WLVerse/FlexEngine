@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// layerstack.cpp
+// 
+// 
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "layerstack.h"

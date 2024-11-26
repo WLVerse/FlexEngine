@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// file.cpp
+// 
+// Provides a registry and management functions for files.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "file.h"

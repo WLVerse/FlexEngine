@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// buffer.cpp
+// 
+// Generic interface for buffers.
+// This is a test to see how support for multiple renderers can be implemented.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "Renderer/buffer.h"
 
 #include "Renderer/OpenGL/openglbuffer.h"

@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// openglmesh.cpp
+// 
+// Class to manage mesh data.
+// This is tightly coupled with the model class.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "openglmesh.h"
 
 namespace FlexEngine

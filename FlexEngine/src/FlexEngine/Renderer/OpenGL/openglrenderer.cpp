@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// openglrenderer.cpp
+// 
+// OpenGLRenderer class to manage OpenGL rendering.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "openglrenderer.h"
 
 #include "FlexEngine/AssetManager/assetmanager.h" // FLX_ASSET_GET

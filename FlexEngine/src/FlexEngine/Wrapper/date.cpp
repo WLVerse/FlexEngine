@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// date.cpp
+// 
+// Wrapper for date and time functions to make them easy to use.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "datetime.h"
 
 #include <sstream>
