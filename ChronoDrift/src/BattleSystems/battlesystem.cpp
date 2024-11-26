@@ -116,6 +116,13 @@ namespace ChronoDrift {
     for (auto& t : scene->Query<BattleSlot>()) {
       FlexECS::Scene::GetActiveScene()->DestroyEntity(t);
     }*/
+    std::vector<FlexECS::Entity> to_destroy;
+    if (!(to_destroy = FlexECS::Scene::GetActiveScene()->CachedQuery<TurnOrderDisplay>()).empty()) {
+      for (auto& td : to_destroy) {
+        FlexECS::Scene::GetActiveScene()->DestroyEntity(td);
+      }
+      to_destroy.clear();
+    }
     if (!m_characters.empty()) m_characters.clear();
     if (!m_enemies.empty()) {
       for (auto& e : m_enemies) {
@@ -132,12 +139,25 @@ namespace ChronoDrift {
     // positions of character sprites should be updated according to the slot positions
     for (size_t i = 0; i < characters.size(); i++) {
       m_characters.push_back(characters[i]);
-      FlexECS::Entity temp_character = FlexECS::Scene::GetActiveScene()->CreateEntity("Slot " + std::to_string(i));
+      FlexECS::Entity temp_character = FlexECS::Scene::GetActiveScene()->CreateEntity("Target Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
+      FlexECS::Entity display_slot = FlexECS::Scene::GetActiveScene()->CreateEntity("Speed Queue Slot " + std::to_string(i));
+      display_slot.AddComponent<TurnOrderDisplay>({});
+      display_slot.AddComponent<IsActive>({ false });
+      display_slot.AddComponent<Position>({ });
+      display_slot.AddComponent<Scale>({ { 60,60 } });
+      display_slot.AddComponent<ZIndex>({ 10 });
+      display_slot.AddComponent<Sprite>({});
+      display_slot.AddComponent<Rotation>({});
+      display_slot.AddComponent<Transform>({});
+      display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
       }
-      else m_enemies.push_back(temp_character);
+      else {
+        m_enemies.push_back(temp_character);
+      }
     }
 
     players_displayed = m_players.size();
@@ -382,23 +402,37 @@ namespace ChronoDrift {
     std::vector<FlexECS::Entity> result;
     auto max_targets = m_enemies.end();
     auto min_targets = m_enemies.begin();
-    if (m_characters.front().GetComponent<Character>()->is_player) {
-      static int adjacent = 1;
 
-      // Identify whether target is enemy or team
-      // number of targets
-      // selection of adjecent targets should only apply when target count is less than 5
-      size_t no_of_targets = 0;
-      if (!selected_move.is_target_enemy) {
-        // means is player target
-        no_of_targets = players_displayed;
-        min_targets = m_players.begin();
-        max_targets = m_players.end();
-      }
-      else {
-        // means is enemy target
-        no_of_targets = enemies_displayed;
-      }
+    // Identify whether target is enemy or team
+    // number of targets
+    // selection of adjecent targets should only apply
+    // when target count is less than 5
+    size_t no_of_targets = 0;
+    if (!selected_move.is_target_enemy) {
+      // means is player target
+      no_of_targets = players_displayed;
+      min_targets = m_players.begin();
+      max_targets = m_players.end();
+    }
+    else {
+      // means is enemy target
+      no_of_targets = enemies_displayed;
+    }
+
+    int num_of_adjacent_targets = 0;
+    bool is_adjacent = false;
+    if (selected_move.target_type % 2) {
+      // Means Odd
+      num_of_adjacent_targets = (selected_move.target_type - 1) / 2;
+    }
+    else {
+      // Means Even (Only works for 2 targets)
+      is_adjacent = true;
+      num_of_adjacent_targets = selected_move.target_type / 2;
+    }
+
+    static int adjacent = 1;
+    if (m_characters.front().GetComponent<Character>()->is_player) {
       if (selected_move.target_type < no_of_targets) {
         // targetting system
         if (Input::GetKeyDown(GLFW_KEY_D)) {
@@ -407,74 +441,82 @@ namespace ChronoDrift {
         if (Input::GetKeyDown(GLFW_KEY_A)) {
           if (selected_num != min_targets) selected_num--;
         }
-
-        if (selected_num == (max_targets - 1)) adjacent = -1;
-        else if (selected_num == min_targets) adjacent = 1;
-
-        // This needs to be resolved ASAP
-        // display sprites when selected, adjacency matters
-        if (selected_num != min_targets || selected_num != (max_targets - 1)) {
-          if (selected_move.target_type == MOVE_TARGET_TRIPLE) {
-            (*(selected_num - 1)).GetComponent<IsActive>()->is_active = true;
-            (*(selected_num + 1)).GetComponent<IsActive>()->is_active = true;
-          }
-          else if (selected_move.target_type == MOVE_TARGET_DOUBLE) {
-            (*(selected_num + adjacent)).GetComponent<IsActive>()->is_active = true;
-          }
-        }
-        else (*(selected_num + adjacent)).GetComponent<IsActive>()->is_active = true;
-        (*selected_num).GetComponent<IsActive>()->is_active = true;
-      }
-      else {
-        if (selected_move.target_type == MOVE_TARGET_SELF) {
-          for (auto i = min_targets; i != max_targets; i++) {
-            if ((*i).GetComponent<BattleSlot>()->character == m_characters.front()) {
-              (*i).GetComponent<IsActive>()->is_active = true;
-            }
-          }
-        }
-        else {
-          // all the slots are to be targetted
-          for (auto i = min_targets; i != max_targets; i++) {
-            (*i).GetComponent<IsActive>()->is_active = true;
-          }
-        }
-      }
-      if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
-        for (auto i = min_targets; i != max_targets; i++) {
-          if ((*i).GetComponent<IsActive>()->is_active) result.push_back((*i).GetComponent<BattleSlot>()->character);
-        }
       }
     }
     else {
-      int max = 0;
-      if (!selected_move.is_target_enemy) {
-        max = static_cast<int>(players_displayed);
-        min_targets = m_players.begin();
-      }
-      else max = static_cast<int>(enemies_displayed);
-      int random_selection = Range(0, max).Get();
-      if (selected_move.target_type < max) {
-        if (random_selection != 0 || random_selection != max) {
-          if (selected_move.target_type == MOVE_TARGET_TRIPLE) {
-            result.push_back((*(min_targets + 1)).GetComponent<BattleSlot>()->character);
-            result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-          }
-          else if (selected_move.target_type == MOVE_TARGET_DOUBLE) result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-        }
-        else {
-          if (random_selection == max) result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-          else result.push_back((*(min_targets + 1)).GetComponent<BattleSlot>()->character);
-        }
-        result.push_back((*min_targets).GetComponent<BattleSlot>()->character);
-      }
-      else {
-        // all the slots are to be targetted
-        for (int i = 0; i < max; i++) {
-          result.push_back((*(min_targets + i)).GetComponent<BattleSlot>()->character);
-        }
+      if (selected_move.target_type < no_of_targets) {
+        int max = 0;
+        if (!selected_move.is_target_enemy) max = static_cast<int>(players_displayed);
+        else max = static_cast<int>(enemies_displayed);
+        int random_selection = Range(0, max).Get();
+        selected_num = min_targets + random_selection - 1;
       }
     }
+
+    if (selected_move.target_type < no_of_targets) {
+      // Setting the adjacent value
+      if (selected_num == (max_targets - 1)) adjacent = -1;
+      else if (selected_num == min_targets) adjacent = 1;
+      // This is for target types greater than MOVE_TARGET_DOUBLE
+      std::pair<bool, bool> out_of_bounds_flag = std::make_pair(false, false);
+      if (num_of_adjacent_targets > 0 && selected_move.target_type != MOVE_TARGET_DOUBLE) {
+        for (int i = 1; i <= num_of_adjacent_targets; i++) {
+          if (selected_num != min_targets) {
+            if (!out_of_bounds_flag.first) {
+              (*(selected_num - i)).GetComponent<IsActive>()->is_active = true;
+              if ((selected_num - i) == min_targets) {
+                out_of_bounds_flag.first = true;
+              }
+            }
+          }
+          if (selected_num != (max_targets - 1)) {
+            if (!out_of_bounds_flag.second) {
+              (*(selected_num + i)).GetComponent<IsActive>()->is_active = true;
+              if ((selected_num + i) == (max_targets - 1)) {
+                out_of_bounds_flag.second = true;
+              }
+            }
+          }
+        }
+      }
+      // For Special Case Adjacent
+      if (is_adjacent && selected_move.target_type > 1) {
+        // Means even number of targets and that ain't good
+        if (selected_move.target_type == MOVE_TARGET_DOUBLE) num_of_adjacent_targets = 0;
+        // If the adjacent target issa on the right
+        if (adjacent == 1) {
+          if (!out_of_bounds_flag.second) {
+            if ((selected_num + num_of_adjacent_targets) != (max_targets - 1)) {
+              (*(selected_num + num_of_adjacent_targets + adjacent)).GetComponent<IsActive>()->is_active = true;
+            }
+          }
+        }
+        if (adjacent == -1) {
+          if (!out_of_bounds_flag.first) {
+            if ((selected_num - num_of_adjacent_targets) != min_targets) {
+              (*(selected_num - num_of_adjacent_targets + adjacent)).GetComponent<IsActive>()->is_active = true;
+            }
+          }
+        }
+      }
+      // I mean this should be quite obvious rite?
+      (*selected_num).GetComponent<IsActive>()->is_active = true;
+    }
+    else {
+      // all the slots are to be targetted
+      for (auto i = min_targets; i != max_targets; i++) {
+        (*i).GetComponent<IsActive>()->is_active = true;
+      }
+    }
+
+    // all the targets selected man
+    if (!m_characters.front().GetComponent<Character>()->is_player ||
+      (Input::GetKeyDown(GLFW_KEY_SPACE) && m_characters.front().GetComponent<Character>()->is_player)) {
+      for (auto i = min_targets; i != max_targets; i++) {
+        if ((*i).GetComponent<IsActive>()->is_active) result.push_back((*i).GetComponent<BattleSlot>()->character);
+      }
+    }
+
     if (result.empty()) return;
 
     int final_decision = move_decision;
