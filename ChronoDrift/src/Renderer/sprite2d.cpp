@@ -348,18 +348,18 @@ namespace ChronoDrift
     {
         FunctionQueue text_render_queue;
 
-        for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
+        for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Text>())
         {
             if (!txtentity.GetComponent<IsActive>()->is_active) continue;
 
             Matrix4x4& transform = txtentity.GetComponent<Transform>()->transform;
-            auto shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
+            //auto shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
             auto* textComponent = txtentity.GetComponent<Text>();
             auto font = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->fonttype);
             
             Renderer2DText sample;
             sample.m_words = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->text);
-            sample.m_shader = shader;
+            sample.m_shader = "\\shaders\\freetypetext"; // Will have to change it to not hardcoded along with batching
             sample.m_fonttype = font;
             sample.m_transform = transform;
             sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
@@ -437,6 +437,8 @@ namespace ChronoDrift
         // 1. BUTTONS DONT FORGET LEH
         // 2. Bloom fix in fullscreen
         // 3. Merge text with batch queue (merge text renderer to sprite renderer)
+        // 4. Change the shader name to not be hardcoded for the different rendering process
+        //    - either auto add shader component -> auto set correct shader
 
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();

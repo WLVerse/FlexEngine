@@ -188,10 +188,10 @@ namespace ChronoDrift
 								Editor::GetInstance().GetCamManager().AddCameraEntity(entity.Get(), entity.GetComponent<Camera>()->camera);
 							else if (component_name == "Button")
 							{
-								if (!entity.HasComponent<Sprite>()) ComponentViewRegistry::AddComponent("Sprite", entity);
-								if (!entity.HasComponent<OnHover>()) ComponentViewRegistry::AddComponent("OnHover", entity);
-								if (!entity.HasComponent<OnClick>()) ComponentViewRegistry::AddComponent("OnClick", entity);
-								if (!entity.HasComponent<BoundingBox2D>()) ComponentViewRegistry::AddComponent("BoundingBox2D", entity);
+								ComponentViewRegistry::AddComponent("Sprite", entity);
+								ComponentViewRegistry::AddComponent("OnHover", entity);
+								ComponentViewRegistry::AddComponent("OnClick", entity);
+								ComponentViewRegistry::AddComponent("BoundingBox2D", entity);
 							}
 							ImGui::CloseCurrentPopup();
 						}

@@ -159,7 +159,7 @@ using namespace FlexEngine;
   class Text
   { FLX_REFL_SERIALIZABLE
   public:
-      FlexECS::Scene::StringIndex fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(..\\..\\..\\FlexEngine\\assets\\fonts\\Noto_Sans\\static\\NotoSans-Regular.ttf)");
+      FlexECS::Scene::StringIndex fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\fonts\Prompt\Prompt-Black.ttf)");
       FlexECS::Scene::StringIndex text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("TEST");
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
