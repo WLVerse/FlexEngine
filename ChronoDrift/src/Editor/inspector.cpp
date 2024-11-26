@@ -15,7 +15,9 @@
 #include "hierarchyview.h"
 #include "inspector.h"
 #include "Components/rendering.h"
+#include "Components/physics.h"
 #include "windowsizes.h"
+
 
 using namespace FlexEngine;
 using EntityName = FlexEngine::FlexECS::Scene::StringIndex;
@@ -80,6 +82,7 @@ namespace ChronoDrift
 					transform->is_dirty = true;
 				}
 			}
+
 			// For cam only
 			if (entity.HasComponent<Camera>())
 			{
@@ -126,9 +129,16 @@ namespace ChronoDrift
 					{
 						if (ImGui::MenuItem("Remove Component"))
 						{
-							std::cout << "Removing the component: " << component_name << "\n";
+							Log::Debug("Removing the component: " + component_name);
 							if (component_name == "Camera")
 								Editor::GetInstance().GetCamManager().RemoveCameraEntity(entity.Get());
+							if (component_name == "Button")
+							{
+								if(entity.HasComponent<OnHover>())
+								ComponentViewRegistry::RemoveComponent("OnHover", entity);
+								if (entity.HasComponent<OnClick>())
+								ComponentViewRegistry::RemoveComponent("OnClick", entity);
+							}
 							ComponentViewRegistry::RemoveComponent(component_name, entity);
 						}
 
@@ -173,8 +183,17 @@ namespace ChronoDrift
 						if (ImGui::Selectable(component_name.c_str()))
 						{
 							ComponentViewRegistry::AddComponent(component_name, entity);
+
 							if (component_name == "Camera")
 								Editor::GetInstance().GetCamManager().AddCameraEntity(entity.Get(), entity.GetComponent<Camera>()->camera);
+							else if (component_name == "Button")
+							{
+								ComponentViewRegistry::AddComponent("Sprite", entity);
+								ComponentViewRegistry::AddComponent("OnHover", entity);
+								ComponentViewRegistry::AddComponent("OnClick", entity);
+								ComponentViewRegistry::AddComponent("BoundingBox2D", entity);
+								ComponentViewRegistry::AddComponent("Rigidbody", entity);
+							}
 							ImGui::CloseCurrentPopup();
 						}
 					}
