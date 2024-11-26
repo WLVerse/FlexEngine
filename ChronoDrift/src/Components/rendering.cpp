@@ -180,7 +180,7 @@ namespace ChronoDrift
 
   //TODO @ROCKY to add the font pic and have a dropbox of available fonts
   COMPONENT_VIEWER_START(Text)
-      COMPONENT_VIEWER_STRING(fonttype)
+      COMPONENT_VIEWER_FONT_PATH(fonttype)
       COMPONENT_VIEWER_EDITABLE_STRING(text)
       COMPONENT_VIEWER_COLOR3(color)
       COMPONENT_VIEWER_CHECKBOX(refocus)
