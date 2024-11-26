@@ -12,6 +12,7 @@ namespace ChronoDrift
 		SHADER,
 		SCENE,
 		AUDIO,
+		FONT,
 
 		PAYLOADTAGS_LAST
 	};
@@ -26,6 +27,7 @@ namespace ChronoDrift
 		case ChronoDrift::SHADER: return "SHADER";
 		case ChronoDrift::SCENE: return "SCENE";
 		case ChronoDrift::AUDIO: return "AUDIO";
+		case ChronoDrift::FONT: return "FONT";
 		default: return "UNKNOWN";
 		}
 	}

@@ -293,10 +293,11 @@ namespace ChronoDrift
 
 				std::string image_key(image);
 				std::filesystem::path path = image_key;
-				Vector2 position{ 500.0f, 500.0f };
+				Vector4 mouse_world_pos = GetWorldClickPosition();
+				Vector2 position{ mouse_world_pos.x, mouse_world_pos.y };
 				FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
 				new_entity.AddComponent<IsActive>({ true });
-				new_entity.AddComponent<Position>({ {position.x, position.y} });
+				new_entity.AddComponent<Position>({ position });
 				new_entity.AddComponent<Rotation>({});
 				new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 				new_entity.AddComponent<Transform>({});
