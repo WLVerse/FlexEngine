@@ -238,8 +238,15 @@ namespace ChronoDrift
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
-            
+
             auto anim = entity.GetComponent<Animation>();
+
+            // YC: Since your code has no guard, I will add it here
+            if (anim->max_sprites == 0 || anim->cols == 0 || anim->rows == 0 || anim->spritesheet == 0)
+            {
+              Log::Warning("Animation was detected to not be configured properly");
+              continue;
+            }
 
             if (anim->is_paused) continue;
             anim->m_animationTimer += anim->m_animation_speed * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
@@ -255,8 +262,6 @@ namespace ChronoDrift
                 };
             }
         }
-        //FOUND FATAL ERROR: When saving scene with a paused animation, causes heap error when exiting engine.
-        // Pls check if persist
     }
 
     void RenderNormalEntities(bool want_PP = true)
