@@ -130,9 +130,19 @@ namespace ChronoDrift
       {
         if (!element.GetComponent<IsActive>()->is_active) continue; // skip non active entities
 
-        if (element.GetComponent<Audio>()->should_play)
+        ChronoDrift::Audio* audio = element.GetComponent<Audio>();
+        if (audio->should_play)
         {
-          if (element.GetComponent<Audio>()->is_looping)
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(audio->audio_file) == "")
+          {
+            Log::Warning("Audio not attached to entity: " + 
+              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()));
+
+            audio->should_play = false;
+            continue;
+          }
+
+          if (audio->is_looping)
           {
             FMODWrapper::Core::PlayLoopingSound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
                                                 FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));

@@ -74,11 +74,16 @@ namespace ChronoDrift
 		void SelectEntity(FlexEngine::FlexECS::Entity);
 		FlexEngine::FlexECS::Entity GetSelectedEntity();
 
+		void DeleteSelectedEntity();
+
+		/*!***************************************************************************
+		* @brief Camera Get/Set functions.
+		******************************************************************************/
 		FlexEngine::CameraManager& GetCamManager() const;
 		void SetCamManager(FlexEngine::CameraManager& camManager);
+
 	private:
 		bool m_initialized = false;
-		//std::vector<EditorPanel*> m_panels;
 
 		HierarchyView m_hierarchy;
 		Inspector m_inspector;
@@ -86,11 +91,11 @@ namespace ChronoDrift
 		SceneView m_sceneview;
 		GameView m_gameview;
 
-		//wtf move this out to inspector or something else
+		//In a future update, id like to have systems alongside the panels
+		//that handle these kinds of behaviour like deletion and selected entity tracking 
+		std::unordered_set<FlexEngine::FlexECS::EntityID> m_entities_to_delete;
 		FlexEngine::FlexECS::Entity m_selected_entity = FlexEngine::FlexECS::Entity::Null;	//Which entity the inspector panel should focus on.
-		
-		//ComponentViewRegistry m_component_registry;
-		//std::unordered_map<std::type_index, std::string> type_names;
+
 		std::unordered_map<std::string, EditorPanel*> m_panels;
 
 		FlexEngine::CameraManager* m_CamM_Instance = nullptr;

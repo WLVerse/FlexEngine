@@ -248,10 +248,16 @@ namespace ChronoDrift
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
-            
+
             auto anim = entity.GetComponent<Animation>();
 
-            if (anim->is_paused || anim->max_sprites == 0 || anim->cols == 0 || anim->rows == 0) continue;
+            // YC: Since your code has no guard, I will add it here
+            if (anim->is_paused|| anim->max_sprites == 0 || anim->cols == 0 || anim->rows == 0 || anim->spritesheet == 0)
+            {
+              Log::Warning("Animation was detected to not be configured properly");
+              continue;
+            }
+
             anim->m_animationTimer += anim->m_animation_speed * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
             if (anim->m_animationTimer >= 1.0/GameTimeSpeedModifier) 
             {

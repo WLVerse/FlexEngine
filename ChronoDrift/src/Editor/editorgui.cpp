@@ -385,7 +385,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta(); 
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 		}
 		if (released)
@@ -436,7 +436,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta(); 
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
 		if (released)
@@ -478,7 +478,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta(); 
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 			*p_y_axis_change += drag_delta.y;
 		}
@@ -531,7 +531,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta();
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 		}
 		if (released)
@@ -583,7 +583,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta();
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
 		if (released)
@@ -622,7 +622,7 @@ namespace ChronoDrift
 		if (held)
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-			ImGui::ResetMouseDragDelta();
+			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			
 			//TODO: improve the feel of the scaling
 			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
