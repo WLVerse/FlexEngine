@@ -117,7 +117,8 @@ namespace ChronoDrift
                 camera.AddComponent<Camera>({});
                 CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
                 CamManager->SwitchMainCamera(camera.Get());
-              }
+                Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
+            }
             });
           }
 
