@@ -190,7 +190,7 @@ using namespace FlexEngine;
       // 
       FLX_REFL_SERIALIZABLE
   public:
-      bool is_interactable;             // Whether the button is interactable
+      bool is_interactable = true;             // Whether the button is interactable
       // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color

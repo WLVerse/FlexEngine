@@ -155,63 +155,58 @@ namespace ChronoDrift
       profiler.StartCounter("Button Callbacks");
       // System to handle button collider callbacks
       // TODO @Wei jie
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
-      {
-        if (!element.GetComponent<IsActive>()->is_active) continue;
+      //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
+      //{
+      //  if (!element.GetComponent<IsActive>()->is_active) continue;
 
-        Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
-        BoundingBox2D bb = *element.GetComponent<BoundingBox2D>();
-        if (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y)
-        {
-          element.GetComponent<Sprite>()->color_to_add.x = 255;
-        }
-        else
-        {
-          element.GetComponent<Sprite>()->color_to_add.x = 0;
-        }
-      }
+      //  Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+      //  BoundingBox2D bb = *element.GetComponent<BoundingBox2D>();
+      //  if (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y)
+      //  {
+      //    element.GetComponent<Sprite>()->color_to_add.x = 255;
+      //  }
+      //  else
+      //  {
+      //    element.GetComponent<Sprite>()->color_to_add.x = 0;
+      //  }
+      //}
 
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
       {
           if (!entity.GetComponent<IsActive>()->is_active || !entity.GetComponent<Button>()->is_interactable) continue;
-
+          auto button = entity.GetComponent<Button>();
           Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           //is there a function for me to call to check rather than this ugly condition
-          if (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y)
+          bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
+          bool t_isClicked, t_isHovered;
+          t_isClicked = t_isHovered = false;
+          if (entity.HasComponent<OnHover>()) 
           {
-              //AABB check pass -> should change to raycast
-              if (entity.HasComponent<OnHover>())
-              {
-                  auto hover = entity.GetComponent<OnHover>();
-                  hover->on_enter = !hover->is_hovering;
-                  hover->is_hovering = true;
-                  hover->on_exit = false;
-              }
-              if (entity.HasComponent<OnClick>())
-              {
-                  auto click = entity.GetComponent<OnClick>();
-                  if (Input::GetKey(GLFW_MOUSE_BUTTON_LEFT))
-                  {
-                      click->is_clicked = true;
-                  }
-                  else
-                  {
-                      click->is_clicked = false;
-                  }
-              }
+              auto hover = entity.GetComponent<OnHover>();
+              hover->on_enter = inside && !hover->is_hovering;
+              hover->on_exit = !inside && hover->is_hovering;
+              hover->is_hovering = inside;
+              t_isHovered = hover->is_hovering;
           }
-          else
+          if (entity.HasComponent<OnClick>()) 
           {
-              //AABB check fail
-              if (entity.HasComponent<OnHover>())
-              {
-                  auto hover = entity.GetComponent<OnHover>();
-                  hover->on_exit = !hover->is_hovering;
-                  hover->is_hovering = false;
-                  hover->on_enter = true;
-              }
+              auto click = entity.GetComponent<OnClick>();
+              click->is_clicked = inside && ImGui::IsMouseClicked(0);
+              t_isClicked = click->is_clicked;
           }
+
+          //Update Color Mul
+          button->finalColorMul =
+              !button->is_interactable ? button->disabledColor :
+              t_isClicked ? button->pressedColor :
+              t_isHovered ? button->highlightedColor :
+              button->normalColor;
+
+          // Apply blending with selectedColor (similar to Unity's emphasis on selection)
+          button->finalColorMul.x *= button->selectedColor.x;
+          button->finalColorMul.y *= button->selectedColor.y;
+          button->finalColorMul.z *= button->selectedColor.z;
       }
       profiler.EndCounter("Button Callbacks");
 
