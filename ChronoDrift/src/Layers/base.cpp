@@ -159,6 +159,7 @@ namespace ChronoDrift
                 }
                 Log::Info("Processed " + std::to_string(camera_list.size()) + " camera(s) from the active scene.");
                 Log::Info("Loaded scene from: " + file.path.string());
+                Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
               }
             });
           }
