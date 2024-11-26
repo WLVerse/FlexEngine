@@ -154,36 +154,21 @@ namespace ChronoDrift
 
       profiler.StartCounter("Button Callbacks");
       // System to handle button collider callbacks
-      // TODO @Wei jie
-      //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
-      //{
-      //  if (!element.GetComponent<IsActive>()->is_active) continue;
-
-      //  Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
-      //  BoundingBox2D bb = *element.GetComponent<BoundingBox2D>();
-      //  if (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y)
-      //  {
-      //    element.GetComponent<Sprite>()->color_to_add.x = 255;
-      //  }
-      //  else
-      //  {
-      //    element.GetComponent<Sprite>()->color_to_add.x = 0;
-      //  }
-      //}
-
+      ImGuiContext* context = GImGui;
+      ImGuiWindow* hovered_window = context->HoveredWindow;
+      bool is_scene = (hovered_window == ImGui::FindWindowByName("Scene"));
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
       {
+          auto button = entity.GetComponent<Button>();
           if (!entity.GetComponent<IsActive>()->is_active || !entity.GetComponent<Button>()->is_interactable)
           {
-              auto button = entity.GetComponent<Button>();
               button->finalColorAdd = button->disabledColor;
               button->finalColorMul = button->disabledColor;
               continue;
           }
-          auto button = entity.GetComponent<Button>();
-          Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+
+          Vector2 mtw = is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : Editor::GetInstance().GetPanel("GameView").mouse_to_world;
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
-          //is there a function for me to call to check rather than this ugly condition
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;
           t_isClicked = t_isHovered = false;
@@ -203,10 +188,11 @@ namespace ChronoDrift
           }
 
           //Update Color Mul
-          button->finalColorMul = (button->normalColor == Vector3(1.0f, 1.0f, 1.0f)) ? Vector3(1.0f, 1.0f, 1.0f) :
-              (t_isClicked ? button->pressedColor : (t_isHovered ? button->highlightedColor : button->normalColor));
+          button->finalColorMul = (button->normalColor == Vector3::One) ? Vector3::One :
+              (t_isClicked ? button->pressedColor * button->colorMultiplier :
+              (t_isHovered ? button->highlightedColor * button->colorMultiplier: button->normalColor));
 
-          button->finalColorAdd = t_isClicked ? button->pressedColor : (t_isHovered ? button->highlightedColor : Vector3::Zero);
+          button->finalColorAdd = t_isClicked ? button->pressedColor * button->colorMultiplier : (t_isHovered ? button->highlightedColor * button->colorMultiplier : Vector3::Zero);
       }
       profiler.EndCounter("Button Callbacks");
 
