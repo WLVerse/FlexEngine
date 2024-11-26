@@ -64,10 +64,10 @@ namespace ChronoDrift {
 
   void BattleLayer::Update()
   {
-    if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
+    auto scene = FlexECS::Scene::GetActiveScene();
+    if (Input::GetKeyDown(GLFW_KEY_4) && !scene->CachedQuery<Character>().empty()) SetupBattle(); // Set Up Battle
 
     // Include a check whether battle system has been activated
-    auto scene = FlexECS::Scene::GetActiveScene();
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 
     if (!scene->CachedQuery<CharacterInput, Character>().empty()) {
