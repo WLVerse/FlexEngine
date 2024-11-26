@@ -185,9 +185,6 @@ using namespace FlexEngine;
   // Button class for UI
   class Button
   {
-      //TODO 
-      // Right now bounding box requires rigidbody in order to auto set, it shouldnt rely on rigidbody no?
-      // 
       FLX_REFL_SERIALIZABLE
   public:
       bool is_interactable = true;             // Whether the button is interactable
@@ -195,13 +192,13 @@ using namespace FlexEngine;
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color
       Vector3 pressedColor;          // RGBA values for pressed color
-      Vector3 selectedColor;         // RGBA values for selected color
       Vector3 disabledColor;         // RGBA values for disabled color
       float colorMultiplier;         // Multiplier for the color tint
       float fadeDuration;            // Duration for color fading transitions -> not done
 
       //Do not show
-      Vector3 finalColorMul;         
+      Vector3 finalColorMul; 
+      Vector3 finalColorAdd;
       //std::string navigation;        // Navigation mode (e.g., "Automatic", "None")
       //std::vector<std::function<void()>> onClickEvents;  // List of functions to execute on click
   };

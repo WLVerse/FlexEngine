@@ -103,11 +103,11 @@ namespace ChronoDrift
         FLX_REFL_REGISTER_PROPERTY(normalColor)
         FLX_REFL_REGISTER_PROPERTY(highlightedColor)
         FLX_REFL_REGISTER_PROPERTY(pressedColor)
-        FLX_REFL_REGISTER_PROPERTY(selectedColor)
         FLX_REFL_REGISTER_PROPERTY(disabledColor)
         FLX_REFL_REGISTER_PROPERTY(colorMultiplier)
         FLX_REFL_REGISTER_PROPERTY(fadeDuration)
         FLX_REFL_REGISTER_PROPERTY(finalColorMul)
+        FLX_REFL_REGISTER_PROPERTY(finalColorAdd)
     FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Audio)
@@ -195,7 +195,6 @@ namespace ChronoDrift
      COMPONENT_VIEWER_COLOR3(normalColor)
      COMPONENT_VIEWER_COLOR3(highlightedColor)
      COMPONENT_VIEWER_COLOR3(pressedColor)
-     COMPONENT_VIEWER_COLOR3(selectedColor)
      COMPONENT_VIEWER_COLOR3(disabledColor)
      COMPONENT_VIEWER_DRAG_FLOAT(colorMultiplier)
      COMPONENT_VIEWER_DRAG_FLOAT(fadeDuration)

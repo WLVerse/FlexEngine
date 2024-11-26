@@ -173,7 +173,13 @@ namespace ChronoDrift
 
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
       {
-          if (!entity.GetComponent<IsActive>()->is_active || !entity.GetComponent<Button>()->is_interactable) continue;
+          if (!entity.GetComponent<IsActive>()->is_active || !entity.GetComponent<Button>()->is_interactable)
+          {
+              auto button = entity.GetComponent<Button>();
+              button->finalColorAdd = button->disabledColor;
+              button->finalColorMul = button->disabledColor;
+              continue;
+          }
           auto button = entity.GetComponent<Button>();
           Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
@@ -197,16 +203,10 @@ namespace ChronoDrift
           }
 
           //Update Color Mul
-          button->finalColorMul =
-              !button->is_interactable ? button->disabledColor :
-              t_isClicked ? button->pressedColor :
-              t_isHovered ? button->highlightedColor :
-              button->normalColor;
+          button->finalColorMul = (button->normalColor == Vector3(1.0f, 1.0f, 1.0f)) ? Vector3(1.0f, 1.0f, 1.0f) :
+              (t_isClicked ? button->pressedColor : (t_isHovered ? button->highlightedColor : button->normalColor));
 
-          // Apply blending with selectedColor (similar to Unity's emphasis on selection)
-          button->finalColorMul.x *= button->selectedColor.x;
-          button->finalColorMul.y *= button->selectedColor.y;
-          button->finalColorMul.z *= button->selectedColor.z;
+          button->finalColorAdd = t_isClicked ? button->pressedColor : (t_isHovered ? button->highlightedColor : Vector3::Zero);
       }
       profiler.EndCounter("Button Callbacks");
 

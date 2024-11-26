@@ -220,13 +220,14 @@ namespace ChronoDrift
         colorMul = Vector3::One;
         if (entity.HasComponent<Button>())
         {
-            colorAdd += entity.GetComponent<Button>()->finalColorMul;
+            colorAdd += entity.GetComponent<Button>()->finalColorAdd;
+            colorMul *= entity.GetComponent<Button>()->finalColorMul;
         }
 
         if (type == "Sprite")
         {
             auto sprite = entity.GetComponent<Sprite>();
-            batch.m_colorAddData.push_back(colorAdd * sprite->color_to_add);
+            batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
             batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
             batch.m_UVmap.push_back(Vector4(0, 0, 1, 1)); // Basic sprite UV
             batch.m_vboid = sprite->vbo_id;
@@ -234,7 +235,7 @@ namespace ChronoDrift
         else if (type == "Animation")
         {
             auto anim = entity.GetComponent<Animation>();
-            batch.m_colorAddData.push_back(colorAdd * anim->color_to_add);
+            batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
             batch.m_colorMultiplyData.push_back(colorMul * anim->color_to_multiply);
             batch.m_UVmap.push_back(anim->m_currUV);
         }
