@@ -266,8 +266,6 @@ namespace ChronoDrift
                 };
             }
         }
-        //FOUND FATAL ERROR: When saving scene with a paused animation, causes heap error when exiting engine.
-        // Pls check if persist
     }
 
     void RenderNormalEntities(bool want_PP = true)
