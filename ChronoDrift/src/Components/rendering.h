@@ -118,7 +118,7 @@ using namespace FlexEngine;
   class Shader
   { FLX_REFL_SERIALIZABLE
   public:
-    FlexECS::Scene::StringIndex shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)");;
+    FlexECS::Scene::StringIndex shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\batchtexture)");;
   };
   /*!***************************************************************************
   * \class Sprite
