@@ -62,29 +62,32 @@ namespace ChronoDrift
 			ImGui::Image((ImTextureID)static_cast<uintptr_t>(FlexEngine::OpenGLFrameBuffer::GetCreatedTexture(FlexEngine::OpenGLFrameBuffer::CreatedTextureID::CID_finalRender)),
 				viewport_size, ImVec2(0, 1), ImVec2(1, 0));
     
+			if (Editor::GetInstance().GetCamManager().GetMainCamera() != INVALID_ENTITY_ID)//You didn't put a guard @Rocky
+			{
+				auto cam_data = Editor::GetInstance().GetCamManager().GetCameraData(Editor::GetInstance().GetCamManager().GetMainCamera());
 
-			auto cam_data = Editor::GetInstance().GetCamManager().GetCameraData(Editor::GetInstance().GetCamManager().GetMainCamera());
+				// Get Mouse position relative to the viewport
+				ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - viewport_position.x,
+																		 mouse_pos_ss.y - window_top_left.y - viewport_position.y); // IMGUI space is screen space - top left of imgui window
 
-			// Get Mouse position relative to the viewport
-			ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - viewport_position.x,
-																	 mouse_pos_ss.y - window_top_left.y - viewport_position.y); // IMGUI space is screen space - top left of imgui window
-
-			//normalize 0, 1 coords relative to viewport, then scale by app height
-			//This is mouse relative and scaled to "game" screen 
-			Vector2 screen_pos = { (relative_pos.x / viewport_size.x) * app_width,
-														 (relative_pos.y / viewport_size.y) * app_height };
+				//normalize 0, 1 coords relative to viewport, then scale by app height
+				//This is mouse relative and scaled to "game" screen 
+				Vector2 screen_pos = { (relative_pos.x / viewport_size.x) * app_width,
+															 (relative_pos.y / viewport_size.y) * app_height };
 
 
-			Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
-			Matrix4x4 inverse = (cam_data->proj_viewMatrix).Inverse();
-			Vector4 clip = { ndc_click_pos.x,
-											 ndc_click_pos.y,
-											 1.0f,
-											 1 };
-			Vector4 world_pos = inverse * clip;
-			world_pos.x = -world_pos.x;
+				Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
+				Matrix4x4 inverse = (cam_data->proj_viewMatrix).Inverse();
+				Vector4 clip = { ndc_click_pos.x,
+												 ndc_click_pos.y,
+												 1.0f,
+												 1 };
+				Vector4 world_pos = inverse * clip;
+				world_pos.x = -world_pos.x;
 
-			mouse_to_world = { world_pos.x, world_pos.y };
+				mouse_to_world = { world_pos.x, world_pos.y };
+
+			}
 			//std::cout << "Mouse Ingame: " << EditorGUI::MouseInGameToWorldCoords().x << ", " << EditorGUI::MouseInGameToWorldCoords().y << "\n";
 			//std::cout << "MTWMTWTM: " << world_pos.x <<  ", " << world_pos.y << "\n";
 		}
