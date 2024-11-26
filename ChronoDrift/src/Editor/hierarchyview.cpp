@@ -33,18 +33,9 @@ namespace ChronoDrift
 	{
 		auto scene = FlexECS::Scene::GetActiveScene();
 
-
-
-		FunctionQueue delete_queue;
-
-		FlexECS::Entity entity_to_delete = FlexECS::Entity::Null;
-
 		SETHIERARCHYWINDOW
 		ImGui::Begin("Scene Hierarchy");
-		//size_t entity_count = scene->entity_index.size();
-		//std::string entity_count_text = "Entity Count:  " + std::to_string(entity_count);
-		//ImGui::Text(entity_count_text.c_str());
-		
+
 		//Drag a sprite from assets to window to create entity with the sprite.
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 		{
@@ -71,7 +62,6 @@ namespace ChronoDrift
 			EditorGUI::EndPayloadReceiver();
 		}
 
-
 		//Right click menu (create entity)
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
 		{
@@ -93,10 +83,10 @@ namespace ChronoDrift
 			ImGui::EndPopup();
 		}
 
-		int imgui_id = 0;
+		//Display all entities
 		for (auto& [id, record] : scene->entity_index)
 		{
-			ImGui::PushID(imgui_id++);
+			EditorGUI::PushID();
 			FlexECS::Entity entity(id);
 
 			std::string name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
@@ -144,31 +134,28 @@ namespace ChronoDrift
 				}
 				if (ImGui::MenuItem("Destroy Entity"))
 				{
-					delete_queue.Insert({ [scene, entity]() {scene->DestroyEntity(entity); }, "", 0 });
+					Editor::GetInstance().DeleteSelectedEntity();
 					if (entity.HasComponent<Camera>())
 						Editor::GetInstance().GetCamManager().RemoveCameraEntity(entity.Get());
-					Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
 				}
 				ImGui::EndPopup();
 			}
-
-			ImGui::PopID();
+			EditorGUI::PopID();
 		}
 
+		//Delete entity with del key
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete) && ImGui::IsWindowFocused())
+		{
+			Editor::GetInstance().DeleteSelectedEntity();
+		}
 
-		//Track Clicks when not inside tree node
-		//Deselect focused entity
+		//Deselect focused entity when clicking on empty space
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
 		{
-			Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);  // Deselect when clicking in empty space
+			Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
 		}
 
-
-
-
 		ImGui::End();
-
-		delete_queue.Flush();
 	}
 
 	void HierarchyView::Shutdown()

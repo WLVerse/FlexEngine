@@ -162,6 +162,10 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	std::string& path_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::AudioPath(path_##name);
 
+	#define COMPONENT_VIEWER_FONT_PATH(name) \
+	std::string& path_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
+	EditorGUI::FontPath(path_##name);
+
 	#define COMPONENT_VIEWER_STRING(name) \
 	std::string& str_##name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<T>()->name); \
 	EditorGUI::TextField(str_##name);
