@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// UnitTests.cpp
+// 
+// Unit tests for the FlexEngine project.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "CppUnitTest.h"

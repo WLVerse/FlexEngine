@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// vector3.cpp
+// 
+// 
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "vector3.h"
 
 #include <algorithm> // std::min

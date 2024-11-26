@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// openglmaterial.h
+// 
+// Phong material class implementation for OpenGL renderer.
+// Specular is not working yet.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

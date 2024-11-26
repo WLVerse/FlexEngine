@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// openglshader.h
+// 
+// Shader class that links shader files with the same name.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

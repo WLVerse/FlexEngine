@@ -1,3 +1,15 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// sound.h
+//
+// Asset declaration for sound
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #pragma once
 
 // Asset template for assetmanager
