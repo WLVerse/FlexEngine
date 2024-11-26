@@ -267,30 +267,32 @@ namespace ChronoDrift
     FLX_REFL_SERIALIZABLE
   public:
     bool is_player = true;
-    FlexECS::Scene::StringIndex character_name;
-    FlexECS::Scene::StringIndex character_status;   // Character Status Effects Description
-    int character_class;                            // Character Class and Weapon Type needs to be the same
-    int base_health;
-    int current_health;
-    int base_speed;
-    int current_speed;
+    FlexECS::Scene::StringIndex character_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    // Character Status Effects Description
+    FlexECS::Scene::StringIndex character_status = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");   
+    // Character Class and Weapon Type needs to be the same
+    int character_class = 0;
+    int base_health = 0;
+    int current_health = 0;
+    int base_speed = 0;
+    int current_speed = 0;
     
-    FlexECS::Scene::StringIndex weapon_name;
-    FlexECS::Scene::StringIndex weapon_description;
-    int weapon_type;
-    FlexECS::Scene::StringIndex weapon_move_one;
-    FlexECS::Scene::StringIndex weapon_move_two;
-    FlexECS::Scene::StringIndex weapon_move_three;
+    FlexECS::Scene::StringIndex weapon_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    int weapon_type = 0;
+    FlexECS::Scene::StringIndex weapon_move_one = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_move_two = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_move_three = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
 
-    FlexECS::Scene::StringIndex chrono_gear_name;
-    FlexECS::Scene::StringIndex chrono_gear_description;
-    int chrono_gear_cooldown;
+    FlexECS::Scene::StringIndex chrono_gear_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex chrono_gear_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    int chrono_gear_cooldown = 0;
 
-    FlexECS::Scene::StringIndex character_ultimate;
-    FlexECS::Scene::StringIndex character_ultimate_cooldown;
+    FlexECS::Scene::StringIndex character_ultimate = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex character_ultimate_cooldown = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
 
-    FlexECS::Scene::StringIndex character_passive_name;
-    FlexECS::Scene::StringIndex character_passive_description;
+    FlexECS::Scene::StringIndex character_passive_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex character_passive_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
   };
 
   class CharacterMovementSprites {
