@@ -1,8 +1,6 @@
 // WLVERSE [https://wlverse.web.app]
 // matrix1x1.h
 // 
-// 
-// 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author

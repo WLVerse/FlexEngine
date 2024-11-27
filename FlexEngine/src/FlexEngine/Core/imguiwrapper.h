@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app]
 // imguiwrapper.h
 // 
-// 
+// Wraps the init and shutdown of the ImGui library
+// for ease of use.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

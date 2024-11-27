@@ -1,7 +1,10 @@
 // WLVERSE [https://wlverse.web.app]
 // freequeue.h
 // 
+// Specialization of FunctionQueue
+// Queues functions for freeing anything that needs to be freed
 // 
+// This is designed for objects that should be freed before the program ends to prevent memory leaks.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

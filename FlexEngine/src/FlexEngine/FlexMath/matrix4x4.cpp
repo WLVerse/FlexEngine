@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // matrix4x4.cpp
 // 
-// 
+// Implementation of the 4x4 matrix class.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

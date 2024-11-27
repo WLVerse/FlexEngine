@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // vector4.h
 // 
-// 
+// Similar to glm::vec4, with additional functionalities.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

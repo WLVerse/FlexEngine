@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // freequeue.cpp
 // 
-// 
+// FreeQueue implementation.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

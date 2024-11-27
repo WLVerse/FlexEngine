@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // assetmanager.cpp
 // 
-// 
+// Asset Manager implementation
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // mathfunctions.h
 // 
-// 
+// Common mathematical functions.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

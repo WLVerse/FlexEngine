@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // mathconstants.h
 // 
-// 
+// Constants for mathematical operations.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

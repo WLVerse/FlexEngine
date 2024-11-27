@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // quaternion.h
 // 
-// 
+// Similar to glm's quaternion implementation.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

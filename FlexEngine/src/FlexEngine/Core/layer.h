@@ -1,7 +1,9 @@
 // WLVERSE [https://wlverse.web.app]
 // layer.h
 // 
-// 
+// Interface for a layer in FlexEngine.
+// This is not a typical layer in the sense of a graphics layer,
+// but rather a way to organize the different parts of the engine.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
