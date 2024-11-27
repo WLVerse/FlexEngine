@@ -1,3 +1,23 @@
+/*!************************************************************************
+* TEXTURE.SHADER [texture.vert]
+*
+* This file implements the vertex shader for rendering 2D sprites. It handles 
+* vertex transformations from local space to clip space and passes texture 
+* coordinates to the fragment shader.
+*
+* Key functionalities include:
+* - Transforming vertex positions using model and projection-view matrices.
+* - Passing texture coordinates directly to the fragment shader.
+* - Preparing vertices for accurate 2D sprite rendering.
+*
+* AUTHORS
+* [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+*   - Main Author
+*   - Developed vertex transformation and texture coordinate handling logic.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #version 460 core
 
 // Input vertex data

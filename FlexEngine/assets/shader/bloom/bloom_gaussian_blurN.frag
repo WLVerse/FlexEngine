@@ -1,3 +1,28 @@
+/*!************************************************************************
+* WLVERSE [https://wlverse.web.app]
+*
+* \file bloom_gaussian_blurN.frag
+* \brief
+* Fragment shader for Gaussian blur, optimized for horizontal and vertical
+* blurring in post-processing pipelines.
+*
+* Key functionalities:
+* - Implements Gaussian blur with dynamic sample intensity and spread.
+* - Blurs textures in horizontal or vertical directions based on a flag.
+* - Computes and normalizes Gaussian weights for accurate results.
+*
+* Uniforms:
+* - sampler2D scene: The input texture to be blurred.
+* - bool horizontal: Flag for horizontal or vertical blur.
+* - float blurDistance: Defines the spread of the blur effect.
+* - int intensity: Specifies the number of blur samples.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #version 330 core
 out vec4 FragColor;
 

@@ -1,3 +1,24 @@
+/*!************************************************************************
+* SPRITESHEET.SHADER [spritesheet.frag]
+*
+* This file implements the fragment shader for rendering 2D sprites with 
+* optional texture sampling and customizable color transformations. It supports 
+* applying both additive and multiplicative color effects to the sprite.
+*
+* Key functionalities include:
+* - Sampling textures to retrieve color and alpha values.
+* - Applying multiplicative and additive color transformations.
+* - Clamping color values to ensure valid color output.
+* - Supporting rendering with or without texture based on a boolean uniform.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*   - Developed texture sampling, color manipulation logic, and texture-less rendering support.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #version 460 core
 
 out vec4 fragment_color;

@@ -1,3 +1,30 @@
+/*!***************************************************************************
+* WLVERSE [https://wlverse.web.app]
+*
+* \file bloom_final_composite.frag
+* \brief
+* Fragment shader responsible for combining the original scene with bloom
+* effects, creating the final composite image. Uses horizontal and vertical
+* bloom passes for enhanced visuals.
+*
+* Key functionalities:
+* - Fetches base scene color and bloom contributions from textures.
+* - Blends the bloom effect with the scene using an opacity parameter.
+* - Outputs the final color to the framebuffer.
+*
+* Uniforms:
+* - sampler2D screenTex: The original scene texture.
+* - sampler2D bloomVTex: The vertically blurred bloom texture.
+* - sampler2D bloomHTex: The horizontally blurred bloom texture.
+* - float opacity: Controls the intensity of the bloom effect.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+****************************************************************************/
+
 #version 330 core
 
 out vec4 FragColor;
