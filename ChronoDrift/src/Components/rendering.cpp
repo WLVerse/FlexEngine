@@ -115,6 +115,10 @@ namespace ChronoDrift
       FLX_REFL_REGISTER_PROPERTY(should_play)
       FLX_REFL_REGISTER_PROPERTY(audio_file)
     FLX_REFL_REGISTER_END;
+
+    FLX_REFL_REGISTER_START(Script)
+      FLX_REFL_REGISTER_PROPERTY(script_id)
+    FLX_REFL_REGISTER_END;
 #pragma endregion
 
 #pragma region Editable Viewer
@@ -204,6 +208,10 @@ namespace ChronoDrift
     COMPONENT_VIEWER_BOOL(should_play)
     COMPONENT_VIEWER_AUDIO_PATH(audio_file);
   COMPONENT_VIEWER_END(Audio)
+
+  COMPONENT_VIEWER_START(Script)
+    COMPONENT_VIEWER_DRAG_INT(script_id)
+  COMPONENT_VIEWER_END(Script)
 #pragma endregion
 
   void RegisterRenderingComponents()
@@ -222,5 +230,6 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Animation);
     REGISTER_COMPONENT_VIEWER(Button);
     REGISTER_COMPONENT_VIEWER(Audio); 
+    REGISTER_COMPONENT_VIEWER(Script);
   }
 }
