@@ -169,6 +169,9 @@
     <ClInclude Include="resource.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Editor\editorcommands.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -260,6 +263,9 @@
     </ClCompile>
     <ClCompile Include="src\CharacterPrefab\characterprefab.cpp">
       <Filter>src\CharacterPrefab</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Editor\editorcommands.cpp">
+      <Filter>src\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -22,6 +22,8 @@
 #include "Editor/editorgui.h"
 #include "Editor/imguipayloads.h"
 
+#include "Editor/editorcommands.h"
+
 #include "Components/rendering.h"
 
 #include "FlexEngine/Core/imguiwrapper.h"

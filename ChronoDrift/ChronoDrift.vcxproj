@@ -304,6 +304,7 @@
     <ClInclude Include="src\Editor\assetbrowser.h" />
     <ClInclude Include="src\Editor\componentviewer.h" />
     <ClInclude Include="src\Editor\editor.h" />
+    <ClInclude Include="src\Editor\editorcommands.h" />
     <ClInclude Include="src\Editor\editorgui.h" />
     <ClInclude Include="src\Editor\editorpanel.h" />
     <ClInclude Include="src\Editor\gameview.h" />
@@ -339,6 +340,7 @@
     <ClCompile Include="src\Editor\assetbrowser.cpp" />
     <ClCompile Include="src\Editor\componentviewer.cpp" />
     <ClCompile Include="src\Editor\editor.cpp" />
+    <ClCompile Include="src\Editor\editorcommands.cpp" />
     <ClCompile Include="src\Editor\editorgui.cpp" />
     <ClCompile Include="src\Editor\gameview.cpp" />
     <ClCompile Include="src\Editor\hierarchyview.cpp" />

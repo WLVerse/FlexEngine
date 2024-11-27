@@ -165,6 +165,14 @@ namespace ChronoDrift
 		}
 		m_entities_to_delete.clear();
 
+		if (ImGui::IsKeyPressed(ImGuiKey_Space))
+		{
+			Position newpos = {{500, 500}};
+			auto oldpos = m_selected_entity.GetComponent<Position>();
+			UpdateComponentCommand test(m_selected_entity, "Position", oldpos, &newpos, sizeof(Position));
+			test.Do();
+		}
+
 		EditorGUI::EndFrame();
 	}
 
