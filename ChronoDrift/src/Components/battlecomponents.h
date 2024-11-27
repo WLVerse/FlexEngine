@@ -167,29 +167,21 @@ namespace ChronoDrift
 
   //Battling components
   
-  enum BattlePhase : int {
-    BP_MOVE_DEATH_PROCESSION, // Checking whether anyone has died or not, and to remove dead characters from the battle scene
-    BP_MOVE_EXECUTION,        // Executing Move Functions here (along with animation play in the future)
-    BP_PROCESSING,            // Speed stack moving around, showing who's next
-    BP_MOVE_SELECTION,        // Selection of Move and Targets
-    BP_BATTLE_FINISH,         // Detect whether entire enemy or player team is dead (Display win or lose screens respectively)
-    BP_STATUS_RUN,            // Run through all status effects characters have
-    BP_MOVE_ANIMATION,        // Run animation of move selection
-  };
+  //enum BattlePhase : int {
+  //  BP_MOVE_DEATH_PROCESSION, // Checking whether anyone has died or not, and to remove dead characters from the battle scene
+  //  BP_MOVE_EXECUTION,        // Executing Move Functions here (along with animation play in the future)
+  //  BP_PROCESSING,            // Speed stack moving around, showing who's next
+  //  BP_MOVE_SELECTION,        // Selection of Move and Targets
+  //  BP_BATTLE_FINISH,         // Detect whether entire enemy or player team is dead (Display win or lose screens respectively)
+  //  BP_STATUS_RUN,            // Run through all status effects characters have
+  //  BP_MOVE_ANIMATION,        // Run animation of move selection
+  //};
   
-  class BattleState 
+  /*class BattleState 
   { FLX_REFL_SERIALIZABLE
   public:
-    int phase;/*
-    FlexECS::EntityID active_character;
-    int target_one = -1;
-    int target_two = -1;
-    int target_three = -1;
-    int target_four = -1;
-    int target_five = -1;
-
-    int current_target_count = 0;*/
-  };
+    int phase;
+  };*/
 
   class BattleSlot
   { FLX_REFL_SERIALIZABLE

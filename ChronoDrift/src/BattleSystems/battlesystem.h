@@ -21,12 +21,20 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "CharacterMoves/moves.h"
 
-#define SLOT_COLOR_PLAYER Vector3{ 0.45f, 0.58f, 0.32f }
-#define SLOT_COLOR_ENEMY Vector3{ 0.77f, 0.12f, 0.23f }
-#define SLOT_POS_VERT_PLAYER 600.f
-#define SLOT_POS_VERT_ENEMY 200.f
-#define SLOT_POS_HOR_PLAYER 200.f
-#define SLOT_POS_HOR_ENEMY 700.f
+#define DELAY_TIME 2.f
+#define SLOT_SUB_TARGET_COLOR Vector3{ 0.45f, 0.58f, 0.32f }
+#define SLOT_MAIN_TARGET_COLOR Vector3{ 0.77f, 0.12f, 0.23f }
+
+enum BattlePhase : int {
+  BP_MOVE_DEATH_PROCESSION, // Checking whether anyone has died or not, and to remove dead characters from the battle scene
+  BP_MOVE_EXECUTION,        // Executing Move Functions here (along with animation play in the future)
+  BP_PROCESSING,            // Speed stack moving around, showing who's next
+  BP_MOVE_SELECTION,        // Selection of Move and Targets
+  BP_BATTLE_FINISH,         // Detect whether entire enemy or player team is dead (Display win or lose screens respectively)
+  BP_STATUS_RUN,            // Run through all status effects characters have
+  BP_MOVE_ANIMATION,        // Run animation of move selection
+};
+
 using namespace FlexEngine;
 
 namespace ChronoDrift
@@ -46,6 +54,7 @@ namespace ChronoDrift
     size_t GetCharacterCount() { return m_characters.size(); };
     std::vector<FlexECS::Entity>& GetTurnOrder() { return m_characters; };
   private:
+    int battle_phase = 0;
     static bool is_battle_finished;
     // Currently for my convenience but should be more useful and applicable
     // in the future if we got waves of enemies in one battle scene
@@ -59,6 +68,9 @@ namespace ChronoDrift
     std::vector<FlexECS::Entity> m_players;
     std::vector<FlexECS::Entity> m_enemies;
 
+    std::pair<FlexECS::Entity, std::vector<FlexECS::Entity>> selected_targets;
+    FlexECS::Scene::StringIndex selected_move = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+
     std::list<FlexECS::Entity> move_buttons;
 
     //BattleState m_battle_state;
@@ -66,7 +78,8 @@ namespace ChronoDrift
     void RunCharacterStatus();
     void PlayerMoveSelection();
     void DeathProcession(std::vector<FlexECS::Entity> list_of_deaths);
-    void ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets);
+    //void ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets);
+    void ExecuteMove();
     void EndBattleScene();
   };
 }
