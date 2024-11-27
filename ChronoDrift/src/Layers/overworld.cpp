@@ -261,17 +261,6 @@ namespace ChronoDrift
               curr_camt = true;
           }
       }
-      
-
-      // Regen Cam
-      //for (auto& currCam : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Camera>())
-      //{
-      //    if (!CameraManager::HasCameraEntity(currCam.Get()))
-      //    {
-      //        CameraManager::AddCameraEntity(currCam.Get(), currCam.GetComponent<Camera>()->camera);
-      //        CameraManager::SwitchMainCamera(currCam.Get());
-      //    }
-      //}
       #pragma endregion
       
       //Render All Entities
