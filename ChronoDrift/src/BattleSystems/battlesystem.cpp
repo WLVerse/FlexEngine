@@ -352,12 +352,6 @@ namespace ChronoDrift {
       }
     }
     if (battle_phase != BP_BATTLE_FINISH) EndBattleScene();
-    // TO CHANGE INTO IMGUI BUTTON
-    if (Input::GetKeyDown(GLFW_KEY_R)) {
-      ResetCharacters();
-      AddCharacters(FlexECS::Scene::GetActiveScene()->CachedQuery<Character>());
-      BeginBattle();
-    }
 
     DisplayTurnOrder(GetTurnOrder());
   }
