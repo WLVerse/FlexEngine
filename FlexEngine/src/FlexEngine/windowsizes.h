@@ -1,16 +1,15 @@
 #include "imgui.h"
 
-// Hardcoded dock IDs, these are the same as the ones in the .ini file. To standardize here in the future.
-
-#define SETINSPECTORWINDOW    ImGui::SetNextWindowSize(ImVec2(285, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(996, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000004, ImGuiCond_FirstUseEver);
-#define SETSTATISTICSWINDOW   ImGui::SetNextWindowSize(ImVec2(284, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(996, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000004, ImGuiCond_FirstUseEver);
-#define SETSCENEWINDOW        ImGui::SetNextWindowSize(ImVec2(733, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(261, 37), ImGuiCond_FirstUseEver) ; ImGui::SetNextWindowDockID(0x00000002, ImGuiCond_FirstUseEver);
-#define SETGAMEWINDOW         ImGui::SetNextWindowSize(ImVec2(733, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(261, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000002, ImGuiCond_FirstUseEver);
-#define SETASSETBROWSERWINDOW ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
-#define SETTOOLSWINDOW        ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); \
-                              ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver ); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
-#define SETPROFILERWINDOW     ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
-#define SETHIERARCHYWINDOW    ImGui::SetNextWindowSize(ImVec2(259, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000001, ImGuiCond_FirstUseEver);
+// Commented out for favor of copying imgui.ini, because the IMGUI code is way too messy to standardsize the docking IDs and its all ahrdcoded anyway.
+#define SETINSPECTORWINDOW    //ImGui::SetNextWindowSize(ImVec2(285, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(996, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000004, ImGuiCond_FirstUseEver);
+#define SETSTATISTICSWINDOW   //ImGui::SetNextWindowSize(ImVec2(284, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(996, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000004, ImGuiCond_FirstUseEver);
+#define SETSCENEWINDOW        //ImGui::SetNextWindowSize(ImVec2(733, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(261, 37), ImGuiCond_FirstUseEver) ; ImGui::SetNextWindowDockID(0x00000002, ImGuiCond_FirstUseEver);
+#define SETGAMEWINDOW         //ImGui::SetNextWindowSize(ImVec2(733, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(261, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000002, ImGuiCond_FirstUseEver);
+#define SETASSETBROWSERWINDOW //ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
+#define SETTOOLSWINDOW        //ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); \
+                              //ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver ); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
+#define SETPROFILERWINDOW     //ImGui::SetNextWindowSize(ImVec2(1280, 243), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 507), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000007, ImGuiCond_FirstUseEver);
+#define SETHIERARCHYWINDOW    //ImGui::SetNextWindowSize(ImVec2(259, 468), ImGuiCond_FirstUseEver); ImGui::SetNextWindowPos(ImVec2(0, 37), ImGuiCond_FirstUseEver); ImGui::SetNextWindowDockID(0x00000001, ImGuiCond_FirstUseEver);
 
 // I wonder if these are needed, but Im not sure. I will leave them here for now.
 //#define SETCURSORWINDOW ImGui::SetNextWindowSize(ImVec2(240, 66)); ImGui::SetNextWindowPos(ImVec2(60, 60));

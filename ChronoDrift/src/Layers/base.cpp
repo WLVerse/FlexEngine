@@ -106,7 +106,8 @@ namespace ChronoDrift
               {
                 // Clear the scene and reset statics
                 CamManager->RemoveCamerasInScene();
-                FlexECS::Scene::SetActiveScene(std::make_shared<FlexECS::Scene>());
+                FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
+                current_save_name = default_save_name;
 
                 // Every default scene should have a camera.
                 FlexECS::Entity camera = FlexECS::Scene::GetActiveScene()->CreateEntity("MainCamera");
