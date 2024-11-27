@@ -82,16 +82,16 @@ namespace ChronoDrift {
               else ++num_of_enemies;
             }
             if (num_of_enemies > 0 && num_of_players > 0) SetupBattle(); // Set Up Battle
-            else std::cout << "Please load a proper battle scene first. Thank you.\n" << std::endl;
+            else Log::Debug("Please load a proper battle scene first. Thank you.");
           }
-          else std::cout << "Please load a proper battle scene first. Thank you.\n" << std::endl;
+          else Log::Debug("Please load a proper battle scene first. Thank you.");
         }
         if (ImGui::MenuItem("Restart Battle", "Ctrl+R")) {
           if (!scene->CachedQuery<BattleSlot>().empty()) {
             ResetCharacters();
             SetupBattle();
           }
-          else std::cout << "Please load a proper battle scene first. Thank you.\n" << std::endl;
+          else Log::Debug("Please load a proper battle scene first. Thank you.");
         }
         ImGui::EndMenu();
       }
