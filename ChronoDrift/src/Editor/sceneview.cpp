@@ -348,20 +348,6 @@ namespace ChronoDrift
 			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
 		}
 
-		//ImGuiIO& io = ImGui::GetIO();
-		//if (io.MouseWheel != 0.0f)
-		//{
-		//	if (io.MouseWheel > 0.0f)
-		//	{
-		//		//zoom in
-		//		
-		//	}
-		//	else
-		//	{
-		//		//zoom out
-		//	}
-		//}
-
 		float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
 		float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
 		float minZoom = 100.0f;       // Minimum orthographic width
