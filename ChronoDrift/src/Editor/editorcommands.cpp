@@ -29,15 +29,7 @@ namespace ChronoDrift
 
 	void EditorCommands::Shutdown()
 	{
-		while (!m_undo_list.empty())
-		{
-			m_undo_list.pop();
-		}
-
-		while (!m_redo_list.empty())
-		{
-			m_redo_list.pop();
-		}
+		ClearCommands();
 	}
 
 	void EditorCommands::UpdateComponent(FlexEngine::FlexECS::Entity target, FlexEngine::FlexECS::ComponentID component_name, const void* old_value, const void* new_value, size_t size)
@@ -46,6 +38,18 @@ namespace ChronoDrift
 		auto command = std::make_unique<UpdateComponentCommand>(target, component_name, old_value, new_value, size);
 		m_undo_list.push(std::move(command));
 		
+		while (!m_redo_list.empty())
+		{
+			m_redo_list.pop();
+		}
+	}
+
+	void EditorCommands::ClearCommands()
+	{
+		while (!m_undo_list.empty())
+		{
+			m_undo_list.pop();
+		}
 		while (!m_redo_list.empty())
 		{
 			m_redo_list.pop();

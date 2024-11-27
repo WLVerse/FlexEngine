@@ -38,6 +38,8 @@ namespace ChronoDrift
 
 		void UpdateComponent(FlexEngine::FlexECS::Entity target, FlexEngine::FlexECS::ComponentID component_name, const void* old_value, const void* new_value, size_t size);
 
+		void ClearCommands();
+
 		void Undo(void);
 		void Redo(void);
 

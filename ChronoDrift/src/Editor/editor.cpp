@@ -175,13 +175,10 @@ namespace ChronoDrift
 		{
 			scene->DestroyEntity(entity);
 		}
-		m_entities_to_delete.clear();
-
-		if (ImGui::IsKeyPressed(ImGuiKey_Space))
+		if (m_entities_to_delete.size() > 0)
 		{
-			Position newpos = {{500, 500}};
-			auto oldpos = m_selected_entity.GetComponent<Position>();
-			m_editorcommands.UpdateComponent(m_selected_entity, "Position", oldpos, &newpos, sizeof(Position));
+			m_editorcommands.ClearCommands();	
+			m_entities_to_delete.clear();
 		}
 
 		EditorGUI::EndFrame();
