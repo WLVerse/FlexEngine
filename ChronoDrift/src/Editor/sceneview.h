@@ -13,8 +13,8 @@
 
 #pragma once
 #include "editorpanel.h"
-
 #include "FlexEngine/Renderer/cameramanager.h"
+
 namespace ChronoDrift
 {
 	class SceneView : public EditorPanel
@@ -42,6 +42,7 @@ namespace ChronoDrift
 
 		bool m_gizmo_hovered;
 		bool m_dragging;
+		//Position m_recorded_position;
 
 		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
 

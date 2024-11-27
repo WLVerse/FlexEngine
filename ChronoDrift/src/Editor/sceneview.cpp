@@ -215,9 +215,49 @@ namespace ChronoDrift
 		{
 			Vector2 pos_change{};
 			bool right, up, xy;
-			EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right);
-			EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up);
-			EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy);
+			bool recording_ended = false;
+			switch (EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				break;
+			default:
+				break;
+			}
+
+			switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				break;
+			default:
+				break;
+			}
+
+			switch (EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				//start recording old position
+				//m_recorded_position = entity_position;
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				//End recording, new position
+				recording_ended = true;
+				break;
+			default:
+				break;
+			}
+			//EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right);
+			//EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up);
+			//EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy);
 			m_gizmo_hovered = right || up || xy;
 
 			//Scale the change in position with relation to screen size
@@ -226,6 +266,12 @@ namespace ChronoDrift
 			pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth()  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 			pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_position += pos_change;
+
+			if (recording_ended)
+			{
+				//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+				//cmd->UpdateComponent(selected_entity, "Position", m_recorded_position, &entity_position, sizeof(Position));
+			}
 		}
 		else if (m_current_gizmo_type == GizmoType::SCALE)
 		{

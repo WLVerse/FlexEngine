@@ -57,31 +57,30 @@ namespace ChronoDrift
 		std::cout << "Adding a new command to my m_undo_list!\n";
 		auto command = std::make_unique<UpdateComponentCommand>(target, component_name, old_value, new_value, size);
 		m_undo_list.push(std::move(command));
-		m_undo_list.pop();
 	}
 
 	void EditorCommands::Undo(void)
 	{
 		std::cout << "Trying to undo!\n";
-		//if (!m_undo_list.empty())
-		//{
-		//	std::cout << "Undo list not empty, lets REALLy try to undo now!\n";
-		//	m_undo_list.top()->Undo();
-		//	m_redo_list.push(std::move(m_undo_list.top()));
-		//	m_undo_list.pop();
-		//}
+		if (!m_undo_list.empty())
+		{
+			std::cout << "Undo list not empty, lets REALLy try to undo now!\n";
+			m_undo_list.top()->Undo();
+			m_redo_list.push(std::move(m_undo_list.top()));
+			m_undo_list.pop();
+		}
 	}
 
 	void EditorCommands::Redo(void)
 	{
-		//std::cout << "Trying to REDO!\n";
-		//if (!m_redo_list.empty())
-		//{
-		//	std::cout << "REDO list not empty, lets REALLy try to REDO now!\n";
-		//	m_redo_list.top()->Do();
-		//	m_undo_list.push(std::move(m_redo_list.top()));
-		//	m_redo_list.pop();
-		//}
+		std::cout << "Trying to REDO!\n";
+		if (!m_redo_list.empty())
+		{
+			std::cout << "REDO list not empty, lets REALLy try to REDO now!\n";
+			m_redo_list.top()->Do();
+			m_undo_list.push(std::move(m_redo_list.top()));
+			m_redo_list.pop();
+		}
 	}
 
 

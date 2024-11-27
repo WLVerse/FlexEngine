@@ -25,7 +25,7 @@
 //systems
 #include "Editor/editorsystem.h"
 #include "Editor/editorcommands.h"
-
+//components
 #include "Components/rendering.h"
 
 #include "FlexEngine/Core/imguiwrapper.h"

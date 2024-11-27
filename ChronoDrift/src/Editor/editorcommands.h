@@ -10,7 +10,7 @@ namespace ChronoDrift
 	struct Command
 	{
 	public:
-		virtual ~Command() = default;
+    virtual ~Command() = default;
 		virtual void Do(void) = 0;
 		virtual void Undo(void) = 0;
 	};

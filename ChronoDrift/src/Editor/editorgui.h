@@ -119,15 +119,22 @@ namespace ChronoDrift
 		* @param value
 			* move two axises at once, at the same value
 		******************************************************************************/
-		static void GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering);
-		static void GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+		enum GizmoStatus
+		{
+			START_DRAG,
+			END_DRAG,
+			DRAGGING,
+			NO_INTERACTION
+		};
+		static GizmoStatus GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering);
 
-		static void Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void Gizmo_Scale_Y(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_Y(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering);
 
-		static void Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering);
 
 
 		/*!***************************************************************************
