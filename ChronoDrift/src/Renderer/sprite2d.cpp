@@ -485,7 +485,9 @@ namespace ChronoDrift
             float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
             for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
             {
-                if(!entity.GetComponent<IsActive>()->is_active) continue;
+                if(!entity.GetComponent<IsActive>()->is_active || 
+                    (Editor::GetInstance().GetSelectedEntity().Get() != entity.Get())) 
+                    continue;
                 const Vector3& max = Vector3(-entity.GetComponent<Position>()->position.x + width / 2.0f, entity.GetComponent<Position>()->position.y + height / 2.0f);
                 const Vector3& min = Vector3(-entity.GetComponent<Position>()->position.x - width / 2.0f, entity.GetComponent<Position>()->position.y - height / 2.0f);
                 //construct lines for AABB
