@@ -92,6 +92,7 @@ namespace ChronoDrift
 
         //TODO @WEIJIE Hierarchy movement of camera not working as intended -> Inspect (LOW Priority)
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
+        Vector2 local_scale = currCam.GetComponent<Scale>()->scale;
         //auto& local_position = currCam.GetComponent<Position>()->position;
         // Get rotation component if it exists
         //Rotation* local_rotation = nullptr;
@@ -101,6 +102,8 @@ namespace ChronoDrift
         //Update CamData
         auto& local_camData = currCam.GetComponent<Camera>()->camera;
         local_camData.position = local_position;
+        local_camData.m_OrthoWidth = local_scale.x * 10;
+        local_camData.m_OrthoHeight = local_scale.y * 10;
         Camera2D::UpdateProjectionMatrix(local_camData);
         Camera2D::UpdateViewMatrix(local_camData);
         
@@ -462,7 +465,7 @@ namespace ChronoDrift
 
         #pragma region Draw Scene Entities
         //RenderNormalEntities();
-        RenderBatchedEntities(false); //Dont show PP yet until m4
+        RenderBatchedEntities(true); //Dont show PP yet until m4
         RenderTextEntities();
         #pragma endregion
 
@@ -481,15 +484,15 @@ namespace ChronoDrift
             RenderTextEntities();
 
             //Render Cam Boundaries
-            float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
-            float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+            //float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+            //float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
             for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
             {
                 if(!entity.GetComponent<IsActive>()->is_active || 
                     (Editor::GetInstance().GetSelectedEntity().Get() != entity.Get())) 
                     continue;
-                const Vector3& max = Vector3(-entity.GetComponent<Position>()->position.x + width / 2.0f, entity.GetComponent<Position>()->position.y + height / 2.0f);
-                const Vector3& min = Vector3(-entity.GetComponent<Position>()->position.x - width / 2.0f, entity.GetComponent<Position>()->position.y - height / 2.0f);
+                const Vector3& max = Vector3(-entity.GetComponent<Position>()->position.x + entity.GetComponent<Camera>()->camera.m_OrthoWidth / 2.0f, entity.GetComponent<Position>()->position.y + entity.GetComponent<Camera>()->camera.m_OrthoHeight / 2.0f);
+                const Vector3& min = Vector3(-entity.GetComponent<Position>()->position.x - entity.GetComponent<Camera>()->camera.m_OrthoWidth / 2.0f, entity.GetComponent<Position>()->position.y - entity.GetComponent<Camera>()->camera.m_OrthoHeight / 2.0f);
                 //construct lines for AABB
                 Vector3 topleft = min;
                 Vector3 topright = { max.x, min.y };

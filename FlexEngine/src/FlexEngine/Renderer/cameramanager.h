@@ -63,9 +63,9 @@ namespace FlexEngine
         float farClip = 2.0f;                    /*!< Far clipping plane */
         bool m_isOrthographic = true;           /*!< Flag indicating orthographic (true) or perspective (false) projection */
     
-        //TODO @WEIJIE 
-        // Add cam height & width for zoom since right now only use window size
         bool cam_is_active = true;
+        float m_OrthoWidth = 1280.0f;
+        float m_OrthoHeight = 750.0f;
     };
 
     #pragma endregion

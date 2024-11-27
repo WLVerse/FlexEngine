@@ -44,8 +44,8 @@ namespace ChronoDrift
         #if 1
         FlexECS::Entity camera = FlexECS::Scene::CreateEntity("MainCamera");
         camera.AddComponent<IsActive>({ true });
-        camera.AddComponent<Position>({ {-150, 300 } });
-        camera.AddComponent<Scale>({ { 0.5,0.5 } });
+        camera.AddComponent<Position>({ {0,0} });
+        camera.AddComponent<Scale>({ { static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth())/10,static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()) / 10 } }); // Screen display 1280 x 750
         camera.AddComponent<Rotation>({ });
         camera.AddComponent<Transform>({});
         camera.AddComponent<Camera>({});
