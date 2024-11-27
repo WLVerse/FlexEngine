@@ -192,7 +192,7 @@ namespace ChronoDrift
       // System to handle button collider callbacks
       ImGuiContext* context = GImGui;
       ImGuiWindow* hovered_window = context->HoveredWindow;
-      bool is_scene = (hovered_window == ImGui::FindWindowByName("Scene"));
+      //bool is_scene = (hovered_window == ImGui::FindWindowByName("Scene"));
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
       {
           auto button = entity.GetComponent<Button>();
@@ -203,7 +203,7 @@ namespace ChronoDrift
               continue;
           }
 
-          Vector2 mtw = is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+          Vector2 mtw = /*is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : */Editor::GetInstance().GetPanel("GameView").mouse_to_world;
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;
@@ -219,7 +219,7 @@ namespace ChronoDrift
           if (entity.HasComponent<OnClick>()) 
           {
               auto click = entity.GetComponent<OnClick>();
-              click->is_clicked = inside && ImGui::IsMouseClicked(0);
+              click->is_clicked = inside && Input::GetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
               t_isClicked = click->is_clicked;
           }
 
