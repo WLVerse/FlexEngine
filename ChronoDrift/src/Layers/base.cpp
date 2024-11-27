@@ -236,7 +236,7 @@ namespace ChronoDrift
         //  if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
         //  ImGui::EndMenu();
         //}
-
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if (ImGui::BeginMenu("View"))
         {
           if (ImGui::MenuItem("Center Window"))
@@ -253,6 +253,7 @@ namespace ChronoDrift
 
         // Set full screen
         Window* window = Application::GetCurrentWindow();
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if (ImGui::Button("Full Screen") && !window->IsFullScreen()) {
           window->CacheMiniWindowParams();
 
@@ -266,6 +267,7 @@ namespace ChronoDrift
         }
 
         // Minimize!!!
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if ((ImGui::Button("Esc") || Input::GetKeyDown(GLFW_KEY_ESCAPE)) && window->IsFullScreen()) {
           std::pair<int, int> window_pos = window->UnCacheMiniWindowsParams();
           glfwSetWindowMonitor(window->GetGLFWWindow(), NULL, window_pos.first, window_pos.second, window->GetWidth(), window->GetHeight(), window->GetFPS());
