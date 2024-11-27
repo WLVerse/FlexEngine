@@ -111,6 +111,7 @@ namespace ChronoDrift
 
                 // Every default scene should have a camera.
                 FlexECS::Entity camera = FlexECS::Scene::GetActiveScene()->CreateEntity("MainCamera");
+                camera.AddComponent<IsActive>({ true });
                 camera.AddComponent<Position>({ {-150, 300 } });
                 camera.AddComponent<Scale>({ { 0.5,0.5 } });
                 camera.AddComponent<Rotation>({ });
@@ -157,6 +158,7 @@ namespace ChronoDrift
                     for (auto& camera : camera_list) 
                     {
                         CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
+                        camera.GetComponent<Transform>()->is_dirty = true;
                     }
                 }
                 Log::Info("Processed " + std::to_string(camera_list.size()) + " camera(s) from the active scene.");

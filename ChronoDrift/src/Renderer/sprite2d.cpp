@@ -88,7 +88,7 @@ namespace ChronoDrift
 
     void UpdateCamMatrix(FlexECS::Entity& currCam, CameraManager* CamManager)
     {
-        if (!currCam.GetComponent<Transform>()->is_dirty) return;
+        //if (!currCam.GetComponent<Transform>()->is_dirty) return; //Seems to be the cause of some blue screen
 
         //TODO @WEIJIE Hierarchy movement of camera not working as intended -> Inspect (LOW Priority)
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
@@ -475,11 +475,32 @@ namespace ChronoDrift
         }
         #else //Render editor view
         {
-            
             OpenGLFrameBuffer::SetEditorFrameBuffer();
             OpenGLFrameBuffer::ClearFrameBuffer();
             RenderBatchedEntities(false);
             RenderTextEntities();
+
+            //Render Cam Boundaries
+            float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+            float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+            for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+            {
+                if(!entity.GetComponent<IsActive>()->is_active || 
+                    (Editor::GetInstance().GetSelectedEntity().Get() != entity.Get())) 
+                    continue;
+                const Vector3& max = Vector3(-entity.GetComponent<Position>()->position.x + width / 2.0f, entity.GetComponent<Position>()->position.y + height / 2.0f);
+                const Vector3& min = Vector3(-entity.GetComponent<Position>()->position.x - width / 2.0f, entity.GetComponent<Position>()->position.y - height / 2.0f);
+                //construct lines for AABB
+                Vector3 topleft = min;
+                Vector3 topright = { max.x, min.y };
+                Vector3 botleft = { min.x, max.y };
+                Vector3 botright = max;
+
+                FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), topleft, topright, Vector3::Up);
+                FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), topright, botright, Vector3::Up);
+                FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), botright, botleft, Vector3::Up);
+                FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), botleft, topleft, Vector3::Up);
+            }
         }
         #endif
 

@@ -103,8 +103,11 @@ namespace FlexEngine
             Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
             return;
         }
-        if (text.m_words.empty())
+        if (text.m_words.empty() ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
             return;
+
         if (followcam && m_CamM_Instance->GetMainCamera() <= -1)
             followcam = false;
 

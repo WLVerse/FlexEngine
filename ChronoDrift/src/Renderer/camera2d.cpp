@@ -37,7 +37,7 @@ namespace FlexEngine
     void Camera2D::UpdateViewMatrix(CameraData& curr)
     {
         //curr.position, curr.target, curr.up
-        curr.viewMatrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
+        curr.viewMatrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up);
         curr.proj_viewMatrix = curr.projMatrix * curr.viewMatrix;
     }
 
@@ -45,10 +45,18 @@ namespace FlexEngine
     {
         if (curr.m_isOrthographic)
         {
+            float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+            float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+
+            //Center Cam
             curr.projMatrix = Matrix4x4::Orthographic(
-                curr.position.x, curr.position.x + FlexEngine::Application::GetCurrentWindow()->GetWidth(),
-                curr.position.y + FlexEngine::Application::GetCurrentWindow()->GetHeight(), curr.position.y,
-                curr.nearClip, curr.farClip);
+                curr.position.x + width / 2.0f,
+                curr.position.x - width / 2.0f,
+                curr.position.y + height / 2.0f, 
+                curr.position.y - height / 2.0f, 
+                curr.nearClip,
+                curr.farClip
+            );
         }
         else
         {

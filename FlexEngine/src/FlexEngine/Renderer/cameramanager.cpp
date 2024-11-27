@@ -154,7 +154,7 @@ namespace FlexEngine
         }
 
         //Update Main Camera automatically if missing
-        if (m_currMainID == INVALID_ENTITY_ID)
+        if (m_currMainID == INVALID_ENTITY_ID && cameraData.cam_is_active)
             SwitchMainCamera(entityID);
     }
 

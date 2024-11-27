@@ -252,12 +252,12 @@ namespace ChronoDrift
 
           if (Input::GetKey(GLFW_KEY_J))
           {
-              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
           else if (Input::GetKey(GLFW_KEY_L))
           {
-              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
       }
