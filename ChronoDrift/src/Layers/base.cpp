@@ -157,6 +157,7 @@ namespace ChronoDrift
                     for (auto& camera : camera_list) 
                     {
                         CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
+                        camera.GetComponent<Transform>()->is_dirty = true;
                     }
                 }
                 Log::Info("Processed " + std::to_string(camera_list.size()) + " camera(s) from the active scene.");

@@ -88,7 +88,7 @@ namespace ChronoDrift
 
     void UpdateCamMatrix(FlexECS::Entity& currCam, CameraManager* CamManager)
     {
-        if (!currCam.GetComponent<Transform>()->is_dirty) return;
+        //if (!currCam.GetComponent<Transform>()->is_dirty) return; //Seems to be the cause of some blue screen
 
         //TODO @WEIJIE Hierarchy movement of camera not working as intended -> Inspect (LOW Priority)
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
