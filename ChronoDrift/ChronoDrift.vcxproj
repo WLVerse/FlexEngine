@@ -307,6 +307,7 @@
     <ClInclude Include="src\Editor\editorcommands.h" />
     <ClInclude Include="src\Editor\editorgui.h" />
     <ClInclude Include="src\Editor\editorpanel.h" />
+    <ClInclude Include="src\Editor\editorsystem.h" />
     <ClInclude Include="src\Editor\gameview.h" />
     <ClInclude Include="src\Editor\hierarchyview.h" />
     <ClInclude Include="src\Editor\imguipayloads.h" />

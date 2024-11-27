@@ -135,9 +135,16 @@ namespace ChronoDrift
 		m_panels["SceneView"] = &m_sceneview;
 		m_panels["GameView"] = &m_gameview;
 
+		m_systems["EditorCommands"] = &m_editorcommands;
+
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
 		{
 		  iter->second->Init();
+		}
+
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
+		{
+			iter->second->Init();
 		}
 
 		SetupImGuiStyle();
@@ -158,6 +165,11 @@ namespace ChronoDrift
 			iter->second->EditorUI();
 		}
 
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
+		{
+			iter->second->Update();
+		}
+
 		auto scene = FlexECS::Scene::GetActiveScene();
 		for (auto entity : m_entities_to_delete)
 		{
@@ -169,8 +181,7 @@ namespace ChronoDrift
 		{
 			Position newpos = {{500, 500}};
 			auto oldpos = m_selected_entity.GetComponent<Position>();
-			UpdateComponentCommand test(m_selected_entity, "Position", oldpos, &newpos, sizeof(Position));
-			test.Do();
+			m_editorcommands.UpdateComponent(m_selected_entity, "Position", oldpos, &newpos, sizeof(Position));
 		}
 
 		EditorGUI::EndFrame();
@@ -180,6 +191,11 @@ namespace ChronoDrift
 	void Editor::Shutdown()
 	{
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
+		{
+			iter->second->Shutdown();
+		}
+
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
 		{
 			iter->second->Shutdown();
 		}
@@ -203,6 +219,11 @@ namespace ChronoDrift
   {
     return *m_panels[panel_name];
   }
+
+	EditorSystem* Editor::GetSystem(const std::string& system_name)
+	{
+		return m_systems[system_name];
+	}
 
 	void Editor::SelectEntity(FlexECS::Entity entity)
 	{

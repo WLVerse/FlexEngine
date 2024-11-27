@@ -172,6 +172,9 @@
     <ClInclude Include="src\Editor\editorcommands.h">
       <Filter>src\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="src\Editor\editorsystem.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
