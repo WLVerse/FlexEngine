@@ -12,9 +12,10 @@
 #include "application.h"
 #include "DataStructures/freequeue.h"
 
-// if release mode
+// WinMain for release mode because it doesn't use the console.
 #ifdef NDEBUG
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+//int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
   return main(0, nullptr);
 }
