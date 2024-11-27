@@ -38,11 +38,13 @@ namespace ChronoDrift
 
 		/*!***************************************************************************
 		* @brief
-		* Checks if a component has a viewer defined for it.
+		* Checks if a component has a viewer/adder/remover defined for it.
 		* @return
 		* true if has, false otherwise
 		******************************************************************************/
 		static bool ViewerExists(std::string);
+		static bool AdderExists(std::string);
+		static bool RemoverExists(std::string);
 
 		/*!***************************************************************************
 		* @brief
@@ -184,9 +186,9 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 
 
 	#define REGISTER_COMPONENT_VIEWER_FUNCTIONS(TYPE, ENABLE_ADD, ENABLE_REMOVE) \
-	ComponentViewer viewer_function = COMPONENT_VIEWER_##TYPE; \
-	ComponentViewer adder_function = (ENABLE_ADD) ? COMPONENT_ADDER_##TYPE : nullptr; \
-	ComponentViewer remover_function = (ENABLE_REMOVE) ? COMPONENT_REMOVER_##TYPE : nullptr; \
-	ComponentViewRegistry::RegisterComponent(#TYPE, viewer_function, adder_function, remover_function);
+	ComponentViewer viewer_function##TYPE  = COMPONENT_VIEWER_##TYPE; \
+	ComponentViewer adder_function##TYPE	 = (ENABLE_ADD) ? COMPONENT_ADDER_##TYPE : nullptr; \
+	ComponentViewer remover_function##TYPE = (ENABLE_REMOVE) ? COMPONENT_REMOVER_##TYPE : nullptr; \
+	ComponentViewRegistry::RegisterComponent(#TYPE, viewer_function##TYPE, adder_function##TYPE, remover_function##TYPE);
 
 }

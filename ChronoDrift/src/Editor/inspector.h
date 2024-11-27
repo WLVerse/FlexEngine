@@ -26,6 +26,10 @@ namespace ChronoDrift
 		void Update();
 		void EditorUI();
 		void Shutdown();
+
+	private:
+		char m_search_query[64] = "";
+		bool m_focus_search_bar{ false };
 	};
 
 }
