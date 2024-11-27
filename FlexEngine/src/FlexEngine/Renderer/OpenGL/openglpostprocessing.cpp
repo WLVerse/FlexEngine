@@ -1,3 +1,35 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// openglpostprocessing.cpp
+//
+// This source file defines the `OpenGLPostProcessing` class, which manages
+// post-processing effects in the rendering pipeline using OpenGL. It includes
+// functionality for bloom effects, Gaussian blur, and final composition to
+// enhance the visual output.
+//
+// Key Responsibilities:
+// - Load and manage shaders for various stages of post-processing:
+//   - Brightness threshold extraction for bloom.
+//   - Gaussian blur application for softening.
+//   - Final composition of bloom with the main scene.
+// - Manage rendering state for post-processing via vertex array objects (VAOs).
+// - Utilize `OpenGLFrameBuffer` for managing intermediate rendering textures.
+// - Integrate with `FreeQueue` for deferred shader cleanup.
+//
+// Main Features:
+// - Flexible brightness threshold control for bloom extraction.
+// - Multi-pass Gaussian blur implementation with adjustable intensity and distance.
+// - Seamless final composition of bloom with configurable opacity.
+// - Shader and resource initialization, cleanup, and error logging.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Main Author
+//   - Implemented bloom brightness pass, Gaussian blur, and final composition.
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #include "OpenGLPostProcessing.h"
 
 #include "FlexEngine/DataStructures/freequeue.h"
@@ -19,6 +51,34 @@ namespace FlexEngine
     #pragma endregion
 
     #pragma region Init
+    /*!***************************************************************************
+     * \brief
+     * Initializes the OpenGLPostProcessing system by setting up shaders and VAO.
+     *
+     * This function prepares the post-processing pipeline by creating and compiling
+     * the necessary shaders for bloom brightness extraction, Gaussian blur, and final
+     * composition. It also sets the Vertex Array Object (VAO) to be used during rendering
+     * and registers cleanup tasks to ensure proper resource management.
+     *
+     * \param VAOIDtoSet
+     * The ID of the Vertex Array Object (VAO) to be used for rendering post-processing
+     * effects. This VAO should be bound during the initialization process.
+     *
+     * \details
+     * - Loads shader programs from pre-defined file paths for shared vertex operations
+     *   and fragment processing specific to each stage of post-processing.
+     * - Registers deferred cleanup operations for all initialized shaders using
+     *   the `FreeQueue` system.
+     * - Logs a message upon successful initialization.
+     *
+     * \note
+     * The function assumes that the VAO provided by `VAOIDtoSet` is valid and properly
+     * configured to handle post-processing geometries, such as screen-space quads.
+     *
+     * \warning
+     * Ensure that the shader files exist at the specified paths. Missing or invalid files
+     * will cause the initialization process to fail.
+     *****************************************************************************/
     void OpenGLPostProcessing::Init(GLuint VAOIDtoSet)
     {
         m_VAOid = VAOIDtoSet;
@@ -57,7 +117,6 @@ namespace FlexEngine
 
         glBindVertexArray(m_VAOid);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        //m_draw_calls++;
     }
 
     ///*!***************************************************************************
@@ -87,7 +146,6 @@ namespace FlexEngine
 
             glBindVertexArray(m_VAOid);
             glDrawArrays(GL_TRIANGLES, 0, 6);
-            //m_draw_calls++;
 
             horizontal = !horizontal;
         }
@@ -102,7 +160,6 @@ namespace FlexEngine
     void OpenGLPostProcessing::ApplyBloomFinalComposition(float opacity) 
     {
         OpenGLFrameBuffer::SetGameFrameBuffer();
-        //GLenum drawBuffer = GL_COLOR_ATTACHMENT1;
         GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(1, drawBuffers);
 
@@ -120,7 +177,6 @@ namespace FlexEngine
 
         glBindVertexArray(m_VAOid);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        //m_draw_calls++;
     }
     #pragma endregion
 }
