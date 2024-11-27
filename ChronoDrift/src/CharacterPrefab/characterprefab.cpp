@@ -29,6 +29,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 void ResetCharacters() {
   auto scene = FlexECS::Scene::GetActiveScene();
   for (auto& entity : scene->Query<ChronoDrift::Character>()) {
+    entity.GetComponent<IsActive>()->is_active = true;
     auto character = entity.GetComponent<Character>();
     character->current_health = character->base_health;
     character->current_speed = character->base_speed;

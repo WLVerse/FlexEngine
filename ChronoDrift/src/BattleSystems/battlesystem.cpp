@@ -617,6 +617,7 @@ namespace ChronoDrift {
       for (auto c = m_characters.begin(); c != m_characters.end(); c++) {
         if (*c == *it) {
           m_characters.erase(c);
+          (*it).GetComponent<IsActive>()->is_active = false;
           std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from characters list" << std::endl;
           break;
         }
