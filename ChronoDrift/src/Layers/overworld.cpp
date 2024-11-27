@@ -140,7 +140,7 @@ namespace ChronoDrift
         {
           if (entity.GetComponent<Scale>() != nullptr)
           {
-            entity.GetComponent<Scale>()->scale += 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+            entity.GetComponent<Rotation>()->rotation.z -= 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
           }
         }
         else
