@@ -37,11 +37,32 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 namespace ChronoDrift {
 
   static int move_decision = -1; // variable storing move selection
+  static float delay_timer = 0.f;
+
   //Sorting functions
   struct SortLowestSpeed
   {
     bool operator()(FlexECS::Entity e1, FlexECS::Entity e2) {
       return e1.GetComponent<Character>()->current_speed < e2.GetComponent<Character>()->current_speed;
+    }
+  };
+
+  struct SortLowestPositions
+  {
+    bool operator()(FlexECS::Entity& e1, FlexECS::Entity& e2) {
+      std::pair<bool, bool> comparison_results = std::make_pair(false, false);
+
+      Vector2 e1_pos = e1.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
+      Vector2 e2_pos = e2.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
+      
+      comparison_results.first = (e1_pos.x < e2_pos.x) ? true : false;
+      comparison_results.second = (e1_pos.y < e2_pos.y) ? true : false;
+
+      if (comparison_results.first) return true;
+      else {
+        if (comparison_results.second) return true;
+        else return false;
+      }
     }
   };
 
@@ -67,7 +88,7 @@ namespace ChronoDrift {
       slot.AddComponent<Transform>({});
       slot.AddComponent<Sprite>({
         scene->Internal_StringStorage_New(R"()"),
-        SLOT_COLOR_PLAYER,
+        SLOT_SUB_TARGET_COLOR,
         Vector3::One,
         Renderer2DProps::Alignment_Center,
         Renderer2DProps::VBO_BasicInverted,
@@ -112,33 +133,55 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::AddCharacters(std::vector<FlexECS::Entity> characters) {
-    /*auto scene = FlexECS::Scene::GetActiveScene();
-    for (auto& t : scene->Query<BattleSlot>()) {
-      FlexECS::Scene::GetActiveScene()->DestroyEntity(t);
-    }*/
+    auto scene = FlexECS::Scene::GetActiveScene();
+    // Destroy any battle slot entites exisiting in loaded scene
+    if (!scene->CachedQuery<BattleSlot>().empty()) {
+      for (auto& bs : scene->CachedQuery<BattleSlot>()) {
+        scene->DestroyEntity(bs);
+      }
+    }
+    // Destroy any turn order display entities exisiting in loaded scene
+    if (!scene->CachedQuery<TurnOrderDisplay>().empty()) {
+      for (auto& td : scene->CachedQuery<TurnOrderDisplay>()) {
+        scene->DestroyEntity(td);
+      }
+    }
+    // Clear characters container
     if (!m_characters.empty()) m_characters.clear();
-    if (!m_enemies.empty()) {
-      for (auto& e : m_enemies) {
-        FlexECS::Scene::GetActiveScene()->DestroyEntity(e);
-      }
-      m_enemies.clear();
-    }
-    if (!m_players.empty()) {
-      for (auto& p : m_players) {
-        FlexECS::Scene::GetActiveScene()->DestroyEntity(p);
-      }
-      m_players.clear();
-    }
-    // positions of character sprites should be updated according to the slot positions
+    // Clear enemy slot container
+    if (!m_enemies.empty()) m_enemies.clear();
+    // Clear player slot containeer
+    if (!m_players.empty()) m_players.clear();
+    
     for (size_t i = 0; i < characters.size(); i++) {
+      // adding character into m_characters container that will be sorted according to player speed
       m_characters.push_back(characters[i]);
-      FlexECS::Entity temp_character = FlexECS::Scene::GetActiveScene()->CreateEntity("Slot " + std::to_string(i));
+      // Creating a slot entity
+      FlexECS::Entity temp_character = scene->CreateEntity("Target Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
+      // Creating a slot that will be used by the speed queue display (logic of it will change in the future)
+      FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(i));
+      display_slot.AddComponent<TurnOrderDisplay>({});
+      display_slot.AddComponent<IsActive>({ false });
+      display_slot.AddComponent<Position>({ });
+      display_slot.AddComponent<Scale>({ { 60,60 } });
+      display_slot.AddComponent<ZIndex>({ 10 });
+      display_slot.AddComponent<Sprite>({});
+      display_slot.AddComponent<Rotation>({});
+      display_slot.AddComponent<Transform>({});
+      display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+      // Now this is where we add player slots to m_players & enemy slots to m_enemies
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
       }
-      else m_enemies.push_back(temp_character);
+      else {
+        m_enemies.push_back(temp_character);
+      }
     }
+
+    // One extra step: we need to sort the vectors according to their positions
+    std::sort(m_players.begin(), m_players.end(), SortLowestPositions());
+    std::sort(m_enemies.begin(), m_enemies.end(), SortLowestPositions());
 
     players_displayed = m_players.size();
     enemies_displayed = m_enemies.size();
@@ -166,8 +209,9 @@ namespace ChronoDrift {
     }
     std::cout << "\n";
 
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
-    battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+    battle_phase = BP_PROCESSING;
   }
 
   void BattleSystem::UpdateSpeedStack()
@@ -184,10 +228,12 @@ namespace ChronoDrift {
         << "  Spd: " << entity.GetComponent<Character>()->current_speed << std::endl;
     }
     std::cout << "\n";
+    if (!m_characters.front().GetComponent<Character>()->is_player) delay_timer = DELAY_TIME;
 
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     //battle_state.GetComponent<BattleState>()->active_character = m_characters.front();
-    battle_state.GetComponent<BattleState>()->phase = BP_STATUS_RUN;
+    //battle_state.GetComponent<BattleState>()->phase = BP_STATUS_RUN;
+    battle_phase = BP_STATUS_RUN;
   }
 
   void BattleSystem::RunCharacterStatus() {
@@ -201,13 +247,14 @@ namespace ChronoDrift {
       std::cout << current_active.GetComponent<Shock>()->damage_value << " HP from shock DOT." << std::endl;
       std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
       if (--(current_active.GetComponent<Shock>()->remaining_turns) == 0) {
-        std::cout << name << "'s shock effect has ended.\n";
+        std::cout << name << "'s shock effect has ended.\n\n";
         current_active.RemoveComponent<Shock>();
       }
       else {
         std::cout << name << "'s shock effect still has ";
-        std::cout << current_active.GetComponent<Shock>()->remaining_turns << " turns.\n";
+        std::cout << current_active.GetComponent<Shock>()->remaining_turns << " turns.\n\n";
       }
+      delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Burn>()) {
@@ -216,13 +263,14 @@ namespace ChronoDrift {
       std::cout << current_active.GetComponent<Burn>()->damage_value << " HP from burn DOT." << std::endl;
       std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
       if (--(current_active.GetComponent<Burn>()->remaining_turns) == 0) {
-        std::cout << name << "'s burn effect has ended.\n";
+        std::cout << name << "'s burn effect has ended.\n\n";
         current_active.RemoveComponent<Burn>();
       }
       else {
         std::cout << name << "'s burn effect still has ";
-        std::cout << current_active.GetComponent<Burn>()->remaining_turns << " turns.\n";
+        std::cout << current_active.GetComponent<Burn>()->remaining_turns << " turns.\n\n";
       }
+      delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Shear>()) {
@@ -231,13 +279,14 @@ namespace ChronoDrift {
       std::cout << current_active.GetComponent<Shear>()->damage_value << " HP from shear DOT." << std::endl;
       std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
       if (--(current_active.GetComponent<Shear>()->remaining_turns) == 0) {
-        std::cout << name << "'s shear effect has ended.\n";
+        std::cout << name << "'s shear effect has ended.\n\n";
         current_active.RemoveComponent<Shear>();
       }
       else {
         std::cout << name << "'s shear effect still has ";
-        std::cout << current_active.GetComponent<Shear>()->remaining_turns << " turns.\n";
+        std::cout << current_active.GetComponent<Shear>()->remaining_turns << " turns.\n\n";
       }
+      delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Recovery>()) {
@@ -247,39 +296,45 @@ namespace ChronoDrift {
       std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
       if (--(current_active.GetComponent<Recovery>()->remaining_turns) == 0) {
         current_active.RemoveComponent<Recovery>();
-        std::cout << name << "'s healing effect has ended.\n";
+        std::cout << name << "'s healing effect has ended.\n\n";
       }
       else {
         std::cout << name << "'s healing effect still has ";
-        std::cout << current_active.GetComponent<Recovery>()->remaining_turns << " turns.\n";
+        std::cout << current_active.GetComponent<Recovery>()->remaining_turns << " turns.\n\n";
       }
+      delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Immunity>()) {
       if (--(current_active.GetComponent<Immunity>()->remaining_turns) <= 0) {
-        std::cout << name << "'s immunity has ended.\n";
+        std::cout << name << "'s immunity has ended.\n\n";
         current_active.RemoveComponent<Immunity>();
       }
       else {
         std::cout << name << " is immune to all damage for another ";
-        std::cout << current_active.GetComponent<Immunity>()->remaining_turns << " turns.\n";
+        std::cout << current_active.GetComponent<Immunity>()->remaining_turns << " turns.\n\n";
       }
+      delay_timer = DELAY_TIME;
     }
     // Just a note that the stun should be the last check for now cause if stun then i would rather just go
     // to next character and skip his turn
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     if (current_active.HasComponent<Stun>()) {
       std::cout << name << " is stunned. So moving on~" << std::endl;
       current_active.GetComponent<Character>()->current_speed += current_active.GetComponent<Character>()->base_speed;
       if (--(current_active.GetComponent<Stun>()->remaining_turns) <= 0) {
-        std::cout << name << " stun status has ended." << std::endl;
+        std::cout << name << " stun status has ended.\n" << std::endl;
         current_active.RemoveComponent<Stun>();
       }
-      else std::cout << name << " stun status still has " << current_active.GetComponent<Stun>()->remaining_turns << " turns left." << std::endl;
+      else std::cout << name << " stun status still has " << current_active.GetComponent<Stun>()->remaining_turns << " turns left.\n" << std::endl;
       std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
-      battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+      //battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+      battle_phase = BP_PROCESSING;
+      delay_timer = DELAY_TIME;
     }
-    else battle_state.GetComponent<BattleState>()->phase = BP_MOVE_SELECTION;
+    else { //battle_state.GetComponent<BattleState>()->phase = BP_MOVE_SELECTION;
+      battle_phase = BP_MOVE_SELECTION;
+    }
 
     if (current_active.GetComponent<Character>()->current_health <= 0) {
       dead_character.push_back(current_active);
@@ -290,34 +345,34 @@ namespace ChronoDrift {
 
   void BattleSystem::Update()
   {
-    auto query = FlexECS::Scene::GetActiveScene()->Query<BattleState>();
-    if (query.empty()) return; // Guard for resetted battle scene
+    if (delay_timer > 0.f) {
+      delay_timer -= Application::GetCurrentWindow()->GetDeltaTime();
+    }
+    //auto query = FlexECS::Scene::GetActiveScene()->Query<BattleState>();
+    //if (query.empty()) return; // Guard for resetted battle scene
 
-    FlexECS::Entity battle_state = query[0];
-    int battle_phase = battle_state.GetComponent<BattleState>()->phase;
-    if (battle_phase == BP_PROCESSING) {
-      move_decision = -1;
-      UpdateSpeedStack();
-    }
-    else if (battle_phase == BP_STATUS_RUN) {
-      RunCharacterStatus();
-    }
-    else if (battle_phase == BP_MOVE_SELECTION) {
-      PlayerMoveSelection();
-    }
-    else if (battle_phase == BP_MOVE_ANIMATION) {
-      
+    //FlexECS::Entity battle_state = query[0];
+    //int battle_phase = battle_state.GetComponent<BattleState>()->phase;
+    if (delay_timer <= 0.f) {
+      switch (battle_phase) {
+      case BP_PROCESSING:
+        move_decision = -1;
+        UpdateSpeedStack();
+        break;
+      case BP_STATUS_RUN:
+        RunCharacterStatus();
+        break;
+      case BP_MOVE_SELECTION:
+        PlayerMoveSelection();
+        break;
+      case BP_MOVE_EXECUTION:
+        ExecuteMove();
+        break;
+      case BP_MOVE_ANIMATION:
+        break;
+      }
     }
     if (battle_phase != BP_BATTLE_FINISH) EndBattleScene();
-
-    /*if (Input::GetKeyDown(GLFW_KEY_S)) {
-      SaveCharacters();
-    }*/
-    if (Input::GetKeyDown(GLFW_KEY_R)) {
-      ResetCharacters();
-      AddCharacters(FlexECS::Scene::GetActiveScene()->CachedQuery<Character>());
-      BeginBattle();
-    }
 
     DisplayTurnOrder(GetTurnOrder());
   }
@@ -376,30 +431,44 @@ namespace ChronoDrift {
       //}
     }
     if (move_decision == -1) return;
-    Move selected_move = MoveRegistry::GetMove(
+    Move locked_in_move = MoveRegistry::GetMove(
             FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(
               character_moves[move_decision]));
     std::vector<FlexECS::Entity> result;
     auto max_targets = m_enemies.end();
     auto min_targets = m_enemies.begin();
-    if (m_characters.front().GetComponent<Character>()->is_player) {
-      static int adjacent = 1;
 
-      // Identify whether target is enemy or team
-      // number of targets
-      // selection of adjecent targets should only apply when target count is less than 5
-      size_t no_of_targets = 0;
-      if (!selected_move.is_target_enemy) {
-        // means is player target
-        no_of_targets = players_displayed;
-        min_targets = m_players.begin();
-        max_targets = m_players.end();
-      }
-      else {
-        // means is enemy target
-        no_of_targets = enemies_displayed;
-      }
-      if (selected_move.target_type < no_of_targets) {
+    // Identify whether target is enemy or team
+    // number of targets
+    // selection of adjecent targets should only apply
+    // when target count is less than 5
+    size_t no_of_targets = 0;
+    if (!locked_in_move.is_target_enemy) {
+      // means is player target
+      no_of_targets = players_displayed;
+      min_targets = m_players.begin();
+      max_targets = m_players.end();
+    }
+    else {
+      // means is enemy target
+      no_of_targets = enemies_displayed;
+    }
+
+    int num_of_adjacent_targets = 0;
+    bool is_adjacent = false;
+    if (locked_in_move.target_type % 2) {
+      // Means Odd
+      num_of_adjacent_targets = (locked_in_move.target_type - 1) / 2;
+    }
+    else {
+      // Means Even (Only works for 2 targets)
+      is_adjacent = true;
+      num_of_adjacent_targets = locked_in_move.target_type / 2;
+    }
+
+    static int adjacent = 1;
+    if (m_characters.front().GetComponent<Character>()->is_player) {
+      if (locked_in_move.target_type < no_of_targets) {
         // targetting system
         if (Input::GetKeyDown(GLFW_KEY_D)) {
           if (selected_num != (max_targets - 1)) selected_num++;
@@ -407,91 +476,110 @@ namespace ChronoDrift {
         if (Input::GetKeyDown(GLFW_KEY_A)) {
           if (selected_num != min_targets) selected_num--;
         }
-
-        if (selected_num == (max_targets - 1)) adjacent = -1;
-        else if (selected_num == min_targets) adjacent = 1;
-
-        // This needs to be resolved ASAP
-        // display sprites when selected, adjacency matters
-        if (selected_num != min_targets || selected_num != (max_targets - 1)) {
-          if (selected_move.target_type == MOVE_TARGET_TRIPLE) {
-            (*(selected_num - 1)).GetComponent<IsActive>()->is_active = true;
-            (*(selected_num + 1)).GetComponent<IsActive>()->is_active = true;
-          }
-          else if (selected_move.target_type == MOVE_TARGET_DOUBLE) {
-            (*(selected_num + adjacent)).GetComponent<IsActive>()->is_active = true;
-          }
-        }
-        else (*(selected_num + adjacent)).GetComponent<IsActive>()->is_active = true;
-        (*selected_num).GetComponent<IsActive>()->is_active = true;
-      }
-      else {
-        if (selected_move.target_type == MOVE_TARGET_SELF) {
-          for (auto i = min_targets; i != max_targets; i++) {
-            if ((*i).GetComponent<BattleSlot>()->character == m_characters.front()) {
-              (*i).GetComponent<IsActive>()->is_active = true;
-            }
-          }
-        }
-        else {
-          // all the slots are to be targetted
-          for (auto i = min_targets; i != max_targets; i++) {
-            (*i).GetComponent<IsActive>()->is_active = true;
-          }
-        }
-      }
-      if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
-        for (auto i = min_targets; i != max_targets; i++) {
-          if ((*i).GetComponent<IsActive>()->is_active) result.push_back((*i).GetComponent<BattleSlot>()->character);
-        }
       }
     }
     else {
-      int max = 0;
-      if (!selected_move.is_target_enemy) {
-        max = static_cast<int>(players_displayed);
-        min_targets = m_players.begin();
-      }
-      else max = static_cast<int>(enemies_displayed);
-      int random_selection = Range(0, max).Get();
-      if (selected_move.target_type < max) {
-        if (random_selection != 0 || random_selection != max) {
-          if (selected_move.target_type == MOVE_TARGET_TRIPLE) {
-            result.push_back((*(min_targets + 1)).GetComponent<BattleSlot>()->character);
-            result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-          }
-          else if (selected_move.target_type == MOVE_TARGET_DOUBLE) result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-        }
-        else {
-          if (random_selection == max) result.push_back((*(min_targets - 1)).GetComponent<BattleSlot>()->character);
-          else result.push_back((*(min_targets + 1)).GetComponent<BattleSlot>()->character);
-        }
-        result.push_back((*min_targets).GetComponent<BattleSlot>()->character);
-      }
-      else {
-        // all the slots are to be targetted
-        for (int i = 0; i < max; i++) {
-          result.push_back((*(min_targets + i)).GetComponent<BattleSlot>()->character);
-        }
+      if (locked_in_move.target_type < no_of_targets) {
+        int max = 0;
+        if (!locked_in_move.is_target_enemy) max = static_cast<int>(players_displayed) - 1;
+        else max = static_cast<int>(enemies_displayed) - 1;
+        int random_selection = Range(0, max).Get();
+        selected_num = min_targets + random_selection;
       }
     }
+
+    if (locked_in_move.target_type < no_of_targets) {
+      // Setting the adjacent value
+      if (selected_num == (max_targets - 1)) adjacent = -1;
+      else if (selected_num == min_targets) adjacent = 1;
+      // This is for target types greater than MOVE_TARGET_DOUBLE
+      std::pair<bool, bool> out_of_bounds_flag = std::make_pair(false, false);
+      if (num_of_adjacent_targets > 0 && locked_in_move.target_type != MOVE_TARGET_DOUBLE) {
+        for (int i = 1; i <= num_of_adjacent_targets; i++) {
+          if (selected_num != min_targets) {
+            if (!out_of_bounds_flag.first) {
+              (*(selected_num - i)).GetComponent<IsActive>()->is_active = true;
+              if ((selected_num - i) == min_targets) {
+                out_of_bounds_flag.first = true;
+              }
+            }
+          }
+          if (selected_num != (max_targets - 1)) {
+            if (!out_of_bounds_flag.second) {
+              (*(selected_num + i)).GetComponent<IsActive>()->is_active = true;
+              if ((selected_num + i) == (max_targets - 1)) {
+                out_of_bounds_flag.second = true;
+              }
+            }
+          }
+        }
+      }
+      // For Special Case Adjacent
+      if (is_adjacent && locked_in_move.target_type > 1) {
+        // Means even number of targets and that ain't good
+        if (locked_in_move.target_type == MOVE_TARGET_DOUBLE) num_of_adjacent_targets = 0;
+        // If the adjacent target issa on the right
+        if (adjacent == 1) {
+          if (!out_of_bounds_flag.second) {
+            if ((selected_num + num_of_adjacent_targets) != (max_targets - 1)) {
+              (*(selected_num + num_of_adjacent_targets + adjacent)).GetComponent<IsActive>()->is_active = true;
+            }
+          }
+        }
+        if (adjacent == -1) {
+          if (!out_of_bounds_flag.first) {
+            if ((selected_num - num_of_adjacent_targets) != min_targets) {
+              (*(selected_num - num_of_adjacent_targets + adjacent)).GetComponent<IsActive>()->is_active = true;
+            }
+          }
+        }
+      }
+      // I mean this should be quite obvious rite?
+      (*selected_num).GetComponent<IsActive>()->is_active = true;
+    }
+    else {
+      // all the slots are to be targetted
+      for (auto i = min_targets; i != max_targets; i++) {
+        (*i).GetComponent<IsActive>()->is_active = true;
+      }
+    }
+
+    // all the targets selected man
+    if (!m_characters.front().GetComponent<Character>()->is_player ||
+      (Input::GetKeyDown(GLFW_KEY_SPACE) && m_characters.front().GetComponent<Character>()->is_player)) {
+      for (auto i = min_targets; i != max_targets; i++) {
+        if ((*i).GetComponent<IsActive>()->is_active) result.push_back((*i).GetComponent<BattleSlot>()->character);
+      }
+    }
+
     if (result.empty()) return;
 
-    int final_decision = move_decision;
+    selected_move = character_moves[move_decision];
     move_decision = -1;
-    std::vector<FlexECS::Entity> final_result = result;
+    selected_targets = std::make_pair(*(selected_num), result);
     result.clear();
-    ExecuteMove(character_moves[final_decision], final_result);
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //battle_state.GetComponent<BattleState>()
+    battle_phase = BP_MOVE_EXECUTION;
+    //ExecuteMove(character_moves[final_decision], final_result);
+    for (auto& slot : m_enemies) {
+      slot.GetComponent<IsActive>()->is_active = false;
+    }
+    for (auto& slot : m_players) {
+      slot.GetComponent<IsActive>()->is_active = false;
+    }
   }
 
-  void BattleSystem::ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets)
+  //void BattleSystem::ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets)
+  void BattleSystem::ExecuteMove()
   {
     //get the move user
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     FlexECS::Entity user = m_characters.front();//battle_state.GetComponent<BattleState>()->active_character;
-    Move move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(move_id));
+    //Move move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(move_id));
+    Move move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(selected_move));
     std::vector<FlexECS::Entity> targets;
-    targets.insert(targets.begin(), selected_targets.begin(), selected_targets.end());
+    targets.insert(targets.begin(), selected_targets.second.begin(), selected_targets.second.end());
     //execute move
     for (auto& m : move.move_function_container) {
       m.move_function(targets, m.value);
@@ -513,7 +601,7 @@ namespace ChronoDrift {
       std::cout << scene->Internal_StringStorage_Get(targets[i].GetComponent<Character>()->character_name);
       if ((i + 1) < targets.size()) std::cout << " and ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl << std::endl;
     // Display Status of alive Characters
     targets.clear();
     for (auto& entity : m_characters)
@@ -539,11 +627,12 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::DeathProcession(std::vector<FlexECS::Entity> list_of_deaths) {
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     for (auto it = list_of_deaths.begin(); it != list_of_deaths.end(); it++) {
       for (auto c = m_characters.begin(); c != m_characters.end(); c++) {
         if (*c == *it) {
           m_characters.erase(c);
+          (*it).GetComponent<IsActive>()->is_active = false;
           std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from characters list" << std::endl;
           break;
         }
@@ -571,17 +660,22 @@ namespace ChronoDrift {
         }
       }
     }
-    battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+    //battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
+    battle_phase = BP_PROCESSING;
+    delay_timer = DELAY_TIME;
   }
+  
   void BattleSystem::EndBattleScene() {
-    FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
+    //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     if (m_enemies.empty()) {
       std::cout << "VICTORY!!!! Click R to fight again." << std::endl;
-      battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
+      //battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
+      battle_phase = BP_BATTLE_FINISH;
     }
     if (m_players.empty()) {
       std::cout << "DEFEAT. Click R to try again." << std::endl;
-      battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
+      //battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
+      battle_phase = BP_BATTLE_FINISH;
     }
   }
 }

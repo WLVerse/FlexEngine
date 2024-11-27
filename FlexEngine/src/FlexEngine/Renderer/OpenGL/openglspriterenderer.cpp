@@ -324,6 +324,8 @@ namespace FlexEngine
     *
     * \param props The properties for rendering the texture, including shader,
     *              texture, color, and transformations.
+    * 
+    * LEGACY - Avoid using / use batch renderer
     *****************************************************************************/
     void OpenGLSpriteRenderer::DrawTexture2D(const Renderer2DProps& props)
     {
@@ -365,8 +367,7 @@ namespace FlexEngine
         //  -2.0f, 2.0f
         //) * view_matrix;
         asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
-            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
-             )->proj_viewMatrix);
+            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera())->proj_viewMatrix);
         asset_shader.SetUniform_mat4("u_model", props.transform);
         // Draw
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -418,75 +419,12 @@ namespace FlexEngine
     
     /*!***************************************************************************
     * \brief
-    * Draws a batch of 2D textures using the specified properties and batch data.
-    *
-    * \param props The rendering properties, including shaders, textures, and transformations.
-    * \param data The batch instance data including transformation and color information.
-    *****************************************************************************/
-    void OpenGLSpriteRenderer::DrawBatchTexture2D(const Renderer2DProps& props, const Sprite_Batch_Inst& data)
-    {
-        // Guard
-        if (data.m_transformationData.size() != data.m_colorAddData.size() ||
-            data.m_colorAddData.size() != data.m_colorMultiplyData.size())
-        {
-            Log::Fatal("Instance batch data block is invalid (Check if all vectors are of same size)");
-        }
-        else if (data.m_transformationData.size() < 1)
-        {
-            Log::Debug("Instance batch data block is empty. Should not run render on this texture");
-            return;
-        }
-        if (props.shader == "" || m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
-            return;
-        GLsizei dataSize = (GLsizei)data.m_transformationData.size();
-
-        // Bind all
-        glBindVertexArray(m_vbos[props.vbo_id].vao);
-
-        // Apply Shader
-        auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "\\shaders\\batchtexture");
-        asset_shader.Use();
-
-        // Apply Texture
-        if (props.texture != "")
-        {
-            asset_shader.SetUniform_bool("u_use_texture", true);
-            auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
-            asset_texture.Bind(asset_shader, "u_texture", 0);
-        }
-        else
-        {
-            asset_shader.SetUniform_bool("u_use_texture", false);
-        }
-
-        //Apply SSBOs
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[0]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Matrix4x4), data.m_transformationData.data());
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[1]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector3), data.m_colorAddData.data());
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[2]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector3), data.m_colorMultiplyData.data());
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[3]);
-        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector4), data.m_UVmap.data());
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-        // Orthographic Projection
-        asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
-            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
-            )->proj_viewMatrix);
-        // Draw
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, dataSize);
-        m_draw_calls++;
-
-        glBindVertexArray(0);
-    }
-
-    /*!***************************************************************************
-    * \brief
     * Draws an animated 2D texture with the given properties and texture coordinates.
     *
     * \param props The rendering properties, including shaders, textures, and transformations.
     * \param uv The texture coordinates for the animation frame.
+    * 
+    * LEGACY - Avoid using / use batch renderer
     *****************************************************************************/
     void OpenGLSpriteRenderer::DrawAnim2D(const Renderer2DProps& props, const Vector4 uv)
     {
@@ -529,10 +467,77 @@ namespace FlexEngine
         // Transformation & Orthographic Projection
         asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
             OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
-            )->proj_viewMatrix);
+        )->proj_viewMatrix);
         asset_shader.SetUniform_mat4("u_model", props.transform);
         // Draw
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        m_draw_calls++;
+
+        glBindVertexArray(0);
+    }
+
+    /*!***************************************************************************
+    * \brief
+    * Draws a batch of 2D textures using the specified properties and batch data.
+    *
+    * \param props The rendering properties, including shaders, textures, and transformations.
+    * \param data The batch instance data including transformation and color information.
+    *****************************************************************************/
+    void OpenGLSpriteRenderer::DrawBatchTexture2D(const Renderer2DProps& props, const Sprite_Batch_Inst& data)
+    {
+        // Guard
+        if (data.m_transformationData.size() != data.m_colorAddData.size() ||
+            data.m_colorAddData.size() != data.m_colorMultiplyData.size())
+        {
+            Log::Fatal("Instance batch data block is invalid (Check if all vectors are of same size)");
+        }
+        else if (data.m_transformationData.size() < 1)
+        {
+            Log::Debug("Instance batch data block is empty. Should not run render on this texture");
+            return;
+        }
+        if (props.shader == "" || 
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
+            return;
+        GLsizei dataSize = (GLsizei)data.m_transformationData.size();
+
+        // Bind all
+        glBindVertexArray(m_vbos[props.vbo_id].vao);
+
+        // Apply Shader
+        auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "\\shaders\\batchtexture");
+        asset_shader.Use();
+
+        // Apply Texture
+        if (props.texture != "")
+        {
+            asset_shader.SetUniform_bool("u_use_texture", true);
+            auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
+            asset_texture.Bind(asset_shader, "u_texture", 0);
+        }
+        else
+        {
+            asset_shader.SetUniform_bool("u_use_texture", false);
+        }
+
+        //Apply SSBOs
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[0]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Matrix4x4), data.m_transformationData.data());
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[1]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector3), data.m_colorAddData.data());
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[2]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector3), data.m_colorMultiplyData.data());
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[3]);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector4), data.m_UVmap.data());
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+        // Orthographic Projection
+        asset_shader.SetUniform_mat4("u_projection_view", m_CamM_Instance->GetCameraData(
+            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera()
+            )->proj_viewMatrix);
+        // Draw
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, dataSize);
         m_draw_calls++;
 
         glBindVertexArray(0);

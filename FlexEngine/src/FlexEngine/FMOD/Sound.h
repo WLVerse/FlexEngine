@@ -25,7 +25,7 @@ namespace FlexEngine
     class __FLX_API Sound
     {
     public:
-      FMOD::Sound* sound;
+      FMOD::Sound* sound = nullptr;
 
       // Only allow construction of sound if we have a key.
       Sound(std::string const& key);

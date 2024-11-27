@@ -15,7 +15,9 @@
 #include "hierarchyview.h"
 #include "inspector.h"
 #include "Components/rendering.h"
+#include "Components/physics.h"
 #include "windowsizes.h"
+
 
 using namespace FlexEngine;
 using EntityName = FlexEngine::FlexECS::Scene::StringIndex;
@@ -51,7 +53,8 @@ namespace ChronoDrift
 			std::string& name = scene->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
 			EditorGUI::EditableTextField(name);
 
-			//Your 3 basic transform components
+			//Hardcode these 3 components first so they appear
+			//at the top for clarity (also non removable) (TODO: ik you want rotation to be non-compulsary)
 			auto transform = entity.GetComponent<Transform>();
 			if (entity.HasComponent<Position>())
 			{
@@ -60,6 +63,14 @@ namespace ChronoDrift
 				{
 					EditorGUI::DragFloat2(position, "Position");
 					transform->is_dirty = true;
+				}
+				//Fake popup for clarity
+				if (ImGui::BeginPopupContextItem("ComponentPopup Position"))
+				{
+					ImGui::BeginDisabled();
+					ImGui::MenuItem("Remove Component");
+					ImGui::EndDisabled();
+					ImGui::EndPopup();
 				}
 			}
 			if (entity.HasComponent<Rotation>())
@@ -70,6 +81,13 @@ namespace ChronoDrift
 					EditorGUI::DragFloat3(rotation, "Rotation");
 					transform->is_dirty = true;
 				}
+				if (ImGui::BeginPopupContextItem("ComponentPopup Rotation"))
+				{
+					ImGui::BeginDisabled();
+					ImGui::MenuItem("Remove Component");
+					ImGui::EndDisabled();
+					ImGui::EndPopup();
+				}
 			}
 			if (entity.HasComponent<Scale>())
 			{
@@ -79,7 +97,15 @@ namespace ChronoDrift
 					EditorGUI::DragFloat2(scale, "Scale");
 					transform->is_dirty = true;
 				}
+				if (ImGui::BeginPopupContextItem("ComponentPopup Scale"))
+				{
+					ImGui::BeginDisabled();
+					ImGui::MenuItem("Remove Component");
+					ImGui::EndDisabled();
+					ImGui::EndPopup();
+				}
 			}
+
 			// For cam only
 			if (entity.HasComponent<Camera>())
 			{
@@ -120,17 +146,28 @@ namespace ChronoDrift
 					{
 						ComponentViewRegistry::ViewComponent(component_name, entity);
 					}
-
+					
 					//Remove component functionality
 					if (ImGui::BeginPopupContextItem(("ComponentPopup" + component_name).c_str())) // Create a unique ID for the popup
 					{
+						bool can_remove = ComponentViewRegistry::RemoverExists(component_name);	//Disable remove button if not allowed to
+						if (!can_remove) ImGui::BeginDisabled();
+
 						if (ImGui::MenuItem("Remove Component"))
 						{
-							std::cout << "Removing the component: " << component_name << "\n";
+							Log::Debug("Removing the component: " + component_name);
 							if (component_name == "Camera")
 								Editor::GetInstance().GetCamManager().RemoveCameraEntity(entity.Get());
+							if (component_name == "Button")
+							{
+								if(entity.HasComponent<OnHover>())
+								ComponentViewRegistry::RemoveComponent("OnHover", entity);
+								if (entity.HasComponent<OnClick>())
+								ComponentViewRegistry::RemoveComponent("OnClick", entity);
+							}
 							ComponentViewRegistry::RemoveComponent(component_name, entity);
 						}
+						if (!can_remove) ImGui::EndDisabled();
 
 						ImGui::EndPopup();
 					}
@@ -142,18 +179,23 @@ namespace ChronoDrift
 			if (ImGui::Button("Add Component"))
 			{
 				ImGui::OpenPopup("AddComponentPopup");
+				
+				memset(m_search_query, 0, sizeof(m_search_query));
+				m_focus_search_bar = true; // Indicate to focus search bar
 			}
 
 			// Create the popup for adding components
 			if (ImGui::BeginPopup("AddComponentPopup"))
 			{
-				// Static buffer to store the search query
-				static char search_query[64] = "";
-
+				if (m_focus_search_bar)
+				{
+					ImGui::SetKeyboardFocusHere(); // Focus on the next widget
+					m_focus_search_bar = false; // Reset focus flag
+				}
 				// Display the search bar inside the popup
-				ImGui::InputTextWithHint("##ComponentSearch", "Search Component...", search_query, IM_ARRAYSIZE(search_query));
+				ImGui::InputTextWithHint("##ComponentSearch", "Search Component...", m_search_query, IM_ARRAYSIZE(m_search_query));
 
-				std::string query = search_query;
+				std::string query = m_search_query;
 				for (auto& c : query)
 				{
 					c = static_cast<char>(tolower(static_cast<int>(c)));
@@ -173,8 +215,17 @@ namespace ChronoDrift
 						if (ImGui::Selectable(component_name.c_str()))
 						{
 							ComponentViewRegistry::AddComponent(component_name, entity);
+
 							if (component_name == "Camera")
 								Editor::GetInstance().GetCamManager().AddCameraEntity(entity.Get(), entity.GetComponent<Camera>()->camera);
+							else if (component_name == "Button")
+							{
+								ComponentViewRegistry::AddComponent("Sprite", entity);
+								ComponentViewRegistry::AddComponent("OnHover", entity);
+								ComponentViewRegistry::AddComponent("OnClick", entity);
+								ComponentViewRegistry::AddComponent("BoundingBox2D", entity);
+								ComponentViewRegistry::AddComponent("Rigidbody", entity);
+							}
 							ImGui::CloseCurrentPopup();
 						}
 					}

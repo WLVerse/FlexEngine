@@ -99,15 +99,15 @@ namespace ChronoDrift
   FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Button)
-        FLX_REFL_REGISTER_PROPERTY(interactable)
-        FLX_REFL_REGISTER_PROPERTY(targetGraphic)
+        FLX_REFL_REGISTER_PROPERTY(is_interactable)
         FLX_REFL_REGISTER_PROPERTY(normalColor)
         FLX_REFL_REGISTER_PROPERTY(highlightedColor)
         FLX_REFL_REGISTER_PROPERTY(pressedColor)
-        FLX_REFL_REGISTER_PROPERTY(selectedColor)
         FLX_REFL_REGISTER_PROPERTY(disabledColor)
         FLX_REFL_REGISTER_PROPERTY(colorMultiplier)
         FLX_REFL_REGISTER_PROPERTY(fadeDuration)
+        FLX_REFL_REGISTER_PROPERTY(finalColorMul)
+        FLX_REFL_REGISTER_PROPERTY(finalColorAdd)
     FLX_REFL_REGISTER_END;
 
     FLX_REFL_REGISTER_START(Audio)
@@ -115,23 +115,31 @@ namespace ChronoDrift
       FLX_REFL_REGISTER_PROPERTY(should_play)
       FLX_REFL_REGISTER_PROPERTY(audio_file)
     FLX_REFL_REGISTER_END;
+
+    FLX_REFL_REGISTER_START(Script)
+      FLX_REFL_REGISTER_PROPERTY(script_id)
+    FLX_REFL_REGISTER_END;
 #pragma endregion
 
 #pragma region Editable Viewer
 
   COMPONENT_VIEWER_START(Position)
+      //Inspector.cpp replacing 
     COMPONENT_VIEWER_DRAG_VECTOR2(position)
   COMPONENT_VIEWER_END(Position)
 
   COMPONENT_VIEWER_START(Rotation)
+      //Inspector.cpp replacing 
     COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
   COMPONENT_VIEWER_END(Rotation)
 
   COMPONENT_VIEWER_START(Scale)
+      //Inspector.cpp replacing 
     COMPONENT_VIEWER_DRAG_VECTOR2(scale)
   COMPONENT_VIEWER_END(Scale)
 
   COMPONENT_VIEWER_START(IsActive)
+      //Inspector.cpp replacing 
     COMPONENT_VIEWER_CHECKBOX(is_active)
   COMPONENT_VIEWER_END(IsActive)
 
@@ -180,19 +188,17 @@ namespace ChronoDrift
 
   //TODO @ROCKY to add the font pic and have a dropbox of available fonts
   COMPONENT_VIEWER_START(Text)
-      COMPONENT_VIEWER_STRING(fonttype)
+      COMPONENT_VIEWER_FONT_PATH(fonttype)
       COMPONENT_VIEWER_EDITABLE_STRING(text)
       COMPONENT_VIEWER_COLOR3(color)
       COMPONENT_VIEWER_CHECKBOX(refocus)
   COMPONENT_VIEWER_END(Text)
 
   COMPONENT_VIEWER_START(Button)
-     COMPONENT_VIEWER_CHECKBOX(interactable)
-     COMPONENT_VIEWER_TEXTURE_PATH(targetGraphic)
+     COMPONENT_VIEWER_CHECKBOX(is_interactable)
      COMPONENT_VIEWER_COLOR3(normalColor)
      COMPONENT_VIEWER_COLOR3(highlightedColor)
      COMPONENT_VIEWER_COLOR3(pressedColor)
-     COMPONENT_VIEWER_COLOR3(selectedColor)
      COMPONENT_VIEWER_COLOR3(disabledColor)
      COMPONENT_VIEWER_DRAG_FLOAT(colorMultiplier)
      COMPONENT_VIEWER_DRAG_FLOAT(fadeDuration)
@@ -202,6 +208,10 @@ namespace ChronoDrift
     COMPONENT_VIEWER_BOOL(should_play)
     COMPONENT_VIEWER_AUDIO_PATH(audio_file);
   COMPONENT_VIEWER_END(Audio)
+
+  COMPONENT_VIEWER_START(Script)
+    COMPONENT_VIEWER_DRAG_INT(script_id)
+  COMPONENT_VIEWER_END(Script)
 #pragma endregion
 
   void RegisterRenderingComponents()
@@ -210,7 +220,7 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Rotation);
     REGISTER_COMPONENT_VIEWER(Scale);
     REGISTER_COMPONENT_VIEWER(IsActive);
-    REGISTER_COMPONENT_VIEWER(Transform);
+    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Transform, COMPONENT_ENABLE_ADD, COMPONENT_DISABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER(ZIndex);
     REGISTER_COMPONENT_VIEWER(Parent);
     REGISTER_COMPONENT_VIEWER(Shader);
@@ -220,5 +230,6 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Animation);
     REGISTER_COMPONENT_VIEWER(Button);
     REGISTER_COMPONENT_VIEWER(Audio); 
+    REGISTER_COMPONENT_VIEWER(Script);
   }
 }

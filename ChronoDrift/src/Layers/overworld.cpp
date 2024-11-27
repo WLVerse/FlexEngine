@@ -44,8 +44,8 @@ namespace ChronoDrift
         #if 1
         FlexECS::Entity camera = FlexECS::Scene::CreateEntity("MainCamera");
         camera.AddComponent<IsActive>({ true });
-        camera.AddComponent<Position>({ {-150, 300 } });
-        camera.AddComponent<Scale>({ { 0.5,0.5 } });
+        camera.AddComponent<Position>({ {0,0} });
+        camera.AddComponent<Scale>({ { static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth())/10,static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()) / 10 } }); // Screen display 1280 x 750
         camera.AddComponent<Rotation>({ });
         camera.AddComponent<Transform>({});
         camera.AddComponent<Camera>({});
@@ -122,6 +122,32 @@ namespace ChronoDrift
               velocity.x = 300.0f;
           }
         }
+
+      // Quick scripting system, to be replaced with a proper scripting system
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+      {
+        if (!entity.GetComponent<IsActive>()->is_active) continue; // skip non active entities
+
+        Script* script = entity.GetComponent<Script>();
+        if (script->script_id == 1)
+        {
+          if (entity.GetComponent<Rotation>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z += 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else if (script->script_id == 2)
+        {
+          if (entity.GetComponent<Scale>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z -= 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else
+        {
+          Log::Debug("Script ID not found: " + std::to_string(script->script_id));
+        }
+      }
       profiler.EndCounter("Custom Query Loops");
   
       profiler.StartCounter("Audio");
@@ -130,9 +156,19 @@ namespace ChronoDrift
       {
         if (!element.GetComponent<IsActive>()->is_active) continue; // skip non active entities
 
-        if (element.GetComponent<Audio>()->should_play)
+        ChronoDrift::Audio* audio = element.GetComponent<Audio>();
+        if (audio->should_play)
         {
-          if (element.GetComponent<Audio>()->is_looping)
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(audio->audio_file) == "")
+          {
+            Log::Warning("Audio not attached to entity: " + 
+              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()));
+
+            audio->should_play = false;
+            continue;
+          }
+
+          if (audio->is_looping)
           {
             FMODWrapper::Core::PlayLoopingSound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
                                                 FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
@@ -154,20 +190,45 @@ namespace ChronoDrift
 
       profiler.StartCounter("Button Callbacks");
       // System to handle button collider callbacks
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Button, Sprite>())
+      ImGuiContext* context = GImGui;
+      ImGuiWindow* hovered_window = context->HoveredWindow;
+      bool is_scene = (hovered_window == ImGui::FindWindowByName("Scene"));
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
       {
-        if (!element.GetComponent<IsActive>()->is_active) continue;
+          auto button = entity.GetComponent<Button>();
+          if (!entity.GetComponent<IsActive>()->is_active || !entity.GetComponent<Button>()->is_interactable)
+          {
+              button->finalColorAdd = button->disabledColor;
+              button->finalColorMul = button->disabledColor;
+              continue;
+          }
 
-        Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
-        BoundingBox2D bb = *element.GetComponent<BoundingBox2D>();
-        if (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y)
-        {
-          element.GetComponent<Sprite>()->color_to_add.x = 255;
-        }
-        else
-        {
-          element.GetComponent<Sprite>()->color_to_add.x = 0;
-        }
+          Vector2 mtw = is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+          BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
+          bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
+          bool t_isClicked, t_isHovered;
+          t_isClicked = t_isHovered = false;
+          if (entity.HasComponent<OnHover>()) 
+          {
+              auto hover = entity.GetComponent<OnHover>();
+              hover->on_enter = inside && !hover->is_hovering;
+              hover->on_exit = !inside && hover->is_hovering;
+              hover->is_hovering = inside;
+              t_isHovered = hover->is_hovering;
+          }
+          if (entity.HasComponent<OnClick>()) 
+          {
+              auto click = entity.GetComponent<OnClick>();
+              click->is_clicked = inside && ImGui::IsMouseClicked(0);
+              t_isClicked = click->is_clicked;
+          }
+
+          //Update Color Mul
+          button->finalColorMul = (button->normalColor == Vector3::One) ? Vector3::One :
+              (t_isClicked ? button->pressedColor * button->colorMultiplier :
+              (t_isHovered ? button->highlightedColor * button->colorMultiplier: button->normalColor));
+
+          button->finalColorAdd = t_isClicked ? button->pressedColor * button->colorMultiplier : (t_isHovered ? button->highlightedColor * button->colorMultiplier : Vector3::Zero);
       }
       profiler.EndCounter("Button Callbacks");
 
@@ -191,12 +252,12 @@ namespace ChronoDrift
 
           if (Input::GetKey(GLFW_KEY_J))
           {
-              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
           else if (Input::GetKey(GLFW_KEY_L))
           {
-              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
       }

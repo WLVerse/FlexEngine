@@ -64,6 +64,8 @@ namespace FlexEngine
         bool m_isOrthographic = true;           /*!< Flag indicating orthographic (true) or perspective (false) projection */
     
         bool cam_is_active = true;
+        float m_OrthoWidth = 1280.0f;
+        float m_OrthoHeight = 750.0f;
     };
 
     #pragma endregion

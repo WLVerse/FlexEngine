@@ -144,6 +144,7 @@
 // The current implementation is exclusively for OpenGL. For freetype text
 #include "FlexEngine/Renderer/OpenGL/opengltextrenderer.h"
 
+#include "FlexEngine/Renderer/OpenGL/opengldebugrenderer.h"
 
 // Stores one vertex for the mesh.
 // The current implementation is exclusively for OpenGL.
