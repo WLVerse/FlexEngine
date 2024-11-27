@@ -220,10 +220,12 @@ namespace ChronoDrift
 			switch (EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
 			{
 			case EditorGUI::GizmoStatus::START_DRAG:
+				m_recorded_position.position = entity_position;
 				break;
 			case EditorGUI::GizmoStatus::DRAGGING:
 				break;
 			case EditorGUI::GizmoStatus::END_DRAG:
+				recording_ended = true;
 				break;
 			default:
 				break;
@@ -232,10 +234,12 @@ namespace ChronoDrift
 			switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
 			{
 			case EditorGUI::GizmoStatus::START_DRAG:
+				m_recorded_position.position = entity_position;
 				break;
 			case EditorGUI::GizmoStatus::DRAGGING:
 				break;
 			case EditorGUI::GizmoStatus::END_DRAG:
+				recording_ended = true;
 				break;
 			default:
 				break;
@@ -245,7 +249,7 @@ namespace ChronoDrift
 			{
 			case EditorGUI::GizmoStatus::START_DRAG:
 				//start recording old position
-				//m_recorded_position = entity_position;
+				m_recorded_position.position = entity_position;
 				break;
 			case EditorGUI::GizmoStatus::DRAGGING:
 				break;
@@ -256,9 +260,7 @@ namespace ChronoDrift
 			default:
 				break;
 			}
-			//EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right);
-			//EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up);
-			//EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy);
+
 			m_gizmo_hovered = right || up || xy;
 
 			//Scale the change in position with relation to screen size
@@ -270,8 +272,11 @@ namespace ChronoDrift
 
 			if (recording_ended)
 			{
-				//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
-				//cmd->UpdateComponent(selected_entity, "Position", m_recorded_position, &entity_position, sizeof(Position));
+				if (m_recorded_position.position != entity_position)
+				{
+					auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+					cmd->UpdateComponent(selected_entity, "Position", &m_recorded_position, selected_entity.GetComponent<Position>(), sizeof(Position));
+				}
 			}
 		}
 		else if (m_current_gizmo_type == GizmoType::SCALE)

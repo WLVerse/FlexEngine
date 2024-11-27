@@ -364,6 +364,7 @@ namespace ChronoDrift
 
 	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		// Origin refers to the center of the entity.
 		//We set imgui cursor pos to start from this place, then we adjust
@@ -408,14 +409,23 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(arrow_gizmo, arrow_gizmo_point_count, gizmo_color);
@@ -424,6 +434,7 @@ namespace ChronoDrift
 	//Note: ImGui dragdelta.y is +ve when you move mouse downwards
 	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
@@ -461,14 +472,23 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(arrow_gizmo, arrow_gizmo_point_count, gizmo_color);
@@ -477,6 +497,7 @@ namespace ChronoDrift
 
 	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
@@ -505,15 +526,24 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 			*p_y_axis_change += drag_delta.y;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+
 		}
 
 		draw_list->AddRectFilled(bb.Min, bb.Max, gizmo_color);
@@ -523,6 +553,7 @@ namespace ChronoDrift
 
 	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
@@ -561,14 +592,24 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 		}
+		else if (!held)
+		{
+			manipulated = true;
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(box_gizmo, box_gizmo_point_count, gizmo_color);
@@ -577,6 +618,7 @@ namespace ChronoDrift
 
 	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_Y(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
@@ -615,14 +657,23 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(box_gizmo, box_gizmo_point_count, gizmo_color);
@@ -631,6 +682,7 @@ namespace ChronoDrift
 
 	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
 		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
@@ -657,26 +709,25 @@ namespace ChronoDrift
 
 		if (held)
 		{
+			manipulated = true;
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 
 			//TODO: improve the feel of the scaling
 			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
-
-			//return to caller the axis with a higher value
-			//if (std::abs(drag_delta.x) > std::abs(drag_delta.y))
-			//{
-			//	*value = drag_delta.x;
-			//}
-			//else
-			//{
-			//	*value = -drag_delta.y;
-			//}
+		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
 		}
 		if (released)
 		{
-			status = GizmoStatus::END_DRAG;
+			//Unforunately not consistent
 		}
 
 		draw_list->AddRectFilled(bb.Min, bb.Max, gizmo_color);

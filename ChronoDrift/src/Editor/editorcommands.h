@@ -18,7 +18,6 @@ namespace ChronoDrift
 	struct UpdateComponentCommand : public Command
 	{
 		UpdateComponentCommand(FlexEngine::FlexECS::Entity target, FlexEngine::FlexECS::ComponentID component_name, const void* old_value, const void* new_value, size_t size);
-		~UpdateComponentCommand();
 
 		void Do() override;
 		void Undo() override;
