@@ -5,7 +5,6 @@
 namespace FlexEngine 
 {
     //TODO @weijie -note to self- make this dynamic container
-    // & also with regards to regenerate size of textures using callbacks
     GLuint OpenGLFrameBuffer::m_editorFBO = 0;
     GLuint OpenGLFrameBuffer::m_gameFBO = 0;
     GLuint OpenGLFrameBuffer::m_postProcessingFBO = 0;
@@ -158,5 +157,25 @@ namespace FlexEngine
     {
         const GLuint currentFBO = GetCurrFrameBuffer();
         return currentFBO == framebufferID;
+    }
+
+    void OpenGLFrameBuffer::RegenerateAllTextures(GLsizei width, GLsizei height)
+    {
+        // Delete existing textures and framebuffers
+        glDeleteTextures(1, &m_postProcessingTex);
+        glDeleteTextures(1, &m_editorTex);
+        glDeleteTextures(1, &m_gameRenderTex);
+        glDeleteTextures(1, &m_finalRenderTex);
+        glDeleteTextures(2, m_pingpongTex);
+
+        glDeleteFramebuffers(1, &m_postProcessingFBO);
+        glDeleteFramebuffers(1, &m_editorFBO);
+        glDeleteFramebuffers(1, &m_bloomFBO);
+        glDeleteFramebuffers(1, &m_gameFBO);
+
+        // Reinitialize the textures and framebuffers
+        Init({ static_cast<float>(width), static_cast<float>(height) });
+
+        Log::Debug("All textures and framebuffers regenerated for size: " + std::to_string(width) + "x" + std::to_string(height));
     }
 }

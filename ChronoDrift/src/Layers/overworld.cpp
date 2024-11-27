@@ -44,8 +44,8 @@ namespace ChronoDrift
         #if 1
         FlexECS::Entity camera = FlexECS::Scene::CreateEntity("MainCamera");
         camera.AddComponent<IsActive>({ true });
-        camera.AddComponent<Position>({ {-150, 300 } });
-        camera.AddComponent<Scale>({ { 0.5,0.5 } });
+        camera.AddComponent<Position>({ {0,0} });
+        camera.AddComponent<Scale>({ { static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth())/10,static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()) / 10 } }); // Screen display 1280 x 750
         camera.AddComponent<Rotation>({ });
         camera.AddComponent<Transform>({});
         camera.AddComponent<Camera>({});
@@ -122,6 +122,32 @@ namespace ChronoDrift
               velocity.x = 300.0f;
           }
         }
+
+      // Quick scripting system, to be replaced with a proper scripting system
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+      {
+        if (!entity.GetComponent<IsActive>()->is_active) continue; // skip non active entities
+
+        Script* script = entity.GetComponent<Script>();
+        if (script->script_id == 1)
+        {
+          if (entity.GetComponent<Rotation>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z += 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else if (script->script_id == 2)
+        {
+          if (entity.GetComponent<Scale>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z -= 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else
+        {
+          Log::Debug("Script ID not found: " + std::to_string(script->script_id));
+        }
+      }
       profiler.EndCounter("Custom Query Loops");
   
       profiler.StartCounter("Audio");
@@ -226,12 +252,12 @@ namespace ChronoDrift
 
           if (Input::GetKey(GLFW_KEY_J))
           {
-              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
           else if (Input::GetKey(GLFW_KEY_L))
           {
-              curr_cam += Vector2(-5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
+              curr_cam += Vector2(5.f, 0.0f) * (30 * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime());
               curr_camt = true;
           }
       }

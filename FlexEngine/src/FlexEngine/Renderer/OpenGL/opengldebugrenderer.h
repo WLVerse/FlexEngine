@@ -37,7 +37,7 @@ namespace FlexEngine
 
     static void DrawLine2D(Vector2 start, Vector2 end, 
                           Vector3 color = {1.0f, 0.0f, 0.0f}, float line_width = 2.0f);
-    static void DrawLine2D(CameraManager& const camManager, Vector2 start, Vector2 end,
+    static void DrawLine2D(CameraManager& camManager, Vector2 start, Vector2 end,
                       Vector3 color = { 1.0f, 0.0f, 0.0f }, float line_width = 2.0f);
     static void DrawAABB(Vector3 position, float width, float height, Vector3 color = {1.0f, 0.0f, 0.0f}, float line_width = 2.0f);
 

@@ -89,7 +89,7 @@ namespace FlexEngine
 
         glBindVertexArray(0);
     }
-    void FlexEngine::OpenGLDebugRenderer::DrawLine2D(CameraManager& const camManager, Vector2 start, Vector2 end, Vector3 color, float line_width)
+    void FlexEngine::OpenGLDebugRenderer::DrawLine2D(CameraManager& camManager, Vector2 start, Vector2 end, Vector3 color, float line_width)
     {
         static float vertices[12];
         static GLuint vao = 0, vbo = 0;
@@ -139,8 +139,8 @@ namespace FlexEngine
         //glEnableVertexAttribArray(0); //not necessary as of yet
         //glEnableVertexAttribArray(1);
 
-        float window_width = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
-        float window_height = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
+        //float window_width = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
+        //float window_height = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
 
         m_line_shader.Use();
         //static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
