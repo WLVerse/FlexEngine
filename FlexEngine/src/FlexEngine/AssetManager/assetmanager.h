@@ -1,7 +1,19 @@
 // WLVERSE [https://wlverse.web.app]
 // assetmanager.h
 // 
+// An asset manager must exist. The components should never hold things
+// like mesh data, it should simply point to an already existing asset.
 // 
+// The asset manager will look through the entire directory of assets,
+// parse everything and assign it to a umap.
+// (Basically the File Manager and File List already does this)
+// 
+// A mesh component will simply hold the key (in this case the file path)
+// and perform a lookup everytime it needs it.
+// 
+// The key is specifically the relative path to the asset from the
+// default directory. This is to ensure that the asset manager can
+// easily find the asset.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -36,22 +48,6 @@ namespace FlexEngine
   // Example usage: FLX_ASSET_GET(Asset::Texture, R"(/images/flexengine/flexengine-256.png)")
   #define FLX_ASSET_GET(TYPE, KEY) std::get<TYPE>(*AssetManager::Get(KEY))
 
-
-  // Asset Manager
-  // 
-  // An asset manager must exist. The components should never hold things
-  // like mesh data, it should simply point to an already existing asset.
-  // 
-  // The asset manager will look through the entire directory of assets,
-  // parse everything and assign it to a umap.
-  // (Basically the File Manager and File List already does this)
-  // 
-  // A mesh component will simply hold the key (in this case the file path)
-  // and perform a lookup everytime it needs it.
-  // 
-  // The key is specifically the relative path to the asset from the
-  // default directory. This is to ensure that the asset manager can
-  // easily find the asset.
 
   class __FLX_API AssetManager
   {

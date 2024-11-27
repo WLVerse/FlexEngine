@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // frameratecontroller.h
 // 
-// 
+// Rough implementation of the framerate controller.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app]
 // window.cpp
 // 
-// 
+// Window implementation.
+// Some callbacks are implemented here.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

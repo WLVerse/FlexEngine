@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // quaternion.cpp
 // 
-// 
+// Implementation of the quaternion class.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

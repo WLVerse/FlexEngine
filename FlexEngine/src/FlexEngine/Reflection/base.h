@@ -1,7 +1,27 @@
 // WLVERSE [https://wlverse.web.app]
 // base.h
 // 
+// Reflection system for C++
 // 
+// A reflection system (also called a property system) is a coding
+// methodology or language feature which allows exposing certain
+// information about your code to other systems at runtime.
+// This is often used in serialization, GUIs, and other systems.
+// 
+// I use some of the tricks from the following articles to implement this.
+// However, I have rewritten most of the code to fit my own needs.
+// 
+// References:
+//  A Complete Example for C++ Reflection
+//    https://yingnanwang.com/coding/2020-10-05-c-reflection/
+//  A Flexible Reflection System in C++: Part 1
+//    https://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/
+//  Unreal Engine Implementation
+//    https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection
+//  properties by LIONant
+//    https://gitlab.com/LIONant/properties/blob/master/docs/Documentation.md
+//  RTTR (Run Time Type Reflection)
+//    https://www.rttr.org/doc/rttr-0-9-6/five_minute_tutorial_page.html
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -27,28 +47,6 @@ using namespace rapidjson;
 #include <map>
 #include <unordered_map>
 #include <functional>
-
-// Reflection system for C++
-// 
-// A reflection system (also called a property system) is a coding
-// methodology or language feature which allows exposing certain
-// information about your code to other systems at runtime.
-// This is often used in serialization, GUIs, and other systems.
-// 
-// I use some of the tricks from the following articles to implement this.
-// However, I have rewritten most of the code to fit my own needs.
-// 
-// References:
-//  A Complete Example for C++ Reflection
-//    https://yingnanwang.com/coding/2020-10-05-c-reflection/
-//  A Flexible Reflection System in C++: Part 1
-//    https://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/
-//  Unreal Engine Implementation
-//    https://www.unrealengine.com/en-US/blog/unreal-property-system-reflection
-//  properties by LIONant
-//    https://gitlab.com/LIONant/properties/blob/master/docs/Documentation.md
-//  RTTR (Run Time Type Reflection)
-//    https://www.rttr.org/doc/rttr-0-9-6/five_minute_tutorial_page.html
 
 
 // These macros are the heart and soul of the reflection system.

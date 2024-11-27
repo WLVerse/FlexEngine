@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // windowprops.cpp
 // 
-// 
+// Properties for the window.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

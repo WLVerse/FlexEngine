@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app]
 // datastructures.cpp
 // 
-// 
+// Reflection and internal functions for the ECS data structures.
+// Refer to datastructures.h for more information.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

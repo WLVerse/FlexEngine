@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // vector2.h
 // 
-// 
+// Similar to glm::vec2, with additional functionalities.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

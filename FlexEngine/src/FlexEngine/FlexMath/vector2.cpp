@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // vector2.cpp
 // 
-// 
+// Implementation of the Vector2 class.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

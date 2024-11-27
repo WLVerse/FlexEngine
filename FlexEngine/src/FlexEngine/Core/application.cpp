@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
 // application.cpp
 // 
-// 
+// Application implementation.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

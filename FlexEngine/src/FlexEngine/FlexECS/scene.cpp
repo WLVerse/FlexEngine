@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app]
 // scene.cpp
 // 
-// 
+// Implementation of Scene class and functions that assist its management in the ECS.
+// Refer to datastructures.h for more information.
 // 
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
