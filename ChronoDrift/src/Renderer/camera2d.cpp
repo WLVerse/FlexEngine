@@ -45,15 +45,15 @@ namespace FlexEngine
     {
         if (curr.m_isOrthographic)
         {
-            float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
-            float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
-
+           //float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+           //float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+           //
             //Center Cam
             curr.projMatrix = Matrix4x4::Orthographic(
-                curr.position.x + width / 2.0f,
-                curr.position.x - width / 2.0f,
-                curr.position.y + height / 2.0f, 
-                curr.position.y - height / 2.0f, 
+                curr.position.x + curr.m_OrthoWidth / 2.0f,
+                curr.position.x - curr.m_OrthoWidth / 2.0f,
+                curr.position.y + curr.m_OrthoHeight / 2.0f,
+                curr.position.y - curr.m_OrthoHeight / 2.0f,
                 curr.nearClip,
                 curr.farClip
             );
