@@ -284,9 +284,46 @@ namespace ChronoDrift
 			Vector2 scale_change{};
 			float value{};
 			bool right, up, xy;
-			EditorGUI::Gizmo_Scale_X(&scale_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right);
-			EditorGUI::Gizmo_Scale_Y(&scale_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up);
-			EditorGUI::Gizmo_Scale_XY(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy);
+			bool recording_ended = false;
+			switch (EditorGUI::Gizmo_Scale_X(&scale_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				m_recorded_scale.scale = entity_scale;
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				recording_ended = true;
+				break;
+			default:
+				break;
+			}
+			switch (EditorGUI::Gizmo_Scale_Y(&scale_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				m_recorded_scale.scale = entity_scale;
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				recording_ended = true;
+				break;
+			default:
+				break;
+			}
+			switch (EditorGUI::Gizmo_Scale_XY(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+			{
+			case EditorGUI::GizmoStatus::START_DRAG:
+				m_recorded_scale.scale = entity_scale;
+				break;
+			case EditorGUI::GizmoStatus::DRAGGING:
+				break;
+			case EditorGUI::GizmoStatus::END_DRAG:
+				recording_ended = true;
+				break;
+			default:
+				break;
+			}
 			m_gizmo_hovered = right || up || xy;
 			if (value != 0)	//if using xy scale
 			{
@@ -301,6 +338,15 @@ namespace ChronoDrift
 			scale_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 			scale_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_scale += scale_change;
+
+			if (recording_ended)
+			{
+				if (m_recorded_scale.scale != entity_scale)
+				{
+					auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+					cmd->UpdateComponent(selected_entity, "Scale", &m_recorded_scale, selected_entity.GetComponent<Scale>(), sizeof(Scale));
+				}
+			}
 		}
 		else if (m_current_gizmo_type == GizmoType::ROTATE)
 		{
@@ -309,13 +355,37 @@ namespace ChronoDrift
 				auto& entity_rotation = selected_entity.GetComponent<Rotation>()->rotation;
 				float value{};
 				bool hovered;
-				EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered);
+				bool recording_ended = false;
+				switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					std::cout << "STARTDRAG\n";
+					m_recorded_rotation.rotation = entity_rotation;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
 				m_gizmo_hovered = hovered;
 				entity_rotation.z += value * (180 / IM_PI);
 			
 				//Clamp to -360 and 360
 				if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
 				if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
+				
+				if (recording_ended)
+				{
+					std::cout << "storedrot: " << m_recorded_rotation.rotation << "      realrot: " << entity_rotation << "\n";
+					if (m_recorded_rotation.rotation!= entity_rotation)
+					{
+						auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+						cmd->UpdateComponent(selected_entity, "Rotation", &m_recorded_rotation, selected_entity.GetComponent<Rotation>(), sizeof(Rotation));
+					}
+				}
 			}
 		}
 	}

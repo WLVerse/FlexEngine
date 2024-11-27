@@ -44,6 +44,8 @@ namespace ChronoDrift
 		bool m_gizmo_hovered;
 		bool m_dragging;
 		Position m_recorded_position;
+		Scale		 m_recorded_scale;
+		Rotation m_recorded_rotation;
 
 		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
 

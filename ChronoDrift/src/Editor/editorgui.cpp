@@ -600,7 +600,6 @@ namespace ChronoDrift
 		}
 		else if (!held)
 		{
-			manipulated = true;
 			if (manipulated)
 			{
 				manipulated = false;
@@ -786,7 +785,7 @@ namespace ChronoDrift
 		//Now compute the amount to rotate
 		if (rotation_info.is_manipulating)
 		{
-			status = GizmoStatus::DRAGGING;
+			if (!ImGui::IsMouseClicked(0)) status = GizmoStatus::DRAGGING;
 			ImVec2 current_mouse_pos = ImGui::GetMousePos();
 			float current_angle = atan2f(current_mouse_pos.y - origin.y,
 																	 current_mouse_pos.x - origin.x);
