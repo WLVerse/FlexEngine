@@ -1,3 +1,39 @@
+/*!************************************************************************
+ // WLVERSE [https://wlverse.web.app]
+ // openglframebuffer.cpp
+ //
+ // This header defines the `OpenGLFrameBuffer` class, a utility within the
+ // FlexEngine framework for managing framebuffer objects (FBOs) used in
+ // rendering pipelines. The `OpenGLFrameBuffer` class provides static
+ // methods and members to handle multiple rendering targets and post-processing
+ // stages efficiently.
+ //
+ // Key Responsibilities:
+ // - Managing framebuffers for different rendering contexts:
+ //   - Editor camera rendering (m_editorFBO)
+ //   - In-game camera rendering (m_gameFBO)
+ //   - Post-processing effects (m_postProcessingFBO)
+ //   - Bloom rendering (m_bloomFBO)
+ // - Managing associated textures for framebuffers, including ping-pong textures
+ //   for effects like blur and the final rendered output.
+ // - Providing utility functions for framebuffer operations such as setting,
+ //   clearing, and verifying the currently bound framebuffer.
+ // - Allowing dynamic regeneration of textures to accommodate window resizing.
+ //
+ // Main Features:
+ // - Separate framebuffers for editor and in-game rendering.
+ // - Support for advanced rendering effects such as post-processing and bloom.
+ // - Efficient texture management and resizing.
+ // - Static interface for global framebuffer operations.
+ //
+ // AUTHORS
+ // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+ //   - Main Author
+ //   - Implemented framebuffer setup, texture management, and utility functions.
+ //
+ // Copyright (c) 2024 DigiPen, All rights reserved.
+ **************************************************************************/
+
 #include "OpenGLFrameBuffer.h"
 #include "FlexEngine/AssetManager/assetmanager.h" // FLX_ASSET_GET
 #include "FlexEngine/DataStructures/freequeue.h"
@@ -15,6 +51,14 @@ namespace FlexEngine
     GLuint OpenGLFrameBuffer::m_gameRenderTex = 0;
     GLuint OpenGLFrameBuffer::m_finalRenderTex = 0;
 
+    /*!***************************************************************************
+     * \brief
+     * Initializes framebuffers and their associated textures based on the
+     * given window size.
+     *
+     * \param windowSize The size of the window for which textures should be
+     *                   generated.
+     *****************************************************************************/
     void OpenGLFrameBuffer::Init(const Vector2& windowSize) 
     {
         //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,15 +157,30 @@ namespace FlexEngine
         }
         );
     }
-
+    /*!***************************************************************************
+    * \brief
+    * Sets the default framebuffer for rendering.
+    *****************************************************************************/
     void OpenGLFrameBuffer::SetDefaultFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
-
+    /*!***************************************************************************
+    * \brief
+    * Sets the editor framebuffer for rendering.
+    *****************************************************************************/
     void OpenGLFrameBuffer::SetEditorFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_editorFBO );}
-
+    /*!***************************************************************************
+    * \brief
+    * Sets the game framebuffer for rendering.
+    *****************************************************************************/
     void OpenGLFrameBuffer::SetGameFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_gameFBO); }
-
+    /*!***************************************************************************
+    * \brief
+    * Enables post-processing effects for rendering.
+    *****************************************************************************/
     void OpenGLFrameBuffer::SetPostProcessingFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_postProcessingFBO); }
-
+    /*!***************************************************************************
+    * \brief
+    * Sets the framebuffer specifically for bloom post-processing effects.
+    *****************************************************************************/
     void OpenGLFrameBuffer::SetBloomFrameBuffer() { glBindFramebuffer(GL_FRAMEBUFFER, m_bloomFBO); }
 
     /*!***************************************************************************
@@ -129,7 +188,14 @@ namespace FlexEngine
     * Clears the current framebuffer.
     *****************************************************************************/
     void OpenGLFrameBuffer::ClearFrameBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
-
+    
+    /*!***************************************************************************
+    * \brief
+    * Retrieves the texture ID associated with a specific framebuffer texture type.
+    *
+    * \param textureID The ID of the texture type (from `CreatedTextureID` enum).
+    * \return The OpenGL texture ID corresponding to the requested type.
+    *****************************************************************************/
     GLuint OpenGLFrameBuffer::GetCreatedTexture(GLuint textureID) 
     {
         switch (textureID)
@@ -146,19 +212,35 @@ namespace FlexEngine
         }
     }
 
-    GLuint OpenGLFrameBuffer::GetCurrFrameBuffer() 
+    /*!***************************************************************************
+    * \brief Retrieves the ID of the currently bound framebuffer.
+    * \return The ID of the currently bound framebuffer.
+    *****************************************************************************/
+    GLuint OpenGLFrameBuffer::GetCurrFrameBuffer()
     {
         GLint currentFBO = 0;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFBO);
         return static_cast<GLuint>(currentFBO);
     }
 
+    /*!**************************************************************************
+    * \brief Checks if the currently bound framebuffer matches the given framebuffer ID.
+    * \param framebufferID The ID of the framebuffer to compare against.
+    * \return True if the currently bound framebuffer matches the given ID, false otherwise.
+    ***************************************************************************/
     bool OpenGLFrameBuffer::CheckSameFrameBuffer(const GLuint framebufferID) 
     {
         const GLuint currentFBO = GetCurrFrameBuffer();
         return currentFBO == framebufferID;
     }
 
+    /*!***************************************************************************
+    * \brief
+    * Regenerates all framebuffer textures to fit a new window size.
+    *
+    * \param width The new width of the window.
+    * \param height The new height of the window.
+    *****************************************************************************/
     void OpenGLFrameBuffer::RegenerateAllTextures(GLsizei width, GLsizei height)
     {
         // Delete existing textures and framebuffers

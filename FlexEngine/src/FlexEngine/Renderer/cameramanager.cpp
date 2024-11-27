@@ -1,35 +1,37 @@
 /*!************************************************************************
- // WLVERSE [https://wlverse.web.app]
- // scenecamsorter.cpp
- //
- // This file defines the `SceneCamSorter` class, a singleton utility
- // within the FlexEngine framework for managing camera entities in a 3D scene.
- // The `SceneCamSorter` class provides functionalities for registering and
- // tracking active camera entities, facilitating seamless transitions between
- // main and editor cameras. It also offers methods to retrieve and update
- // `CameraData` properties, which encapsulate essential camera attributes
- // such as position, orientation, and projection matrices.
- //
- // Key functionalities include:
- // - Adding, switching, and removing camera entities in the scene.
- // - Providing fast access to `CameraData`, including view and projection
- //   matrices, for any registered camera.
- // - Ensuring only one instance manages camera sorting, adhering to the
- //   singleton design pattern.
- //
- // The `CameraData` struct, also defined here, includes properties for world
- // position, orientation vectors, and other parameters essential for view
- // transformations in both perspective and orthographic projections.
- //
- // AUTHORS
- // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
- //   - Main Author
- //   - Developed the camera management interface, singleton pattern, and
- //     entity registration features within FlexEngine.
- //
- // Copyright (c) 2024 DigiPen, All rights reserved.
- **************************************************************************/
-
+// WLVERSE [https://wlverse.web.app]
+// cameramanager.cpp
+//
+// This file implements the `CameraManager` class, a singleton utility
+// within the FlexEngine framework for managing and organizing camera
+// entities in a 3D scene. It is designed to handle both runtime and editor
+// camera management efficiently.
+//
+// Key Responsibilities:
+// - Registering, enabling, disabling, and removing camera entities.
+// - Facilitating seamless transitions between main and editor cameras.
+// - Providing fast access to `CameraData` for rendering purposes,
+//   including view and projection matrices.
+// - Automatically managing a default editor camera for scene editing.
+// - Validating and maintaining an active main camera for rendering.
+//
+// CameraData encapsulates critical camera attributes such as:
+// - World position and orientation vectors (position, up, right).
+// - Projection properties like field of view, aspect ratio, and clip planes.
+// - Flags for orthographic or perspective projections.
+//
+// Main Features:
+// - Automatic editor camera creation for development workflows.
+// - Efficient lifecycle management for all registered camera entities.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Main Author
+//   - Developed the camera management interface, singleton pattern, and
+//     entity registration features within FlexEngine.
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #include "cameramanager.h"
 
 namespace FlexEngine
@@ -81,15 +83,15 @@ namespace FlexEngine
     }
 
     /*!***************************************************************************
-     * \brief
-     * Creates a default editor camera and registers it with the CameraManager.
-     *
-     * \details
-     * The editor camera is assigned a unique entity ID (typically 0) and is
-     * initialized with default CameraData. This camera serves as the default
-     * viewport for editing purposes and is automatically set as the current
-     * editor camera.
-     *****************************************************************************/
+    * \brief
+    * Creates a default editor camera and registers it with the CameraManager.
+    *
+    * \details
+    * The editor camera is assigned a unique entity ID (typically 0) and is
+    * initialized with default CameraData. This camera serves as the default
+    * viewport for editing purposes and is automatically set as the current
+    * editor camera.
+    *****************************************************************************/
     void CameraManager::CreateDefaultEditorCamera()
     {
         // Generate a unique entity ID for the editor camera
