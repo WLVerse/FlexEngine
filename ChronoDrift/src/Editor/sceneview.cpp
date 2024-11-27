@@ -316,7 +316,7 @@ namespace ChronoDrift
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(2);
 			if(drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
-			Vector2 camera_pos_change{-drag_delta.x, -drag_delta.y};
+			Vector2 camera_pos_change{drag_delta.x, -drag_delta.y};
 
 			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
@@ -326,7 +326,7 @@ namespace ChronoDrift
 		{
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(1);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
-			Vector2 camera_pos_change{ -drag_delta.x, -drag_delta.y };
+			Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
 			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
