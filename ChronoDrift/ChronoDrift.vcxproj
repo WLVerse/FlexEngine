@@ -213,7 +213,8 @@
       <AdditionalOptions>/IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(ProjectDir)assets" "$(TargetDir)assets" /E /I /Y</Command>
+      <Command>xcopy "$(ProjectDir)assets" "$(TargetDir)assets" /E /I /Y
+xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MemLeak|x64'">
