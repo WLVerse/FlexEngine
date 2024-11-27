@@ -48,6 +48,8 @@ namespace FlexEngine
         FLX_REFL_REGISTER_PROPERTY(farClip)
         FLX_REFL_REGISTER_PROPERTY(m_isOrthographic)
         FLX_REFL_REGISTER_PROPERTY(cam_is_active)
+        FLX_REFL_REGISTER_PROPERTY(m_OrthoWidth)
+        FLX_REFL_REGISTER_PROPERTY(m_OrthoHeight)
     FLX_REFL_REGISTER_END;
 	#pragma endregion
 
@@ -154,7 +156,7 @@ namespace FlexEngine
         }
 
         //Update Main Camera automatically if missing
-        if (m_currMainID == INVALID_ENTITY_ID)
+        if (m_currMainID == INVALID_ENTITY_ID && cameraData.cam_is_active)
             SwitchMainCamera(entityID);
     }
 

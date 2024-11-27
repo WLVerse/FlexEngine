@@ -47,6 +47,7 @@ namespace ChronoDrift
 
 		ImVec2 m_viewport_size;
 		ImVec2 m_viewport_position;
+		ImVec2 m_viewport_screen_position;
 
 		std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
 		void UpdateEditorCam();

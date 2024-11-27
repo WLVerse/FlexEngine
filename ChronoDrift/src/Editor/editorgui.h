@@ -75,6 +75,8 @@ namespace ChronoDrift
 
     static void AudioPath(std::string& path, std::string title = "Audio");
 
+		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
+
 		static void Color3(FlexEngine::Vector3& data, std::string title = "color");
 
 		static void EditableTextField(std::string& data, std::string title = "");
@@ -154,12 +156,45 @@ namespace ChronoDrift
 	template<typename T>
 	const T* EditorGUI::StartPayloadReceiver(PayloadTags tag)
 	{
+		bool show_error_window = false;
+		std::string error_message{};
 		if (ImGui::BeginDragDropTarget())
 		{
+			const ImGuiPayload* global_payload = ImGui::GetDragDropPayload();
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(GetPayloadTagString(tag));
 
-			if (payload) return static_cast<T*>(payload->Data);
-			else return nullptr;
+			if (payload)
+			{
+				return static_cast<T*>(payload->Data);
+			}
+			else
+			{
+				std::string expected = GetPayloadTagString(tag);
+				std::string received = global_payload->DataType;
+				if (expected != received)
+				{
+					show_error_window = true;
+					error_message = "Incorrect payload type! Expected: " + expected + ", Received: " + received;
+				}
+			}
+		}
+
+		if (show_error_window)
+		{
+			ImGui::SetNextWindowBgAlpha(0.75f); // Semi-transparent background
+			ImVec2 window_pos = ImGui::GetMousePos(); window_pos.x -= 250.0f; window_pos.y -= 50.0f;
+			ImGui::SetNextWindowPos(window_pos);
+
+			ImGui::Begin("Payload Error Tooltip", nullptr,
+									 ImGuiWindowFlags_NoTitleBar |
+									 ImGuiWindowFlags_AlwaysAutoResize |
+									 ImGuiWindowFlags_NoSavedSettings |
+									 ImGuiWindowFlags_NoFocusOnAppearing |
+									 ImGuiWindowFlags_NoNav |
+									 ImGuiWindowFlags_NoInputs); // Prevent interaction with the tooltip
+
+			ImGui::Text("%s", error_message.c_str()); // Show the error message
+			ImGui::End();
 		}
 		return nullptr;
 

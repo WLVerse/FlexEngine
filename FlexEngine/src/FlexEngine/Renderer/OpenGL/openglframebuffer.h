@@ -70,5 +70,7 @@ namespace FlexEngine
         * \return True if the currently bound framebuffer matches the given ID, false otherwise.
         ***************************************************************************/
         static bool CheckSameFrameBuffer(const GLuint framebufferID);
+    
+        static void RegenerateAllTextures(GLsizei width, GLsizei height);
     };
 }

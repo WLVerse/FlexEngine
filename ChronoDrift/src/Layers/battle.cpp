@@ -45,9 +45,6 @@ namespace ChronoDrift {
 
   void BattleLayer::SetupBattle()
   {
-    MoveRegistry::RegisterMoveFunctions();
-    MoveRegistry::RegisterStatusFunctions();
-
     m_battlesystem.AddCharacters(FlexECS::Scene::GetActiveScene()->CachedQuery<Character>());
     m_battlesystem.BeginBattle();
   }
@@ -55,6 +52,8 @@ namespace ChronoDrift {
   void BattleLayer::OnAttach()
   {
     FLX_FLOW_BEGINSCOPE();
+    MoveRegistry::RegisterMoveFunctions();
+    MoveRegistry::RegisterStatusFunctions();
   }
 
   void BattleLayer::OnDetach()
@@ -64,10 +63,42 @@ namespace ChronoDrift {
 
   void BattleLayer::Update()
   {
-    if (Input::GetKeyDown(GLFW_KEY_4)) SetupBattle(); // Set Up Battle
+    auto scene = FlexECS::Scene::GetActiveScene();
+    if (ImGui::BeginMainMenuBar()) {
+      ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
+      if (ImGui::BeginMenu("Game Play Options")) {
+        if (ImGui::MenuItem("Begin Battle")) {
+          std::vector<FlexECS::Entity> characters = scene->CachedQuery<Character>();
+          // In the scenario where a joker begins battle when they actually wanted to restart
+          if (!scene->CachedQuery<BattleSlot>().empty()) {
+            ResetCharacters();
+            SetupBattle();
+          }
+          // Ah now this one is to actually set up for the scene without any battle slots
+          if (!characters.empty()) {
+            int num_of_players = 0, num_of_enemies = 0;
+            for (auto& c : characters) {
+              if (c.GetComponent<Character>()->is_player) ++num_of_players;
+              else ++num_of_enemies;
+            }
+            if (num_of_enemies > 0 && num_of_players > 0) SetupBattle(); // Set Up Battle
+            else Log::Debug("Please load a proper battle scene first. Thank you.");
+          }
+          else Log::Debug("Please load a proper battle scene first. Thank you.");
+        }
+        if (ImGui::MenuItem("Restart Battle", "Ctrl+R")) {
+          if (!scene->CachedQuery<BattleSlot>().empty()) {
+            ResetCharacters();
+            SetupBattle();
+          }
+          else Log::Debug("Please load a proper battle scene first. Thank you.");
+        }
+        ImGui::EndMenu();
+      }
+      ImGui::EndMainMenuBar();
+    }
 
     // Include a check whether battle system has been activated
-    auto scene = FlexECS::Scene::GetActiveScene();
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 
     if (!scene->CachedQuery<CharacterInput, Character>().empty()) {

@@ -59,8 +59,8 @@ namespace ChronoDrift
   #pragma endregion
 
   #pragma region Battle Components
-  FLX_REFL_REGISTER_START(BattleState)
-    FLX_REFL_REGISTER_PROPERTY(phase)
+  //FLX_REFL_REGISTER_START(BattleState)
+    //FLX_REFL_REGISTER_PROPERTY(phase)
     //FLX_REFL_REGISTER_PROPERTY(active_character)
     //FLX_REFL_REGISTER_PROPERTY(target_one)
     //FLX_REFL_REGISTER_PROPERTY(target_two)
@@ -69,7 +69,7 @@ namespace ChronoDrift
     //FLX_REFL_REGISTER_PROPERTY(target_five)
     //FLX_REFL_REGISTER_PROPERTY(current_target_count)
     //FLX_REFL_REGISTER_PROPERTY(selected_targets)
-  FLX_REFL_REGISTER_END;
+  //FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(BattleSlot)
     FLX_REFL_REGISTER_PROPERTY(character)

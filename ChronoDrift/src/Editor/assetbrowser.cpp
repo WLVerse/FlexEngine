@@ -151,6 +151,11 @@ namespace ChronoDrift
 						EditorGUI::StartPayload(PayloadTags::PREFAB, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
+					else if (FLX_EXTENSIONS_CHECK_SAFETY("font", file.extension().string()))
+					{
+						EditorGUI::StartPayload(PayloadTags::FONT, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+						EditorGUI::EndPayload();
+					}
 					else
 					{
 						//Find rocky if you want your filetype supported

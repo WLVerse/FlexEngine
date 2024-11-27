@@ -60,7 +60,7 @@ namespace FlexEngine
         vertices[9] = color.x; vertices[10] = color.y; vertices[11] = color.z;
 
         //////////////////////////////////////////////////////////////////////////////////
-        //if want to edit line vbo -> goto spriterender init() and change there
+        //TODO change to sprite
         glBindVertexArray(vao/*OpenGLSpriteRenderer::GetVAO_ID(Renderer2DProps::VBO_Type::VBO_Line)*/);
         //glEnableVertexAttribArray(0); //not necessary as of yet
         //glEnableVertexAttribArray(1);
@@ -80,6 +80,74 @@ namespace FlexEngine
 
         m_line_shader.SetUniform_mat4("u_view", view_matrix);
         m_line_shader.SetUniform_mat4("u_projection", projection_matrix);
+
+        glLineWidth(line_width);
+
+        OpenGLFrameBuffer::SetEditorFrameBuffer();
+        glDrawArrays(GL_LINES, 0, 2);
+        OpenGLFrameBuffer::SetDefaultFrameBuffer();
+
+        glBindVertexArray(0);
+    }
+    void FlexEngine::OpenGLDebugRenderer::DrawLine2D(CameraManager& camManager, Vector2 start, Vector2 end, Vector3 color, float line_width)
+    {
+        static float vertices[12];
+        static GLuint vao = 0, vbo = 0;
+
+        if (vao == 0)
+        {
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+
+            glBindVertexArray(vao);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+            glBindVertexArray(0);
+            std::filesystem::path current_dir = std::filesystem::current_path();
+            std::cout << current_dir;
+
+            m_line_shader.Create(vertex_shader_path,
+                                 fragment_shader_path);
+            // free in freequeue
+            FreeQueue::Push(
+              [=]()
+            {
+                glDeleteBuffers(1, &vbo);
+                glDeleteVertexArrays(1, &vao);
+                m_line_shader.Destroy();
+            }
+            );
+        }
+
+        glNamedBufferSubData(vbo, 0, sizeof(vertices), (void*)vertices);
+
+        //Update vertex info
+        vertices[0] = start.x; vertices[1] = start.y; vertices[2] = 0.0f;
+        vertices[3] = color.x; vertices[4] = color.y; vertices[5] = color.z;
+        vertices[6] = end.x; vertices[7] = end.y; vertices[8] = 0.0f;
+        vertices[9] = color.x; vertices[10] = color.y; vertices[11] = color.z;
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //TODO change to sprite
+        glBindVertexArray(vao/*OpenGLSpriteRenderer::GetVAO_ID(Renderer2DProps::VBO_Type::VBO_Line)*/);
+        //glEnableVertexAttribArray(0); //not necessary as of yet
+        //glEnableVertexAttribArray(1);
+
+        //float window_width = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
+        //float window_height = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
+
+        m_line_shader.Use();
+        //static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
+        Matrix4x4 view_matrix = Matrix4x4::Identity;
+
+        m_line_shader.SetUniform_mat4("u_view", view_matrix);
+        m_line_shader.SetUniform_mat4("u_projection", camManager.GetCameraData(camManager.GetEditorCamera())->projMatrix);
 
         glLineWidth(line_width);
 

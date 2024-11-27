@@ -106,18 +106,21 @@ namespace ChronoDrift
               {
                 // Clear the scene and reset statics
                 CamManager->RemoveCamerasInScene();
-                FlexECS::Scene::SetActiveScene(std::make_shared<FlexECS::Scene>());
+                FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
+                current_save_name = default_save_name;
 
                 // Every default scene should have a camera.
                 FlexECS::Entity camera = FlexECS::Scene::GetActiveScene()->CreateEntity("MainCamera");
-                camera.AddComponent<Position>({ {-150, 300 } });
-                camera.AddComponent<Scale>({ { 0.5,0.5 } });
+                camera.AddComponent<IsActive>({ true });
+                camera.AddComponent<Position>({ {0,0} });
+                camera.AddComponent<Scale>({ { static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()) / 10,static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()) / 10 } });
                 camera.AddComponent<Rotation>({ });
                 camera.AddComponent<Transform>({});
                 camera.AddComponent<Camera>({});
                 CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
                 CamManager->SwitchMainCamera(camera.Get());
-              }
+                Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
+            }
             });
           }
 
@@ -155,10 +158,12 @@ namespace ChronoDrift
                     for (auto& camera : camera_list) 
                     {
                         CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
+                        camera.GetComponent<Transform>()->is_dirty = true;
                     }
                 }
                 Log::Info("Processed " + std::to_string(camera_list.size()) + " camera(s) from the active scene.");
                 Log::Info("Loaded scene from: " + file.path.string());
+                Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
               }
             });
           }
@@ -231,7 +236,7 @@ namespace ChronoDrift
         //  if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
         //  ImGui::EndMenu();
         //}
-
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if (ImGui::BeginMenu("View"))
         {
           if (ImGui::MenuItem("Center Window"))
@@ -248,6 +253,7 @@ namespace ChronoDrift
 
         // Set full screen
         Window* window = Application::GetCurrentWindow();
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if (ImGui::Button("Full Screen") && !window->IsFullScreen()) {
           window->CacheMiniWindowParams();
 
@@ -261,6 +267,7 @@ namespace ChronoDrift
         }
 
         // Minimize!!!
+        ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
         if ((ImGui::Button("Esc") || Input::GetKeyDown(GLFW_KEY_ESCAPE)) && window->IsFullScreen()) {
           std::pair<int, int> window_pos = window->UnCacheMiniWindowsParams();
           glfwSetWindowMonitor(window->GetGLFWWindow(), NULL, window_pos.first, window_pos.second, window->GetWidth(), window->GetHeight(), window->GetFPS());
