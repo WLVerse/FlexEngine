@@ -8,6 +8,7 @@
 #include "imguiwrapper.h"
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
+#include "Renderer/OpenGL/openglframebuffer.h"
 #include "FMOD/FMODWrapper.h"
 
 namespace
@@ -20,6 +21,7 @@ namespace
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+    FlexEngine::OpenGLFrameBuffer::RegenerateAllTextures(width, height);
 
     // update the window properties
     for (auto& win : FlexEngine::Application::GetWindows())
