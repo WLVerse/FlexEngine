@@ -61,7 +61,6 @@ namespace ChronoDrift
 		float app_width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()); 
 		float app_height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
 
-
 		// Get Mouse position relative to the viewport
 		ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - m_viewport_position.x,
 																 mouse_pos_ss.y - window_top_left.y - m_viewport_position.y); // IMGUI space is screen space - top left of imgui window
@@ -188,12 +187,13 @@ namespace ChronoDrift
 	{
 		m_gizmo_hovered = false;
 		FlexECS::Entity selected_entity = Editor::GetInstance().GetSelectedEntity();
-		if (selected_entity == FlexECS::Entity::Null) return;
+		if (selected_entity == FlexECS::Entity::Null) 
+			return;
 
 		selected_entity.GetComponent<Transform>()->is_dirty = true;
 		auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 		auto& entity_position = selected_entity.GetComponent<Position>()->position;
-		auto& entity_scale		= selected_entity.GetComponent<Scale>()->scale;
+		auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 
 		//Global pos for accuracy (esp for entities with parent)
 		Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };

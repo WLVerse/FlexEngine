@@ -102,10 +102,11 @@ namespace ChronoDrift
         Vector3 topright = { max.x, min.y };
         Vector3 botleft = { min.x, max.y };
         Vector3 botright = max;
-        FlexEngine::OpenGLDebugRenderer::DrawLine2D(topleft, topright);
-        FlexEngine::OpenGLDebugRenderer::DrawLine2D(topright, botright);
-        FlexEngine::OpenGLDebugRenderer::DrawLine2D(botright, botleft);
-        FlexEngine::OpenGLDebugRenderer::DrawLine2D(botleft, topleft);
+        
+        FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), topleft, topright);
+        FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), topright, botright);
+        FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), botright, botleft);
+        FlexEngine::OpenGLDebugRenderer::DrawLine2D(Editor::GetInstance().GetCamManager(), botleft, topleft);
       }
     }
   }

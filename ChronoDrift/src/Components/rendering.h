@@ -34,7 +34,7 @@ using namespace FlexEngine;
   class IsActive
   { FLX_REFL_SERIALIZABLE
   public:
-    bool is_active;
+    bool is_active = true;
   };
   /*!***************************************************************************
   * \class Parent

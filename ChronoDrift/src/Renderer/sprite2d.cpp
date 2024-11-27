@@ -450,7 +450,7 @@ namespace ChronoDrift
         // 2. Merge text with batch queue (merge text renderer to sprite renderer)
         // 3. Change the shader name to not be hardcoded for the different rendering process
         //    - either auto add shader component -> auto set correct shader
-
+        // 4. Have the cameras have little icons to show their placement and boundary
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();
 
