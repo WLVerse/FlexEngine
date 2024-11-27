@@ -103,9 +103,6 @@
     <ClInclude Include="src\CharacterMoves\moves.h">
       <Filter>src\CharacterMoves</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\battledisplay.h">
-      <Filter>src\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\BattleSystems\battlesystem.h">
       <Filter>src\BattleSystems</Filter>
     </ClInclude>
@@ -203,9 +200,6 @@
     </ClCompile>
     <ClCompile Include="src\CharacterMoves\moves.cpp">
       <Filter>src\CharacterMoves</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\battledisplay.cpp">
-      <Filter>src\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\BattleSystems\battlesystem.cpp">
       <Filter>src\BattleSystems</Filter>
