@@ -157,6 +157,7 @@ namespace FlexEngine
     bool OpenGLFrameBuffer::CheckSameFrameBuffer(const GLuint framebufferID) 
     {
         const GLuint currentFBO = GetCurrFrameBuffer();
+        std::cout << currentFBO << std::endl;
         return currentFBO == framebufferID;
     }
 }

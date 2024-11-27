@@ -497,7 +497,9 @@ namespace FlexEngine
             Log::Debug("Instance batch data block is empty. Should not run render on this texture");
             return;
         }
-        if (props.shader == "" || m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
+        if (props.shader == "" || 
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
             return;
         GLsizei dataSize = (GLsizei)data.m_transformationData.size();
 
