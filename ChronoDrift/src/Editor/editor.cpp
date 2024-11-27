@@ -157,6 +157,13 @@ namespace ChronoDrift
 			iter->second->EditorUI();
 		}
 
+		auto scene = FlexECS::Scene::GetActiveScene();
+		for (auto entity : m_entities_to_delete)
+		{
+			scene->DestroyEntity(entity);
+		}
+		m_entities_to_delete.clear();
+
 		EditorGUI::EndFrame();
 	}
 
@@ -183,7 +190,6 @@ namespace ChronoDrift
 	//	}
 	//	return nullptr;
 	//}
-
   EditorPanel& Editor::GetPanel(const std::string& panel_name)
   {
     return *m_panels[panel_name];
@@ -197,6 +203,15 @@ namespace ChronoDrift
 	FlexECS::Entity Editor::GetSelectedEntity()
 	{
 		return m_selected_entity;
+	}
+
+	void Editor::DeleteSelectedEntity()
+	{
+		if (m_selected_entity == FlexECS::Entity::Null) return;
+
+		//Delete only at the end of update() loop in editor
+		m_entities_to_delete.insert(m_selected_entity);
+		m_selected_entity = FlexECS::Entity::Null;
 	}
 
 	CameraManager& Editor::GetCamManager() const

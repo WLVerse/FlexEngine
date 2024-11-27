@@ -34,7 +34,7 @@ using namespace FlexEngine;
   class IsActive
   { FLX_REFL_SERIALIZABLE
   public:
-    bool is_active;
+    bool is_active = true;
   };
   /*!***************************************************************************
   * \class Parent
@@ -118,7 +118,7 @@ using namespace FlexEngine;
   class Shader
   { FLX_REFL_SERIALIZABLE
   public:
-    FlexECS::Scene::StringIndex shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)");;
+    FlexECS::Scene::StringIndex shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\batchtexture)");;
   };
   /*!***************************************************************************
   * \class Sprite
@@ -159,7 +159,7 @@ using namespace FlexEngine;
   class Text
   { FLX_REFL_SERIALIZABLE
   public:
-      FlexECS::Scene::StringIndex fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(..\\..\\..\\FlexEngine\\assets\\fonts\\Noto_Sans\\static\\NotoSans-Regular.ttf)");
+      FlexECS::Scene::StringIndex fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\fonts\Prompt\Prompt-Black.ttf)");
       FlexECS::Scene::StringIndex text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("TEST");
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
@@ -187,16 +187,18 @@ using namespace FlexEngine;
   {
       FLX_REFL_SERIALIZABLE
   public:
-      bool interactable;             // Whether the button is interactable
-      //std::string transition;        // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
-      FlexECS::Scene::StringIndex targetGraphic;             // Reference to the graphic for the button
+      bool is_interactable = true;             // Whether the button is interactable
+      // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color
       Vector3 pressedColor;          // RGBA values for pressed color
-      Vector3 selectedColor;         // RGBA values for selected color
       Vector3 disabledColor;         // RGBA values for disabled color
       float colorMultiplier;         // Multiplier for the color tint
-      float fadeDuration;            // Duration for color fading transitions
+      float fadeDuration;            // Duration for color fading transitions -> not done
+
+      //Do not show
+      Vector3 finalColorMul; 
+      Vector3 finalColorAdd;
       //std::string navigation;        // Navigation mode (e.g., "Automatic", "None")
       //std::vector<std::function<void()>> onClickEvents;  // List of functions to execute on click
   };

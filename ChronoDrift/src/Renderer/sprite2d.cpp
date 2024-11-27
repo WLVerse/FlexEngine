@@ -36,6 +36,8 @@
 
 namespace ChronoDrift
 {
+    constexpr float FONT_SCALE_FACTOR = 3.0f;
+
     #pragma region Update Matrix / Parent & Child
 
     /*!***************************************************************************
@@ -97,7 +99,6 @@ namespace ChronoDrift
         //    local_rotation = currCam.GetComponent<Rotation>();
 
         //Update CamData
-        if (!currCam.GetComponent<Transform>()->is_dirty) return; //TODO Check is this necessary
         auto& local_camData = currCam.GetComponent<Camera>()->camera;
         local_camData.position = local_position;
         Camera2D::UpdateProjectionMatrix(local_camData);
@@ -195,7 +196,7 @@ namespace ChronoDrift
 
     #pragma endregion
 
-    #pragma region Batching helper
+    #pragma region Batch helper
     void AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Sprite_Batch_Inst& batch, GLuint vbo_id)
     {
         if (!batch.m_zindex.empty())
@@ -213,19 +214,28 @@ namespace ChronoDrift
         batch.m_zindex.push_back(z_index);
         batch.m_transformationData.push_back(entity.GetComponent<Transform>()->transform);
 
+        //Checks for other components present that would influence batch
+        Vector3 colorAdd, colorMul;
+        colorMul = Vector3::One;
+        if (entity.HasComponent<Button>())
+        {
+            colorAdd += entity.GetComponent<Button>()->finalColorAdd;
+            colorMul *= entity.GetComponent<Button>()->finalColorMul;
+        }
+
         if (type == "Sprite")
         {
             auto sprite = entity.GetComponent<Sprite>();
-            batch.m_colorAddData.push_back(sprite->color_to_add);
-            batch.m_colorMultiplyData.push_back(sprite->color_to_multiply);
+            batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
+            batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
             batch.m_UVmap.push_back(Vector4(0, 0, 1, 1)); // Basic sprite UV
             batch.m_vboid = sprite->vbo_id;
         }
         else if (type == "Animation")
         {
             auto anim = entity.GetComponent<Animation>();
-            batch.m_colorAddData.push_back(anim->color_to_add);
-            batch.m_colorMultiplyData.push_back(anim->color_to_multiply);
+            batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
+            batch.m_colorMultiplyData.push_back(colorMul * anim->color_to_multiply);
             batch.m_UVmap.push_back(anim->m_currUV);
         }
     }
@@ -238,10 +248,16 @@ namespace ChronoDrift
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
         {
             if (!entity.GetComponent<IsActive>()->is_active) continue;
-            
+
             auto anim = entity.GetComponent<Animation>();
 
-            if (anim->is_paused) continue;
+            // YC: Since your code has no guard, I will add it here
+            if (anim->is_paused|| anim->max_sprites == 0 || anim->cols == 0 || anim->rows == 0 || anim->spritesheet == 0)
+            {
+              Log::Warning("Animation was detected to not be configured properly");
+              continue;
+            }
+
             anim->m_animationTimer += anim->m_animation_speed * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
             if (anim->m_animationTimer >= 1.0/GameTimeSpeedModifier) 
             {
@@ -255,8 +271,6 @@ namespace ChronoDrift
                 };
             }
         }
-        //FOUND FATAL ERROR: When saving scene with a paused animation, causes heap error when exiting engine.
-        // Pls check if persist
     }
 
     void RenderNormalEntities(bool want_PP = true)
@@ -294,7 +308,7 @@ namespace ChronoDrift
         FunctionQueue batch_render_queue;
         std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
         //Sprite
-        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Sprite>()) 
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Sprite>()) 
         {
             if (entity.GetComponent<IsActive>()->is_active) 
             {
@@ -303,7 +317,7 @@ namespace ChronoDrift
             }
         }
         //Animation
-        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Animation>())
         {
             if (entity.GetComponent<IsActive>()->is_active)
             {
@@ -345,20 +359,19 @@ namespace ChronoDrift
     void RenderTextEntities()
     {
         FunctionQueue text_render_queue;
-        constexpr float FONT_SCALE_FACTOR = 3.0f;
 
-        for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Text>())
+        for (auto& txtentity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Text>())
         {
             if (!txtentity.GetComponent<IsActive>()->is_active) continue;
 
             Matrix4x4& transform = txtentity.GetComponent<Transform>()->transform;
-            auto shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
+            //auto shader = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(txtentity.GetComponent<Shader>()->shader);
             auto* textComponent = txtentity.GetComponent<Text>();
             auto font = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->fonttype);
             
             Renderer2DText sample;
             sample.m_words = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(textComponent->text);
-            sample.m_shader = shader;
+            sample.m_shader = "\\shaders\\freetypetext"; // Will have to change it to not hardcoded along with batching
             sample.m_fonttype = font;
             sample.m_transform = transform;
             sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
@@ -433,9 +446,11 @@ namespace ChronoDrift
         // 1. the order of post-processed objects is rendered first, then non-post-processed (For the sake of text box)
 
         //TODO @WEIJIE 
-        // 1. BUTTONS DONT FORGET LEH
-        // 2. Bloom in fullscreen
-
+        // 1. Bloom fix in fullscreen
+        // 2. Merge text with batch queue (merge text renderer to sprite renderer)
+        // 3. Change the shader name to not be hardcoded for the different rendering process
+        //    - either auto add shader component -> auto set correct shader
+        // 4. Have the cameras have little icons to show their placement and boundary
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();
 
@@ -447,7 +462,7 @@ namespace ChronoDrift
 
         #pragma region Draw Scene Entities
         //RenderNormalEntities();
-        RenderBatchedEntities();
+        RenderBatchedEntities(false); //Dont show PP yet until m4
         RenderTextEntities();
         #pragma endregion
 

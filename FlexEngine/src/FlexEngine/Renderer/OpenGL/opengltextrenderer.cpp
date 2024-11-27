@@ -99,7 +99,10 @@ namespace FlexEngine
         asset_shader.Use();
 
         if (text.m_fonttype.empty())
-            Log::Fatal("Text Renderer: Unknown font type! Please check what you wrote!");
+        {
+            Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
+            return;
+        }
         if (text.m_words.empty())
             return;
         if (followcam && m_CamM_Instance->GetMainCamera() <= -1)
