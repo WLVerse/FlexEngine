@@ -12,6 +12,14 @@
 #include "application.h"
 #include "DataStructures/freequeue.h"
 
+// if release mode
+#ifdef NDEBUG
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+  return main(0, nullptr);
+}
+#endif
+
 // Create an application.
 // Use it by creating a new class that inherits from FlexEngine::Application and override the CreateApplication function.
 extern FlexEngine::Application* FlexEngine::CreateApplication();

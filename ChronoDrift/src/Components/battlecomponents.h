@@ -167,29 +167,21 @@ namespace ChronoDrift
 
   //Battling components
   
-  enum BattlePhase : int {
-    BP_MOVE_DEATH_PROCESSION, // Checking whether anyone has died or not, and to remove dead characters from the battle scene
-    BP_MOVE_EXECUTION,        // Executing Move Functions here (along with animation play in the future)
-    BP_PROCESSING,            // Speed stack moving around, showing who's next
-    BP_MOVE_SELECTION,        // Selection of Move and Targets
-    BP_BATTLE_FINISH,         // Detect whether entire enemy or player team is dead (Display win or lose screens respectively)
-    BP_STATUS_RUN,            // Run through all status effects characters have
-    BP_MOVE_ANIMATION,        // Run animation of move selection
-  };
+  //enum BattlePhase : int {
+  //  BP_MOVE_DEATH_PROCESSION, // Checking whether anyone has died or not, and to remove dead characters from the battle scene
+  //  BP_MOVE_EXECUTION,        // Executing Move Functions here (along with animation play in the future)
+  //  BP_PROCESSING,            // Speed stack moving around, showing who's next
+  //  BP_MOVE_SELECTION,        // Selection of Move and Targets
+  //  BP_BATTLE_FINISH,         // Detect whether entire enemy or player team is dead (Display win or lose screens respectively)
+  //  BP_STATUS_RUN,            // Run through all status effects characters have
+  //  BP_MOVE_ANIMATION,        // Run animation of move selection
+  //};
   
-  class BattleState 
+  /*class BattleState 
   { FLX_REFL_SERIALIZABLE
   public:
-    int phase;/*
-    FlexECS::EntityID active_character;
-    int target_one = -1;
-    int target_two = -1;
-    int target_three = -1;
-    int target_four = -1;
-    int target_five = -1;
-
-    int current_target_count = 0;*/
-  };
+    int phase;
+  };*/
 
   class BattleSlot
   { FLX_REFL_SERIALIZABLE
@@ -267,30 +259,32 @@ namespace ChronoDrift
     FLX_REFL_SERIALIZABLE
   public:
     bool is_player = true;
-    FlexECS::Scene::StringIndex character_name;
-    FlexECS::Scene::StringIndex character_status;   // Character Status Effects Description
-    int character_class;                            // Character Class and Weapon Type needs to be the same
-    int base_health;
-    int current_health;
-    int base_speed;
-    int current_speed;
+    FlexECS::Scene::StringIndex character_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    // Character Status Effects Description
+    FlexECS::Scene::StringIndex character_status = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");   
+    // Character Class and Weapon Type needs to be the same
+    int character_class = 0;
+    int base_health = 0;
+    int current_health = 0;
+    int base_speed = 0;
+    int current_speed = 0;
     
-    FlexECS::Scene::StringIndex weapon_name;
-    FlexECS::Scene::StringIndex weapon_description;
-    int weapon_type;
-    FlexECS::Scene::StringIndex weapon_move_one;
-    FlexECS::Scene::StringIndex weapon_move_two;
-    FlexECS::Scene::StringIndex weapon_move_three;
+    FlexECS::Scene::StringIndex weapon_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    int weapon_type = 0;
+    FlexECS::Scene::StringIndex weapon_move_one = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_move_two = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex weapon_move_three = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
 
-    FlexECS::Scene::StringIndex chrono_gear_name;
-    FlexECS::Scene::StringIndex chrono_gear_description;
-    int chrono_gear_cooldown;
+    FlexECS::Scene::StringIndex chrono_gear_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex chrono_gear_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    int chrono_gear_cooldown = 0;
 
-    FlexECS::Scene::StringIndex character_ultimate;
-    FlexECS::Scene::StringIndex character_ultimate_cooldown;
+    FlexECS::Scene::StringIndex character_ultimate = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex character_ultimate_cooldown = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
 
-    FlexECS::Scene::StringIndex character_passive_name;
-    FlexECS::Scene::StringIndex character_passive_description;
+    FlexECS::Scene::StringIndex character_passive_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
+    FlexECS::Scene::StringIndex character_passive_description = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
   };
 
   class CharacterMovementSprites {
