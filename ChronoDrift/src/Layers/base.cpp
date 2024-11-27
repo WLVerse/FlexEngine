@@ -15,6 +15,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 /* End Header
 *******************************************************************/
 #include "base.h"
+#include <Editor/editor.h>
 
 #include "States.h"
 #include "Layers.h"

@@ -14,6 +14,7 @@
 
 
 #include "componentviewer.h"
+#include "editor.h"
 
 
 namespace ChronoDrift

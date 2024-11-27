@@ -15,7 +15,6 @@
 
 #pragma once
 #include "FlexEngine.h"
-#include "editor.h"
 #include "imguipayloads.h"
 
 #include "imgui_internal.h"

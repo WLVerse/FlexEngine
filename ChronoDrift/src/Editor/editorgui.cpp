@@ -15,6 +15,7 @@
 
 #pragma once
 #include "editorgui.h"
+#include "editor.h"
 
 using namespace FlexEngine;
 namespace ChronoDrift

@@ -1,3 +1,4 @@
+#include "editor.h"
 #include "sceneview.h"
 #include "editorgui.h"
 #include "imguipayloads.h"

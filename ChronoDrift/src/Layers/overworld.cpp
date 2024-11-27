@@ -34,6 +34,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #include "Renderer/camera2d.h"
 
+#include <Editor/editor.h>
+
 namespace ChronoDrift 
 {
     void OverworldLayer::SetupWorld()
