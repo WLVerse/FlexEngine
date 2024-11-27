@@ -27,14 +27,28 @@ namespace ChronoDrift
 
 	void ComponentViewRegistry::RegisterComponent(std::string name, ComponentViewer display, ComponentViewer adder, ComponentViewer remover)
 	{
-		m_component_viewer[name] = display;
-		m_component_adder[name] = adder;
-		m_component_remover[name] = remover;
+		if(display != nullptr) m_component_viewer[name] = display;
+		if(adder != nullptr) m_component_adder[name] = adder;
+		if (remover != nullptr) m_component_remover[name] = remover;
 	}
 
 	bool ComponentViewRegistry::ViewerExists(std::string name)
 	{
 		if (auto search = m_component_viewer.find(name); search == m_component_viewer.end())
+			return false;
+		else return true;
+	}
+
+	bool ComponentViewRegistry::AdderExists(std::string name)
+	{
+		if (auto search = m_component_adder.find(name); search == m_component_adder.end())
+			return false;
+		else return true;
+	}
+
+	bool ComponentViewRegistry::RemoverExists(std::string name)
+	{
+		if (auto search = m_component_remover.find(name); search == m_component_remover.end())
 			return false;
 		else return true;
 	}

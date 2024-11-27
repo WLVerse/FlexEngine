@@ -214,5 +214,12 @@ using namespace FlexEngine;
     FlexECS::Scene::StringIndex audio_file = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
   };
 
+  class Script
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    int script_id;
+  };
+
   void RegisterRenderingComponents();
 }

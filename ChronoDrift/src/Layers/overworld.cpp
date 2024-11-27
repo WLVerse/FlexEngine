@@ -122,6 +122,32 @@ namespace ChronoDrift
               velocity.x = 300.0f;
           }
         }
+
+      // Quick scripting system, to be replaced with a proper scripting system
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+      {
+        if (!entity.GetComponent<IsActive>()->is_active) continue; // skip non active entities
+
+        Script* script = entity.GetComponent<Script>();
+        if (script->script_id == 1)
+        {
+          if (entity.GetComponent<Rotation>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z += 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else if (script->script_id == 2)
+        {
+          if (entity.GetComponent<Scale>() != nullptr)
+          {
+            entity.GetComponent<Rotation>()->rotation.z -= 0.1f * FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+          }
+        }
+        else
+        {
+          Log::Debug("Script ID not found: " + std::to_string(script->script_id));
+        }
+      }
       profiler.EndCounter("Custom Query Loops");
   
       profiler.StartCounter("Audio");
