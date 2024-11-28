@@ -66,7 +66,7 @@ namespace ChronoDrift
     OpenGLRenderer::ClearFrameBuffer();
 
     FunctionQueue function_queue;
-
+    #ifndef GAME
     // setup dockspace
     //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
@@ -384,6 +384,7 @@ namespace ChronoDrift
     #endif
 
     #pragma endregion
+    #endif  
   }
 
 }

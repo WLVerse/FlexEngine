@@ -21,7 +21,9 @@
 
 #include <chrono>
 #include <map>
+#ifndef GAME
 #include "imgui.h"
+#endif
 #include "flx_api.h"
 
 namespace FlexEngine
