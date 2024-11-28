@@ -53,6 +53,33 @@ namespace ChronoDrift
     #ifdef GAME
     Path path_to_scene = Path::current("assets\\saves\\demobattle.flxscene");
     FlexEngine::FlexECS::Scene::SetActiveScene(FlexEngine::FlexECS::Scene::Load(File::Open(path_to_scene)));
+    CamManager->RemoveCamerasInScene();
+    std::vector<FlexECS::Entity> camera_list = FlexECS::Scene::GetActiveScene()->Query<Camera>();
+    if (!camera_list.empty())
+    {
+      for (auto& camera : camera_list)
+      {
+        CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
+        camera.GetComponent<Transform>()->is_dirty = true;
+      }
+    }
+    window->CacheMiniWindowParams();
+
+
+
+    // Get the primary monitor
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    // Get the video mode of the monitor
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    // Switch to fullscreen
+    glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+    FlexECS::Entity cam_entity = CamManager->GetMainCamera();
+    CameraData cam_data = *CamManager->GetCameraData(cam_entity);
+    cam_data.m_OrthoWidth = windowsize.x;
+    cam_data.m_OrthoHeight = windowsize.y;
+    CamManager->UpdateData(cam_entity, cam_data);
     #endif
   }
 
