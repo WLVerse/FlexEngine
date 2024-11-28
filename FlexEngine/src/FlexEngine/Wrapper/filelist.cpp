@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "filelist.h"
+#include <cderr.h> // Handle error codes from GetOpenFileName
 
 namespace FlexEngine
 {
@@ -188,7 +189,8 @@ namespace FlexEngine
     
     // The buffer is limited to 100 MAX_PATH files, which usually actually allows for more files
     // 0.5f is an arbitrary factor, since most file names are shorter than MAX_PATH
-    DWORD file_name_buffer_size = static_cast<DWORD>(max_file_count * MAX_PATH * 0.5f);
+    //DWORD file_name_buffer_size = static_cast<DWORD>(max_file_count * MAX_PATH * 0.5f);
+    DWORD file_name_buffer_size = static_cast<DWORD>(max_file_count * (MAX_PATH + 1));    // YC: Safer to use this, as some fails to allocate enough, ie Don's computer
 
     // Allocate buffer on the heap because it can be quite large
     wchar_t* file_name_buffer = new wchar_t[file_name_buffer_size];
@@ -247,6 +249,26 @@ namespace FlexEngine
       {
         // Single file was selected
         files.push_back(Path(file_name_buffer_w));
+      }
+    }
+    else 
+    {
+      DWORD error = CommDlgExtendedError();
+      if (error == 0) 
+      {
+        Log::Error("User canceled the dialog or closed it without selecting a file.");
+      }
+      else 
+      {
+        if (error == CDERR_INITIALIZATION) 
+        {
+          Log::Error("Initialization failed.");
+        }
+        else if (error == FNERR_BUFFERTOOSMALL) 
+        {
+          Log::Error("The buffer for file names is too small.");
+        }
+        else Log::Error("Unknown Fatal Error.");
       }
     }
 
