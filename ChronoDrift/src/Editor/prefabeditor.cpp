@@ -1,3 +1,4 @@
+#ifndef GAME // Not being used rn
 #include "prefabeditor.h"
 
 namespace ChronoDrift {
@@ -21,3 +22,4 @@ namespace ChronoDrift {
 
     }
 }
+#endif

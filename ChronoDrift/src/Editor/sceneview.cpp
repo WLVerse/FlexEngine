@@ -1,11 +1,14 @@
 #include "sceneview.h"
 #include "editorgui.h"
+#ifndef GAME
 #include "imguipayloads.h"
+#endif
 #include <FlexEngine/Renderer/OpenGL/openglspriterenderer.h>
 
 #include "Renderer/camera2d.h"
 namespace ChronoDrift
 {
+	#ifndef GAME
 	constexpr float TOP_PADDING = 10.0f;
 
 	void SceneView::Init()
@@ -25,6 +28,7 @@ namespace ChronoDrift
 
 	void SceneView::CalculateViewportPosition()
 	{
+		#ifndef GAME
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
 
@@ -52,6 +56,7 @@ namespace ChronoDrift
 		m_viewport_size = { width, height };
 		m_viewport_position = { (panel_size.x - m_viewport_size.x) / 2.0f, title_bar_height + TOP_PADDING / 2.0f }; // relative to imgui window
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
+		#endif
 	}
 
 	Vector4 SceneView::GetWorldClickPosition()
@@ -368,4 +373,5 @@ namespace ChronoDrift
 		FlexECS::EntityID currEditorID = Editor::GetInstance().GetCamManager().GetEditorCamera();
 		Editor::GetInstance().GetCamManager().UpdateData(currEditorID, *m_EditorCam.get());
 	}
+	#endif
 }

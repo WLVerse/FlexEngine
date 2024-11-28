@@ -42,6 +42,7 @@ namespace ChronoDrift
     Vector2 velocity;
     bool is_static;
   };
-
+  #ifndef GAME
   void RegisterPhysicsComponents();
+  #endif
 }

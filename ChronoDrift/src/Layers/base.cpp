@@ -41,13 +41,19 @@ namespace ChronoDrift
 
     window->PushLayer(std::make_shared<ChronoDrift::BattleLayer>(CamManager.get()));
     window->PushLayer(std::make_shared<ChronoDrift::OverworldLayer>(CamManager.get()));
+    #ifndef GAME
     window->PushLayer(std::make_shared<ChronoDrift::EditorLayer>(CamManager.get()));
-   
+    #endif
     // Renderer Setup
     OpenGLRenderer::EnableBlending();
     Vector2 windowsize{ static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()) };
     OpenGLSpriteRenderer::Init(windowsize, CamManager.get());
     OpenGLTextRenderer::Init(CamManager.get());
+
+    #ifdef GAME
+    Path path_to_scene = Path::current("assets\\saves\\demobattle.flxscene");
+    FlexEngine::FlexECS::Scene::SetActiveScene(FlexEngine::FlexECS::Scene::Load(File::Open(path_to_scene)));
+    #endif
   }
 
   void BaseLayer::OnDetach()

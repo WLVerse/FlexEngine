@@ -35,7 +35,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "BattleSystems/targetingsystem.h"
 #include "BattleSystems/battlesystem.h"
 
-#include "Physics/box2d.h"
 #include "Renderer/sprite2d.h"
 #include <Components/characterinput.h>
 #include <BattleSystems/physicssystem.h>
@@ -64,6 +63,7 @@ namespace ChronoDrift {
   void BattleLayer::Update()
   {
     auto scene = FlexECS::Scene::GetActiveScene();
+    #ifndef GAME
     if (ImGui::BeginMainMenuBar()) {
       ImGui::SetCursorPosY((ImGui::GetWindowHeight() - ImGui::GetFrameHeight()) / 2.f);
       if (ImGui::BeginMenu("Game Play Options")) {
@@ -97,7 +97,7 @@ namespace ChronoDrift {
       }
       ImGui::EndMainMenuBar();
     }
-
+    #endif
     // Include a check whether battle system has been activated
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 

@@ -332,7 +332,9 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="..\third_party\src\glad\glad.c" />
     <ClCompile Include="src\FlexEngine\AssetManager\assetmanager.cpp" />
     <ClCompile Include="src\FlexEngine\Core\frameratecontroller.cpp" />
-    <ClCompile Include="src\FlexEngine\Core\imguiwrapper.cpp" />
+    <ClCompile Include="src\FlexEngine\Core\imguiwrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\FlexEngine\Core\layerstack.cpp" />
     <ClCompile Include="src\FlexEngine\Core\windowprops.cpp" />
     <ClCompile Include="src\FlexEngine\DataStructures\freequeue.cpp" />
@@ -407,7 +409,9 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\AssetManager\assetkey.h" />
     <ClInclude Include="src\FlexEngine\AssetManager\assetmanager.h" />
     <ClInclude Include="src\FlexEngine\Core\frameratecontroller.h" />
-    <ClInclude Include="src\FlexEngine\Core\imguiwrapper.h" />
+    <ClInclude Include="src\FlexEngine\Core\imguiwrapper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\FlexEngine\Core\layer.h" />
     <ClInclude Include="src\FlexEngine\Core\layerstack.h" />
     <ClInclude Include="src\FlexEngine\DataStructures\freequeue.h" />

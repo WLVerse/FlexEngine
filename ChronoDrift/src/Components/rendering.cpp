@@ -121,8 +121,8 @@ namespace ChronoDrift
     FLX_REFL_REGISTER_END;
 #pragma endregion
 
-#pragma region Editable Viewer
-
+  #ifndef GAME
+  #pragma region Editable Viewer
   COMPONENT_VIEWER_START(Position)
       //Inspector.cpp replacing 
     COMPONENT_VIEWER_DRAG_VECTOR2(position)
@@ -232,4 +232,5 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Audio); 
     REGISTER_COMPONENT_VIEWER(Script);
   }
+  #endif
 }
