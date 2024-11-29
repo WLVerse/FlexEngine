@@ -103,16 +103,20 @@ namespace FlexEngine
             Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
             return;
         }
-        if (text.m_words.empty())
+        if (text.m_words.empty() ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
+            (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
             return;
-        if (followcam && m_CamM_Instance->GetMainCamera() <= -1)
+
+        if (followcam && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
             followcam = false;
 
         asset_shader.SetUniform_vec3("u_color", text.m_color);
         asset_shader.SetUniform_mat4("u_model", text.m_transform);
         static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
         Matrix4x4 projection_view = Matrix4x4::Orthographic(0.0f, text.m_window_size.x, text.m_window_size.y, 0.0f, -2.0f, 2.0f) * view_matrix;
-        asset_shader.SetUniform_mat4("projection", followcam ? m_CamM_Instance->GetCameraData(m_CamM_Instance->GetMainCamera())->proj_viewMatrix : projection_view);
+        asset_shader.SetUniform_mat4("projection", followcam ? m_CamM_Instance->GetCameraData(
+            OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) ? m_CamM_Instance->GetMainCamera() : m_CamM_Instance->GetEditorCamera())->proj_viewMatrix : projection_view);
 
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(m_VAO);

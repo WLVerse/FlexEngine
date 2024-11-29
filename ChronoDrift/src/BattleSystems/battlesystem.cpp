@@ -47,6 +47,25 @@ namespace ChronoDrift {
     }
   };
 
+  struct SortLowestPositions
+  {
+    bool operator()(FlexECS::Entity& e1, FlexECS::Entity& e2) {
+      std::pair<bool, bool> comparison_results = std::make_pair(false, false);
+
+      Vector2 e1_pos = e1.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
+      Vector2 e2_pos = e2.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
+      
+      comparison_results.first = (e1_pos.x < e2_pos.x) ? true : false;
+      comparison_results.second = (e1_pos.y < e2_pos.y) ? true : false;
+
+      if (comparison_results.first) return true;
+      else {
+        if (comparison_results.second) return true;
+        else return false;
+      }
+    }
+  };
+
   BattleSystem::BattleSystem() : players_displayed(0), enemies_displayed(0) {
 
   }
@@ -114,36 +133,34 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::AddCharacters(std::vector<FlexECS::Entity> characters) {
-    /*auto scene = FlexECS::Scene::GetActiveScene();
-    for (auto& t : scene->Query<BattleSlot>()) {
-      FlexECS::Scene::GetActiveScene()->DestroyEntity(t);
-    }*/
-    std::vector<FlexECS::Entity> to_destroy;
-    if (!(to_destroy = FlexECS::Scene::GetActiveScene()->CachedQuery<TurnOrderDisplay>()).empty()) {
-      for (auto& td : to_destroy) {
-        FlexECS::Scene::GetActiveScene()->DestroyEntity(td);
+    auto scene = FlexECS::Scene::GetActiveScene();
+    // Destroy any battle slot entites exisiting in loaded scene
+    if (!scene->CachedQuery<BattleSlot>().empty()) {
+      for (auto& bs : scene->CachedQuery<BattleSlot>()) {
+        scene->DestroyEntity(bs);
       }
-      to_destroy.clear();
     }
+    // Destroy any turn order display entities exisiting in loaded scene
+    if (!scene->CachedQuery<TurnOrderDisplay>().empty()) {
+      for (auto& td : scene->CachedQuery<TurnOrderDisplay>()) {
+        scene->DestroyEntity(td);
+      }
+    }
+    // Clear characters container
     if (!m_characters.empty()) m_characters.clear();
-    if (!m_enemies.empty()) {
-      for (auto& e : m_enemies) {
-        FlexECS::Scene::GetActiveScene()->DestroyEntity(e);
-      }
-      m_enemies.clear();
-    }
-    if (!m_players.empty()) {
-      for (auto& p : m_players) {
-        FlexECS::Scene::GetActiveScene()->DestroyEntity(p);
-      }
-      m_players.clear();
-    }
-    // positions of character sprites should be updated according to the slot positions
+    // Clear enemy slot container
+    if (!m_enemies.empty()) m_enemies.clear();
+    // Clear player slot containeer
+    if (!m_players.empty()) m_players.clear();
+    
     for (size_t i = 0; i < characters.size(); i++) {
+      // adding character into m_characters container that will be sorted according to player speed
       m_characters.push_back(characters[i]);
-      FlexECS::Entity temp_character = FlexECS::Scene::GetActiveScene()->CreateEntity("Target Slot " + std::to_string(i));
+      // Creating a slot entity
+      FlexECS::Entity temp_character = scene->CreateEntity("Target Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
-      FlexECS::Entity display_slot = FlexECS::Scene::GetActiveScene()->CreateEntity("Speed Queue Slot " + std::to_string(i));
+      // Creating a slot that will be used by the speed queue display (logic of it will change in the future)
+      FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(i));
       display_slot.AddComponent<TurnOrderDisplay>({});
       display_slot.AddComponent<IsActive>({ false });
       display_slot.AddComponent<Position>({ });
@@ -153,7 +170,7 @@ namespace ChronoDrift {
       display_slot.AddComponent<Rotation>({});
       display_slot.AddComponent<Transform>({});
       display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
-
+      // Now this is where we add player slots to m_players & enemy slots to m_enemies
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
       }
@@ -161,6 +178,10 @@ namespace ChronoDrift {
         m_enemies.push_back(temp_character);
       }
     }
+
+    // One extra step: we need to sort the vectors according to their positions
+    std::sort(m_players.begin(), m_players.end(), SortLowestPositions());
+    std::sort(m_enemies.begin(), m_enemies.end(), SortLowestPositions());
 
     players_displayed = m_players.size();
     enemies_displayed = m_enemies.size();
@@ -352,12 +373,6 @@ namespace ChronoDrift {
       }
     }
     if (battle_phase != BP_BATTLE_FINISH) EndBattleScene();
-    // TO CHANGE INTO IMGUI BUTTON
-    if (Input::GetKeyDown(GLFW_KEY_R)) {
-      ResetCharacters();
-      AddCharacters(FlexECS::Scene::GetActiveScene()->CachedQuery<Character>());
-      BeginBattle();
-    }
 
     DisplayTurnOrder(GetTurnOrder());
   }
@@ -617,6 +632,7 @@ namespace ChronoDrift {
       for (auto c = m_characters.begin(); c != m_characters.end(); c++) {
         if (*c == *it) {
           m_characters.erase(c);
+          (*it).GetComponent<IsActive>()->is_active = false;
           std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from characters list" << std::endl;
           break;
         }
