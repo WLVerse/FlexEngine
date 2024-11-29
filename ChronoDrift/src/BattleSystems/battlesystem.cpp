@@ -203,6 +203,13 @@ namespace ChronoDrift {
         {
             entity.GetComponent<IsActive>()->is_active = false;
         }
+        else if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info"))
+        {
+            entity.GetComponent<IsActive>()->is_active = true;
+        }
     }
     boss_move = 0;
     currentPrint = "";
@@ -898,6 +905,12 @@ namespace ChronoDrift {
                 {
                     entity.GetComponent<IsActive>()->is_active = false;
                 }
+                if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
+                {
+                    entity.GetComponent<IsActive>()->is_active = false;
+                }
             }
             //toPrint.clear();
         }
@@ -1254,6 +1267,15 @@ namespace ChronoDrift {
         currentPrint = scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name)
             + " has been killed by " + scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
             + "'s " + move.name;
+        for (auto& e : scene->CachedQuery<Text>())
+        {
+            if ((scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Renko")
+                || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Grace")
+                || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Jack"))
+            {
+               e.GetComponent<IsActive>()->is_active = false;
+            }
+        }
         toPrint.push_back(currentPrint);
         std::cout << currentPrint << "\n";
     }
@@ -1335,6 +1357,12 @@ namespace ChronoDrift {
           {
               entity.GetComponent<IsActive>()->is_active = false;
           }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
       }
     }
     if (m_players.empty()) {
@@ -1360,6 +1388,12 @@ namespace ChronoDrift {
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
       {
           if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap")
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
           {
               entity.GetComponent<IsActive>()->is_active = false;
           }

@@ -2,7 +2,7 @@
   "flxdata": {
     "name": "Innocent Verdict",
     "description": "Make all allies immune to damage for 1 turn.",
-    "speed_cost": 9,
+    "speed_cost": 11,
     "is_target_enemy": false,
     "target_type": "ALL",
     "functions": "DAMAGE, 0, 0, IMMUNITY, 1, 0"
