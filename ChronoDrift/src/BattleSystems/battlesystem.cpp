@@ -155,6 +155,7 @@ namespace ChronoDrift {
     // Clear player slot containeer
     if (!m_players.empty()) m_players.clear();
     
+    int count = 0;
     for (size_t i = 0; i < characters.size(); i++) {
       // adding character into m_characters container that will be sorted according to player speed
       m_characters.push_back(characters[i]);
@@ -162,16 +163,20 @@ namespace ChronoDrift {
       FlexECS::Entity temp_character = scene->CreateEntity("Target Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
       // Creating a slot that will be used by the speed queue display (logic of it will change in the future)
-      FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(i));
-      display_slot.AddComponent<TurnOrderDisplay>({});
-      display_slot.AddComponent<IsActive>({ false });
-      display_slot.AddComponent<Position>({ });
-      display_slot.AddComponent<Scale>({ { 60,60 } });
-      display_slot.AddComponent<ZIndex>({ 10 });
-      display_slot.AddComponent<Sprite>({});
-      display_slot.AddComponent<Rotation>({});
-      display_slot.AddComponent<Transform>({});
-      display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+      for (int j = 0; j < 2; j++) {
+        FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(count));
+        display_slot.AddComponent<TurnOrderDisplay>({});
+        display_slot.AddComponent<IsActive>({ false });
+        display_slot.AddComponent<Position>({ });
+        display_slot.AddComponent<Scale>({ { 150,150 } });
+        if (j) display_slot.AddComponent<ZIndex>({ 10 });
+        else display_slot.AddComponent<ZIndex>({ 11 });
+        display_slot.AddComponent<Sprite>({});
+        display_slot.AddComponent<Rotation>({});
+        display_slot.AddComponent<Transform>({});
+        display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+        ++count;
+      }
       // Now this is where we add player slots to m_players & enemy slots to m_enemies
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
