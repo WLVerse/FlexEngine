@@ -177,6 +177,16 @@ namespace ChronoDrift {
         display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
         ++count;
       }
+      // Creating text that will follow speed queue displays
+      FlexECS::Entity text_slot = scene->CreateEntity("Speed Queue Text " + std::to_string(count));
+      text_slot.AddComponent<IsActive>({ false });
+      text_slot.AddComponent<Position>({ });
+      text_slot.AddComponent<Rotation>({});
+      text_slot.AddComponent<Scale>({ { 0.5f, 0.5f } });
+      text_slot.AddComponent<Transform>({});
+      text_slot.AddComponent<Text>({});
+      text_slot.AddComponent<ZIndex>({ 11 });
+      text_slot.AddComponent<TurnOrderDisplay>({});
       // Now this is where we add player slots to m_players & enemy slots to m_enemies
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
