@@ -26,10 +26,13 @@ namespace ChronoDrift
 	//The Sprite2d renderer will automatically draw it, so we just set the positions, colors, etc.
 	void DisplayTurnOrder(std::vector<FlexECS::Entity>& queue)
 	{
+		queue.back().GetComponent<Character>()->current_speed;
+		// Speed Queue max 
+		size_t max_length = 300.f * queue.size();
+
 		auto scene = FlexECS::Scene::GetActiveScene();
 
 		int i{ 0 };
-		int count{ 0 };
 		std::vector<FlexECS::Entity> display_slots = scene->Query<TurnOrderDisplay, IsActive, ZIndex, Position, Scale, Shader, Sprite>();
 		for (auto ds = display_slots.begin(); ds != display_slots.end(); ds++) {
 			if (i >= queue.size())
@@ -42,26 +45,45 @@ namespace ChronoDrift
 			auto character = *it;
 
 			(*ds).GetComponent<IsActive>()->is_active = true;
-			(*ds).GetComponent<Position>()->position = { -450.f + (300.f * i), -275.f };
+			if (i == 0) {
+				(*ds).GetComponent<Scale>()->scale = Vector2(200.f, 200.f);
+			}
+			else {
+				(*ds).GetComponent<Scale>()->scale = Vector2(100.f, 100.f);
+			}
+			(*ds).GetComponent<Position>()->position = { -400.f + (300.f * i), -275.f };
 
-			// This should never happen ah
+			// This is to display the character icon
 			FlexECS::Scene::StringIndex sprite_name = character.GetComponent<Character>()->character_name;
 			std::string texture_name = get_character_sprite[FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(sprite_name)];
 			(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(texture_name);
+			(*ds).GetComponent<Transform>()->is_dirty = true;
 			++ds;
 			// This is to set the background of the sprite
 			
 			(*ds).GetComponent<IsActive>()->is_active = true;
 			(*ds).GetComponent<Scale>()->scale = Vector2(200.f, 200.f);
-			(*ds).GetComponent<Position>()->position = { -450.f + (300.f * i), -275.f};
+			(*ds).GetComponent<Position>()->position = { -400.f + (300.f * i), -275.f };
 
 			// This should never happen ah
-			if (character.GetComponent<Character>()->is_player) {
-				(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Ally.png)");
+			if (i == 0) { // i == 0 is just to display this sprite for the first character
+				if (character.GetComponent<Character>()->is_player) {
+					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Big_Ally.png)");
+				}
+				else {
+					(*ds).GetComponent<Scale>()->scale = Vector2(250.f, 250.f);
+					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Big_Enemy.png)");
+				}
 			}
 			else {
-				(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Enemy.png)");
+				if (character.GetComponent<Character>()->is_player) {
+					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Ally.png)");
+				}
+				else {
+					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Enemy.png)");
+				}
 			}
+			(*ds).GetComponent<Transform>()->is_dirty = true;
 			++i;
 		}
 	}	
