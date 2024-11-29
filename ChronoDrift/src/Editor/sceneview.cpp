@@ -223,8 +223,8 @@ namespace ChronoDrift
 			//Scale the change in position with relation to screen size
 			//pos_change represents how much the gizmo moved in absolute screen coordinates.
 			//Need to convert screen space to world space
-			pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth()  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_position += pos_change;
 		}
 		else if (m_current_gizmo_type == GizmoType::SCALE)
@@ -246,8 +246,8 @@ namespace ChronoDrift
 				scale_change.y = -scale_change.y;
 			}
 
-			scale_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			scale_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			scale_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			scale_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			entity_scale += scale_change;
 		}
 		else if (m_current_gizmo_type == GizmoType::ROTATE)
@@ -318,8 +318,8 @@ namespace ChronoDrift
 			if(drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
 			Vector2 camera_pos_change{drag_delta.x, -drag_delta.y};
 
-			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
 		}
 		else if (ImGui::IsMouseDown(1) && ImGui::IsKeyDown(ImGuiKey_LeftAlt)) //This additional control is because my middle mouse button is broken T_T
@@ -328,24 +328,10 @@ namespace ChronoDrift
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
 			Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-			camera_pos_change.x *= FlexEngine::Application::GetCurrentWindow()->GetWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			camera_pos_change.y *= FlexEngine::Application::GetCurrentWindow()->GetHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
 		}
-
-		//ImGuiIO& io = ImGui::GetIO();
-		//if (io.MouseWheel != 0.0f)
-		//{
-		//	if (io.MouseWheel > 0.0f)
-		//	{
-		//		//zoom in
-		//		
-		//	}
-		//	else
-		//	{
-		//		//zoom out
-		//	}
-		//}
 
 		float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
 		float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
