@@ -351,20 +351,21 @@ namespace ChronoDrift
 		//		//zoom out
 		//	}
 		//}
-
-		float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
-		float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
-		float minZoom = 100.0f;       // Minimum orthographic width
-		float maxZoom = 5000.0f;      // Maximum orthographic width
-
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.MouseWheel != 0.0f)
+		if (ImGui::IsWindowFocused())
 		{
-			float zoomDelta = io.MouseWheel * zoomSpeed;
-			m_EditorCam->m_OrthoWidth = std::clamp(m_EditorCam->m_OrthoWidth - zoomDelta, minZoom, maxZoom);
-			m_EditorCam->m_OrthoHeight = m_EditorCam->m_OrthoWidth / baseAspectRatio;
-		}
+			float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
+			float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
+			float minZoom = 100.0f;       // Minimum orthographic width
+			float maxZoom = 5000.0f;      // Maximum orthographic width
 
+			ImGuiIO& io = ImGui::GetIO();
+			if (io.MouseWheel != 0.0f)
+			{
+				float zoomDelta = io.MouseWheel * zoomSpeed;
+				m_EditorCam->m_OrthoWidth = std::clamp(m_EditorCam->m_OrthoWidth - zoomDelta, minZoom, maxZoom);
+				m_EditorCam->m_OrthoHeight = m_EditorCam->m_OrthoWidth / baseAspectRatio;
+			}
+		}
 		//Update data
 		Camera2D::UpdateProjectionMatrix(*m_EditorCam.get());
 		Camera2D::UpdateViewMatrix(*m_EditorCam.get());
