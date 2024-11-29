@@ -53,6 +53,29 @@ namespace ChronoDrift {
     FLX_FLOW_BEGINSCOPE();
     MoveRegistry::RegisterMoveFunctions();
     MoveRegistry::RegisterStatusFunctions();
+
+    #ifdef GAME
+    #pragma region This is copy pasted code that shuld never be like this, pls remove aft m3iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+    auto scene = FlexECS::Scene::GetActiveScene();
+    std::vector<FlexECS::Entity> characters = scene->CachedQuery<Character>();
+    // In the scenario where a joker begins battle when they actually wanted to restart
+    if (!scene->CachedQuery<BattleSlot>().empty()) {
+      ResetCharacters();
+      SetupBattle();
+    }
+    // Ah now this one is to actually set up for the scene without any battle slots
+    if (!characters.empty()) {
+      int num_of_players = 0, num_of_enemies = 0;
+      for (auto& c : characters) {
+        if (c.GetComponent<Character>()->is_player) ++num_of_players;
+        else ++num_of_enemies;
+      }
+      if (num_of_enemies > 0 && num_of_players > 0) SetupBattle(); // Set Up Battle
+      else Log::Debug("Please load a proper battle scene first. Thank you.");
+    }
+    else Log::Debug("Please load a proper battle scene first. Thank you.");
+    #pragma endregion
+    #endif
   }
 
   void BattleLayer::OnDetach()
@@ -105,7 +128,7 @@ namespace ChronoDrift {
       // Get the current camera (SO COOLLLL!)
       FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
       auto& curr_cam = cam_entity.GetComponent<Camera>()->camera;
-
+      #ifndef GAME // Lock camera during game mode
       for (auto& s : scene->CachedQuery<CharacterInput>()) {
         // Set Camera Position to Player with an offset lah
         curr_cam.position = s.GetComponent<Position>()->position - Vector2(600, 500);
@@ -132,6 +155,7 @@ namespace ChronoDrift {
       }
       // Updating camera position
       m_CamM_Instance->UpdateData(cam_entity, curr_cam);
+      #endif
     }
 
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput>())
@@ -168,7 +192,13 @@ namespace ChronoDrift {
         velocity.x = 300.0f;
       }
     }
-    
+    #if GAME // Restart characters
+    if (Input::GetKeyDown(GLFW_KEY_R)) {
+      ResetCharacters();
+      SetupBattle();
+    }
+    #endif
+
     RenderSprite2D();
     UpdatePhysicsSystem();
   }
