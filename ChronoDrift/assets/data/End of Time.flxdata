@@ -1,0 +1,10 @@
+{
+  "flxdata": {
+    "name": "End of Time",
+    "description": "Hit entire enemy team for 20 damage.",
+    "speed_cost": 2,
+    "is_target_enemy": false,
+    "target_type": "ALL",
+    "functions": "DAMAGE, 0, 20"
+  }
+}

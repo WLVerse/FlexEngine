@@ -1,0 +1,10 @@
+{
+  "flxdata": {
+    "name": "Timeout",
+    "description": "Lowers Target damage for 2 turns",
+    "speed_cost": 6,
+    "is_target_enemy": true,
+    "target_type": "SINGLE",
+    "functions": "DAMAGE, 0, 0, ATK_DEBUFF, 3, 0"
+  }
+}

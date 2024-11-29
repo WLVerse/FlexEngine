@@ -1,0 +1,10 @@
+{
+  "flxdata": {
+    "name": "Strike",
+    "description": "Hit an enemy.",
+    "speed_cost": 1,
+    "is_target_enemy": true,
+    "target_type": "SINGLE",
+    "functions": "DAMAGE, 0, 6"
+  }
+}
