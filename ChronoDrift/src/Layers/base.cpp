@@ -74,12 +74,6 @@ namespace ChronoDrift
 
     // Switch to fullscreen
     glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
-
-    FlexECS::Entity cam_entity = CamManager->GetMainCamera();
-    CameraData cam_data = *CamManager->GetCameraData(cam_entity);
-    cam_data.m_OrthoWidth = windowsize.x;
-    cam_data.m_OrthoHeight = windowsize.y;
-    CamManager->UpdateData(cam_entity, cam_data);
     #endif
   }
 

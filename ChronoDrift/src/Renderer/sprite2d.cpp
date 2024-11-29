@@ -420,6 +420,7 @@ namespace ChronoDrift
                                    0, static_cast<float>(height), 0, 0,
                                    0,0,1.f,0,
                                    -static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f,0,1.f);
+        data.window_size = Vector2(width, height);
         data.vbo_id = Renderer2DProps::VBO_BasicInverted;
         OpenGLSpriteRenderer::DrawTexture2D(OpenGLFrameBuffer::GetCreatedTexture(OpenGLFrameBuffer::CreatedTextureID::CID_finalRender), data);
 
