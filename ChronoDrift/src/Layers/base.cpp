@@ -41,13 +41,40 @@ namespace ChronoDrift
 
     window->PushLayer(std::make_shared<ChronoDrift::BattleLayer>(CamManager.get()));
     window->PushLayer(std::make_shared<ChronoDrift::OverworldLayer>(CamManager.get()));
+    #ifndef GAME
     window->PushLayer(std::make_shared<ChronoDrift::EditorLayer>(CamManager.get()));
-   
+    #endif
     // Renderer Setup
     OpenGLRenderer::EnableBlending();
     Vector2 windowsize{ static_cast<float>(window->GetWidth()), static_cast<float>(window->GetHeight()) };
     OpenGLSpriteRenderer::Init(windowsize, CamManager.get());
     OpenGLTextRenderer::Init(CamManager.get());
+
+    #ifdef GAME
+    Path path_to_scene = Path::current("assets\\saves\\demobattle.flxscene");
+    FlexEngine::FlexECS::Scene::SetActiveScene(FlexEngine::FlexECS::Scene::Load(File::Open(path_to_scene)));
+    CamManager->RemoveCamerasInScene();
+    std::vector<FlexECS::Entity> camera_list = FlexECS::Scene::GetActiveScene()->Query<Camera>();
+    if (!camera_list.empty())
+    {
+      for (auto& camera : camera_list)
+      {
+        CamManager->AddCameraEntity(camera.Get(), camera.GetComponent<Camera>()->camera);
+        camera.GetComponent<Transform>()->is_dirty = true;
+      }
+    }
+    window->CacheMiniWindowParams();
+
+
+
+    // Get the primary monitor
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    // Get the video mode of the monitor
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    // Switch to fullscreen
+    glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    #endif
   }
 
   void BaseLayer::OnDetach()
@@ -66,7 +93,7 @@ namespace ChronoDrift
     OpenGLRenderer::ClearFrameBuffer();
 
     FunctionQueue function_queue;
-
+    #ifndef GAME
     // setup dockspace
     //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
@@ -384,6 +411,7 @@ namespace ChronoDrift
     #endif
 
     #pragma endregion
+    #endif  
   }
 
 }

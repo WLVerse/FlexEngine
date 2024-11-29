@@ -28,7 +28,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "BattleSystems/turnorderdisplay.h"
 #include "BattleSystems/targetingsystem.h"
 
-#include "Physics/box2d.h"
 #include "Renderer/sprite2d.h"
 
 // Library effective with Windows

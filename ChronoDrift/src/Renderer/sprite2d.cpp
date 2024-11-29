@@ -420,6 +420,7 @@ namespace ChronoDrift
                                    0, static_cast<float>(height), 0, 0,
                                    0,0,1.f,0,
                                    -static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f,0,1.f);
+        data.window_size = Vector2(static_cast<float>(width), static_cast<float>(height));
         data.vbo_id = Renderer2DProps::VBO_BasicInverted;
         OpenGLSpriteRenderer::DrawTexture2D(OpenGLFrameBuffer::GetCreatedTexture(OpenGLFrameBuffer::CreatedTextureID::CID_finalRender), data);
 
@@ -484,8 +485,6 @@ namespace ChronoDrift
             RenderTextEntities();
 
             //Render Cam Boundaries
-            //float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
-            //float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
             for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
             {
                 if(!entity.GetComponent<IsActive>()->is_active || 

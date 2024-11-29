@@ -19,6 +19,7 @@ namespace ChronoDrift
 {
 	class SceneView : public EditorPanel
 	{
+		#ifndef GAME
 	public:
 		void Init();
 		void Update();
@@ -51,5 +52,6 @@ namespace ChronoDrift
 
 		std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
 		void UpdateEditorCam();
+		#endif
 	};
 }

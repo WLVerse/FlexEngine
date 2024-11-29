@@ -18,8 +18,9 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 /* End Header
 *******************************************************************/
 #include "battlecomponents.h"
+#ifndef GAME
 #include "Editor/componentviewer.h"
-
+#endif 
 namespace ChronoDrift 
 {
   #pragma region Character Components
@@ -153,7 +154,7 @@ namespace ChronoDrift
   /*
   Editor viewer
   */
-
+  #ifndef GAME
   COMPONENT_VIEWER_START(CharacterMovementSprites)
     COMPONENT_VIEWER_DRAG_INT(idle_cols)
     COMPONENT_VIEWER_TEXTURE_PATH(idle_movement)
@@ -200,4 +201,5 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Character);
     REGISTER_COMPONENT_VIEWER(CharacterMovementSprites);
   }
+  #endif
 }

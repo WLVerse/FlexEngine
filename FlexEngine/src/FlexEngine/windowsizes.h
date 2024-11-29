@@ -1,3 +1,4 @@
+#ifndef GAME
 #include "imgui.h"
 
 // Commented out for favor of copying imgui.ini, because the IMGUI code is way too messy to standardsize the docking IDs and its all ahrdcoded anyway.
@@ -29,3 +30,4 @@
 //DockNode  ID = 0x00000002 Parent = 0x00000003 SizeRef = 733, 713 CentralNode = 1 Selected = 0xE192E354
 //DockNode    ID = 0x00000004 Parent = 0x00000005 SizeRef = 284, 713 Selected = 0xE7039252
 //DockNode      ID = 0x00000007 Parent = 0x8B93E3BD SizeRef = 1280, 243 Selected = 0xD44407B5
+#endif
