@@ -31,8 +31,9 @@
 **************************************************************************/
 
 #include "Renderer/sprite2d.h"
-
 #include "Components/rendering.h"
+#include "Editor/editor.h"
+
 
 namespace ChronoDrift
 {

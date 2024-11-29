@@ -24,6 +24,10 @@ namespace ChronoDrift
 			{
 				Redo();
 			}
+			if (ImGui::IsKeyPressed(ImGuiKey_X))
+			{
+				ClearCommands();
+			}
 		}
 	}
 
@@ -89,6 +93,13 @@ namespace ChronoDrift
 
 	void UpdateComponentCommand::Do()
 	{
+		//To be safe, just clear the undo list if something can possibly go wrong (entity doesnt exist)
+		if (ENTITY_INDEX.count(m_target) == 0)
+		{
+			auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+			cmd->ClearCommands();
+			return;
+		}
 
 		EntityRecord& entity_record = ENTITY_INDEX[m_target];
 		Archetype& archetype = *entity_record.archetype;
