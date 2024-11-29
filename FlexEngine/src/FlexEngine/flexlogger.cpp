@@ -67,8 +67,7 @@ namespace FlexEngine
     is_initialized = true;
 
 
-//Preferably change this such that only when we ready to install, run this section instead.
-#ifndef _DEBUG  // change to USERPROFILE/Documents/ChronoDrift/
+#ifdef GAME  // change to USERPROFILE/Documents/ChronoDrift/
     wchar_t documents_path[MAX_PATH];
     DWORD result = GetEnvironmentVariableW(L"USERPROFILE", documents_path, MAX_PATH);
 
@@ -84,7 +83,7 @@ namespace FlexEngine
       log_base_path = std::filesystem::current_path() / ".log";
       log_file_path = log_base_path / "~$flex.log";
     }
-#endif _DEBUG
+#endif GAME
 
     // create logs directory
     if (!std::filesystem::exists(log_base_path))
