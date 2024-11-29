@@ -119,11 +119,11 @@
 /* |-----------------------------| */
 /* |---------- Wrappers ---------| */
 /* |-----------------------------| */
-
+#ifndef GAME
 // Wraps the ImGui library for easier use.
 // Includes the ImGui library.
 #include "FlexEngine/Core/imguiwrapper.h"
-
+#endif 
 // Contains the path, file, and filelist class.
 // Has the Extension namespace with a list of safe and supported extensions.
 // Handles the functionality to read and write files.

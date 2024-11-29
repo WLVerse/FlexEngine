@@ -19,8 +19,9 @@ namespace ChronoDrift
         }
       }
     );
+    #ifndef GAME
     AlignImGuiContext(window);
-
+    #endif
     window->PushLayer(std::make_shared<BaseLayer>());
   }
 

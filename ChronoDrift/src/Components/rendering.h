@@ -16,8 +16,9 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
 #include <FlexEngine.h>
+#ifndef GAME
 #include "Editor/componentviewer.h"
-
+#endif
 namespace ChronoDrift
 {
 using namespace FlexEngine;
@@ -221,5 +222,7 @@ using namespace FlexEngine;
     int script_id;
   };
 
+  #ifndef GAME
   void RegisterRenderingComponents();
+  #endif
 }
