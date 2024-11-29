@@ -62,6 +62,20 @@ namespace ChronoDrift
     int remaining_turns = 0;
   };
 
+  class Attack_Buff
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int remaining_turns = 0;
+  };
+
+  class Attack_Debuff
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int remaining_turns = 0;
+  };
+
   class Recovery
   {
     FLX_REFL_SERIALIZABLE

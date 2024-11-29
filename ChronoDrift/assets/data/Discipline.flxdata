@@ -1,0 +1,10 @@
+{
+  "flxdata": {
+    "name": "Discipline",
+    "description": "Increase your ally's ATK for 1 turn.",
+    "speed_cost": 5,
+    "is_target_enemy": false,
+    "target_type": "SINGLE",
+    "functions": "DAMAGE, 0, 0, ATK_BUFF, 2, 0"
+  }
+}

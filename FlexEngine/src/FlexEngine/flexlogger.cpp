@@ -66,11 +66,32 @@ namespace FlexEngine
   {
     is_initialized = true;
 
+
+//Preferably change this such that only when we ready to install, run this section instead.
+#ifndef _DEBUG  // change to USERPROFILE/Documents/ChronoDrift/
+    wchar_t documents_path[MAX_PATH];
+    DWORD result = GetEnvironmentVariableW(L"USERPROFILE", documents_path, MAX_PATH);
+
+    if (result > 0 && result < MAX_PATH)
+    {
+      // USERPROFILE/Documents/ChronoDrift/.log
+      log_base_path = std::filesystem::path(documents_path) / "Documents" / "ChronoDrift" / ".log";
+      log_file_path = log_base_path / "~$flex.log";
+    }
+    else
+    {
+      // Fallback to current directory
+      log_base_path = std::filesystem::current_path() / ".log";
+      log_file_path = log_base_path / "~$flex.log";
+    }
+#endif _DEBUG
+
     // create logs directory
     if (!std::filesystem::exists(log_base_path))
     {
-      std::filesystem::create_directory(log_base_path);
+      std::filesystem::create_directories(log_base_path);
     }
+
     // hide log folder
     SetFileAttributes(log_base_path.c_str(), FILE_ATTRIBUTE_HIDDEN);
 
@@ -127,6 +148,7 @@ namespace FlexEngine
     std::filesystem::path save_path = log_base_path / filename.str();
 
     // save log file
+    log_stream.close();
     bool success = std::filesystem::copy_file(log_file_path, save_path, std::filesystem::copy_options::overwrite_existing);
     if (success)
     {

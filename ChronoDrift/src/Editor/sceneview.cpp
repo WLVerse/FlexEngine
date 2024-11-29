@@ -195,7 +195,12 @@ namespace ChronoDrift
 		if (selected_entity == FlexECS::Entity::Null) 
 			return;
 
-		selected_entity.GetComponent<Transform>()->is_dirty = true;
+		if (!selected_entity.HasComponent<Transform>()) {
+			return;
+		}
+		else {
+			selected_entity.GetComponent<Transform>()->is_dirty = true;
+		}
 		auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 		auto& entity_position = selected_entity.GetComponent<Position>()->position;
 		auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;

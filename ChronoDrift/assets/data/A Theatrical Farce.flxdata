@@ -1,0 +1,10 @@
+{
+  "flxdata": {
+    "name": "A Theatrical Farce",
+    "description": "Hit entire enemy team for 8 damage. Remove all enemy buffs.",
+    "speed_cost": 3,
+    "is_target_enemy": false,
+    "target_type": "ALL",
+    "functions": "DAMAGE, 0, 8, STRIP, 0, 0"
+  }
+}

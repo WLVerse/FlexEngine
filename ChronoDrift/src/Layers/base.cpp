@@ -39,7 +39,7 @@ namespace ChronoDrift
     window->SetVSync(false);
     window->SetIcon(FLX_ASSET_GET(Asset::Texture, R"(\images\flexengine\flexengine-256.png)"));
 
-    window->PushLayer(std::make_shared<ChronoDrift::BattleLayer>(CamManager.get()));
+    // Base layer loaded, load other layers
     window->PushLayer(std::make_shared<ChronoDrift::OverworldLayer>(CamManager.get()));
     #ifndef GAME
     window->PushLayer(std::make_shared<ChronoDrift::EditorLayer>(CamManager.get()));
@@ -50,8 +50,8 @@ namespace ChronoDrift
     OpenGLSpriteRenderer::Init(windowsize, CamManager.get());
     OpenGLTextRenderer::Init(CamManager.get());
 
-    #ifdef GAME
-    Path path_to_scene = Path::current("assets\\saves\\demobattle.flxscene");
+    #ifdef GAME // Loads the scene hardcoded for now until we implement scene switching logic
+    Path path_to_scene = Path::current("assets\\saves\\hope.flxscene");
     FlexEngine::FlexECS::Scene::SetActiveScene(FlexEngine::FlexECS::Scene::Load(File::Open(path_to_scene)));
     CamManager->RemoveCamerasInScene();
     std::vector<FlexECS::Entity> camera_list = FlexECS::Scene::GetActiveScene()->Query<Camera>();
@@ -75,6 +75,7 @@ namespace ChronoDrift
     // Switch to fullscreen
     glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     #endif
+    window->PushLayer(std::make_shared<ChronoDrift::BattleLayer>(CamManager.get()));
   }
 
   void BaseLayer::OnDetach()

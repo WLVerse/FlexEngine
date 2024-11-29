@@ -38,6 +38,9 @@ namespace ChronoDrift {
   static int move_decision = -1; // variable storing move selection
   static float delay_timer = 0.f;
 
+  static int boss_move = 0;
+  static bool godMode = false;
+  static std::string currentPrint;
   //Sorting functions
   struct SortLowestSpeed
   {
@@ -152,6 +155,7 @@ namespace ChronoDrift {
     // Clear player slot containeer
     if (!m_players.empty()) m_players.clear();
     
+    int count = 0;
     for (size_t i = 0; i < characters.size(); i++) {
       // adding character into m_characters container that will be sorted according to player speed
       m_characters.push_back(characters[i]);
@@ -159,16 +163,20 @@ namespace ChronoDrift {
       FlexECS::Entity temp_character = scene->CreateEntity("Target Slot " + std::to_string(i));
       temp_character.AddComponent<BattleSlot>({ characters[i] });
       // Creating a slot that will be used by the speed queue display (logic of it will change in the future)
-      FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(i));
-      display_slot.AddComponent<TurnOrderDisplay>({});
-      display_slot.AddComponent<IsActive>({ false });
-      display_slot.AddComponent<Position>({ });
-      display_slot.AddComponent<Scale>({ { 60,60 } });
-      display_slot.AddComponent<ZIndex>({ 10 });
-      display_slot.AddComponent<Sprite>({});
-      display_slot.AddComponent<Rotation>({});
-      display_slot.AddComponent<Transform>({});
-      display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+      for (int j = 0; j < 2; j++) {
+        FlexECS::Entity display_slot = scene->CreateEntity("Speed Queue Slot " + std::to_string(count));
+        display_slot.AddComponent<TurnOrderDisplay>({});
+        display_slot.AddComponent<IsActive>({ false });
+        display_slot.AddComponent<Position>({ });
+        display_slot.AddComponent<Scale>({ { 150,150 } });
+        if (j) display_slot.AddComponent<ZIndex>({ 10 });
+        else display_slot.AddComponent<ZIndex>({ 11 });
+        display_slot.AddComponent<Sprite>({});
+        display_slot.AddComponent<Rotation>({});
+        display_slot.AddComponent<Transform>({});
+        display_slot.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+        ++count;
+      }
       // Now this is where we add player slots to m_players & enemy slots to m_enemies
       if (characters[i].GetComponent<Character>()->is_player) {
         m_players.push_back(temp_character);
@@ -189,44 +197,136 @@ namespace ChronoDrift {
 
   void BattleSystem::BeginBattle()
   {
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+    {
+        if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "win")
+        {
+            entity.GetComponent<IsActive>()->is_active = false;
+        }
+        else if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "lose")
+        {
+            entity.GetComponent<IsActive>()->is_active = false;
+        }
+        else if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info"))
+        {
+            entity.GetComponent<IsActive>()->is_active = true;
+        }
+    }
+    boss_move = 0;
+    currentPrint = "";
+    toPrint.clear();
+    /*for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+    {
+        if (!element.GetComponent<IsActive>()->is_active) continue; // skip non active entities
+
+        ChronoDrift::Audio* audio = element.GetComponent<Audio>();
+        if (audio->should_play)
+        {
+            if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(audio->audio_file) == "")
+            {
+                Log::Warning("Audio not attached to entity: " +
+                  FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()));
+
+                audio->should_play = false;
+                continue;
+            }
+
+            if (audio->is_looping)
+            {
+                FMODWrapper::Core::PlayLoopingSound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
+                                                    FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+            }
+            else
+            {
+                FMODWrapper::Core::PlaySound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
+                                             FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+            }
+
+            element.GetComponent<Audio>()->should_play = false;
+        }
+    }*/
+
     std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
 
     auto scene = FlexECS::Scene::GetActiveScene();
-    std::cout << "Beginning Stack Order:\nName / HP / Speed \n";
+
+    currentPrint = "Begin Battle!";
+    for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+        if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+        {
+            scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+        }
+    }
+    toPrint.push_back(currentPrint);
+    std::cout << currentPrint << "\n";
+
     for (auto& entity : m_characters)
     {
-      auto cw = entity.GetComponent<Character>()->weapon_name;
-      std::cout << scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
-        << "  HP: " << entity.GetComponent<Character>()->current_health
-        << "  Spd: " << entity.GetComponent<Character>()->current_speed
-        << " Weapon: " << scene->Internal_StringStorage_Get(cw);
-      if (entity.GetComponent<Character>()->is_player) {
-        auto cg = entity.GetComponent<Character>()->chrono_gear_description;
-        std::cout << " Chrono Gear: " << scene->Internal_StringStorage_Get(cg);
+      //auto cw = entity.GetComponent<Character>()->weapon_name;
+      currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
+          + " / HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
+          + " / SPD: " + std::to_string(entity.GetComponent<Character>()->current_speed);
+          //+ " / Weap: " + scene->Internal_StringStorage_Get(cw);
+      //if (entity.GetComponent<Character>()->is_player) {
+        //auto cg = entity.GetComponent<Character>()->chrono_gear_description;
+        //currentPrint += " / Chrono Gear: " + scene->Internal_StringStorage_Get(cg);
+      //}
+      for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+      {
+          if ((scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Renko")
+              || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Grace")
+              || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Jack"))
+          {
+              scene->Internal_StringStorage_Get(e.GetComponent<Text>()->text) = currentPrint;
+          }
       }
-      std::cout << std::endl;
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
     }
-    std::cout << "\n";
 
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     //battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
     battle_phase = BP_PROCESSING;
   }
 
-  void BattleSystem::UpdateSpeedStack()
-  {
+  void BattleSystem::UpdateSpeedStack() {
     auto scene = FlexECS::Scene::GetActiveScene();
     int speed_to_decrease = m_characters.front().GetComponent<Character>()->current_speed;
     FlexECS::Scene::StringIndex front_character = m_characters.front().GetComponent<Character>()->character_name;
-    std::cout << scene->Internal_StringStorage_Get(front_character) << " turn:" << std::endl;
+
+    currentPrint = scene->Internal_StringStorage_Get(front_character) + "'s turn!";
+    for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+        if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+        {
+            scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+        }
+    }
+    toPrint.push_back(currentPrint);
+    std::cout << currentPrint << "\n";
+
     for (auto& entity : m_characters)
     {
       entity.GetComponent<Character>()->current_speed -= speed_to_decrease;
-      std::cout << scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
-        << "  HP: " << entity.GetComponent<Character>()->current_health
-        << "  Spd: " << entity.GetComponent<Character>()->current_speed << std::endl;
+      currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
+          + " / HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
+          + " / SPD: " + std::to_string(entity.GetComponent<Character>()->current_speed);
+      for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+      {
+          if ((scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Renko")
+              || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Grace")
+              || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Jack"))
+          {
+              scene->Internal_StringStorage_Get(e.GetComponent<Text>()->text) = currentPrint;
+          }
+      }
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
     }
-    std::cout << "\n";
     if (!m_characters.front().GetComponent<Character>()->is_player) delay_timer = DELAY_TIME;
 
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
@@ -236,96 +336,293 @@ namespace ChronoDrift {
   }
 
   void BattleSystem::RunCharacterStatus() {
+      auto scene = FlexECS::Scene::GetActiveScene();
     std::vector<FlexECS::Entity> dead_character;
     dead_character.clear();
     FlexECS::Entity current_active = m_characters.front();
-    std::string name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(current_active.GetComponent<Character>()->character_name);
+    std::string name = scene->Internal_StringStorage_Get(current_active.GetComponent<Character>()->character_name);
     if (current_active.HasComponent<Shock>()) {
       current_active.GetComponent<Character>()->current_health -= current_active.GetComponent<Shock>()->damage_value;
-      std::cout << name << " lost ";
-      std::cout << current_active.GetComponent<Shock>()->damage_value << " HP from shock DOT." << std::endl;
-      std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
+
+      currentPrint = name + " lost " + std::to_string(current_active.GetComponent<Shock>()->damage_value) + " HP from shock DOT.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
+      currentPrint = name + "'s current HP: " + std::to_string(current_active.GetComponent<Character>()->current_health);
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
       if (--(current_active.GetComponent<Shock>()->remaining_turns) == 0) {
-        std::cout << name << "'s shock effect has ended.\n\n";
+          currentPrint = name + "'s shock effect has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Shock>();
       }
       else {
-        std::cout << name << "'s shock effect still has ";
-        std::cout << current_active.GetComponent<Shock>()->remaining_turns << " turns.\n\n";
+          currentPrint = name + "'s shock effect still has " + std::to_string(current_active.GetComponent<Shock>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n" << "\n";
       }
       delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Burn>()) {
       current_active.GetComponent<Character>()->current_health -= current_active.GetComponent<Burn>()->damage_value;
-      std::cout << name << " lost ";
-      std::cout << current_active.GetComponent<Burn>()->damage_value << " HP from burn DOT." << std::endl;
-      std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
+
+      currentPrint = name + " lost " + std::to_string(current_active.GetComponent<Burn>()->damage_value) + " HP from burn DOT.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
+      currentPrint = name + "'s current HP: " + std::to_string(current_active.GetComponent<Character>()->current_health);
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
       if (--(current_active.GetComponent<Burn>()->remaining_turns) == 0) {
-        std::cout << name << "'s burn effect has ended.\n\n";
+          currentPrint = name + "'s burn effect has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Burn>();
       }
       else {
-        std::cout << name << "'s burn effect still has ";
-        std::cout << current_active.GetComponent<Burn>()->remaining_turns << " turns.\n\n";
+          currentPrint = name + "'s burn effect still has " + std::to_string(current_active.GetComponent<Burn>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n" << "\n";
       }
       delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Shear>()) {
       current_active.GetComponent<Character>()->current_health -= current_active.GetComponent<Shear>()->damage_value;
-      std::cout << name << " lost ";
-      std::cout << current_active.GetComponent<Shear>()->damage_value << " HP from shear DOT." << std::endl;
-      std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
+
+      currentPrint = name + " lost " + std::to_string(current_active.GetComponent<Shear>()->damage_value) + " HP from shear DOT.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
+      currentPrint = name + "'s current HP: " + std::to_string(current_active.GetComponent<Character>()->current_health);
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
       if (--(current_active.GetComponent<Shear>()->remaining_turns) == 0) {
-        std::cout << name << "'s shear effect has ended.\n\n";
+          currentPrint = name + "'s shear effect has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Shear>();
       }
       else {
-        std::cout << name << "'s shear effect still has ";
-        std::cout << current_active.GetComponent<Shear>()->remaining_turns << " turns.\n\n";
+          currentPrint = name + "'s shear effect still has " + std::to_string(current_active.GetComponent<Shear>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
+          std::cout << name << "'s shear effect still has " << std::to_string(current_active.GetComponent<Shear>()->remaining_turns) << " turn(s).";
       }
       delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Recovery>()) {
       current_active.GetComponent<Character>()->current_health += current_active.GetComponent<Recovery>()->heal_value;
-      std::cout << name << " recovered ";
-      std::cout << current_active.GetComponent<Recovery>()->heal_value << " HP.\n";
-      std::cout << name << "'s current HP: " << current_active.GetComponent<Character>()->current_health << std::endl;
+      if (current_active.GetComponent<Character>()->current_health > current_active.GetComponent<Character>()->base_health)
+      {
+          current_active.GetComponent<Character>()->current_health = current_active.GetComponent<Character>()->base_health;
+      }
+      currentPrint = name + " recovered " + std::to_string(current_active.GetComponent<Recovery>()->heal_value) + " HP.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
+      currentPrint = name + "'s current HP: " + std::to_string(current_active.GetComponent<Character>()->current_health);
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
+
       if (--(current_active.GetComponent<Recovery>()->remaining_turns) == 0) {
+          currentPrint = name + "'s healing effect has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Recovery>();
-        std::cout << name << "'s healing effect has ended.\n\n";
       }
       else {
-        std::cout << name << "'s healing effect still has ";
-        std::cout << current_active.GetComponent<Recovery>()->remaining_turns << " turns.\n\n";
+          currentPrint = name + "'s healing effect still has " + std::to_string(current_active.GetComponent<Recovery>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
       }
       delay_timer = DELAY_TIME;
     }
 
     if (current_active.HasComponent<Immunity>()) {
       if (--(current_active.GetComponent<Immunity>()->remaining_turns) <= 0) {
-        std::cout << name << "'s immunity has ended.\n\n";
+          currentPrint = name + "'s immunity has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Immunity>();
       }
       else {
-        std::cout << name << " is immune to all damage for another ";
-        std::cout << current_active.GetComponent<Immunity>()->remaining_turns << " turns.\n\n";
+          currentPrint = name + " is immune to all damage for another " + std::to_string(current_active.GetComponent<Immunity>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
       }
       delay_timer = DELAY_TIME;
+    }
+
+    if (current_active.HasComponent<Attack_Buff>()) {
+        if (--(current_active.GetComponent<Attack_Buff>()->remaining_turns) <= 0) {
+            currentPrint = name + "'s attack buff has ended.";
+            for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+            {
+                if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                {
+                    scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                }
+            }
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n" << "\n";
+            current_active.RemoveComponent<Attack_Buff>();
+        }
+        else {
+            currentPrint = name + "'s attack buff still has " + std::to_string(current_active.GetComponent<Attack_Buff>()->remaining_turns) + " turn(s).";
+            for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+            {
+                if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                {
+                    scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                }
+            }
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n" << "\n";
+        }
+        delay_timer = DELAY_TIME;
+    }
+
+    if (current_active.HasComponent<Attack_Debuff>()) {
+        if (--(current_active.GetComponent<Attack_Debuff>()->remaining_turns) <= 0) {
+            currentPrint = name + "'s attack debuff has ended.";
+            for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+            {
+                if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                {
+                    scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                }
+            }
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n" << "\n";
+            current_active.RemoveComponent<Attack_Debuff>();
+        }
+        else {
+            currentPrint = name + "'s attack debuff still has " + std::to_string(current_active.GetComponent<Attack_Debuff>()->remaining_turns) + " turn(s).";
+            for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+            {
+                if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                {
+                    scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                }
+            }
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n" << "\n";
+        }
+        delay_timer = DELAY_TIME;
     }
     // Just a note that the stun should be the last check for now cause if stun then i would rather just go
     // to next character and skip his turn
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     if (current_active.HasComponent<Stun>()) {
-      std::cout << name << " is stunned. So moving on~" << std::endl;
-      current_active.GetComponent<Character>()->current_speed += current_active.GetComponent<Character>()->base_speed;
+      current_active.GetComponent<Character>()->current_speed += current_active.GetComponent<Character>()->base_speed + 10;
+
+      currentPrint = name + " is stunned.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n" << "\n";
+
       if (--(current_active.GetComponent<Stun>()->remaining_turns) <= 0) {
-        std::cout << name << " stun status has ended.\n" << std::endl;
+          currentPrint = name + " stun status has ended.";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
         current_active.RemoveComponent<Stun>();
       }
-      else std::cout << name << " stun status still has " << current_active.GetComponent<Stun>()->remaining_turns << " turns left.\n" << std::endl;
+      else {
+          currentPrint = name + " stun status still has " + std::to_string(current_active.GetComponent<Stun>()->remaining_turns) + " turn(s).";
+          for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+              {
+                  scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n" << "\n";
+      }
+
       std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
       //battle_state.GetComponent<BattleState>()->phase = BP_PROCESSING;
       battle_phase = BP_PROCESSING;
@@ -337,7 +634,9 @@ namespace ChronoDrift {
 
     if (current_active.GetComponent<Character>()->current_health <= 0) {
       dead_character.push_back(current_active);
-      std::cout << name << " has been killed." << std::endl;
+      currentPrint = name + "  has been killed.";
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint << "\n";
       DeathProcession(dead_character);
     }
   }
@@ -373,6 +672,285 @@ namespace ChronoDrift {
     }
     if (battle_phase != BP_BATTLE_FINISH) EndBattleScene();
 
+    for (auto& entity : m_characters)
+    {
+        if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Renko")
+        {
+            if (entity.HasComponent<Attack_Buff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Attack_Debuff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Immunity>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+        }
+        else if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Grace")
+        {
+            if (entity.HasComponent<Attack_Buff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Attack_Debuff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Immunity>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+        }
+        else if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Jack")
+        {
+            if (entity.HasComponent<Attack_Buff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackAU")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Attack_Debuff>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackAD")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+            if (entity.HasComponent<Immunity>())
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = true;
+                    }
+                }
+            }
+            else
+            {
+                for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+                {
+                    if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackIM")
+                    {
+                        e.GetComponent<IsActive>()->is_active = false;
+                    }
+                }
+            }
+        }
+    }
+
+    while (toPrint.size() > LINE_LIMIT)
+    {
+        toPrint.erase(toPrint.begin());
+    }
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+        if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap")
+        {
+            currentPrint = "";
+            for (auto stringElements : toPrint)
+            {
+                currentPrint += stringElements;
+            }
+            FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = currentPrint;
+        }
+    }
+    if (battle_phase != BP_BATTLE_FINISH) {
+
+        if (Input::GetKeyDown(GLFW_KEY_Z))
+        {
+            currentPrint = "You win!";
+            for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+            {
+                if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                {
+                    FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                }
+            }
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint;
+            battle_phase = BP_BATTLE_FINISH;
+            for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+            {
+                if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "win")
+                {
+                    entity.GetComponent<IsActive>()->is_active = true;
+                }
+            }
+            for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+            {
+                if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap")
+                {
+                    entity.GetComponent<IsActive>()->is_active = false;
+                }
+                if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
+                {
+                    entity.GetComponent<IsActive>()->is_active = false;
+                }
+            }
+            //toPrint.clear();
+        }
+        else if (Input::GetKeyDown(GLFW_KEY_X))
+        {
+            if (!godMode)
+            {
+                currentPrint = "GODMODE!!! Invulnerable to all damage and x2 damage and increases duration on moves!";
+                for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+                {
+                    if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                    {
+                        FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                    }
+                }
+                toPrint.push_back(currentPrint);
+                std::cout << currentPrint << "\n";
+                godMode = true;
+            }
+            else
+            {
+                currentPrint = "Godmode off...";
+                for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+                {
+                    if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+                    {
+                        FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+                    }
+                }
+                toPrint.push_back(currentPrint);
+                std::cout << currentPrint << "\n";
+                godMode = false;
+            }
+        }
+    }
+
     DisplayTurnOrder(GetTurnOrder());
   }
 
@@ -394,17 +972,35 @@ namespace ChronoDrift {
     
     if (!m_characters.front().GetComponent<Character>()->is_player) {
       // Random move selection for enemies
-      move_decision = Range(0, 2).Get();
+      //move_decision = Range(0, 2).Get();
+        move_decision = boss_move;
+        if (move_decision >= 2)
+        {
+            move_decision = 2;
+        }
+        boss_move++;
     }
     else {
       if (Input::GetKeyDown(GLFW_KEY_1)) move_decision = 0;
       else if (Input::GetKeyDown(GLFW_KEY_2)) move_decision = 1;
       else if (Input::GetKeyDown(GLFW_KEY_3)) move_decision = 2;
+
       if (Input::GetKeyDown(GLFW_KEY_1) || Input::GetKeyDown(GLFW_KEY_2) || Input::GetKeyDown(GLFW_KEY_3)) {
         Move player_move = MoveRegistry::GetMove(
         FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(
           character_moves[move_decision]));
-        std::cout << "Move Selected: " << player_move.name << std::endl;
+
+        currentPrint = "Move Selected: " + player_move.name;
+        for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+        {
+            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+            {
+                FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+            }
+        }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n";
+
         if (player_move.is_target_enemy) selected_num = m_enemies.begin();
         else selected_num = m_players.begin();
       }
@@ -579,47 +1175,114 @@ namespace ChronoDrift {
     Move move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(selected_move));
     std::vector<FlexECS::Entity> targets;
     targets.insert(targets.begin(), selected_targets.second.begin(), selected_targets.second.end());
+
+    auto scene = FlexECS::Scene::GetActiveScene();
     //execute move
+
+    /*for (auto& e : scene->CachedQuery<Animation>())
+    {
+        if ((scene->Internal_StringStorage_Get(*user.GetComponent<EntityName>())) == (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>())))
+        {
+            e.GetComponent<Animation>()->rows = 14;
+            e.GetComponent<Animation>()->max_sprites = 14;
+            (scene->Internal_StringStorage_Get(e.GetComponent<Animation>()->spritesheet)) = "images/Char_Grace_Attack_Anim_Sheet.png";
+            e.GetComponent<Animation>()->m_animation_speed = 0.5f;
+        }
+    }*/
+
+    bool isFirst = true;
     for (auto& m : move.move_function_container) {
-      m.move_function(targets, m.value);
+        int actualValue = m.value;
+        if (isFirst)
+        {
+            if (user.HasComponent<Attack_Buff>())
+            {
+                actualValue *= 2;
+            }
+            if (user.HasComponent<Attack_Debuff>())
+            {
+                actualValue /= 2;
+            }
+            isFirst = false;
+        }
+        if (godMode)
+        {
+            if (user.GetComponent<Character>()->is_player)
+            {
+                actualValue *= 2;
+            }
+            else actualValue = 0;
+        }
+      //m.move_function(targets, m.value);
+        m.move_function(targets, actualValue);
     }
+
     for (auto& s : move.sea_function_container) {
-      s.effect_function(targets, s.value, s.duration);
+        s.effect_function(targets, s.value, s.duration);
     }
 
     user.GetComponent<Character>()->current_speed += move.cost + user.GetComponent<Character>()->base_speed;
-    user.GetComponent<Action>()->move_to_use = FlexECS::Entity::Null;
+    //user.GetComponent<Action>()->move_to_use = FlexECS::Entity::Null;
     std::sort(m_characters.begin(), m_characters.end(), SortLowestSpeed());
 
-    auto scene = FlexECS::Scene::GetActiveScene();
     //Display Character Move and target selection
-    std::cout << scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
-      << " executed " << move.name
-      << " on ";
+
+    currentPrint = scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
+        + " executed " + move.name
+        + " on ";
     for (int i = 0; i < targets.size(); ++i) {
-      std::cout << scene->Internal_StringStorage_Get(targets[i].GetComponent<Character>()->character_name);
-      if ((i + 1) < targets.size()) std::cout << " and ";
+        currentPrint += scene->Internal_StringStorage_Get(targets[i].GetComponent<Character>()->character_name);
+      if ((i + 1) < targets.size()) currentPrint += " and ";
     }
-    std::cout << std::endl << std::endl;
+    for (auto& et : scene->CachedQuery<Text>())
+    {
+        if ((scene->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+        {
+            scene->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+        }
+    }
+    toPrint.push_back(currentPrint);
+    std::cout << currentPrint << "\n";
     // Display Status of alive Characters
     targets.clear();
     for (auto& entity : m_characters)
     {
       if (entity.GetComponent<Character>()->current_health > 0) {
-        std::cout << scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
-          << "  HP: " << entity.GetComponent<Character>()->current_health
-          << "  Spd: " << entity.GetComponent<Character>()->current_speed << std::endl;
+          currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
+              + " / HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
+              + " / SPD: " + std::to_string(entity.GetComponent<Character>()->current_speed);
+          for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if ((scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Renko")
+                  || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Grace")
+                  || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Jack"))
+              {
+                  scene->Internal_StringStorage_Get(e.GetComponent<Text>()->text) = currentPrint;
+              }
+          }
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n";
       }
       else targets.push_back(entity);
     }
     // Display Characters that have died
     for (auto& dead_character : targets)
     {
-      std::cout << scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name)
-        << " has been killed by " << scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
-        << "'s " << move.name << std::endl;
+        currentPrint = scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name)
+            + " has been killed by " + scene->Internal_StringStorage_Get(user.GetComponent<Character>()->character_name)
+            + "'s " + move.name;
+        for (auto& e : scene->CachedQuery<Text>())
+        {
+            if ((scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Renko")
+                || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "GraceInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Grace")
+                || (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "JackInfo") && (scene->Internal_StringStorage_Get(dead_character.GetComponent<Character>()->character_name) == "Jack"))
+            {
+               e.GetComponent<IsActive>()->is_active = false;
+            }
+        }
+        toPrint.push_back(currentPrint);
+        std::cout << currentPrint << "\n";
     }
-    std::cout << "\n";
     //battle_state.GetComponent<BattleState>()->current_target_count = 0;
     //battle_state.GetComponent<BattleState>()->active_character = FlexECS::Entity::Null;
     DeathProcession(targets);
@@ -632,7 +1295,9 @@ namespace ChronoDrift {
         if (*c == *it) {
           m_characters.erase(c);
           (*it).GetComponent<IsActive>()->is_active = false;
-          std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from characters list" << std::endl;
+          currentPrint = (*it).GetComponent<Character>()->character_name + " has been removed from character list";
+          toPrint.push_back(currentPrint);
+          std::cout << currentPrint << "\n";
           break;
         }
       }
@@ -642,7 +1307,9 @@ namespace ChronoDrift {
             FlexECS::Scene::DestroyEntity(*p);
             m_players.erase(p);
             players_displayed--;
-            std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from player list" << std::endl;
+            currentPrint = (*it).GetComponent<Character>()->character_name + " has been removed from player list";
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n";
             break;
           }
         }
@@ -653,7 +1320,9 @@ namespace ChronoDrift {
             FlexECS::Scene::DestroyEntity(*e);
             m_enemies.erase(e);
             enemies_displayed--;
-            std::cout << (*it).GetComponent<Character>()->character_name << " has been removed from enemy list" << std::endl;
+            currentPrint = (*it).GetComponent<Character>()->character_name + " has been removed from enemy list";
+            toPrint.push_back(currentPrint);
+            std::cout << currentPrint << "\n";
             break;
           }
         }
@@ -667,14 +1336,72 @@ namespace ChronoDrift {
   void BattleSystem::EndBattleScene() {
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     if (m_enemies.empty()) {
-      std::cout << "VICTORY!!!! Click R to fight again." << std::endl;
+        currentPrint = "You win!";
+        for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+        {
+            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+            {
+                FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+            }
+        }
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint;
       //battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
       battle_phase = BP_BATTLE_FINISH;
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "win")
+          {
+              entity.GetComponent<IsActive>()->is_active = true;
+          }
+      }
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap")
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+      }
     }
     if (m_players.empty()) {
-      std::cout << "DEFEAT. Click R to try again." << std::endl;
+        currentPrint = "You lose...";
+        for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+        {
+            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info"))
+            {
+                FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
+            }
+        }
+      toPrint.push_back(currentPrint);
+      std::cout << currentPrint;
       //battle_state.GetComponent<BattleState>()->phase = BP_BATTLE_FINISH;
       battle_phase = BP_BATTLE_FINISH;
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "lose")
+          {
+              entity.GetComponent<IsActive>()->is_active = true;
+          }
+      }
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap")
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo"))
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+      }
     }
   }
 }
