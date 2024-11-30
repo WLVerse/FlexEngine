@@ -945,7 +945,7 @@ namespace ChronoDrift {
                     if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
                         || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
                         || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
-                        entity.GetComponent<IsActive>()->is_active = true;
+                        entity.GetComponent<IsActive>()->is_active = false;
                     }
                 if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverOne")
              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverTwo")
