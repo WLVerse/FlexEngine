@@ -1,10 +1,10 @@
 {
-    "flxdata": {
-        "name": "Hour of Reckoning",
-        "description": "Hit entire enemy team for 10 damage.",
-        "speed_cost": 9,
-        "is_target_enemy": true,
-        "target_type": "ALL",
-	"functions": "DAMAGE, 0, 10"
-    }
+  "flxdata": {
+    "name": "Hour of Reckoning",
+    "description": "Deal 10 damage to all enemies. Costs 9 Move Speed.",
+    "speed_cost": 9,
+    "is_target_enemy": true,
+    "target_type": "ALL",
+    "functions": "DAMAGE, 0, 10"
+  }
 }

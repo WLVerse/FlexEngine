@@ -1,7 +1,7 @@
 {
   "flxdata": {
     "name": "Timeout",
-    "description": "Lowers Target damage for 2 turns",
+    "description": "Decrease an enemy's ATK for 2 turns. Costs 6 Move Speed.",
     "speed_cost": 6,
     "is_target_enemy": true,
     "target_type": "SINGLE",
