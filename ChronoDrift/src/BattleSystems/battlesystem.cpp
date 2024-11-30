@@ -1496,6 +1496,13 @@ namespace ChronoDrift {
     // all the targets selected man
     if (!m_characters.front().GetComponent<Character>()->is_player ||
       (Input::GetKeyDown(GLFW_KEY_SPACE) && m_characters.front().GetComponent<Character>()->is_player)) {
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+        {
+            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+                || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+                ||(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
+                entity.GetComponent<IsActive>()->is_active = false;
+        }
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
         {
             if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOne")
@@ -1503,11 +1510,6 @@ namespace ChronoDrift {
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThree")) {
                 entity.GetComponent<IsActive>()->is_active = false;
             }
-                if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
-                    || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
-                    || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
-                    entity.GetComponent<IsActive>()->is_active = false;
-                }
         }
       for (auto i = min_targets; i != max_targets; i++) {
         if ((*i).GetComponent<IsActive>()->is_active) result.push_back((*i).GetComponent<BattleSlot>()->character);
