@@ -270,6 +270,7 @@ namespace ChronoDrift
 
       
       #pragma region Camera Movement -> Should be moved to scripting
+      #ifndef GAME
       FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
       if (cam_entity.Get() != INVALID_ENTITY_ID)
       {
@@ -297,7 +298,7 @@ namespace ChronoDrift
               curr_camt = true;
           }
       }
-      
+      #endif
 
       // Regen Cam
       //for (auto& currCam : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Camera>())
