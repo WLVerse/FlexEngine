@@ -89,7 +89,7 @@ namespace ChronoDrift
 		}
 	}
 
-	void Move_Strip(std::vector<FlexECS::Entity> targets, int status_duration) {
+	void Move_Strip(std::vector<FlexECS::Entity> targets, [[maybe_unused]]int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Immunity>()) t.RemoveComponent<Immunity>();
 			if (t.HasComponent<Attack_Buff>()) t.RemoveComponent<Attack_Buff>();
