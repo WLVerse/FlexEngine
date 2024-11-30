@@ -1552,6 +1552,13 @@ namespace ChronoDrift {
   //void BattleSystem::ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets)
   void BattleSystem::ExecuteMove()
   {
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+      {
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
+              entity.GetComponent<IsActive>()->is_active = false;
+      }
     //get the move user
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     FlexECS::Entity user = m_characters.front();//battle_state.GetComponent<BattleState>()->active_character;
