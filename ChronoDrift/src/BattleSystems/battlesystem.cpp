@@ -1220,10 +1220,10 @@ namespace ChronoDrift {
                       move_decision = 0;
                       player_move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(character_moves[move_decision]));
                       currentPrint = "Move Selected: " + player_move.name;
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+                      for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
-                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = currentPrint;
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info")
+                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
                       }
                       toPrint.push_back(currentPrint);
                       std::cout << currentPrint << "\n";
@@ -1231,11 +1231,11 @@ namespace ChronoDrift {
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
 
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "SelectMove")
                           {
-                              entity.GetComponent<Audio>()->should_play = true;
+                              e.GetComponent<Audio>()->should_play = true;
                           }
                       }
                   }
@@ -1273,10 +1273,10 @@ namespace ChronoDrift {
                       move_decision = 1;
                       player_move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(character_moves[move_decision]));
                       currentPrint = "Move Selected: " + player_move.name;
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+                      for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
-                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = currentPrint;
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info")
+                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
                       }
                       toPrint.push_back(currentPrint);
                       std::cout << currentPrint << "\n";
@@ -1284,11 +1284,11 @@ namespace ChronoDrift {
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
 
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "SelectMove")
                           {
-                              entity.GetComponent<Audio>()->should_play = true;
+                              e.GetComponent<Audio>()->should_play = true;
                           }
                       }
                   }
@@ -1326,21 +1326,21 @@ namespace ChronoDrift {
                       move_decision = 2;
                       player_move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(character_moves[move_decision]));
                       currentPrint = "Move Selected: " + player_move.name;
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+                      for (auto& et : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
-                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = currentPrint;
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*et.GetComponent<EntityName>()) == "Info")
+                              FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(et.GetComponent<Text>()->text) = currentPrint;
                       }
                       toPrint.push_back(currentPrint);
                       std::cout << currentPrint << "\n";
 
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
-                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
                       {
-                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "SelectMove")
                           {
-                              entity.GetComponent<Audio>()->should_play = true;
+                              e.GetComponent<Audio>()->should_play = true;
                           }
                       }
                   }
