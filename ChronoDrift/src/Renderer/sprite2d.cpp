@@ -301,7 +301,9 @@ namespace ChronoDrift
         }
 
         pp_render_queue.Flush();
+        #ifndef GAME
         if(want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
         non_pp_render_queue.Flush();
     }
 
@@ -355,7 +357,9 @@ namespace ChronoDrift
         AddBatchToQueue(batch_render_queue, currentTexture, currentBatch, currentBatch.m_vboid);
 
         batch_render_queue.Flush();
+        #ifndef GAME
         if (want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
     }
 
     void RenderTextEntities()
