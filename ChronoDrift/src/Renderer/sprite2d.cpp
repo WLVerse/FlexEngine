@@ -90,7 +90,6 @@ namespace ChronoDrift
     {
         //if (!currCam.GetComponent<Transform>()->is_dirty) return; //Seems to be the cause of some blue screen
 
-        //TODO @WEIJIE Hierarchy movement of camera not working as intended -> Inspect (LOW Priority)
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
         Vector2 local_scale = currCam.GetComponent<Scale>()->scale;
         //auto& local_position = currCam.GetComponent<Position>()->position;
@@ -302,7 +301,9 @@ namespace ChronoDrift
         }
 
         pp_render_queue.Flush();
+        #ifndef GAME
         if(want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
         non_pp_render_queue.Flush();
     }
 
@@ -356,7 +357,9 @@ namespace ChronoDrift
         AddBatchToQueue(batch_render_queue, currentTexture, currentBatch, currentBatch.m_vboid);
 
         batch_render_queue.Flush();
+        #ifndef GAME
         if (want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
     }
 
     void RenderTextEntities()
@@ -444,17 +447,6 @@ namespace ChronoDrift
         Renderer2DProps props;
         props.window_size = { static_cast<float>(window_props.width), static_cast<float>(window_props.height) };
 
-        ////////////////////////////////////////////////////////////////////////////////
-        // Potential Issues
-        ////////////////////////////////////////////////////////////////////////////////
-        // 1. the order of post-processed objects is rendered first, then non-post-processed (For the sake of text box)
-
-        //TODO @WEIJIE 
-        // 1. Bloom fix in fullscreen
-        // 2. Merge text with batch queue (merge text renderer to sprite renderer)
-        // 3. Change the shader name to not be hardcoded for the different rendering process
-        //    - either auto add shader component -> auto set correct shader
-        // 4. Have the cameras have little icons to show their placement and boundary
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();
 

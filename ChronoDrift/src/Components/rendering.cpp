@@ -186,7 +186,6 @@ namespace ChronoDrift
      COMPONENT_VIEWER_BOOL(camera.m_isOrthographic)
   COMPONENT_VIEWER_END(Camera)
 
-  //TODO @ROCKY to add the font pic and have a dropbox of available fonts
   COMPONENT_VIEWER_START(Text)
       COMPONENT_VIEWER_FONT_PATH(fonttype)
       COMPONENT_VIEWER_EDITABLE_STRING(text)

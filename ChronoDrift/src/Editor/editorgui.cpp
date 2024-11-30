@@ -412,7 +412,6 @@ namespace ChronoDrift
 		}
 		if (released)
 		{
-			//TODO: When I make the undo feature
 			//Add to undo list
 		}
 
@@ -646,7 +645,6 @@ namespace ChronoDrift
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			
-			//TODO: improve the feel of the scaling
 			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
 
 			//return to caller the axis with a higher value

@@ -1,7 +1,7 @@
 {
   "flxdata": {
     "name": "Strike",
-    "description": "Hit an enemy.",
+    "description": "Deal 6 damage to an enemy. Costs 1 Move Speed.",
     "speed_cost": 1,
     "is_target_enemy": true,
     "target_type": "SINGLE",

@@ -235,10 +235,11 @@ namespace ChronoDrift
             Vector4 world_pos = inverse * clip;
             world_pos.x = -world_pos.x;
 
-            relative_pos = { world_pos.x, world_pos.y };
+            mtw = { world_pos.x, world_pos.y };
           }
 
           #endif
+
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;
@@ -267,8 +268,9 @@ namespace ChronoDrift
       }
       profiler.EndCounter("Button Callbacks");
 
-      //TODO MOVE TO SCRIPTING ONCE DONE
+      
       #pragma region Camera Movement -> Should be moved to scripting
+      #ifndef GAME
       FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
       if (cam_entity.Get() != INVALID_ENTITY_ID)
       {
@@ -296,7 +298,7 @@ namespace ChronoDrift
               curr_camt = true;
           }
       }
-      
+      #endif
 
       // Regen Cam
       //for (auto& currCam : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Camera>())
