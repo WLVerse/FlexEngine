@@ -59,8 +59,7 @@ namespace FlexEngine
         vertices[6] = end.x; vertices[7] = end.y; vertices[8] = 0.0f;
         vertices[9] = color.x; vertices[10] = color.y; vertices[11] = color.z;
 
-        //////////////////////////////////////////////////////////////////////////////////
-        //TODO change to sprite
+       
         glBindVertexArray(vao/*OpenGLSpriteRenderer::GetVAO_ID(Renderer2DProps::VBO_Type::VBO_Line)*/);
         //glEnableVertexAttribArray(0); //not necessary as of yet
         //glEnableVertexAttribArray(1);
@@ -133,8 +132,7 @@ namespace FlexEngine
         vertices[6] = end.x; vertices[7] = end.y; vertices[8] = 0.0f;
         vertices[9] = color.x; vertices[10] = color.y; vertices[11] = color.z;
 
-        //////////////////////////////////////////////////////////////////////////////////
-        //TODO change to sprite
+        
         glBindVertexArray(vao/*OpenGLSpriteRenderer::GetVAO_ID(Renderer2DProps::VBO_Type::VBO_Line)*/);
         //glEnableVertexAttribArray(0); //not necessary as of yet
         //glEnableVertexAttribArray(1);
