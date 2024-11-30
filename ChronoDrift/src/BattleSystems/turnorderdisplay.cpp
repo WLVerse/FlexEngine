@@ -26,9 +26,9 @@ namespace ChronoDrift
 	//The Sprite2d renderer will automatically draw it, so we just set the positions, colors, etc.
 	void DisplayTurnOrder(std::vector<FlexECS::Entity>& queue)
 	{
-		queue.back().GetComponent<Character>()->current_speed;
+		//queue.back().GetComponent<Character>()->current_speed;
 		// Speed Queue max 
-		size_t max_length = 300.f * queue.size();
+		//size_t max_length = 300.f * queue.size();
 
 		auto scene = FlexECS::Scene::GetActiveScene();
 
@@ -43,15 +43,18 @@ namespace ChronoDrift
 			std::vector<FlexECS::Entity>::const_iterator it = queue.begin();
 			std::advance(it, i);
 			auto character = *it;
-
+			
 			(*ds).GetComponent<IsActive>()->is_active = true;
 			if (i == 0) {
-				(*ds).GetComponent<Scale>()->scale = Vector2(200.f, 200.f);
+				// This is to set the scale and position of the character sprite of the first slot
+				(*ds).GetComponent<Scale>()->scale = Vector2(250.f, 250.f);
+				(*ds).GetComponent<Position>()->position = { -960.0f, -477.161f };
 			}
 			else {
+				// This is to set the scale and position of the character sprite of the remaining slots
 				(*ds).GetComponent<Scale>()->scale = Vector2(100.f, 100.f);
+				(*ds).GetComponent<Position>()->position = { -960.0f + (230.f * i), -482.5f };
 			}
-			(*ds).GetComponent<Position>()->position = { -400.f + (300.f * i), -275.f };
 
 			// This is to display the character icon
 			FlexECS::Scene::StringIndex sprite_name = character.GetComponent<Character>()->character_name;
@@ -65,17 +68,21 @@ namespace ChronoDrift
 			(*ds).GetComponent<Scale>()->scale = Vector2(200.f, 200.f);
 			(*ds).GetComponent<Position>()->position = { -400.f + (300.f * i), -275.f };
 
-			// This should never happen ah
 			if (i == 0) { // i == 0 is just to display this sprite for the first character
+				// This is to set the scale and position of the first slot
+				(*ds).GetComponent<Scale>()->scale = Vector2(300.f, 300.f);
+				(*ds).GetComponent<Position>()->position = { -960.0f, -477.161f };
 				if (character.GetComponent<Character>()->is_player) {
 					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Big_Ally.png)");
 				}
 				else {
-					(*ds).GetComponent<Scale>()->scale = Vector2(250.f, 250.f);
 					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Big_Enemy.png)");
 				}
 			}
 			else {
+				// This is to set the scale and position of the remaining slots
+				(*ds).GetComponent<Scale>()->scale = Vector2(150.f, 150.f);
+				(*ds).GetComponent<Position>()->position = { -960.0f + (230.f * i), -482.5f };
 				if (character.GetComponent<Character>()->is_player) {
 					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Ally.png)");
 				}
@@ -86,7 +93,5 @@ namespace ChronoDrift
 			(*ds).GetComponent<Transform>()->is_dirty = true;
 			++i;
 		}
-	}	
-
+	}
 }
-
