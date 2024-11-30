@@ -235,10 +235,11 @@ namespace ChronoDrift
             Vector4 world_pos = inverse * clip;
             world_pos.x = -world_pos.x;
 
-            relative_pos = { world_pos.x, world_pos.y };
+            mtw = { world_pos.x, world_pos.y };
           }
 
           #endif
+
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;

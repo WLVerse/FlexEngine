@@ -65,8 +65,6 @@ namespace ChronoDrift
     }
     window->CacheMiniWindowParams();
 
-
-
     // Get the primary monitor
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     // Get the video mode of the monitor
@@ -413,6 +411,27 @@ namespace ChronoDrift
 
     #pragma endregion
     #endif  
+
+    // Controls to unfullscreen at runtime
+    #ifdef GAME
+    FlexEngine::Window* window = Application::GetCurrentWindow();
+    if (Input::GetKey(GLFW_KEY_F11))
+    {
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      // Get the video mode of the monitor
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      // Switch to fullscreen
+      glfwSetWindowMonitor(window->GetGLFWWindow(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    }
+
+    // Controls to switch to windowed mode
+    if (Input::GetKey(GLFW_KEY_ESCAPE))
+    {
+      std::pair<int, int> window_pos = window->UnCacheMiniWindowsParams();
+      glfwSetWindowMonitor(window->GetGLFWWindow(), NULL, window_pos.first, window_pos.second, window->GetWidth(), window->GetHeight(), window->GetFPS());
+    }
+    #endif
   }
 
 }
