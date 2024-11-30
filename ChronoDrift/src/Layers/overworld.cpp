@@ -239,6 +239,7 @@ namespace ChronoDrift
           }
 
           #endif
+
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;
@@ -267,7 +268,7 @@ namespace ChronoDrift
       }
       profiler.EndCounter("Button Callbacks");
 
-      //TODO MOVE TO SCRIPTING ONCE DONE
+      
       #pragma region Camera Movement -> Should be moved to scripting
       FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
       if (cam_entity.Get() != INVALID_ENTITY_ID)

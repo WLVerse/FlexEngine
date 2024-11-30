@@ -13,7 +13,6 @@ namespace ChronoDrift
 
 	void SceneView::Init()
 	{
-		//TODO Setup editor cam from saved data upon close of program
 		m_EditorCam = std::make_unique<FlexEngine::CameraData>();
 	}
 

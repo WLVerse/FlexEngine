@@ -53,7 +53,7 @@ namespace ChronoDrift
 			else {
 				// This is to set the scale and position of the character sprite of the remaining slots
 				(*ds).GetComponent<Scale>()->scale = Vector2(100.f, 100.f);
-				(*ds).GetComponent<Position>()->position = { -960.0f + (230.f * i), -482.5f };
+				(*ds).GetComponent<Position>()->position = { -910.0f + (170.f * i), -482.5f };
 			}
 
 			// This is to display the character icon
@@ -65,8 +65,6 @@ namespace ChronoDrift
 			// This is to set the background of the sprite
 			
 			(*ds).GetComponent<IsActive>()->is_active = true;
-			(*ds).GetComponent<Scale>()->scale = Vector2(200.f, 200.f);
-			(*ds).GetComponent<Position>()->position = { -400.f + (300.f * i), -275.f };
 
 			if (i == 0) { // i == 0 is just to display this sprite for the first character
 				// This is to set the scale and position of the first slot
@@ -82,7 +80,7 @@ namespace ChronoDrift
 			else {
 				// This is to set the scale and position of the remaining slots
 				(*ds).GetComponent<Scale>()->scale = Vector2(150.f, 150.f);
-				(*ds).GetComponent<Position>()->position = { -960.0f + (230.f * i), -482.5f };
+				(*ds).GetComponent<Position>()->position = { -910.0f + (170.f * i), -482.5f };
 				if (character.GetComponent<Character>()->is_player) {
 					(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\images\UI\UI_BattleScreen_Portrait_Small_Ally.png)");
 				}
