@@ -114,7 +114,6 @@ namespace ChronoDrift
 	void Move_Shock(std::vector<FlexECS::Entity> targets, int shock_value, int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Shock>()) {
-				// to double check whether the damage value to add on or how
 				t.GetComponent<Shock>()->remaining_turns += status_duration;
 			}
 			else t.AddComponent<Shock>({ status_duration , shock_value }); // remaining turns, damage
@@ -124,7 +123,6 @@ namespace ChronoDrift
 	void Move_Recovery(std::vector<FlexECS::Entity> targets, int heal_value, int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Recovery>()) {
-				// to double check whether the damage value to add on or how
 				t.GetComponent<Recovery>()->remaining_turns += status_duration;
 			}
 			else t.AddComponent<Recovery>({ status_duration , heal_value }); // remaining turns, heal
