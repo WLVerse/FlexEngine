@@ -272,10 +272,9 @@ namespace ChronoDrift {
     for (auto& entity : m_characters)
     {
       //auto cw = entity.GetComponent<Character>()->weapon_name;
-      currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
-          + " | HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
-          + " / " + std::to_string(entity.GetComponent<Character>()->base_health)
-          + " | BSPD: " + std::to_string(entity.GetComponent<Character>()->base_speed);
+        currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
+            + " | HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
+            + " / " + std::to_string(entity.GetComponent<Character>()->base_health);
           //+ " / Weap: " + scene->Internal_StringStorage_Get(cw);
       //if (entity.GetComponent<Character>()->is_player) {
         //auto cg = entity.GetComponent<Character>()->chrono_gear_description;
@@ -316,8 +315,7 @@ namespace ChronoDrift {
       entity.GetComponent<Character>()->current_speed -= speed_to_decrease;
       currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
           + " | HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
-          + " / " + std::to_string(entity.GetComponent<Character>()->base_health)
-          + " | BSPD: " + std::to_string(entity.GetComponent<Character>()->base_speed);
+          + " / " + std::to_string(entity.GetComponent<Character>()->base_health);
 
       for (auto& e : scene->CachedQuery<Text>())
       {
@@ -947,6 +945,11 @@ namespace ChronoDrift {
                         entity.GetComponent<IsActive>()->is_active = true;
                     }
                 }
+                if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
                 if ( (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo") 
@@ -1617,8 +1620,7 @@ namespace ChronoDrift {
       if (entity.GetComponent<Character>()->current_health > 0) {
           currentPrint = scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name)
               + " | HP: " + std::to_string(entity.GetComponent<Character>()->current_health)
-              + " / " + std::to_string(entity.GetComponent<Character>()->base_health)
-              + " | BSPD: " + std::to_string(entity.GetComponent<Character>()->base_speed);
+              + " / " + std::to_string(entity.GetComponent<Character>()->base_health);
           for (auto& e : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
           {
               if ( (scene->Internal_StringStorage_Get(*e.GetComponent<EntityName>()) == "RenkoInfo") && (scene->Internal_StringStorage_Get(entity.GetComponent<Character>()->character_name) == "Renko")
@@ -1752,6 +1754,11 @@ namespace ChronoDrift {
              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackName")) {
               entity.GetComponent<IsActive>()->is_active = false;
           }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
       }
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
       {
@@ -1801,6 +1808,11 @@ namespace ChronoDrift {
           if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoName")
               || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceName")
               || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackName")) {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
               entity.GetComponent<IsActive>()->is_active = false;
           }
       }
