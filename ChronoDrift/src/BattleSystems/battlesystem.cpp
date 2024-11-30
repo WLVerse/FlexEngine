@@ -255,6 +255,7 @@ namespace ChronoDrift {
         if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "bgm")
         {
             entity.GetComponent<Audio>()->should_play = true;
+            entity.GetComponent<Audio>()->is_looping = true;
         }
     }
 
@@ -330,6 +331,16 @@ namespace ChronoDrift {
     }
 
     if (!m_characters.front().GetComponent<Character>()->is_player) delay_timer = DELAY_TIME;
+    else
+    {
+        for (auto& entity : scene->CachedQuery<Audio>())
+        {
+            if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "StartTurn")
+            {
+                entity.GetComponent<Audio>()->should_play = true;
+            }
+        }
+    }
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     //battle_state.GetComponent<BattleState>()->active_character = m_characters.front();
     //battle_state.GetComponent<BattleState>()->phase = BP_STATUS_RUN;
@@ -924,6 +935,19 @@ namespace ChronoDrift {
                 ||  (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "yap") )
                     entity.GetComponent<IsActive>()->is_active = false;
             }
+            for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+            {
+                if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Win")
+                {
+                    entity.GetComponent<Audio>()->should_play = true;
+                }
+                if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "bgm")
+                {
+                    entity.GetComponent<Audio>()->is_looping = false;
+                    entity.GetComponent<Audio>()->should_play = false;
+                    entity.GetComponent<IsActive>()->is_active = false;
+                }
+            }
         }
         else if (Input::GetKeyDown(GLFW_KEY_X))
         {
@@ -1047,6 +1071,14 @@ namespace ChronoDrift {
 
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
+
+                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      {
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          {
+                              entity.GetComponent<Audio>()->should_play = true;
+                          }
+                      }
                   }
               }
           }
@@ -1092,6 +1124,14 @@ namespace ChronoDrift {
 
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
+
+                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      {
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          {
+                              entity.GetComponent<Audio>()->should_play = true;
+                          }
+                      }
                   }
               }
           }
@@ -1137,6 +1177,13 @@ namespace ChronoDrift {
 
                       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
                       else selected_num = m_players.begin();
+                      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+                      {
+                          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+                          {
+                              entity.GetComponent<Audio>()->should_play = true;
+                          }
+                      }
                   }
               }
           }
@@ -1160,6 +1207,13 @@ namespace ChronoDrift {
 
       if (player_move.is_target_enemy) selected_num = m_enemies.begin();
       else selected_num = m_players.begin();
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "SelectMove")
+          {
+              entity.GetComponent<Audio>()->should_play = true;
+          }
+      }
       }
       /*for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, MoveButton>()) {
         entity.GetComponent<IsActive>()->is_active = true;
@@ -1445,6 +1499,13 @@ namespace ChronoDrift {
     }
     //battle_state.GetComponent<BattleState>()->current_target_count = 0;
     //battle_state.GetComponent<BattleState>()->active_character = FlexECS::Entity::Null;
+    for (auto& entity : scene->CachedQuery<Audio>())
+    {
+        if (scene->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Attack")
+        {
+            entity.GetComponent<Audio>()->should_play = true;
+        }
+    }
     DeathProcession(targets);
   }
 
@@ -1458,6 +1519,14 @@ namespace ChronoDrift {
           currentPrint = (*it).GetComponent<Character>()->character_name + " has been removed from character list";
           toPrint.push_back(currentPrint);
           std::cout << currentPrint << "\n";
+
+          for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+          {
+              if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Death")
+              {
+                  entity.GetComponent<Audio>()->should_play = true;
+              }
+          }
           break;
         }
       }
@@ -1523,6 +1592,19 @@ namespace ChronoDrift {
               entity.GetComponent<IsActive>()->is_active = false;
           }
       }
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Win")
+          {
+              entity.GetComponent<Audio>()->should_play = true;
+          }
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "bgm")
+          {
+              entity.GetComponent<Audio>()->is_looping = false;
+              entity.GetComponent<Audio>()->should_play = false;
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+      }
     }
     if (m_players.empty()) {
         currentPrint = "You lose...";
@@ -1549,6 +1631,19 @@ namespace ChronoDrift {
           if ( (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoInfo")
               || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceInfo")
               || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackInfo") ) {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+      }
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
+      {
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Lose")
+          {
+              entity.GetComponent<Audio>()->should_play = true;
+          }
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "bgm")
+          {
+              entity.GetComponent<Audio>()->is_looping = false;
+              entity.GetComponent<Audio>()->should_play = false;
               entity.GetComponent<IsActive>()->is_active = false;
           }
       }

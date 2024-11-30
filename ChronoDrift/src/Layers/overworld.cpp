@@ -235,7 +235,7 @@ namespace ChronoDrift
             Vector4 world_pos = inverse * clip;
             world_pos.x = -world_pos.x;
 
-            relative_pos = { world_pos.x, world_pos.y };
+            mtw = { world_pos.x, world_pos.y };
           }
 
           #endif
