@@ -945,7 +945,7 @@ namespace ChronoDrift {
                     if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
                         || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
                         || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName")) {
-                        entity.GetComponent<IsActive>()->is_active = true;
+                        entity.GetComponent<IsActive>()->is_active = false;
                     }
                 if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverOne")
              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverTwo")
@@ -1514,8 +1514,11 @@ namespace ChronoDrift {
         {
             if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
-                ||(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
+                || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
+            {
+                FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = "";
                 entity.GetComponent<IsActive>()->is_active = false;
+            }
         }
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
         {
@@ -1556,13 +1559,6 @@ namespace ChronoDrift {
   //void BattleSystem::ExecuteMove(FlexECS::Scene::StringIndex move_id, std::vector<FlexECS::Entity> selected_targets)
   void BattleSystem::ExecuteMove()
   {
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
-      {
-          if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
-              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
-              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
-              entity.GetComponent<IsActive>()->is_active = false;
-      }
     //get the move user
     //FlexECS::Entity battle_state = FlexECS::Scene::GetActiveScene()->Query<BattleState>()[0];
     FlexECS::Entity user = m_characters.front();//battle_state.GetComponent<BattleState>()->active_character;
@@ -1570,7 +1566,16 @@ namespace ChronoDrift {
     Move move = MoveRegistry::GetMove(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(selected_move));
     std::vector<FlexECS::Entity> targets;
     targets.insert(targets.begin(), selected_targets.second.begin(), selected_targets.second.end());
-
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+        if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
+        {
+            FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = "";
+            entity.GetComponent<IsActive>()->is_active = false;
+        }
+    }
     auto scene = FlexECS::Scene::GetActiveScene();
     //execute move
 
