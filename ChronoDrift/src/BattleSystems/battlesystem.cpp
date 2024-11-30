@@ -933,6 +933,10 @@ namespace ChronoDrift {
             }
             for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive>())
             {
+                if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
+                {
+                    entity.GetComponent<IsActive>()->is_active = false;
+                }
                 if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "RenkoName")
              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "GraceName")
              || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "JackName")) {
@@ -1787,6 +1791,11 @@ namespace ChronoDrift {
           {
               entity.GetComponent<IsActive>()->is_active = false;
           }
+
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
       }
       for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
       {
@@ -1849,6 +1858,11 @@ namespace ChronoDrift {
               entity.GetComponent<IsActive>()->is_active = false;
           }
           if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverEnemy")
+          {
+              entity.GetComponent<IsActive>()->is_active = false;
+          }
+
+          if (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "Info")
           {
               entity.GetComponent<IsActive>()->is_active = false;
           }
