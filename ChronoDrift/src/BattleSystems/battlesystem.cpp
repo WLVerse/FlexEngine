@@ -52,19 +52,10 @@ namespace ChronoDrift {
   struct SortLowestPositions
   {
     bool operator()(FlexECS::Entity& e1, FlexECS::Entity& e2) {
-      std::pair<bool, bool> comparison_results = std::make_pair(false, false);
-
       Vector2 e1_pos = e1.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
       Vector2 e2_pos = e2.GetComponent<BattleSlot>()->character.GetComponent<Position>()->position;
-      
-      comparison_results.first = (e1_pos.x < e2_pos.x) ? true : false;
-      comparison_results.second = (e1_pos.y < e2_pos.y) ? true : false;
 
-      if (comparison_results.first) return true;
-      else {
-        if (comparison_results.second) return true;
-        else return false;
-      }
+      return e1_pos.x < e2_pos.x;// || e1_pos.y < e2_pos.y; YC: Whatever this is, your y comparison causes a crashes
     }
   };
 
