@@ -34,6 +34,7 @@ namespace ChronoDrift
 
 		int i{ 0 };
 		std::vector<FlexECS::Entity> display_slots = scene->Query<TurnOrderDisplay, IsActive, ZIndex, Position, Scale, Shader, Sprite>();
+		std::vector<FlexECS::Entity> text_slots = scene->Query<TurnOrderDisplay, IsActive, ZIndex, Position, Scale, Rotation, Text, Transform>();
 		for (auto ds = display_slots.begin(); ds != display_slots.end(); ds++) {
 			if (i >= queue.size())
 			{
@@ -57,9 +58,9 @@ namespace ChronoDrift
 			}
 
 			// This is to display the character icon
-			FlexECS::Scene::StringIndex sprite_name = character.GetComponent<Character>()->character_name;
-			std::string texture_name = get_character_sprite[FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(sprite_name)];
-			(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(texture_name);
+			std::string char_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(character.GetComponent<Character>()->character_name);
+			std::string sprite_name = get_character_sprite[char_name];
+			(*ds).GetComponent<Sprite>()->texture = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(sprite_name);
 			(*ds).GetComponent<Transform>()->is_dirty = true;
 			++ds;
 			// This is to set the background of the sprite
@@ -89,6 +90,13 @@ namespace ChronoDrift
 				}
 			}
 			(*ds).GetComponent<Transform>()->is_dirty = true;
+			// Now imma display the text
+			if (i == 0) text_slots[i].GetComponent<Position>()->position = { -960.0f, -322.161f };
+			else text_slots[i].GetComponent<Position>()->position = { -910.0f + (170.f * i), -402.5f };
+			text_slots[i].GetComponent<IsActive>()->is_active = true;
+			text_slots[i].GetComponent<Text>()->fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\fonts\Electrolize\Electrolize-Regular.ttf)");
+			text_slots[i].GetComponent<Text>()->text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(char_name + ": " + std::to_string(character.GetComponent<Character>()->current_speed));
+
 			++i;
 		}
 	}
