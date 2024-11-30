@@ -1519,17 +1519,17 @@ namespace ChronoDrift {
                 FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = "";
                 entity.GetComponent<IsActive>()->is_active = false;
             }
+            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverOne")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverTwo")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverThree")) {
+                entity.GetComponent<IsActive>()->is_active = false;
+            }
         }
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Button, BoundingBox2D>())
         {
             if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOne")
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwo")
                 || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThree")) {
-                entity.GetComponent<IsActive>()->is_active = false;
-            }
-            if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverOne")
-             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverTwo")
-             || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverThree")) {
                 entity.GetComponent<IsActive>()->is_active = false;
             }
         }
@@ -1568,11 +1568,9 @@ namespace ChronoDrift {
     targets.insert(targets.begin(), selected_targets.second.begin(), selected_targets.second.end());
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
     {
-        if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveOneName")
-            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveTwoName")
-            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "MoveThreeName"))
-        {
-            FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->text) = "";
+        if ((FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverOne")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverTwo")
+            || (FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>()) == "HoverThree")) {
             entity.GetComponent<IsActive>()->is_active = false;
         }
     }
