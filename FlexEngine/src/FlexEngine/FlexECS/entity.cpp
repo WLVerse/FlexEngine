@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app]
 // entity.cpp
 // 
-// Implementation of Entity class and functions that assist its management in the ECS
+// Implementation of Entity class and functions that assist its management in the ECS.
+// Refer to datastructures.h for more information.
 //
 // AUTHORS
 // [90%] Chan Wen Loong (wenloong.c\@digipen.edu)

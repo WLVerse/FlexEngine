@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// vector4.cpp
+// 
+// Implementation of the Vector4 class.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "vector4.h"
 
 namespace FlexEngine

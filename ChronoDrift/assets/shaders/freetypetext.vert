@@ -1,3 +1,22 @@
+/*!************************************************************************
+* FREETYPETEXT.SHADER [freetypetext.vert]
+*
+* This file implements the vertex shader for rendering 2D text with texture 
+* coordinates. It transforms vertex positions from local space to clip space 
+* and passes texture coordinates to the fragment shader.
+*
+* Key functionalities include:
+* - Transforming vertex positions using model and projection matrices.
+* - Passing texture coordinates to the fragment shader for texturing.
+* - Preparing vertices for rendering in 2D space.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*   - Developed vertex transformation logic and texture coordinate handling.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #version 460 core
 
 // Input vertex data

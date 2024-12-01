@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// opengltexture.h
+// 
+// Texture class that manages OpenGL textures.
+// The textures are cleaned up automatically on destruction.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

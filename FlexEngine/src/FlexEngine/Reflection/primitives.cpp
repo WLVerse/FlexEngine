@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// primitives.cpp
+// 
+// Primitive type descriptors for reflection.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "Reflection/base.h"
 
 #pragma region Macros

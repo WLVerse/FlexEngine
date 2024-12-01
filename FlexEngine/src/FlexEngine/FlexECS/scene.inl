@@ -3,6 +3,7 @@
 // 
 // Implementation of inline functions for the scene class. These are for querying entities of a certain component list
 // YC : I could definitely optimize the vector to not be copied around so much. I'll look into it.
+// Refer to datastructures.h for more information.
 //
 // AUTHORS
 // [50%] Chan Wen Loong (wenloong.c\@digipen.edu)

@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// matrix4x4.h
+// 
+// Similar to glm::mat4, but with additional functionalities.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

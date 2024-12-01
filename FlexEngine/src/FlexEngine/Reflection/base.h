@@ -1,22 +1,6 @@
-#pragma once
-
-#include "flx_api.h"
-
-#include "Wrapper/flexassert.h"
-#include "Wrapper/flexbase64.h"
-
-#include <rapidjson/document.h>
-using namespace rapidjson;
-
-#include <cstddef>
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <functional>
-
+// WLVERSE [https://wlverse.web.app]
+// base.h
+// 
 // Reflection system for C++
 // 
 // A reflection system (also called a property system) is a coding
@@ -38,6 +22,31 @@ using namespace rapidjson;
 //    https://gitlab.com/LIONant/properties/blob/master/docs/Documentation.md
 //  RTTR (Run Time Type Reflection)
 //    https://www.rttr.org/doc/rttr-0-9-6/five_minute_tutorial_page.html
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
+#pragma once
+
+#include "flx_api.h"
+
+#include "Wrapper/flexassert.h"
+#include "Wrapper/flexbase64.h"
+
+#include <rapidjson/document.h>
+using namespace rapidjson;
+
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <functional>
 
 
 // These macros are the heart and soul of the reflection system.

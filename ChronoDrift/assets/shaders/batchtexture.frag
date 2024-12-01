@@ -1,3 +1,22 @@
+/*!************************************************************************
+* BATCHTEXTURE.SHADER [batchtexture.frag]
+*
+* This file implements the fragment shader for rendering 2D sprites in batch.
+* It supports texture sampling, color transformation, and optional texture usage 
+* for dynamic rendering of sprites.
+*
+* Key functionalities include:
+* - Sampling textures to fetch color data.
+* - Applying color addition and multiplication for custom sprite appearance.
+* - Clamping color values to ensure valid color output.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*   - Developed texture sampling and color manipulation logic.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #version 460 core
 
 out vec4 fragment_color;

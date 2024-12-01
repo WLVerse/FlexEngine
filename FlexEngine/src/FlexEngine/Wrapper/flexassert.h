@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// flexassert.h
+// 
+// Logger-based assertion macros for the FlexEngine.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flexlogger.h"

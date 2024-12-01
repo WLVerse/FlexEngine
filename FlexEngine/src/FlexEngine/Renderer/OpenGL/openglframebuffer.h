@@ -1,4 +1,39 @@
 #pragma once
+/*!************************************************************************
+ // WLVERSE [https://wlverse.web.app]
+ // openglframebuffer.h
+ //
+ // This header defines the `OpenGLFrameBuffer` class, a utility within the
+ // FlexEngine framework for managing framebuffer objects (FBOs) used in
+ // rendering pipelines. The `OpenGLFrameBuffer` class provides static
+ // methods and members to handle multiple rendering targets and post-processing
+ // stages efficiently.
+ //
+ // Key Responsibilities:
+ // - Managing framebuffers for different rendering contexts:
+ //   - Editor camera rendering (m_editorFBO)
+ //   - In-game camera rendering (m_gameFBO)
+ //   - Post-processing effects (m_postProcessingFBO)
+ //   - Bloom rendering (m_bloomFBO)
+ // - Managing associated textures for framebuffers, including ping-pong textures
+ //   for effects like blur and the final rendered output.
+ // - Providing utility functions for framebuffer operations such as setting,
+ //   clearing, and verifying the currently bound framebuffer.
+ // - Allowing dynamic regeneration of textures to accommodate window resizing.
+ //
+ // Main Features:
+ // - Separate framebuffers for editor and in-game rendering.
+ // - Support for advanced rendering effects such as post-processing and bloom.
+ // - Efficient texture management and resizing.
+ // - Static interface for global framebuffer operations.
+ //
+ // AUTHORS
+ // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+ //   - Main Author
+ //   - Implemented framebuffer setup, texture management, and utility functions.
+ //
+ // Copyright (c) 2024 DigiPen, All rights reserved.
+ **************************************************************************/
 #include <vector>
 #include "FlexMath/Vector4.h"
 #include <glad/glad.h>
@@ -27,6 +62,14 @@ namespace FlexEngine
             CID_blur,
         };
 
+        /*!***************************************************************************
+         * \brief
+         * Initializes framebuffers and their associated textures based on the
+         * given window size.
+         *
+         * \param windowSize The size of the window for which textures should be
+         *                   generated.
+         *****************************************************************************/
         static void Init(const Vector2& windowSize);
         /*!***************************************************************************
         * \brief
@@ -58,6 +101,13 @@ namespace FlexEngine
         * Clears the current framebuffer.
         *****************************************************************************/
         static void ClearFrameBuffer();
+        /*!***************************************************************************
+        * \brief
+        * Retrieves the texture ID associated with a specific framebuffer texture type.
+        *
+        * \param textureID The ID of the texture type (from `CreatedTextureID` enum).
+        * \return The OpenGL texture ID corresponding to the requested type.
+        *****************************************************************************/
         static GLuint GetCreatedTexture(GLuint textureID);
         /*!***************************************************************************
         * \brief Retrieves the ID of the currently bound framebuffer.
@@ -70,7 +120,13 @@ namespace FlexEngine
         * \return True if the currently bound framebuffer matches the given ID, false otherwise.
         ***************************************************************************/
         static bool CheckSameFrameBuffer(const GLuint framebufferID);
-    
+        /*!***************************************************************************
+        * \brief
+        * Regenerates all framebuffer textures to fit a new window size.
+        *
+        * \param width The new width of the window.
+        * \param height The new height of the window.
+        *****************************************************************************/
         static void RegenerateAllTextures(GLsizei width, GLsizei height);
     };
 }

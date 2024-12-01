@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// matrix3x3.cpp
+// 
+// Implementation of the 3x3 matrix class.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "matrix3x3.h"
 
 namespace FlexEngine

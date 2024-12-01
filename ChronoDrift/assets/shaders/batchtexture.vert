@@ -1,3 +1,24 @@
+/*!************************************************************************
+* BATCHTEXTURE.SHADER [batchtexture.vert]
+*
+* This file implements the vertex shader for rendering 2D sprites in batch
+* with support for instanced rendering, texture coordinates, and color 
+* transformations. The shader computes the final vertex position in clip space 
+* and passes texture and color data to the fragment shader.
+*
+* Key functionalities include:
+* - Computing the position of each vertex based on transformation matrices.
+* - Passing texture coordinates to the fragment shader.
+* - Handling color addition and multiplication for each instance.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Main Author
+*   - Developed instanced rendering logic and data passthrough for colors and textures.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #version 460 core
 
 // Input vertex data

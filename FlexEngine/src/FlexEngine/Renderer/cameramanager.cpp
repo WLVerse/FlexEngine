@@ -1,35 +1,37 @@
 /*!************************************************************************
- // WLVERSE [https://wlverse.web.app]
- // scenecamsorter.cpp
- //
- // This file defines the `SceneCamSorter` class, a singleton utility
- // within the FlexEngine framework for managing camera entities in a 3D scene.
- // The `SceneCamSorter` class provides functionalities for registering and
- // tracking active camera entities, facilitating seamless transitions between
- // main and editor cameras. It also offers methods to retrieve and update
- // `CameraData` properties, which encapsulate essential camera attributes
- // such as position, orientation, and projection matrices.
- //
- // Key functionalities include:
- // - Adding, switching, and removing camera entities in the scene.
- // - Providing fast access to `CameraData`, including view and projection
- //   matrices, for any registered camera.
- // - Ensuring only one instance manages camera sorting, adhering to the
- //   singleton design pattern.
- //
- // The `CameraData` struct, also defined here, includes properties for world
- // position, orientation vectors, and other parameters essential for view
- // transformations in both perspective and orthographic projections.
- //
- // AUTHORS
- // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
- //   - Main Author
- //   - Developed the camera management interface, singleton pattern, and
- //     entity registration features within FlexEngine.
- //
- // Copyright (c) 2024 DigiPen, All rights reserved.
- **************************************************************************/
-
+// WLVERSE [https://wlverse.web.app]
+// cameramanager.cpp
+//
+// This file implements the `CameraManager` class, a singleton utility
+// within the FlexEngine framework for managing and organizing camera
+// entities in a 3D scene. It is designed to handle both runtime and editor
+// camera management efficiently.
+//
+// Key Responsibilities:
+// - Registering, enabling, disabling, and removing camera entities.
+// - Facilitating seamless transitions between main and editor cameras.
+// - Providing fast access to `CameraData` for rendering purposes,
+//   including view and projection matrices.
+// - Automatically managing a default editor camera for scene editing.
+// - Validating and maintaining an active main camera for rendering.
+//
+// CameraData encapsulates critical camera attributes such as:
+// - World position and orientation vectors (position, up, right).
+// - Projection properties like field of view, aspect ratio, and clip planes.
+// - Flags for orthographic or perspective projections.
+//
+// Main Features:
+// - Automatic editor camera creation for development workflows.
+// - Efficient lifecycle management for all registered camera entities.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Main Author
+//   - Developed the camera management interface, singleton pattern, and
+//     entity registration features within FlexEngine.
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #include "cameramanager.h"
 
 namespace FlexEngine
@@ -53,8 +55,8 @@ namespace FlexEngine
     FLX_REFL_REGISTER_END;
 	#pragma endregion
 
-    #pragma region Static Member initialization
-
+    #pragma region Static Member initialization - Legacy
+    
     //std::unordered_map<FlexECS::EntityID, CameraData> CameraManager::m_cameraEntities;
     //FlexECS::EntityID CameraManager::m_currMainID = static_cast<uint64_t>(-1);
     //FlexECS::EntityID CameraManager::m_currEditorID = static_cast<uint64_t>(-1);
@@ -80,6 +82,16 @@ namespace FlexEngine
         Log::Debug("CameraManager has been successfully destroyed.");
     }
 
+    /*!***************************************************************************
+    * \brief
+    * Creates a default editor camera and registers it with the CameraManager.
+    *
+    * \details
+    * The editor camera is assigned a unique entity ID (typically 0) and is
+    * initialized with default CameraData. This camera serves as the default
+    * viewport for editing purposes and is automatically set as the current
+    * editor camera.
+    *****************************************************************************/
     void CameraManager::CreateDefaultEditorCamera()
     {
         // Generate a unique entity ID for the editor camera
@@ -286,7 +298,14 @@ namespace FlexEngine
             Log::Warning("UpdateData(...) => Camera with entityID not found.");
         }
     }
-
+    
+    /*!***************************************************************************
+    * \brief
+    * Activates the specified camera entity by enabling its `cam_is_active` flag.
+    *
+    * \param entityID The ID of the entity to enable.
+    * \return True if the camera was successfully enabled, false otherwise.
+    *****************************************************************************/
     bool CameraManager::EnableCameraEntity(FlexECS::EntityID entityID) 
     {
         auto it = m_cameraEntities.find(entityID);
@@ -299,7 +318,15 @@ namespace FlexEngine
         Log::Debug("EnableCameraEntity(...) => Failed to enable camera with entityID " + std::to_string(entityID) + ". EntityID not found.");
         return false;
     }
-
+   
+    /*!***************************************************************************
+    * \brief
+    * Deactivates the specified camera entity by disabling its `cam_is_active` flag
+    * and triggers revalidation of the main camera.
+    *
+    * \param entityID The ID of the entity to disable.
+    * \return True if the camera was successfully disabled, false otherwise.
+    *****************************************************************************/
     bool CameraManager::DisableCameraEntity(FlexECS::EntityID entityID) 
     {
         auto it = m_cameraEntities.find(entityID);
@@ -313,7 +340,12 @@ namespace FlexEngine
         Log::Debug("DisableCameraEntity(...) => Failed to disable camera. EntityID " + std::to_string(entityID) + " not found.");
         return false;
     }
-
+    
+    /*!***************************************************************************
+    * \brief
+    * Ensures the main camera is valid and active. If the current main camera
+    * becomes invalid, attempts to find and assign a new active camera as the main.
+    *****************************************************************************/
     void CameraManager::ValidateMainCamera() 
     {
         // If the current main camera is invalid or inactive
@@ -342,11 +374,11 @@ namespace FlexEngine
     #pragma region Get functions
 
     /*!***************************************************************************
-     * \brief
-     * Retrieves the main camera entity ID.
-     *
-     * \return The entity ID of the main camera.
-     *****************************************************************************/
+    * \brief
+    * Retrieves the main camera entity ID.
+    *
+    * \return The entity ID of the main camera.
+    *****************************************************************************/
     FlexECS::EntityID CameraManager::GetMainCamera() const
     {
         if (m_currMainID == INVALID_ENTITY_ID)
@@ -358,11 +390,11 @@ namespace FlexEngine
     }
 
     /*!***************************************************************************
-     * \brief
-     * Retrieves the editor camera entity ID.
-     *
-     * \return The entity ID of the editor camera.
-     *****************************************************************************/
+    * \brief
+    * Retrieves the editor camera entity ID.
+    *
+    * \return The entity ID of the editor camera.
+    *****************************************************************************/
     FlexECS::EntityID CameraManager::GetEditorCamera() const
     {
         if (m_currEditorID == INVALID_ENTITY_ID)
@@ -374,12 +406,12 @@ namespace FlexEngine
     }
 
     /*!***************************************************************************
-     * \brief
-     * Retrieves the CameraData for a specific entity ID.
-     *
-     * \param entityID The ID of the entity to retrieve CameraData for.
-     * \return Pointer to the CameraData if found, nullptr otherwise.
-     *****************************************************************************/
+    * \brief
+    * Retrieves the CameraData for a specific entity ID.
+    *
+    * \param entityID The ID of the entity to retrieve CameraData for.
+    * \return Pointer to the CameraData if found, nullptr otherwise.
+    *****************************************************************************/
     const CameraData* CameraManager::GetCameraData(FlexECS::EntityID entityID) const
     {
         auto it = m_cameraEntities.find(entityID);
@@ -392,12 +424,12 @@ namespace FlexEngine
     }
 
     /*!***************************************************************************
-     * \brief
-     * Checks if an entity has been added as a camera.
-     *
-     * \param entityID The ID of the entity to check.
-     * \return True if the entity is a camera, false otherwise.
-     *****************************************************************************/
+    * \brief
+    * Checks if an entity has been added as a camera.
+    *
+    * \param entityID The ID of the entity to check.
+    * \return True if the entity is a camera, false otherwise.
+    *****************************************************************************/
     bool CameraManager::HasCameraEntity(FlexECS::EntityID entityID) const
     {
         return m_cameraEntities.find(entityID) != m_cameraEntities.end();

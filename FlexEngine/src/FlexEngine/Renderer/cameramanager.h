@@ -1,34 +1,37 @@
 /*!************************************************************************
- // WLVERSE [https://wlverse.web.app]
- // scenecamsorter.h
- //
- // This header file defines the `SceneCamSorter` class, a singleton utility
- // within the FlexEngine framework for managing camera entities in a 3D scene.
- // The `SceneCamSorter` class provides functionalities for registering and
- // tracking active camera entities, facilitating seamless transitions between
- // main and editor cameras. It also offers methods to retrieve and update
- // `CameraData` properties, which encapsulate essential camera attributes
- // such as position, orientation, and projection matrices.
- //
- // Key functionalities include:
- // - Adding, switching, and removing camera entities in the scene.
- // - Providing fast access to `CameraData`, including view and projection
- //   matrices, for any registered camera.
- // - Ensuring only one instance manages camera sorting, adhering to the
- //   singleton design pattern.
- //
- // The `CameraData` struct, also defined here, includes properties for world
- // position, orientation vectors, and other parameters essential for view
- // transformations in both perspective and orthographic projections.
- //
- // AUTHORS
- // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
- //   - Main Author
- //   - Developed the camera management interface, singleton pattern, and
- //     entity registration features within FlexEngine.
- //
- // Copyright (c) 2024 DigiPen, All rights reserved.
- **************************************************************************/
+// WLVERSE [https://wlverse.web.app]
+// cameramanager.h
+//
+// This file implements the `CameraManager` class, a singleton utility
+// within the FlexEngine framework for managing and organizing camera
+// entities in a 3D scene. It is designed to handle both runtime and editor
+// camera management efficiently.
+//
+// Key Responsibilities:
+// - Registering, enabling, disabling, and removing camera entities.
+// - Facilitating seamless transitions between main and editor cameras.
+// - Providing fast access to `CameraData` for rendering purposes,
+//   including view and projection matrices.
+// - Automatically managing a default editor camera for scene editing.
+// - Validating and maintaining an active main camera for rendering.
+//
+// CameraData encapsulates critical camera attributes such as:
+// - World position and orientation vectors (position, up, right).
+// - Projection properties like field of view, aspect ratio, and clip planes.
+// - Flags for orthographic or perspective projections.
+//
+// Main Features:
+// - Automatic editor camera creation for development workflows.
+// - Efficient lifecycle management for all registered camera entities.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Main Author
+//   - Developed the camera management interface, singleton pattern, and
+//     entity registration features within FlexEngine.
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #pragma once
 
 #include <FlexEngine.h>
@@ -146,7 +149,11 @@ namespace FlexEngine
          * \return True if the camera was removed, false otherwise.
          *************************************************************************/
         bool RemoveCameraEntity(FlexECS::EntityID entityID);
-
+        
+        /*!***************************************************************************
+        * \brief
+        * Removes all cameras in the scene except the editor camera.
+        *****************************************************************************/
         void RemoveCamerasInScene();
 
         /*!************************************************************************
@@ -177,31 +184,37 @@ namespace FlexEngine
 
         /*!***************************************************************************
          * \brief
-         * Updates the CameraData for a given entity ID.
-         * \param entityID The ID of the entity to update.
-         * \param curr The new CameraData to update.
-         *************************************************************************/
+         * Replaces the CameraData for a specific entity with new data.
+         *
+         * \param entityID The ID of the camera entity to update.
+         * \param curr The new CameraData to assign to the entity.
+         *****************************************************************************/
         void UpdateData(FlexECS::EntityID entityID, const CameraData& curr);
     
-        /*!************************************************************************
-        * \brief Enables a camera entity by marking it as active.
-        * \param entityID The ID of the camera entity to enable.
-        * \return True if the camera was successfully enabled, false otherwise.
-        *************************************************************************/
+        /*!***************************************************************************
+         * \brief
+         * Activates the specified camera entity by enabling its `cam_is_active` flag.
+         *
+         * \param entityID The ID of the entity to enable.
+         * \return True if the camera was successfully enabled, false otherwise.
+         *****************************************************************************/
         bool EnableCameraEntity(FlexECS::EntityID entityID);
 
-        /*!************************************************************************
-         * \brief Disables a camera entity by marking it as inactive.
-         * \param entityID The ID of the camera entity to disable.
+        /*!***************************************************************************
+         * \brief
+         * Deactivates the specified camera entity by disabling its `cam_is_active` flag
+         * and triggers revalidation of the main camera.
+         *
+         * \param entityID The ID of the entity to disable.
          * \return True if the camera was successfully disabled, false otherwise.
-         *************************************************************************/
+         *****************************************************************************/
         bool DisableCameraEntity(FlexECS::EntityID entityID);
 
-        /*!************************************************************************
-         * \brief Validates and ensures the main camera ID is always valid.
-         *        If the current main camera becomes inactive, it switches to the first
-         *        available active camera.
-         *************************************************************************/
+        /*!***************************************************************************
+         * \brief
+         * Ensures the main camera is valid and active. If the current main camera
+         * becomes invalid, attempts to find and assign a new active camera as the main.
+         *****************************************************************************/
         void ValidateMainCamera();
     };
 }

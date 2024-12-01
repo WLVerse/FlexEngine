@@ -1,19 +1,16 @@
-/** WLVerse
- * \file FMODWrapper.cpp
- *
- * \brief
- *   Audio wrapper to be used to play all audio in the game.
- *   This system uses FMOD studio as a basis for playing music
- *
- * \authors
- *   Yew Chong (yewchong.k\@digipen.edu)
- *
- * \link <https://portylstudios.notion.site/WLVerse-GAM150-Plan-d3460d6a24db417ca86f9ed54deaf365?pvs=4>
- *   WLVerse GAM150 Plan
- * \endlink
- *
- * \par All content (c) 2024 DigiPen Institute of Technology Singapore. All rights reserved.
- */
+ /*!************************************************************************
+ // WLVERSE [https://wlverse.web.app]
+ // FMODWrapper.cpp
+ //
+ // Audio wrapper to be used to play all audio in the game.
+ // This system uses FMOD studio as a basis for playing music
+ //
+ // AUTHORS
+ // [100%] Yew Chong (yewchong.k@digipen.edu)
+ //   - Main Author
+ //
+ // Copyright (c) 2024 DigiPen, All rights reserved.
+ **************************************************************************/
 
 #include "FMODWrapper.h"
 #include <string>

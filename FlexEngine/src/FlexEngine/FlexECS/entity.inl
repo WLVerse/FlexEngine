@@ -1,7 +1,9 @@
 // WLVERSE [https://wlverse.web.app]
 // entity.inl
 // 
-// Implementation of inline functions for Entity class. Describes the API for entities in the ECS system.
+// Implementation of inline functions for Entity class.
+// Describes the API for entities in the ECS system.
+// Refer to datastructures.h for more information.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)

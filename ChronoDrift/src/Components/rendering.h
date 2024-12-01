@@ -3,8 +3,8 @@
 // WLVERSE [https://wlverse.web.app]
 // rendering.h
 //
-// This file defines the component classes used within the game
-// engine, essential for rendering and maintaining hierarchical relationships
+// This file defines the component classes used within the game engine,
+// essential for rendering and maintaining hierarchical relationships
 // between entities in a scene. The file is primarily responsible for
 // serializing the data of components that influence the rendering process,
 // ensuring that each entity's state is stored and can be reloaded accurately.
@@ -12,9 +12,16 @@
 // AUTHORS
 // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
 //   - Main Author
+//   - Designed and implemented the component system for 2D rendering,
+//     including support for hierarchical transformations, sprite rendering,
+//     and UI components like buttons and audio.
+// [10%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Sub Author
+//   - Designed audio and scripting
 //
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
+
 #include <FlexEngine.h>
 #ifndef GAME
 #include "Editor/componentviewer.h"
@@ -138,7 +145,15 @@ using namespace FlexEngine;
     GLuint vbo_id = Renderer2DProps::VBO_Basic;
     bool post_processed = false;
   };
-  
+
+  /*!***************************************************************************
+  * \class Animation
+  * \brief
+  * This class represents an animation component that handles the spritesheet,
+  * sprite indexing, and animation speed for rendering a sequence of images. It
+  * includes functionality to manage the animation's speed, color adjustments,
+  * and handling the current animation state (paused or playing).
+  ***************************************************************************/
   class Animation
   {
       FLX_REFL_SERIALIZABLE
@@ -157,6 +172,13 @@ using namespace FlexEngine;
       bool is_paused = false;
   };
 
+  /*!***************************************************************************
+  * \class Text
+  * \brief
+  * This class represents a text component, storing information such as font type,
+  * the text string, text color, and alignment. It is used for rendering text in
+  * the 2D space, with support for different fonts and alignments.
+  ***************************************************************************/
   class Text
   { FLX_REFL_SERIALIZABLE
   public:
@@ -183,13 +205,18 @@ using namespace FlexEngine;
       CameraData camera;
   };
 
-  // Button class for UI
+  /*!***************************************************************************
+  * \class Button
+  * \brief
+  * This class represents a button UI component, handling its interactivity state,
+  * color changes upon interaction (normal, highlighted, pressed, and disabled states),
+  * and the color transition effects. It allows for smooth visual feedback on button presses.
+  ***************************************************************************/
   class Button
   {
       FLX_REFL_SERIALIZABLE
   public:
       bool is_interactable = true;             // Whether the button is interactable
-      // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
       Vector3 normalColor;           // RGBA values for normal color
       Vector3 highlightedColor;      // RGBA values for highlighted color
       Vector3 pressedColor;          // RGBA values for pressed color
@@ -200,12 +227,20 @@ using namespace FlexEngine;
       //Do not show
       Vector3 finalColorMul; 
       Vector3 finalColorAdd;
-      //std::string navigation;        // Navigation mode (e.g., "Automatic", "None")
+
+      //Pending
       //std::vector<std::function<void()>> onClickEvents;  // List of functions to execute on click
+      // Transition type (e.g., "Color Tint", "Sprite Swap", "None")
   };
 
 
-  // Audio component requires a string to store the audio file path, and the flags to determine if it is meant to play or loop.
+  /*!***************************************************************************
+  * \class Audio
+  * \brief
+  * This class represents an audio component, allowing for playback of audio files
+  * with options for looping and control over the playback state. It stores the audio
+  * file path and the necessary flags to determine if the audio should play or loop.
+  ***************************************************************************/
   class Audio
   {
     FLX_REFL_SERIALIZABLE
@@ -215,6 +250,13 @@ using namespace FlexEngine;
     FlexECS::Scene::StringIndex audio_file = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("");
   };
 
+  /*!***************************************************************************
+  * \class Script
+  * \brief
+  * This class represents a script component that holds the identifier for a script
+  * that is attached to an entity. The script can be used to define behaviors for
+  * entities in the game scene.
+  ***************************************************************************/
   class Script
   {
     FLX_REFL_SERIALIZABLE
@@ -222,6 +264,14 @@ using namespace FlexEngine;
     int script_id;
   };
 
+  /*!***************************************************************************
+  * \function RegisterRenderingComponents
+  * \brief
+  * Registers all the rendering components used in the game engine. This includes
+  * components related to 2D sprite rendering, animations, text rendering, UI elements,
+  * camera management, and audio components, ensuring that all necessary components
+  * are properly initialized and available for the rendering pipeline.
+  ***************************************************************************/
   #ifndef GAME
   void RegisterRenderingComponents();
   #endif

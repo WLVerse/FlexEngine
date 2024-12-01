@@ -1,7 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // datastructures.h
 // 
-// API for the ECS system
+// The FlexEngine Entity-Component-System (ECS) implementation
+// 
+// This uses the archetype pattern to store entities and components in a way
+// that is cache friendly and allows for efficient queries.
+// 
+// References:
+// https://ajmmertens.medium.com/building-an-ecs-1-where-are-my-entities-and-components-63d07c7da742
+// https://ajmmertens.medium.com/building-an-ecs-2-archetypes-and-vectorization-fe21690805f9
+// https://www.youtube.com/watch?v=71RSWVyOMEY
 //
 // AUTHORS
 // [90%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -32,17 +40,6 @@ namespace FlexEngine
 {
   namespace FlexECS
   {
-
-    // The FlexEngine Entity-Component-System (ECS) implementation
-    // 
-    // This uses the archetype pattern to store entities and components in a way
-    // that is cache friendly and allows for efficient queries.
-    // 
-    // References:
-    // https://ajmmertens.medium.com/building-an-ecs-1-where-are-my-entities-and-components-63d07c7da742
-    // https://ajmmertens.medium.com/building-an-ecs-2-archetypes-and-vectorization-fe21690805f9
-    // https://www.youtube.com/watch?v=71RSWVyOMEY
-
 
     // Forward declarations
 

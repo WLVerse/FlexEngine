@@ -2,12 +2,11 @@
 // WLVERSE [https://wlverse.web.app]
 // sprite2d.cpp
 //
-// This file is responsible for handling 2D sprite rendering within the game. 
-// It focuses on batch rendering, enabling the efficient processing of large
-// numbers of sprites in a single draw call. The system minimizes OpenGL state
-// changes by organizing draw operations into a queue that is flushed once
-// all sprites have been prepared.
-//
+// Handles 2D sprite rendering within the game engine, focusing on batch rendering 
+// for efficient processing of large numbers of sprites in a single draw call.
+// The rendering system minimizes OpenGL state changes by queueing draw operations 
+// and applying them only when necessary.
+// 
 // Key functionalities include:
 // - Hierarchical transformation system, where child entities inherit
 //   transformations from their parents, enabling complex object groupings
@@ -29,7 +28,6 @@
 //
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
-
 #include "Renderer/sprite2d.h"
 
 #include "Components/rendering.h"
@@ -86,17 +84,27 @@ namespace ChronoDrift
         local_transform = parent_entity_matrix * (translation_matrix * rotation_matrix * scale_matrix);
     }
 
+    /*!***************************************************************************
+    * \brief
+    * Updates the transformation matrix of a camera entity and its view/projection matrices.
+    *
+    * \param currCam The camera entity whose matrices need to be updated.
+    * \param CamManager The CameraManager responsible for handling active camera data.
+    *****************************************************************************/
     void UpdateCamMatrix(FlexECS::Entity& currCam, CameraManager* CamManager)
     {
         //if (!currCam.GetComponent<Transform>()->is_dirty) return; //Seems to be the cause of some blue screen
 
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
         Vector2 local_scale = currCam.GetComponent<Scale>()->scale;
+
+        #pragma region unfinished
         //auto& local_position = currCam.GetComponent<Position>()->position;
         // Get rotation component if it exists
         //Rotation* local_rotation = nullptr;
         //if (currCam.HasComponent<Rotation>())
         //    local_rotation = currCam.GetComponent<Rotation>();
+        #pragma endregion
 
         //Update CamData
         auto& local_camData = currCam.GetComponent<Camera>()->camera;
@@ -111,9 +119,9 @@ namespace ChronoDrift
 
     /*!***************************************************************************
     * \brief
-    * Updates the transformation matrix of 2D sprites within the scene. It ensures
-    * proper alignment and processing of entities in the scene, particularly
-    * their position and orientation in the hierarchy.
+    * Updates the transformation matrices of all active entities in the scene, ensuring correct hierarchical relationships.
+    *
+    * \param CamManager Pointer to the CameraManager responsible for managing camera data.
     *****************************************************************************/
     void UpdateAllEntitiesMatrix(CameraManager* CamManager)
     {
@@ -199,6 +207,15 @@ namespace ChronoDrift
     #pragma endregion
 
     #pragma region Batch helper
+    /*!***************************************************************************
+    * \brief
+    * Adds a batch of sprite rendering commands to the render queue based on texture and transformation data.
+    *
+    * \param queue The function queue managing rendering operations.
+    * \param texture The texture associated with the sprite batch.
+    * \param batch The sprite batch data containing transformations and properties.
+    * \param vbo_id The ID of the VBO associated with this batch.
+    *****************************************************************************/
     void AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Sprite_Batch_Inst& batch, GLuint vbo_id)
     {
         if (!batch.m_zindex.empty())
@@ -210,6 +227,14 @@ namespace ChronoDrift
         }
     }
 
+    /*!***************************************************************************
+    * \brief
+    * Populates a sprite batch with transformation, color, and UV data from the specified entity.
+    *
+    * \param entity The entity to be added to the sprite batch.
+    * \param batch The sprite batch to be populated with data.
+    * \param type The type of entity (e.g., "Sprite", "Animation").
+    *****************************************************************************/
     void AddEntityToBatch(FlexECS::Entity& entity, Sprite_Batch_Inst& batch, const std::string& type)
     {
         auto z_index = entity.GetComponent<ZIndex>()->z;
@@ -244,7 +269,12 @@ namespace ChronoDrift
     #pragma endregion
 
     #pragma region Rendering Processes
-
+    /*!***************************************************************************
+    * \brief
+    * Updates and animates all active entities in the scene that have an animation component.
+    *
+    * \param GameTimeSpeedModifier A speed multiplier affecting animation progression.
+    *****************************************************************************/
     void UpdateAnimationInScene(double GameTimeSpeedModifier)
     {
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, ZIndex, Transform, Shader, Animation>())
@@ -362,6 +392,10 @@ namespace ChronoDrift
         #endif
     }
 
+    /*!***************************************************************************
+    * \brief
+    * Renders all 2D text entities in the scene. Adjusts font size dynamically based on transformations if refocus is enabled.
+    *****************************************************************************/
     void RenderTextEntities()
     {
         FunctionQueue text_render_queue;
@@ -404,7 +438,11 @@ namespace ChronoDrift
 
         text_render_queue.Flush();
     }
-
+    
+    /*!***************************************************************************
+    * \brief
+    * Forces immediate rendering to the screen, bypassing depth and blending configurations.
+    *****************************************************************************/
     void ForceRenderToScreen()
     {
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();

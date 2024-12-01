@@ -1,3 +1,18 @@
+// WLVERSE [https://wlverse.web.app]
+// layerstack.h
+// 
+// The layerstack manages the layers and overlays in the engine.
+// The stack is split into two parts in case the user wants to
+// have a specific order of both layers and overlays.
+// 
+// A simple example might be layers for gameplay and overlays for UI.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "layer.h" // <string>

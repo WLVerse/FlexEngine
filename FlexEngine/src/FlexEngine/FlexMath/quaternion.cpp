@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// quaternion.cpp
+// 
+// Implementation of the quaternion class.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "quaternion.h"
 
 // used for rotate towards

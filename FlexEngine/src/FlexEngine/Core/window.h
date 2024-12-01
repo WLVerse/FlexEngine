@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// window.h
+// 
+// Window class that contains all the important window management functions.
+// Untested support for multiple windows, but theoretically should work.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"
