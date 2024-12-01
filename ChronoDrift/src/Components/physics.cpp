@@ -1,6 +1,7 @@
 #include "physics.h"
+#ifndef GAME
 #include "Editor/componentviewer.h"
-
+#endif
 namespace ChronoDrift
 {
   FLX_REFL_REGISTER_START(BoundingBox2D)
@@ -23,6 +24,8 @@ namespace ChronoDrift
     FLX_REFL_REGISTER_PROPERTY(is_static)
   FLX_REFL_REGISTER_END;
 
+  // Editor bindings
+  #ifndef GAME
   COMPONENT_VIEWER_START(BoundingBox2D)
     COMPONENT_VIEWER_DRAG_VECTOR2(min)
     COMPONENT_VIEWER_DRAG_VECTOR2(max)
@@ -51,4 +54,5 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(OnClick);
     REGISTER_COMPONENT_VIEWER(Rigidbody);
   }
+  #endif 
 }

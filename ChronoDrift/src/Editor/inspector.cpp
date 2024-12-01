@@ -54,7 +54,7 @@ namespace ChronoDrift
 			EditorGUI::EditableTextField(name);
 
 			//Hardcode these 3 components first so they appear
-			//at the top for clarity (also non removable) (TODO: ik you want rotation to be non-compulsary)
+			//at the top for clarity (also non removable)
 			auto transform = entity.GetComponent<Transform>();
 			if (entity.HasComponent<Position>())
 			{

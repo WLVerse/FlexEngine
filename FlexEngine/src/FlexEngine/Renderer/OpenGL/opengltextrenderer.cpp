@@ -140,7 +140,7 @@ namespace FlexEngine
             break;
         }
 
-        #if 0 //textbox not yet done -> TODO setWidth text component
+        #if 0
          Determine initial Y position based on vertical alignment (not working)
         switch (static_cast<Renderer2DText::AlignmentY>(text.m_alignment.second))
         {

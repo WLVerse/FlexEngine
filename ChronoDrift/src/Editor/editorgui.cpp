@@ -425,7 +425,7 @@ namespace ChronoDrift
 		}
 		if (released)
 		{
-			//Unforunately not consistent
+			//Add to undo list
 		}
 
 		draw_list->AddConvexPolyFilled(arrow_gizmo, arrow_gizmo_point_count, gizmo_color);
@@ -712,8 +712,7 @@ namespace ChronoDrift
 			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
-
-			//TODO: improve the feel of the scaling
+			
 			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
 		}
 		else if (!held)

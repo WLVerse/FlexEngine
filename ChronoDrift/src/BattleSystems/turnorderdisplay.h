@@ -27,4 +27,10 @@ namespace ChronoDrift
 		\brief Displays the character's sprites according to queue order
 	*/
 	void DisplayTurnOrder(std::vector<FlexECS::Entity>& queue);
+  static inline std::unordered_map<std::string, std::string> get_character_sprite = {
+			{"Renko", R"(\images\UI\UI_BattleScreen_Portrait_Renko.png)"},
+			{"Grace", R"(\images\UI\UI_BattleScreen_Portrait_Grace.png)"},
+			{"Jack", R"(\images\UI\UI_BattleScreen_Portrait_Jack.png)"},
+			{"Robot", R"(\images\UI\UI_BattleScreen_Portrait_Enemy01.png)"},
+  };
 }

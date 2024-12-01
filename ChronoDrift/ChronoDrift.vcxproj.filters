@@ -73,9 +73,6 @@
     <ClInclude Include="src\States.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\game.h">
-      <Filter>src\Components</Filter>
-    </ClInclude>
     <ClInclude Include="src\Components\rendering.h">
       <Filter>src\Components</Filter>
     </ClInclude>
@@ -88,9 +85,6 @@
     <ClInclude Include="src\Renderer\sprite2d.h">
       <Filter>src\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Physics\box2d.h">
-      <Filter>src\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Components\physics.h">
       <Filter>src\Components</Filter>
     </ClInclude>
@@ -102,9 +96,6 @@
     </ClInclude>
     <ClInclude Include="src\CharacterMoves\moves.h">
       <Filter>src\CharacterMoves</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\battledisplay.h">
-      <Filter>src\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\BattleSystems\battlesystem.h">
       <Filter>src\BattleSystems</Filter>
@@ -180,9 +171,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\game.cpp">
-      <Filter>src\Components</Filter>
-    </ClCompile>
     <ClCompile Include="src\Components\rendering.cpp">
       <Filter>src\Components</Filter>
     </ClCompile>
@@ -195,9 +183,6 @@
     <ClCompile Include="src\Renderer\sprite2d.cpp">
       <Filter>src\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Physics\box2d.cpp">
-      <Filter>src\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\Components\physics.cpp">
       <Filter>src\Components</Filter>
     </ClCompile>
@@ -209,9 +194,6 @@
     </ClCompile>
     <ClCompile Include="src\CharacterMoves\moves.cpp">
       <Filter>src\CharacterMoves</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer\battledisplay.cpp">
-      <Filter>src\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\BattleSystems\battlesystem.cpp">
       <Filter>src\BattleSystems</Filter>

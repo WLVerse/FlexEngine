@@ -22,6 +22,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "CharacterMoves/moves.h"
 
 #define DELAY_TIME 2.f
+#define LINE_LIMIT 7
 #define SLOT_SUB_TARGET_COLOR Vector3{ 0.45f, 0.58f, 0.32f }
 #define SLOT_MAIN_TARGET_COLOR Vector3{ 0.77f, 0.12f, 0.23f }
 
@@ -73,6 +74,7 @@ namespace ChronoDrift
 
     std::list<FlexECS::Entity> move_buttons;
 
+    std::vector<std::string> toPrint;
     //BattleState m_battle_state;
     void UpdateSpeedStack();
     void RunCharacterStatus();

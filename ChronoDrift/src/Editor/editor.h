@@ -12,6 +12,7 @@
 **************************************************************************/
 
 #pragma once
+#ifndef GAME
 //panels
 #include "Editor/editorpanel.h"
 #include "Editor/hierarchyview.h"
@@ -110,7 +111,5 @@ namespace ChronoDrift
 
 		FlexEngine::CameraManager* m_CamM_Instance = nullptr;
 	};
-
-
-
 }
+#endif

@@ -68,9 +68,10 @@ namespace ChronoDrift
         FlexECS::Scene::SetActiveScene(scene);
 
         // Setup for level editor
+        #ifndef GAME
         RegisterRenderingComponents();
         RegisterPhysicsComponents();
-
+        #endif
         SetupWorld();
 
         #ifdef _MEMLEAK
@@ -191,10 +192,10 @@ namespace ChronoDrift
       profiler.EndCounter("Physics");
 
       profiler.StartCounter("Button Callbacks");
+      #ifndef GAME
       // System to handle button collider callbacks
       ImGuiContext* context = GImGui;
       ImGuiWindow* hovered_window = context->HoveredWindow;
-      #ifndef GAME
       bool is_scene = (hovered_window == ImGui::FindWindowByName("Scene"));
       #endif
 
@@ -211,8 +212,36 @@ namespace ChronoDrift
           #ifndef GAME
           Vector2 mtw = is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : Editor::GetInstance().GetPanel("GameView").mouse_to_world;
           #else
-          Vector2 mtw = Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+          Vector2 mtw;
+          Vector2 mouse_pos_ss = Input::GetMousePosition();
+          float app_width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+          float app_height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+          int window_pos_x = 0, window_pos_y = 0;
+          Application::GetCurrentWindow()->GetWindowPosition(&window_pos_x, &window_pos_y);
+          Vector2 window_top_left = { static_cast<float>(window_pos_x), static_cast<float>(window_pos_y) };
+
+          if (m_CamM_Instance->GetMainCamera() != INVALID_ENTITY_ID) 
+          {
+            auto cam_data = m_CamM_Instance->GetCameraData(m_CamM_Instance->GetMainCamera());
+
+            // Get Mouse position relative to the viewport
+            Vector2 relative_pos = Vector2(mouse_pos_ss.x - window_top_left.x,
+                                         mouse_pos_ss.y - window_top_left.y);
+
+            Vector2 ndc_click_pos = { (2 * relative_pos.x / app_width) - 1, 1 - 2 * relative_pos.y / app_height };
+            Matrix4x4 inverse = (cam_data->proj_viewMatrix).Inverse();
+            Vector4 clip = { ndc_click_pos.x,
+                             ndc_click_pos.y,
+                             1.0f,
+                             1 };
+            Vector4 world_pos = inverse * clip;
+            world_pos.x = -world_pos.x;
+
+            mtw = { world_pos.x, world_pos.y };
+          }
+
           #endif
+
           BoundingBox2D bb = *entity.GetComponent<BoundingBox2D>();
           bool inside = (mtw.x > bb.min.x && mtw.x < bb.max.x && mtw.y > bb.min.y && mtw.y < bb.max.y);
           bool t_isClicked, t_isHovered;
@@ -241,8 +270,9 @@ namespace ChronoDrift
       }
       profiler.EndCounter("Button Callbacks");
 
-      //TODO MOVE TO SCRIPTING ONCE DONE
+      
       #pragma region Camera Movement -> Should be moved to scripting
+      #ifndef GAME
       FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
       if (cam_entity.Get() != INVALID_ENTITY_ID)
       {
@@ -270,7 +300,7 @@ namespace ChronoDrift
               curr_camt = true;
           }
       }
-      
+      #endif
 
       // Regen Cam
       //for (auto& currCam : FlexECS::Scene::GetActiveScene()->CachedQuery<IsActive, Camera>())
