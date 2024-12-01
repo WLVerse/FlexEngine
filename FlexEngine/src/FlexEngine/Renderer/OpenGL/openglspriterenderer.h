@@ -297,7 +297,9 @@ namespace FlexEngine
         * \brief
         * Draws the post-processing layer after all other rendering operations.
         *****************************************************************************/
+        #ifndef GAME
         static void DrawPostProcessingLayer();
+        #endif
         #pragma endregion
     };
 }

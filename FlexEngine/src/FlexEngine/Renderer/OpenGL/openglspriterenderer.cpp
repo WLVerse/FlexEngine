@@ -303,8 +303,9 @@ namespace FlexEngine
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Linking shaders
+        #ifndef GAME
         OpenGLPostProcessing::Init(m_vbos[Renderer2DProps::VBO_Type::VBO_PProcessing].vao);
-
+        #endif
         /////////////////////////////////////////////////////////////////////////////////////
         // Create relevant FBO 
         OpenGLFrameBuffer::Init(windowSize);
@@ -545,8 +546,10 @@ namespace FlexEngine
     * \brief
     * Draws the post-processing layer after all other rendering operations.
     *****************************************************************************/
+    #ifndef GAME
     void OpenGLSpriteRenderer::DrawPostProcessingLayer()
     {
+        
         OpenGLFrameBuffer::SetPostProcessingFrameBuffer(); // Initial Frame Buffer Setup
 
         //CURRENT POST-PROCESS(PP) BEING HANDLED:
@@ -581,6 +584,8 @@ namespace FlexEngine
         GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
         glDrawBuffers(2, drawBuffers);
         glBindVertexArray(0);
+        
     }
+    #endif
     #pragma endregion
 }

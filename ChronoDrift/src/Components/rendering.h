@@ -23,8 +23,9 @@
 **************************************************************************/
 
 #include <FlexEngine.h>
+#ifndef GAME
 #include "Editor/componentviewer.h"
-
+#endif
 namespace ChronoDrift
 {
 using namespace FlexEngine;
@@ -271,5 +272,7 @@ using namespace FlexEngine;
   * camera management, and audio components, ensuring that all necessary components
   * are properly initialized and available for the rendering pipeline.
   ***************************************************************************/
+  #ifndef GAME
   void RegisterRenderingComponents();
+  #endif
 }

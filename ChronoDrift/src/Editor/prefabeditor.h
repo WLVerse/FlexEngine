@@ -15,6 +15,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 */
 /* End Header
 *******************************************************************/
+#ifndef GAME
 #pragma once
 #include <FlexEngine.h>
 #include "imgui.h"
@@ -34,3 +35,4 @@ namespace ChronoDrift {
     void ShowPrefabEditorWindow();
   };
 }
+#endif

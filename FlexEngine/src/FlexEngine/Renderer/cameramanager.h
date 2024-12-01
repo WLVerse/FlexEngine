@@ -87,8 +87,6 @@ namespace FlexEngine
     *************************************************************************/
     class __FLX_API CameraManager
     {
-        //TODO @weijie -note to self- make this store reference *low priority-likelihood of crashes*
-        //TODO @weijie -note to self- there is an unrecreatable bug with an infinite loop regarding cameras i believe (happen once)
         std::unordered_map<FlexECS::EntityID, CameraData> m_cameraEntities; /*!< Maps entity IDs to CameraData */
         FlexECS::EntityID m_currMainID = INVALID_ENTITY_ID;                 /*!< Current main camera entity ID */
         FlexECS::EntityID m_currEditorID = INVALID_ENTITY_ID;               /*!< Current editor camera entity ID */

@@ -19,7 +19,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 /* End Header
 *******************************************************************/
 
-
+#ifndef GAME
 #include "editorlayer.h"
 #include "Components/physics.h"
 #include "Components/battlecomponents.h"
@@ -110,6 +110,5 @@ namespace ChronoDrift
       }
     }
   }
-
-
 }
+#endif

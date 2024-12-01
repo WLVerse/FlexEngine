@@ -20,9 +20,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h> // always put glad before glfw
-
+#ifndef GAME
 #include <imgui.h> // ImGuiContext
-
+#endif
 #include <string>
 #include <vector>
 #include <memory> // std::shared_ptr
@@ -81,8 +81,9 @@ namespace FlexEngine
     LayerStack m_layerstack;
 
     GLFWwindow* m_glfwwindow{ nullptr };
+    #ifndef GAME
     ImGuiContext* m_imguicontext{ nullptr };
-
+    #endif
   public:
     Window(const WindowProps& props);
     ~Window();
@@ -164,12 +165,13 @@ namespace FlexEngine
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
     GLFWwindow* GetGLFWWindow() const { return m_glfwwindow; }
-
+    
+    #ifndef GAME
     // Returns the ImGui context pointer.
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
     ImGuiContext* GetImGuiContext() const { return m_imguicontext; }
-
+    #endif
   };
 
 }

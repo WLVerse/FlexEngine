@@ -117,8 +117,8 @@ namespace ChronoDrift
     FLX_REFL_REGISTER_END;
 #pragma endregion
 
-#pragma region Editable Viewer
-
+  #ifndef GAME
+  #pragma region Editable Viewer
   COMPONENT_VIEWER_START(Position)
       //Inspector.cpp replacing 
     COMPONENT_VIEWER_DRAG_VECTOR2(position)
@@ -182,7 +182,6 @@ namespace ChronoDrift
      COMPONENT_VIEWER_BOOL(camera.m_isOrthographic)
   COMPONENT_VIEWER_END(Camera)
 
-  //TODO @ROCKY to add the font pic and have a dropbox of available fonts
   COMPONENT_VIEWER_START(Text)
       COMPONENT_VIEWER_FONT_PATH(fonttype)
       COMPONENT_VIEWER_EDITABLE_STRING(text)
@@ -228,4 +227,5 @@ namespace ChronoDrift
     REGISTER_COMPONENT_VIEWER(Audio); 
     REGISTER_COMPONENT_VIEWER(Script);
   }
+  #endif
 }

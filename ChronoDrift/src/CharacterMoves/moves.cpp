@@ -35,7 +35,7 @@ namespace ChronoDrift
 	std::unordered_map<std::string, EffectFunction> MoveRegistry::s_status_function_registry;
 
 	#pragma region MoveData
-	
+
 	void Move_DealDamage(std::vector<FlexECS::Entity> targets, int value) {
 		// Example of Damage
 		for (FlexECS::Entity target : targets)
@@ -73,6 +73,30 @@ namespace ChronoDrift
 		}
 	}
 
+	void Move_DamageBuff(std::vector<FlexECS::Entity> targets, int status_duration) {
+		for (FlexECS::Entity& t : targets)
+		{
+			if (t.HasComponent<Attack_Buff>()) t.GetComponent<Attack_Buff>()->remaining_turns += status_duration;
+			else t.AddComponent<Attack_Buff>({ status_duration }); // remaining turns
+		}
+	}
+
+	void Move_DamageDebuff(std::vector<FlexECS::Entity> targets, int status_duration) {
+		for (FlexECS::Entity& t : targets)
+		{
+			if (t.HasComponent<Attack_Debuff>()) t.GetComponent<Attack_Debuff>()->remaining_turns += status_duration;
+			else t.AddComponent<Attack_Debuff>({ status_duration }); // remaining turns
+		}
+	}
+
+	void Move_Strip(std::vector<FlexECS::Entity> targets, [[maybe_unused]]int status_duration) {
+		for (FlexECS::Entity& t : targets) {
+			if (t.HasComponent<Immunity>()) t.RemoveComponent<Immunity>();
+			if (t.HasComponent<Attack_Buff>()) t.RemoveComponent<Attack_Buff>();
+			if (t.HasComponent<Recovery>()) t.RemoveComponent<Recovery>();
+		}
+	}
+
 	void Move_Immunity(std::vector<FlexECS::Entity> targets, int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Immunity>()) t.GetComponent<Immunity>()->remaining_turns += status_duration;
@@ -90,7 +114,6 @@ namespace ChronoDrift
 	void Move_Shock(std::vector<FlexECS::Entity> targets, int shock_value, int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Shock>()) {
-				// to double check whether the damage value to add on or how
 				t.GetComponent<Shock>()->remaining_turns += status_duration;
 			}
 			else t.AddComponent<Shock>({ status_duration , shock_value }); // remaining turns, damage
@@ -100,7 +123,6 @@ namespace ChronoDrift
 	void Move_Recovery(std::vector<FlexECS::Entity> targets, int heal_value, int status_duration) {
 		for (FlexECS::Entity& t : targets) {
 			if (t.HasComponent<Recovery>()) {
-				// to double check whether the damage value to add on or how
 				t.GetComponent<Recovery>()->remaining_turns += status_duration;
 			}
 			else t.AddComponent<Recovery>({ status_duration , heal_value }); // remaining turns, heal
@@ -117,6 +139,9 @@ namespace ChronoDrift
 		s_move_function_registry["HEAL"] = Move_RecoverHealth;
 		s_move_function_registry["SPD_BUFF"] = Move_RecoverHealth;
 		s_move_function_registry["SPD_DEBUFF"] = Move_RecoverHealth;
+		s_move_function_registry["ATK_BUFF"] = Move_DamageBuff;
+		s_move_function_registry["ATK_DEBUFF"] = Move_DamageDebuff;
+		s_move_function_registry["STRIP"] = Move_Strip;
 		s_move_function_registry["IMMUNITY"] = Move_Immunity;
 		s_move_function_registry["STUN"] = Move_Stun;
 		FlexEngine::Log::Debug("Move Functions Registered");

@@ -93,7 +93,8 @@ namespace ChronoDrift
     *****************************************************************************/
     void UpdateCamMatrix(FlexECS::Entity& currCam, CameraManager* CamManager)
     {
-        //TODO @WEIJIE Hierarchy movement of camera not working as intended -> Inspect (LOW Priority)
+        //if (!currCam.GetComponent<Transform>()->is_dirty) return; //Seems to be the cause of some blue screen
+
         Vector3 local_position = { currCam.GetComponent<Transform>()->transform.m30,currCam.GetComponent<Transform>()->transform.m31, currCam.GetComponent<Transform>()->transform.m32 };
         Vector2 local_scale = currCam.GetComponent<Scale>()->scale;
 
@@ -336,7 +337,9 @@ namespace ChronoDrift
         }
 
         pp_render_queue.Flush();
+        #ifndef GAME
         if(want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
         non_pp_render_queue.Flush();
     }
 
@@ -396,7 +399,9 @@ namespace ChronoDrift
         AddBatchToQueue(batch_render_queue, currentTexture, currentBatch, currentBatch.m_vboid);
 
         batch_render_queue.Flush();
+        #ifndef GAME
         if (want_PP) OpenGLSpriteRenderer::DrawPostProcessingLayer();
+        #endif
     }
 
     /*!***************************************************************************
@@ -468,6 +473,7 @@ namespace ChronoDrift
                                    0, static_cast<float>(height), 0, 0,
                                    0,0,1.f,0,
                                    -static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f,0,1.f);
+        data.window_size = Vector2(static_cast<float>(width), static_cast<float>(height));
         data.vbo_id = Renderer2DProps::VBO_BasicInverted;
         OpenGLSpriteRenderer::DrawTexture2D(OpenGLFrameBuffer::GetCreatedTexture(OpenGLFrameBuffer::CreatedTextureID::CID_finalRender), data);
 
@@ -490,11 +496,6 @@ namespace ChronoDrift
         WindowProps window_props = Application::GetCurrentWindow()->GetProps();
         Renderer2DProps props;
         props.window_size = { static_cast<float>(window_props.width), static_cast<float>(window_props.height) };
-
-        //TODO @WEIJIE 
-        // 1. Merge text with batch queue (merge text renderer to sprite renderer)
-        // 2. Change the shader name to not be hardcoded for the different rendering process
-        //    - either auto add shader component -> auto set correct shader
 
         bool depth_test = OpenGLRenderer::IsDepthTestEnabled();
         if (depth_test) OpenGLRenderer::DisableDepthTest();

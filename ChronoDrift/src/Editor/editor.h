@@ -12,7 +12,7 @@
 **************************************************************************/
 
 #pragma once
-
+#ifndef GAME
 #include "Editor/hierarchyview.h"
 #include "Editor/inspector.h"
 #include "Editor/assetbrowser.h"
@@ -100,7 +100,5 @@ namespace ChronoDrift
 
 		FlexEngine::CameraManager* m_CamM_Instance = nullptr;
 	};
-
-
-
 }
+#endif

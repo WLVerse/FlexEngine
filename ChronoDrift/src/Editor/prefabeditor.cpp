@@ -15,6 +15,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 */
 /* End Header
 *******************************************************************/
+#ifndef GAME // Not being used rn
 #include "prefabeditor.h"
 
 namespace ChronoDrift {
@@ -38,3 +39,4 @@ namespace ChronoDrift {
 
     }
 }
+#endif

@@ -185,7 +185,6 @@ namespace FlexEngine
     ImGuiIO& io = ImGui::GetIO();
 
     // set config flags
-    // todo: refactor this to window props
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

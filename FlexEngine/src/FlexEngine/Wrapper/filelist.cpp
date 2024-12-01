@@ -218,7 +218,7 @@ namespace FlexEngine
     ofn.nMaxFile = file_name_buffer_size;
     ofn.lpstrFilter = filter;
 
-    ofn.Flags = OFN_EXPLORER;
+    ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR;
 
     if (!allow_file_create) ofn.Flags |= OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
     // Disable multi-select if file creation is allowed

@@ -267,13 +267,14 @@ xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGui.lib;fmodstudio_vc.lib;fmod_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;fmodstudio_vc.lib;fmod_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -299,27 +300,47 @@ xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
     <ClInclude Include="src\CharacterMoves\moves.h" />
     <ClInclude Include="src\CharacterPrefab\characterprefab.h" />
     <ClInclude Include="src\Components\battlecomponents.h" />
-    <ClInclude Include="src\Components\game.h" />
     <ClInclude Include="src\Components\characterinput.h" />
     <ClInclude Include="src\Components\physics.h" />
     <ClInclude Include="src\Components\rendering.h" />
-    <ClInclude Include="src\Editor\assetbrowser.h" />
-    <ClInclude Include="src\Editor\componentviewer.h" />
-    <ClInclude Include="src\Editor\editor.h" />
-    <ClInclude Include="src\Editor\editorgui.h" />
-    <ClInclude Include="src\Editor\editorpanel.h" />
-    <ClInclude Include="src\Editor\gameview.h" />
-    <ClInclude Include="src\Editor\hierarchyview.h" />
-    <ClInclude Include="src\Editor\imguipayloads.h" />
-    <ClInclude Include="src\Editor\inspector.h" />
-    <ClInclude Include="src\Editor\prefabeditor.h" />
-    <ClInclude Include="src\Editor\sceneview.h" />
+    <ClInclude Include="src\Editor\assetbrowser.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\componentviewer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\editor.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\editorgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\editorpanel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\gameview.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\hierarchyview.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\imguipayloads.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\inspector.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\prefabeditor.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="src\Editor\sceneview.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\base.h" />
     <ClInclude Include="src\Layers\battle.h" />
     <ClInclude Include="src\Layers\editorlayer.h" />
     <ClInclude Include="src\Layers\overworld.h" />
-    <ClInclude Include="src\Physics\box2d.h" />
     <ClInclude Include="src\Renderer\camera2d.h" />
     <ClInclude Include="src\Renderer\sprite2d.h" />
     <ClInclude Include="src\States.h" />
@@ -333,25 +354,41 @@ xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
     <ClCompile Include="src\CharacterMoves\moves.cpp" />
     <ClCompile Include="src\CharacterPrefab\characterprefab.cpp" />
     <ClCompile Include="src\Components\battlecomponents.cpp" />
-    <ClCompile Include="src\Components\game.cpp" />
     <ClCompile Include="src\Components\characterinput.cpp" />
     <ClCompile Include="src\Components\physics.cpp" />
     <ClCompile Include="src\Components\rendering.cpp" />
-    <ClCompile Include="src\Editor\assetbrowser.cpp" />
-    <ClCompile Include="src\Editor\componentviewer.cpp" />
-    <ClCompile Include="src\Editor\editor.cpp" />
-    <ClCompile Include="src\Editor\editorgui.cpp" />
-    <ClCompile Include="src\Editor\gameview.cpp" />
-    <ClCompile Include="src\Editor\hierarchyview.cpp" />
-    <ClCompile Include="src\Editor\inspector.cpp" />
-    <ClCompile Include="src\Editor\prefabeditor.cpp" />
-    <ClCompile Include="src\Editor\sceneview.cpp" />
+    <ClCompile Include="src\Editor\assetbrowser.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\componentviewer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\editor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\editorgui.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\gameview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\hierarchyview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\inspector.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\prefabeditor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\Editor\sceneview.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="src\Layers\base.cpp" />
     <ClCompile Include="src\Layers\battle.cpp" />
     <ClCompile Include="src\Layers\editorlayer.cpp" />
     <ClCompile Include="src\Layers\overworld.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Physics\box2d.cpp" />
     <ClCompile Include="src\Renderer\camera2d.cpp" />
     <ClCompile Include="src\Renderer\sprite2d.cpp" />
     <ClCompile Include="src\States\mainstate.cpp" />

@@ -36,6 +36,7 @@ namespace FlexEngine
   // Create profiler window with IMGUI
   void Profiler::ShowProfilerWindow() 
   {
+    #ifndef GAME
     SETPROFILERWINDOW
     ImGui::Begin("Profiler");
 
@@ -56,5 +57,6 @@ namespace FlexEngine
     }
 
     ImGui::End();
+    #endif
   }
 }

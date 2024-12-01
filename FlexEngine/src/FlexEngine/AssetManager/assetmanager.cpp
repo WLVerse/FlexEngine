@@ -101,7 +101,6 @@ namespace FlexEngine
         {
           // ignore .glsl and .hlsl files
           // they are not currently supported
-          // TODO: add support for these files
           if (file_extension.string() == ".glsl" || file_extension.string() == ".hlsl")
           {
             Log::Warning(std::string("Unsupported shader type: ") + file_extension.string());
@@ -236,10 +235,16 @@ namespace FlexEngine
           {
             arg.Unload();
           }
+          else if constexpr (std::is_same_v<T, Asset::Sound>)
+          {
+            arg.Unload();
+          }
         },
         asset
       );
     }
+
+    assets.clear();
   }
 
 
