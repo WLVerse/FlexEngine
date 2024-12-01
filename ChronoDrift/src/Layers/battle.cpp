@@ -124,39 +124,39 @@ namespace ChronoDrift {
     // Include a check whether battle system has been activated
     if (!scene->CachedQuery<BattleSlot>().empty()) m_battlesystem.Update();
 
-    if (!scene->CachedQuery<CharacterInput, Character>().empty()) {
-      // Get the current camera (SO COOLLLL!)
-      FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
-      auto& curr_cam = cam_entity.GetComponent<Camera>()->camera;
-      #ifndef GAME // Lock camera during game mode
-      for (auto& s : scene->CachedQuery<CharacterInput>()) {
-        // Set Camera Position to Player with an offset lah
-        curr_cam.position = s.GetComponent<Position>()->position - Vector2(600, 500);
-        if (Input::GetKey(GLFW_KEY_W)) {
-          s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->up_cols;
-          s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->up_movement;
-        }
-        else if (Input::GetKey(GLFW_KEY_A)) {
-          s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->left_cols;
-          s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->left_movement;
-        }
-        else if (Input::GetKey(GLFW_KEY_S)) {
-          s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->down_cols;
-          s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->down_movement;
-        }
-        else if (Input::GetKey(GLFW_KEY_D)) {
-          s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->right_cols;
-          s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->right_movement;
-        }
-        else {
-          s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->idle_cols;
-          s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->idle_movement;
-        }
-      }
-      // Updating camera position
-      m_CamM_Instance->UpdateData(cam_entity, curr_cam);
-      #endif
-    }
+    //if (!scene->CachedQuery<CharacterInput, Character>().empty()) {
+    //  // Get the current camera (SO COOLLLL!)
+    //  FlexECS::Entity cam_entity = m_CamM_Instance->GetMainCamera();
+    //  auto& curr_cam = cam_entity.GetComponent<Camera>()->camera;
+    //  #ifndef GAME // Lock camera during game mode
+    //  for (auto& s : scene->CachedQuery<CharacterInput>()) {
+    //    // Set Camera Position to Player with an offset lah
+    //    curr_cam.position = s.GetComponent<Position>()->position - Vector2(600, 500);
+    //    if (Input::GetKey(GLFW_KEY_W)) {
+    //      s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->up_cols;
+    //      s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->up_movement;
+    //    }
+    //    else if (Input::GetKey(GLFW_KEY_A)) {
+    //      s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->left_cols;
+    //      s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->left_movement;
+    //    }
+    //    else if (Input::GetKey(GLFW_KEY_S)) {
+    //      s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->down_cols;
+    //      s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->down_movement;
+    //    }
+    //    else if (Input::GetKey(GLFW_KEY_D)) {
+    //      s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->right_cols;
+    //      s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->right_movement;
+    //    }
+    //    else {
+    //      s.GetComponent<Animation>()->cols = s.GetComponent<CharacterMovementSprites>()->idle_cols;
+    //      s.GetComponent<Animation>()->spritesheet = s.GetComponent<CharacterMovementSprites>()->idle_movement;
+    //    }
+    //  }
+    //  // Updating camera position
+    //  m_CamM_Instance->UpdateData(cam_entity, curr_cam);
+    //  #endif
+    //}
 
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterInput>())
     {
