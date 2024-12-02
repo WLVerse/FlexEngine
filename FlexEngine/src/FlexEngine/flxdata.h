@@ -1,12 +1,18 @@
-/*
-  \author Yew Chong
-  \brief FlxData is a class that allows for easy reading and writing of data to a file. Mostly extends the same functionality as flexprefs.
-         
-         Usage: Asset::FlxData& f = FLX_ASSET_GET(Asset::FlxData, "/data/flxer.flxdata");
-                if (f.GetBool("test", false) == false) Log::Warning("Failed to get bool");
-                if (f.GetString("tester", "") != "Hello2 World!") Log::Warning("Failed to get string");
-                if (f.GetInt("testint", 0) != 1243) Log::Warning("Failed to get int");
-*/
+// WLVERSE [https://wlverse.web.app]
+// flxdata.h
+// 
+// FlxData is a class that allows for easy reading and writing of data to a file. Mostly extends the same functionality as flexprefs.
+// 
+//  Usage: Asset::FlxData& f = FLX_ASSET_GET(Asset::FlxData, "/data/flxer.flxdata");
+//         if (f.GetBool("test", false) == false) Log::Warning("Failed to get bool");
+//         if (f.GetString("tester", "") != "Hello2 World!") Log::Warning("Failed to get string");
+//         if (f.GetInt("testint", 0) != 1243) Log::Warning("Failed to get int");
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
 #pragma once
 
 #include "flx_api.h"

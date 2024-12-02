@@ -1,3 +1,18 @@
+/*****************************************************************/
+/*!
+WLVERSE [https://wlverse.web.app]
+\file      assetbrowser.h
+\author    [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+\date      27/11/2024
+\brief     Asset Browser Declaration
+
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 #pragma once
 
 #include "FlexEngine.h"

@@ -1,29 +1,27 @@
 /*!************************************************************************
- // WLVERSE [https://wlverse.web.app]
- // openglspriterenderer.h
- //
- // This file implements the OpenGLSpriteRenderer class, responsible for
- // handling 2D sprite rendering within the game engine. The class provides
- // functions for rendering sprites, applying post-processing effects, and
- // managing OpenGL resources such as shaders and framebuffers.
- //
- // Key functionalities include:
- // - Rendering 2D sprites with texture binding, transformations, and alignment.
- // - Supporting post-processing effects like Gaussian Blur and Bloom.
- // - Managing multiple framebuffers for various render stages, allowing custom
- //   effects and optimized batch processing.
- // - Handling OpenGL state configurations like blending and depth testing.
- //
- // This renderer is designed with performance and flexibility in mind, enabling
- // easy extension and customization for complex rendering tasks in game engines.
- //
- // AUTHORS
- // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
- //   - Main Author
- //   - Developed core rendering functionalities, post-processing pipeline, and
- //     resource management within the FlexEngine architecture.
- //
- // Copyright (c) 2024 DigiPen, All rights reserved.
+ * WLVERSE [https://wlverse.web.app]
+ * openglspriterenderer.h
+ *
+ * This file implements the OpenGLSpriteRenderer class, responsible for
+ * handling 2D sprite rendering within the game engine. The class provides
+ * functions for rendering sprites and managing OpenGL resources such as
+ * shaders and vertex buffers.
+ *
+ * Key functionalities include:
+ * - Rendering 2D sprites with texture binding, transformations, and alignment.
+ * - Supporting efficient batching for optimized performance.
+ * - Managing rendering configurations like blending and depth testing.
+ *
+ * This renderer is designed with performance and flexibility in mind, enabling
+ * easy extension and customization for rendering tasks in game engines.
+ *
+ * AUTHORS
+ * [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+ *   - Main Author
+ *   - Developed core rendering functionalities and resource management
+ *     within the FlexEngine architecture.
+ *
+ * Copyright (c) 2024 DigiPen, All rights reserved.
  **************************************************************************/
 #pragma once
 
@@ -131,10 +129,8 @@ namespace FlexEngine
     * \brief
     * Class responsible for rendering 2D sprites using OpenGL.
     *
-    * This class provides methods for drawing textures, enabling/disabling
-    * post-processing effects, and managing rendering configurations, such as
-    * blending and depth testing. It is optimized for performance and ease
-    * of integration into the game engine.
+    * This class provides methods for drawing textures, enabling efficient batching,
+    * and managing OpenGL configurations like blending and depth testing.
     *****************************************************************************/
     class __FLX_API OpenGLSpriteRenderer
     {

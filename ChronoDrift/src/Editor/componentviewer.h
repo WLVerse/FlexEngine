@@ -91,6 +91,10 @@ namespace ChronoDrift
 		REGISTER_COMPONENT_VIEWER(Position);
 		REGISTER_COMPONENT_VIEWER(Sprite);
 	}
+
+
+	~ For extra control over whether you can add/delete a component using the inspector, use the extended macro:
+	REGISTER_COMPONENT_VIEWER_FUNCTIONS(component_name, COMPONENT_DISABLE_ADD, COMPONENT_DISABLE_REMOVE);
 	**************************************************************************/
 	#define COMPONENT_ENABLE_ADD (1)
 	#define COMPONENT_DISABLE_ADD (0)

@@ -1,3 +1,18 @@
+/*****************************************************************/
+/*!
+WLVERSE [https://wlverse.web.app]
+\file      mainstate.cpp
+\author    [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+\date      27/11/2024
+\brief     Implementation of main state
+
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the
+prior written consent of DigiPen Institute of Technology is prohibited.
+*/
+/* End Header
+*******************************************************************/
 #include "mainstate.h"
 
 #include "States.h"

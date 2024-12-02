@@ -5,9 +5,11 @@
 // Scene Panel for the editor.
 //
 // AUTHORS
-// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+// [90%] Rocky Sutarius (rocky.sutarius@digipen.edu)
 //   - Main Author
-//
+// [10%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Sub Author
+//   - Editor Camera (help me update accordingly rocky)
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
 

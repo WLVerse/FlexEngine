@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// path.cpp
+// 
+// Wraps std::filesystem::path to ensure that they're always valid.
+// Provides additional functionality to check if the path is safe from a hardcoded list.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "path.h"
 
 namespace FlexEngine

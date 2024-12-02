@@ -3,11 +3,10 @@
 // WLVERSE [https://wlverse.web.app]
 // sprite2d.h
 //
-// This file is responsible for handling 2D sprite rendering within the game.
-// It focuses on batch rendering, enabling the efficient processing of large
-// numbers of sprites in a single draw call. The system minimizes OpenGL state
-// changes by organizing draw operations into a queue that is flushed once
-// all sprites have been prepared.
+// Handles 2D sprite rendering within the game engine, focusing on batch rendering
+// for efficient processing of large numbers of sprites in a single draw call.
+// The rendering system minimizes OpenGL state changes by queueing draw operations
+// and applying them only when necessary.
 //
 // Key functionalities include:
 // - Hierarchical transformation system, where child entities inherit
@@ -38,8 +37,20 @@ using namespace FlexEngine;
 
 namespace ChronoDrift
 {
+    /*!***************************************************************************
+    * \brief
+    * Updates the transformation matrices of all active entities in the scene, ensuring correct hierarchical relationships.
+    *
+    * \param CamManager Pointer to the CameraManager responsible for managing camera data.
+    *****************************************************************************/
     void UpdateAllEntitiesMatrix(CameraManager* CamManager);
 
+    /*!***************************************************************************
+    * \brief
+    * Updates and animates all active entities in the scene that have an animation component.
+    *
+    * \param GameTimeSpeedModifier A speed multiplier affecting animation progression.
+    *****************************************************************************/
     void UpdateAnimationInScene(double GameTimeSpeedModifier);
 
     /*!***************************************************************************

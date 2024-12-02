@@ -1,11 +1,19 @@
-/*
-    For now, to create file need to use like this...
-    //Asset::FlxData flex("/data/flxer.flxdata");
-    //flex.SetBool("test", true);
-    //flex.SetString("tester", "Hello2 World!");
-    //flex.SetInt("testint", 1243);
-    //flex.Save();
-*/
+// WLVERSE [https://wlverse.web.app]
+// flxdata.cpp
+// 
+// For now, to create file need to use like this...
+// Asset::FlxData flex("/data/flxer.flxdata");
+// flex.SetBool("test", true);
+// flex.SetString("tester", "Hello2 World!");
+// flex.SetInt("testint", 1243);
+// flex.Save();
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "pch.h" // Logger

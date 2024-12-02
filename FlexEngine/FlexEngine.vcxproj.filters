@@ -414,9 +414,6 @@
     <ClInclude Include="src\FlexEngine\FlexMath\matrix3x3.h">
       <Filter>src\FlexEngine\FlexMath</Filter>
     </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\alphabetstorage.h">
-      <Filter>src\FlexEngine\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglfont.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>

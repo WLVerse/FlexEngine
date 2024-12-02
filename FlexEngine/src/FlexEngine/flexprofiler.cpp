@@ -1,5 +1,5 @@
 // WLVERSE [https://wlverse.web.app]
-// flexprofiler.h
+// flexprofiler.cpp
 // 
 // Profiler that allows tracking of any number of breakpoints and prints the execution time to an IMGUI window
 //

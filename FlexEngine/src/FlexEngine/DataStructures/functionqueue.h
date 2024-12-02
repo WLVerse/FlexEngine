@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// functionqueue.h
+// 
+// A queue for functions, with the ability to run them in order of priority.
+// Provides ways to sort, insert, remove, and run functions.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

@@ -1,3 +1,17 @@
+// WLVERSE [https://wlverse.web.app]
+// application.h
+// 
+// The largest scope of the engine, the application
+// is the main entry point of the engine.
+// The architecture of the engine is designed to
+// only have one application instance.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

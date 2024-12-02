@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// functionqueue.cpp
+// 
+// FunctionQueue implementation.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "functionqueue.h"

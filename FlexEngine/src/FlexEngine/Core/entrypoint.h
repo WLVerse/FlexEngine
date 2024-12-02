@@ -1,3 +1,17 @@
+// WLVERSE [https://wlverse.web.app]
+// entrypoint.h
+// 
+// The entry point of the engine is stored here.
+// This removes the need to have a main function in
+// the user's code and allows the engine to handle
+// the main function.
+// 
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #ifdef _DEBUG

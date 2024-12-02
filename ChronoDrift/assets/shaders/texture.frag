@@ -1,3 +1,25 @@
+/*!************************************************************************
+* TEXTURE.SHADER [texture.frag]
+*
+* This file implements the fragment shader for rendering 2D sprites with
+* dynamic color transformation and optional texture sampling. It provides
+* flexibility for both textured and non-textured sprite rendering with 
+* customizable additive and multiplicative color adjustments.
+*
+* Key functionalities include:
+* - Sampling texture data to retrieve color and alpha values.
+* - Applying multiplicative and additive color transformations.
+* - Supporting rendering with or without texture based on a boolean uniform.
+* - Clamping resulting color values to ensure valid output.
+*
+* AUTHORS
+* [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+*   - Main Author
+*   - Developed texture sampling, color blending logic, and texture-less rendering support.
+*
+* Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #version 460 core
 
 out vec4 fragment_color;
