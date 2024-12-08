@@ -165,7 +165,11 @@ namespace ChronoDrift
 								if (entity.HasComponent<OnClick>())
 								ComponentViewRegistry::RemoveComponent("OnClick", entity);
 							}
+
 							ComponentViewRegistry::RemoveComponent(component_name, entity);
+							//Clear out undo list because still unsafe
+							auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+							cmd->ClearCommands();
 						}
 						if (!can_remove) ImGui::EndDisabled();
 
@@ -215,6 +219,9 @@ namespace ChronoDrift
 						if (ImGui::Selectable(component_name.c_str()))
 						{
 							ComponentViewRegistry::AddComponent(component_name, entity);
+							//Clear out undo list because still unsafe
+							auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+							cmd->ClearCommands();
 
 							if (component_name == "Camera")
 								Editor::GetInstance().GetCamManager().AddCameraEntity(entity.Get(), entity.GetComponent<Camera>()->camera);

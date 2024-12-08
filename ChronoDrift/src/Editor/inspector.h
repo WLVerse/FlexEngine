@@ -12,9 +12,7 @@
 **************************************************************************/
 
 #pragma once
-#include "FlexEngine.h"
 #include "editorpanel.h"
-
 
 namespace ChronoDrift
 {

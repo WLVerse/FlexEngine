@@ -1,4 +1,5 @@
 #include "gameview.h"
+#include "editor.h"
 #include "editorgui.h"
 #include "imguipayloads.h"
 #include <FlexEngine/Renderer/OpenGL/openglspriterenderer.h>

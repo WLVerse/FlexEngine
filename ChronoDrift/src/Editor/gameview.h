@@ -24,5 +24,8 @@ namespace ChronoDrift
 		void Update();
 		void EditorUI();
 		void Shutdown();
+
+		FlexEngine::Vector2 mouse_to_world;
+
 	};
 }
