@@ -13,6 +13,5 @@ namespace ChronoDrift
 		virtual void EditorUI() = 0;
 		virtual void Shutdown() = 0;
 
-		FlexEngine::Vector2 mouse_to_world;
 	};
 }

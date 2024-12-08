@@ -244,6 +244,7 @@ xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -321,6 +322,7 @@ xcopy "$(ProjectDir)imgui.ini" "$(TargetDir)" /E /I /Y</Command>
     <ClInclude Include="src\Editor\editorpanel.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="src\Editor\editorsystem.h" />
     <ClInclude Include="src\Editor\gameview.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Game|x64'">true</ExcludedFromBuild>
     </ClInclude>

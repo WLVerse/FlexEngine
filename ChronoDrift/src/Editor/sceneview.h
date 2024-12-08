@@ -27,6 +27,7 @@ namespace ChronoDrift
 		void EditorUI();
 		void Shutdown();
 
+		FlexEngine::Vector2 mouse_to_world;
 	private:
 		enum GizmoType
 		{
@@ -35,27 +36,30 @@ namespace ChronoDrift
 			ROTATE
 		};
 
-		void CalculateViewportPosition();	//position of viewport image and size
 		void HandleMouseAndKeyboardEvents();
+		
+		void CalculateViewportPosition();	//position of viewport image and size
 		FlexEngine::FlexECS::Entity FindClickedEntity();
 		FlexEngine::Vector4 GetWorldClickPosition();
 		ImVec2 WorldToScreen(const FlexEngine::Vector2& position);
+		
 		void DrawGizmos();
+		
+		void UpdateEditorCam();
+		std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
 
+
+		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
 		bool m_gizmo_hovered;
 		bool m_dragging;
 		Position m_recorded_position;
 		Scale		 m_recorded_scale;
 		Rotation m_recorded_rotation;
 
-		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
-
 		ImVec2 m_viewport_size;
 		ImVec2 m_viewport_position;
 		ImVec2 m_viewport_screen_position;
 
-		std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
-		void UpdateEditorCam();
 		#endif
 	};
 }
