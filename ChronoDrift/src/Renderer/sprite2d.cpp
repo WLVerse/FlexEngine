@@ -276,7 +276,7 @@ namespace ChronoDrift
         }
     }
 
-    void RenderNormalEntities(bool want_PP = true)
+    void RenderNormalEntities([[maybe_unused]] bool want_PP = true)
     {
         FunctionQueue pp_render_queue, non_pp_render_queue;
 
@@ -308,7 +308,7 @@ namespace ChronoDrift
         non_pp_render_queue.Flush();
     }
 
-    void RenderBatchedEntities(bool want_PP = true)
+    void RenderBatchedEntities([[maybe_unused]] bool want_PP = true)
     {
         FunctionQueue batch_render_queue;
         std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
