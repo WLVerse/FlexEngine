@@ -143,6 +143,8 @@ namespace ChronoDrift
 		if (!clicked_entities.empty())
 		{
 			FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
+			if (!current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
+
 			if (current_selected != FlexECS::Entity::Null)
 			{
 				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<ZIndex>()->z });
