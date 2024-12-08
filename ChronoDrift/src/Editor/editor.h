@@ -68,7 +68,7 @@ namespace ChronoDrift
 		/*template <typename T>
 		T& GetPanel();*/
 
-		EditorPanel& GetPanel(const std::string& panel_name);
+		EditorPanel* GetPanel(const std::string& panel_name);
 
 		EditorSystem* GetSystem(const std::string& system_name);
 

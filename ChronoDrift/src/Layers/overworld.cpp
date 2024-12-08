@@ -210,7 +210,9 @@ namespace ChronoDrift
           }
 
           #ifndef GAME
-          Vector2 mtw = is_scene ? Editor::GetInstance().GetPanel("SceneView").mouse_to_world : Editor::GetInstance().GetPanel("GameView").mouse_to_world;
+
+          Vector2 mtw = is_scene ? reinterpret_cast<SceneView*>(Editor::GetInstance().GetPanel("SceneView"))->mouse_to_world
+                                 : reinterpret_cast<GameView*>(Editor::GetInstance().GetPanel("GameView"))->mouse_to_world;
           #else
           Vector2 mtw;
           Vector2 mouse_pos_ss = Input::GetMousePosition();

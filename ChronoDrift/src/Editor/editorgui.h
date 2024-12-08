@@ -61,21 +61,6 @@ namespace ChronoDrift
 
 		static void CreateCheckbox(bool& value, std::string title = "");
 
-		/*!***************************************************************************
-		* @brief
-		* Displays reference to an entity in the scene.
-		* Supports drag and drop of an entity from the hierarchy panel to the field.
-		******************************************************************************/
-		static void EntityReference(FlexEngine::FlexECS::Entity& data, std::string title = "Entity");
-	
-		static void ShaderPath(std::string& path, std::string title = "Shader");
-
-		static void TexturePath(std::string& path, std::string title = "Sprite");
-
-    static void AudioPath(std::string& path, std::string title = "Audio");
-
-		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
-
 		static void Color3(FlexEngine::Vector3& data, std::string title = "color");
 
 		static void EditableTextField(std::string& data, std::string title = "");
@@ -85,6 +70,28 @@ namespace ChronoDrift
 		static void Checkbox(bool& data, std::string title = "");
 
 		static void Mat44(FlexEngine::Matrix4x4& data, std::string title = "");
+
+		/*!***************************************************************************
+		* @brief Reference type vieweres
+		* Displays reference to an entity in the scene.
+		* Supports drag and drop of an entity from the hierarchy panel to the field.
+		******************************************************************************/
+		static void EntityReference(FlexEngine::FlexECS::Entity& data, std::string title = "Entity");
+	
+
+		/*!***************************************************************************
+		* @brief PATH type vieweres
+		* Basically stores the key to the asset in the asset manager.
+		* Supports drag and drop of corresponding file type from from the content browser to the field.
+		******************************************************************************/
+		static void ShaderPath(std::string& path, std::string title = "Shader");
+
+		static void TexturePath(std::string& path, std::string title = "Sprite");
+
+    static void AudioPath(std::string& path, std::string title = "Audio");
+
+		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
+
 
 
 
