@@ -4,8 +4,8 @@
 #include "imguipayloads.h"
 #endif
 #include <FlexEngine/Renderer/OpenGL/openglspriterenderer.h>
-
 #include "Renderer/camera2d.h"
+#include <set>
 namespace ChronoDrift
 {
 	#ifndef GAME
@@ -27,7 +27,6 @@ namespace ChronoDrift
 
 	void SceneView::CalculateViewportPosition()
 	{
-		#ifndef GAME
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
 
@@ -55,7 +54,6 @@ namespace ChronoDrift
 		m_viewport_size = { width, height };
 		m_viewport_position = { (panel_size.x - m_viewport_size.x) / 2.0f, title_bar_height + TOP_PADDING / 2.0f }; // relative to imgui window
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
-		#endif
 	}
 
 	Vector4 SceneView::GetWorldClickPosition()
@@ -113,32 +111,57 @@ namespace ChronoDrift
 	FlexECS::Entity SceneView::FindClickedEntity()
 	{
 		FlexECS::Entity clicked_entity = FlexECS::Entity::Null;
-		int selected_z_index = INT_MIN;
 		Vector4 mouse_world_pos = GetWorldClickPosition();
-
+		
+		auto z_index_sort = [](const std::pair<FlexECS::EntityID, int>& a, const std::pair<FlexECS::EntityID, int>& b) 
+		{
+			if (a.second == b.second)
+					return a.first < b.first; 
+			return a.second >= b.second;
+		};
+		std::set<std::pair<FlexECS::EntityID, int>, decltype(z_index_sort)> clicked_entities(z_index_sort);
+		
 		//AABB tiem
 		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Shader, ZIndex>()) //you probably only wanna click on things that are rendered
+		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Shader, ZIndex, IsActive>()) //you probably only wanna click on things that are rendered
 		{
+			auto& active = entity.GetComponent<IsActive>()->is_active;
+			if (!active) continue;
+
 			auto& pos = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
-			//auto& transform = entity.GetComponent<Transform>()->transform;
-			//Vector2 pos = { -transform.m30, transform.m31 };
-			//Vector2 scale = { transform.m00, transform.m11 };
 
 			if (mouse_world_pos.x >= (pos.x - (scale.x / 2)) &&
 					mouse_world_pos.x <= (pos.x + (scale.x / 2)) &&
 					mouse_world_pos.y >= (pos.y - (scale.y / 2)) &&
 					mouse_world_pos.y <= (pos.y + (scale.y / 2)))
 			{
-				if (entity.GetComponent<ZIndex>()->z > selected_z_index)
-				{
-					clicked_entity = entity;
-					selected_z_index = entity.GetComponent<ZIndex>()->z;
-				}
+				clicked_entities.insert(std::make_pair(entity, entity.GetComponent<ZIndex>()->z));
 			}
 		}
 
+		if (!clicked_entities.empty())
+		{
+			FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
+			if (current_selected != FlexECS::Entity::Null)
+			{
+				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<ZIndex>()->z });
+				
+				if (current == clicked_entities.end() || ++current == clicked_entities.end())
+				{
+					clicked_entity = clicked_entities.begin()->first;
+				}
+				else 
+				{
+					clicked_entity = current->first;
+				}
+			}
+			else
+			{
+				clicked_entity = clicked_entities.begin()->first;
+			}
+		}
+		
 		return clicked_entity;
 	}
 
