@@ -1,17 +1,11 @@
-
-
 #include "pch.h"
 
 #include "window.h"
 
 #include "application.h"
-#ifndef GAME
 #include "imguiwrapper.h"
-#endif
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
-#include "Renderer/OpenGL/openglframebuffer.h"
-#include "FMOD/FMODWrapper.h"
 
 namespace
 {
@@ -23,8 +17,6 @@ namespace
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
-    if (width > 0 && height > 0)
-        FlexEngine::OpenGLFrameBuffer::RegenerateAllTextures(width, height);
 
     // update the window properties
     for (auto& win : FlexEngine::Application::GetWindows())
@@ -38,26 +30,11 @@ namespace
     }
   }
 
-  void WindowFocusCallBack(GLFWwindow* window, int focused)
-  {
-    FlexEngine::FMODWrapper::Core::WindowFocusCallback(window, focused);
-    // Commented out as it causes tab down when clicking outside window
-    /*if (focused)
-    {
-      glfwRestoreWindow(window);
-    }
-    else
-    {
-      glfwIconifyWindow(window);
-    }*/
-  }
-
 }
 
 namespace FlexEngine
 {
-  // Create a function to check whether 
-  // Flag to indicate whether full screen
+
   Window::Window(WindowProps const& props)
     : s_props(props)
   {
@@ -66,13 +43,14 @@ namespace FlexEngine
     for (auto& hint : s_props.window_hints)
     {
       glfwWindowHint(hint.first, hint.second);
-
     }
 
     // create window
     m_glfwwindow = glfwCreateWindow(s_props.width, s_props.height, s_props.title.c_str(), nullptr, nullptr);
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);
+
+    auto test = glfwGetCurrentContext();
 
     //glfwSetInputMode(m_glfwwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -87,15 +65,15 @@ namespace FlexEngine
     //glfwSetWindowSizeCallback(m_glfwwindow, WindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_glfwwindow, FramebufferSizeCallback);
     //glfwSetWindowCloseCallback(m_glfwwindow, WindowCloseCallback);
-    glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallBack); // For now only audio requires this, but someone else should handle this centrally.
+    //glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallback);
     //glfwSetCharCallback(m_glfwwindow, CharCallback);
     //glfwSetDropCallback(m_glfwwindow, DropCallback);
-    #ifndef GAME
+
     // initialize imgui
     // this must be done after the window is created because imgui needs the OpenGL context
     // the shutdown is done in the window close function
     m_imguicontext = ImGuiWrapper::Init(this);
-    #endif
+
     // always move the window to the center of the screen
     // this is done after the window is created to avoid the window being created off-center
     CenterWindow();
@@ -127,22 +105,18 @@ namespace FlexEngine
     // make sure the current window is the one we are working with
     Application::Internal_SetCurrentWindow(this);
     glfwMakeContextCurrent(m_glfwwindow);
-    #ifndef GAME
     ImGui::SetCurrentContext(m_imguicontext);
-    #endif
+
     // clear screen
     OpenGLRenderer::ClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
-    OpenGLRenderer::ClearFrameBuffer();
 
     m_frameratecontroller.BeginFrame();
-    #ifndef GAME
     ImGuiWrapper::BeginFrame();
-    #endif
+
     // update layer stack
     m_layerstack.Update();
-    #ifndef GAME
+
     ImGuiWrapper::EndFrame();
-    #endif
     m_frameratecontroller.EndFrame();
 
     // swap buffers
@@ -153,11 +127,11 @@ namespace FlexEngine
   {
     // remove all layers from the layer stack
     m_layerstack.Clear();
-    #ifndef GAME
+
     // shutdown imgui
     // the imgui initialization is done in the window constructor
     ImGuiWrapper::Shutdown(m_imguicontext);
-    #endif
+
     Application::Internal_SetCurrentWindow(nullptr);
 
     // set the window to close
@@ -219,28 +193,6 @@ namespace FlexEngine
   bool Window::IsFocused() const
   {
     return glfwGetWindowAttrib(m_glfwwindow, GLFW_FOCUSED);
-  }
-
-  bool Window::IsFullScreen() 
-  {
-    return glfwGetWindowMonitor(GetGLFWWindow()) != nullptr;
-  }
-
-  void Window::CacheMiniWindowParams() {
-    int xpos = 0, ypos = 0;
-    c_params.cached_mini_window_width = s_props.width;
-    c_params.cached_mini_window_height = s_props.height;
-
-    // get the position of the window
-    glfwGetWindowPos(m_glfwwindow, &xpos, &ypos);
-    c_params.cached_mini_window_xpos = xpos;
-    c_params.cached_mini_window_ypos = ypos;
-  }
-
-  std::pair<int, int> Window::UnCacheMiniWindowsParams() {
-    s_props.width = c_params.cached_mini_window_width;
-    s_props.height = c_params.cached_mini_window_height;
-    return std::make_pair(c_params.cached_mini_window_xpos, c_params.cached_mini_window_ypos);
   }
 
   void Window::SetIcon(const Asset::Texture& icon) const

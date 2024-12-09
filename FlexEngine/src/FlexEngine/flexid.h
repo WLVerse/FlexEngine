@@ -1,23 +1,14 @@
-// WLVERSE [https://wlverse.web.app]
-// flexid.h
-// 
-// A loaded unique identifier management system.
-// The first 32 bits are the ID, the next 28 bits are the generation, and the last 4 bits are the flags.
-// The ID is used to identify the entity, the generation is used to check if the entity is still valid,
-// and the flags are used to store additional information.
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #pragma once
 
 #include "flx_api.h"
 
 #include <cstdint> // uint64_t uint8_t
 #include <vector>
+
+// A loaded unique identifier management system.
+// The first 32 bits are the ID, the next 28 bits are the generation, and the last 4 bits are the flags.
+// The ID is used to identify the entity, the generation is used to check if the entity is still valid,
+// and the flags are used to store additional information.
 
 // Helper macros.
 #define CONCAT(LHS, RHS) LHS##RHS

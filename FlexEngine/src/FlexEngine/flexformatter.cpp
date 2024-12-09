@@ -1,18 +1,3 @@
-// WLVERSE [https://wlverse.web.app]
-// flexformatter.cpp
-// 
-// Formatter for the FlexFormat file specification.
-// This is a helper class for reading and writing FlexFormat files.
-// 
-// Flxfmt stores the format name, version, created date, last edited date,
-// save version, and file type.
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #include "pch.h"
 
 #include "flexformatter.h"

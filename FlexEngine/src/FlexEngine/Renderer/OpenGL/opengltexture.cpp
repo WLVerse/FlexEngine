@@ -22,8 +22,8 @@ namespace FlexEngine
     //glGenerateMipmap(GL_TEXTURE_2D);
 
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -105,8 +105,7 @@ namespace FlexEngine
     return true;
   }
 
-  // Unused function for later usage, silencing with a warning now.
-  [[maybe_unused]]  static bool Internal_LoadTextureFromMemory(const unsigned char* texture_data, int size, unsigned char** out_texture_data, unsigned int* out_texture, int* out_width, int* out_height)
+  static bool Internal_LoadTextureFromMemory(const unsigned char* texture_data, int size, unsigned char** out_texture_data, unsigned int* out_texture, int* out_width, int* out_height)
   {
     // Decompress the texture
     int channels;

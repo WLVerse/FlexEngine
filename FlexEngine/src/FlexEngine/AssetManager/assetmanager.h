@@ -5,11 +5,8 @@
 #include "AssetManager/assetkey.h"
 #include "Wrapper/path.h"
 #include "Renderer/OpenGL/opengltexture.h"
-#include "Renderer/OpenGL/openglfont.h"
 #include "Renderer/OpenGL/openglshader.h"
 #include "Renderer/OpenGL/openglmodel.h"
-#include "FMOD/Sound.h"
-#include "FlexEngine/flxdata.h"
 
 #include <string>
 #include <unordered_map>
@@ -19,7 +16,7 @@ namespace FlexEngine
 {
 
   // Variant of all asset types
-  using AssetVariant = std::variant<Asset::Texture, Asset::Shader, Asset::Model, Asset::Sound, Asset::FlxData, Asset::Font>;
+  using AssetVariant = std::variant<Asset::Texture, Asset::Shader, Asset::Model>;
 
   // Helper macro to get an asset by its key.
   // Example usage: FLX_ASSET_GET(Asset::Texture, R"(/images/flexengine/flexengine-256.png)")

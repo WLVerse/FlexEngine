@@ -623,15 +623,6 @@ namespace FlexEngine
     return value * matrix;
   }
 
-  Vector4 operator*(const Matrix4x4& matrix, const Vector4& vector)
-  {
-    return Vector4(
-      matrix.m00 * vector.x + matrix.m10 * vector.y + matrix.m20 * vector.z + matrix.m30 * vector.w,
-      matrix.m01 * vector.x + matrix.m11 * vector.y + matrix.m21 * vector.z + matrix.m31 * vector.w,
-      matrix.m02 * vector.x + matrix.m12 * vector.y + matrix.m22 * vector.z + matrix.m32 * vector.w,
-      matrix.m03 * vector.x + matrix.m13 * vector.y + matrix.m23 * vector.z + matrix.m33 * vector.w
-    );
-  }
   //Matrix4x4 operator/(const Matrix4x4& matrix_a, const Matrix4x4& matrix_b);
   
   //Matrix4x4 operator/(Matrix4x4::const_value_type value, const Matrix4x4& matrix);

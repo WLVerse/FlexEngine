@@ -3,7 +3,6 @@
 #include "assetmanager.h"
 
 #include "Wrapper/assimp.h"
-#include "FMOD/FMODWrapper.h"
 
 namespace FlexEngine
 {
@@ -27,7 +26,7 @@ namespace FlexEngine
 
     // add texture to assets
     assets[key] = texture;
-    Log::Debug(std::string("AssetManager: Added texture: ") + key);
+    Log::Info(std::string("AssetManager: Added texture: ") + key);
     return key;
   }
 
@@ -69,10 +68,7 @@ namespace FlexEngine
         // - textures
         // - shaders
         // - models
-        // - audio
-        // - flxscene data
-        // - font
-        
+
         auto file_extension = file.path.extension();
 
         if (FLX_EXTENSIONS_CHECK_SAFETY("image", file_extension.string()))
@@ -84,12 +80,13 @@ namespace FlexEngine
           assets[key] = Asset::Texture::Null;
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
           texture.Load(file.path);
-          Log::Debug("Loaded texture: " + key);
+          Log::Info("Loaded texture: " + key);
         }
         else if (FLX_EXTENSIONS_CHECK_SAFETY("shader", file_extension.string()))
         {
           // ignore .glsl and .hlsl files
           // they are not currently supported
+          // TODO: add support for these files
           if (file_extension.string() == ".glsl" || file_extension.string() == ".hlsl")
           {
             Log::Warning(std::string("Unsupported shader type: ") + file_extension.string());
@@ -132,43 +129,10 @@ namespace FlexEngine
 
           if (loaded_model)
           {
-            //Log::Debug("Loaded model: " + key);
+            //Log::Info("Loaded model: " + key);
             assets[key] = loaded_model;
           }
           FLX_FLOW_ENDSCOPE();
-        }
-        else if (FLX_EXTENSIONS_CHECK_SAFETY("audio", file_extension.string()))
-        {
-          AssetKey key = file.path.string().substr(default_directory_length);
-          FLX_FLOW_BEGINSCOPE();
-          assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
-          FLX_FLOW_ENDSCOPE();
-        }
-        else if (FLX_EXTENSIONS_CHECK_SAFETY("flx", file_extension.string()))
-        {
-          if (file_extension.string() == ".flxprefab")
-          {
-            // Read in flexprefab not needed
-          }
-          else if (file_extension.string() == ".flxdata")
-          {
-            // Write flxdata support
-            AssetKey key = file.path.string().substr(default_directory_length);
-            FLX_FLOW_BEGINSCOPE();
-            assets[key] = Asset::FlxData{ key };
-            FLX_FLOW_ENDSCOPE();
-          }
-        }
-        else if (FLX_EXTENSIONS_CHECK_SAFETY("font", file_extension.string()))
-        {
-            // create an asset key
-            AssetKey key = file.path.string().substr(default_directory_length);
-            
-            // load font
-            FLX_FLOW_BEGINSCOPE();
-            assets[key] = Asset::Font{key};
-            FLX_FLOW_ENDSCOPE();
-            Log::Info("Loaded font path: " + key);
         }
       }
     );
@@ -194,7 +158,7 @@ namespace FlexEngine
       assets[assetkey] = Asset::Shader();
       Asset::Shader& shader = std::get<Asset::Shader>(assets[assetkey]);
       shader.Create(files[Asset::Shader::Type::Vertex]->path, files[Asset::Shader::Type::Fragment]->path);
-      Log::Debug("Loaded shader: " + assetkey);
+      Log::Info("Loaded shader: " + assetkey);
     }
 
     FLX_FLOW_ENDSCOPE();
@@ -203,8 +167,6 @@ namespace FlexEngine
   void AssetManager::Unload()
   {
     FLX_FLOW_FUNCTION();
-
-    FMODWrapper::Core::ForceStop(); // As weird as this looks, I need this to be here so I can free sounds safely. - YC
 
     for (auto& [key, asset] : assets)
     {
@@ -220,20 +182,10 @@ namespace FlexEngine
           {
             arg.Destroy();
           }
-          else if constexpr (std::is_same_v<T, Asset::Font>)
-          {
-            arg.Unload();
-          }
-          else if constexpr (std::is_same_v<T, Asset::Sound>)
-          {
-            arg.Unload();
-          }
         },
         asset
       );
     }
-
-    assets.clear();
   }
 
 

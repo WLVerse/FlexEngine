@@ -86,6 +86,7 @@ namespace FlexEngine
 
     Vector2(value_type _x = 0.0f, value_type _y = 0.0f);
     Vector2(const Vector2& other);
+
 #pragma endregion
 
 #pragma region Operator Overloading

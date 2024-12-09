@@ -17,6 +17,9 @@
     <Filter Include="third_party\glad">
       <UniqueIdentifier>{5f2433d9-19b2-434e-8089-21b4becec3fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\Loader">
+      <UniqueIdentifier>{af4987ea-e5b4-45ee-bde7-d86af28bbe18}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\FlexEngine\Reflection">
       <UniqueIdentifier>{e9041521-9d51-46c9-8a4b-f92edb080361}</UniqueIdentifier>
     </Filter>
@@ -44,12 +47,6 @@
     <Filter Include="src\FlexEngine\AssetManager">
       <UniqueIdentifier>{21c5c0a3-1d77-4018-8eac-f285cb506a86}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\FlexEngine\FMOD">
-      <UniqueIdentifier>{67fe59ca-fc79-45da-8672-f84c195c3eb0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\FlexEngine\Renderer\DebugRenderer">
-      <UniqueIdentifier>{3792cc46-98cd-41a4-ab7a-6cba05726b5d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -64,11 +61,17 @@
     <ClCompile Include="..\third_party\src\glad\glad.c">
       <Filter>third_party\glad</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\playerprefs.cpp">
+      <Filter>src\FlexEngine</Filter>
+    </ClCompile>
     <ClCompile Include="src\FlexEngine\input.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
     <ClCompile Include="src\FlexEngine\flexlogger.cpp">
       <Filter>src\FlexEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Loader\fmodstudio.cpp">
+      <Filter>src\FlexEngine\Loader</Filter>
     </ClCompile>
     <ClCompile Include="src\FlexEngine\uuid.cpp">
       <Filter>src\FlexEngine</Filter>
@@ -187,45 +190,6 @@
     <ClCompile Include="src\FlexEngine\flexprefs.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\DebugRenderer\debugrenderer.cpp">
-      <Filter>src\FlexEngine\Renderer\DebugRenderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspriterenderer.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\FMOD\FMODWrapper.cpp">
-      <Filter>src\FlexEngine\FMOD</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\FMOD\Sound.cpp">
-      <Filter>src\FlexEngine\FMOD</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\flxdata.cpp">
-      <Filter>src\FlexEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\opengldebugrenderer.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\FlexMath\matrix3x3.cpp">
-      <Filter>src\FlexEngine\FlexMath</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglfont.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\opengltextrenderer.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\cameramanager.cpp">
-      <Filter>src\FlexEngine\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\flexprofiler.cpp">
-      <Filter>src\FlexEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.cpp">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -243,6 +207,9 @@
     <ClInclude Include="src\FlexEngine\Core\entrypoint.h">
       <Filter>src\FlexEngine\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\FlexEngine\playerprefs.h">
+      <Filter>src\FlexEngine</Filter>
+    </ClInclude>
     <ClInclude Include="src\FlexEngine\timer.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
@@ -251,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\flexlogger.h">
       <Filter>src\FlexEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Loader\fmodstudio.h">
+      <Filter>src\FlexEngine\Loader</Filter>
     </ClInclude>
     <ClInclude Include="src\FlexEngine\uuid.h">
       <Filter>src\FlexEngine</Filter>
@@ -391,51 +361,6 @@
       <Filter>src\FlexEngine\DataStructures</Filter>
     </ClInclude>
     <ClInclude Include="src\FlexEngine\flexprefs.h">
-      <Filter>src\FlexEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\DebugRenderer\debugrenderer.h">
-      <Filter>src\FlexEngine\Renderer\DebugRenderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspriterenderer.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\FMOD\FMODWrapper.h">
-      <Filter>src\FlexEngine\FMOD</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\FMOD\Sound.h">
-      <Filter>src\FlexEngine\FMOD</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\flxdata.h">
-      <Filter>src\FlexEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugrenderer.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\FlexMath\matrix3x3.h">
-      <Filter>src\FlexEngine\FlexMath</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\alphabetstorage.h">
-      <Filter>src\FlexEngine\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglfont.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengltextrenderer.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\cameramanager.h">
-      <Filter>src\FlexEngine\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\flexprofiler.h">
-      <Filter>src\FlexEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglpostprocessing.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FlexEngine\windowsizes.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
   </ItemGroup>

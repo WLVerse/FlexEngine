@@ -6,27 +6,25 @@ namespace FlexEngine
   namespace Extensions
   {
     // Match these file extensions with the FlxFmtFileType enum (flexformatter.h)
-      const std::unordered_map<std::string, std::set<std::string>> safe =
-      {
-          // FlexEngine files
-          { "flx", { ".flxscene", ".flxscript", ".flxprefab", ".flxmaterial", ".flxdata"}},
-          // FlexEngine binary files
-          { "flb", { ".flbscene", ".flbscript", ".flbprefab", ".flbmaterial" } },
-          // Data files (txt, json, etc.)
-          { "data", { ".txt", ".json", ".csv", ".yaml", ".ini", ".cfg", ".log", ".dat" } },
-          // Shader files (glsl, frag, etc.)
-          { "shader", { ".glsl", ".hlsl", ".frag", ".vert" }},
-          // Image files (jpg, png, etc.)
-          { "image", { ".jpg", ".jpeg", ".png" } },
-          // Font files (ttf)
-          { "font", { ".ttf"} },
-          // Video files (mp4, avi, etc.)
-          { "video", { ".mp4" } },
-          // Audio files (mp3, wav, etc.)
-          { "audio", { ".mp3", ".wav", ".ogg", ".flac" } },
-          // Model files (obj, fbx, etc.)
-          { "model", { ".obj", ".mtl", ".fbx", ".gltf", ".glb" } },
-      };
+    const std::unordered_map<std::string, std::set<std::string>> safe =
+    {
+      // FlexEngine files
+      { "flx", { ".flxscene", ".flxscript", ".flxprefab", ".flxmaterial" } },
+      // FlexEngine binary files
+      { "flb", { ".flbscene", ".flbscript", ".flbprefab", ".flbmaterial" } },
+      // Data files (txt, json, etc.)
+      { "data", { ".txt", ".json", ".csv", ".yaml", ".ini", ".cfg", ".log", ".dat" } },
+      // Shader files (glsl, frag, etc.)
+      { "shader", { ".glsl", ".hlsl", ".frag", ".vert" }},
+      // Image files (jpg, png, etc.)
+      { "image", { ".jpg", ".jpeg", ".png" } },
+      // Video files (mp4, avi, etc.)
+      { "video", { ".mp4" } },
+      // Audio files (mp3, wav, etc.)
+      { "audio", { ".mp3", ".wav", ".ogg", ".flac" } },
+      // Model files (obj, fbx, etc.)
+      { "model", { ".obj", ".mtl", ".fbx", ".gltf", ".glb" } },
+    };
   }
 
   #pragma region Constructors

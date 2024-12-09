@@ -1,16 +1,3 @@
-// WLVERSE [https://wlverse.web.app]
-// input.h
-// 
-// Input handling for the FlexEngine library
-// This file is used to handle input from the user
-// Uses GLFW key codes
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #pragma once
 
 #include "FlexMath/vector2.h"

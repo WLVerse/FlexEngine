@@ -1,19 +1,8 @@
-// WLVERSE [https://wlverse.web.app]
-// flx_api.h
-// 
-// Macro file for defining the API and calling conventions for the FlexEngine library.
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #pragma once
 
+// Macro file for defining the API and calling conventions for the FlexEngine library.
 
-// The dll part has been disabled because the FlexEngine library is not currently being built as a DLL.
-#ifdef false //_WIN32
+#ifdef __FLX_DISABLED // _WIN32
 
   #pragma warning(disable: 4251) // Disable warning about exporting STL classes in DLLs
 

@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="assets">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="assets\shaders">
+      <UniqueIdentifier>{b22d8f53-00a7-4491-b9dc-032e0012a5d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Components">
+      <UniqueIdentifier>{75142e76-05f5-4221-90aa-7549b74bbd6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Layers">
+      <UniqueIdentifier>{dcc096df-92fe-4baa-bc83-294870aad723}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\States">
+      <UniqueIdentifier>{601b6a6b-256e-4411-bb3a-c2975c45c5e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Renderer">
+      <UniqueIdentifier>{de033ccb-f665-4504-b871-5b98b31ecd15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Physics">
+      <UniqueIdentifier>{239557ac-711e-401c-ae1f-b024dff647f0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\texture.frag">
+      <Filter>assets\shaders</Filter>
+    </None>
+    <None Include="assets\shaders\texture.vert">
+      <Filter>assets\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Layers.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\game.h">
+      <Filter>src\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\rendering.h">
+      <Filter>src\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\board.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\menu.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\mainstate.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\base.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\sprite2d.h">
+      <Filter>src\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\box2d.h">
+      <Filter>src\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\physics.h">
+      <Filter>src\Components</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\game.cpp">
+      <Filter>src\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\rendering.cpp">
+      <Filter>src\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\board.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\menu.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\mainstate.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\base.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\sprite2d.cpp">
+      <Filter>src\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\box2d.cpp">
+      <Filter>src\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\physics.cpp">
+      <Filter>src\Components</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

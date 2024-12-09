@@ -8,9 +8,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h> // always put glad before glfw
-#ifndef GAME
+
 #include <imgui.h> // ImGuiContext
-#endif
+
 #include <string>
 #include <vector>
 #include <memory> // std::shared_ptr
@@ -53,25 +53,16 @@ namespace FlexEngine
     );
   };
 
-  struct CachedMiniWindowParams {
-    int cached_mini_window_width = 1280;
-    int cached_mini_window_height = 720;
-    int cached_mini_window_xpos = 0;
-    int cached_mini_window_ypos = 0;
-  };
-
   class __FLX_API Window
   {
     WindowProps s_props;
-    CachedMiniWindowParams c_params;
 
     FramerateController m_frameratecontroller;
     LayerStack m_layerstack;
 
     GLFWwindow* m_glfwwindow{ nullptr };
-    #ifndef GAME
     ImGuiContext* m_imguicontext{ nullptr };
-    #endif
+
   public:
     Window(const WindowProps& props);
     ~Window();
@@ -120,14 +111,6 @@ namespace FlexEngine
     void SetWindowPosition(int x, int y) const;
 
     bool IsFocused() const;
-    bool IsFullScreen();
-
-    // This is to record parameters of window b4 full screen
-    // Do not call this function unnecessarily (there really shouldn't be any need to)
-    void CacheMiniWindowParams();
-    // This is to set the window parameters upon full screen exit
-    // Do not call this function unnecessarily (there really shouldn't be any need to)
-    std::pair<int, int> UnCacheMiniWindowsParams();
 
     void SetIcon(const Asset::Texture& icon) const;
 
@@ -153,13 +136,12 @@ namespace FlexEngine
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
     GLFWwindow* GetGLFWWindow() const { return m_glfwwindow; }
-    
-    #ifndef GAME
+
     // Returns the ImGui context pointer.
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
     ImGuiContext* GetImGuiContext() const { return m_imguicontext; }
-    #endif
+
   };
 
 }

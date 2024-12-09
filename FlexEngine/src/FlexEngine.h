@@ -1,6 +1,5 @@
-// WLVERSE [https://wlverse.web.app]
-// FlexEngine.h
-// 
+#pragma once
+
 // FlexEngine Main Include File
 // This file includes all the necessary files to use the FlexEngine library.
 // 
@@ -9,14 +8,6 @@
 // - Tools . . . . . . Tools for logging, timing, and other utilities.
 // - Wrappers  . . . . Wrappers for external libraries and tools.
 // - Data Structures . Data structures used in the engine.
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
-#pragma once
 
 
 /* |----------------------------| */
@@ -59,7 +50,6 @@
 // Use FLX_FLOW_BEGINSCOPE() to log the start of a system scope flow.
 // Use FLX_FLOW_ENDSCOPE() to log the end of a system scope flow.
 #include "FlexEngine/flexlogger.h"
-#include "FlexEngine/flexprofiler.h"
 
 // Assertion wrapper for handling fatal errors.
 // These are used to check for destructive errors like memory leaks.
@@ -110,6 +100,11 @@
 // Macros are provided to make the state management easier.
 #include "FlexEngine/StateManager/statemanager.h"
 
+// Implementation of Unity's PlayerPrefs.
+// Used to store and retrieve data from the playerprefs.json config file.
+// Set float, int, string, and bool values.
+#include "FlexEngine/playerprefs.h"
+
 // Input handling abstracted from GLFW.
 // Use GLFW key codes.
 // Currently does not support gamepads.
@@ -119,11 +114,11 @@
 /* |-----------------------------| */
 /* |---------- Wrappers ---------| */
 /* |-----------------------------| */
-#ifndef GAME
+
 // Wraps the ImGui library for easier use.
 // Includes the ImGui library.
 #include "FlexEngine/Core/imguiwrapper.h"
-#endif 
+
 // Contains the path, file, and filelist class.
 // Has the Extension namespace with a list of safe and supported extensions.
 // Handles the functionality to read and write files.
@@ -132,6 +127,7 @@
 #include "FlexEngine/Wrapper/file.h"
 #include "FlexEngine/Wrapper/filelist.h"
 
+
 /* |-----------------------------| */
 /* |---------- Renderer ---------| */
 /* |-----------------------------| */
@@ -139,12 +135,6 @@
 // Contains the renderer class.
 // The current implementation is exclusively for OpenGL.
 #include "FlexEngine/Renderer/OpenGL/openglrenderer.h"
-// The current implementation is exclusively for OpenGL. For 2D sprites
-#include "FlexEngine/Renderer/OpenGL/openglspriterenderer.h"
-// The current implementation is exclusively for OpenGL. For freetype text
-#include "FlexEngine/Renderer/OpenGL/opengltextrenderer.h"
-
-#include "FlexEngine/Renderer/OpenGL/opengldebugrenderer.h"
 
 // Stores one vertex for the mesh.
 // The current implementation is exclusively for OpenGL.
@@ -194,8 +184,3 @@
 // The number that is generated is inclusive of the min and max values.
 // Can also be used to store a range of values by getting min and max.
 #include "FlexEngine/DataStructures/range.h"
-
-/* |-----------------------------| */
-/* |------        FMOD     ------| */
-/* |-----------------------------| */
-#include "FlexEngine/FMOD/FMODWrapper.h"

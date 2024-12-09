@@ -1,15 +1,3 @@
-// WLVERSE [https://wlverse.web.app]
-// timer.h
-// 
-// Debug timer implementation for measuring time taken by functions to execute
-// This is not meant to be used in production code as it is only available in debug mode
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #pragma once
 
 #include "flexlogger.h" // <filesystem> <fstream> <string>

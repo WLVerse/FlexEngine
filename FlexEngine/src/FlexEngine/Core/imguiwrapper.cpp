@@ -173,6 +173,7 @@ namespace FlexEngine
     ImGuiIO& io = ImGui::GetIO();
 
     // set config flags
+    // todo: refactor this to window props
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -184,9 +185,7 @@ namespace FlexEngine
     CustomImguiStyle();
 
     // load font
-    std::string currentDir = std::filesystem::current_path().string();
-    std::string fontPath = currentDir + "/assets/fonts/Suez_One/SuezOne-Regular.ttf";
-    io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 21.f);
+    io.Fonts->AddFontFromFileTTF("..\\FlexEngine\\assets\\fonts\\Noto_Sans\\static\\NotoSans-Regular.ttf", 21.f);
 
     // setup platform/renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window->GetGLFWWindow(), true);

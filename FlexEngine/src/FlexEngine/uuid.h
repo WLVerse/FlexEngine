@@ -1,14 +1,3 @@
-// WLVERSE [https://wlverse.web.app]
-// uuid.h
-// 
-// Rough implementation for UUID
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
 #pragma once
 
 #include <functional> // std::hash
