@@ -44,6 +44,8 @@ namespace ChronoDrift
 		bool m_gizmo_hovered;
 		bool m_dragging;
 
+		bool m_dragging_camera{ false };
+
 		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
 
 		ImVec2 m_viewport_size;
@@ -51,7 +53,7 @@ namespace ChronoDrift
 		ImVec2 m_viewport_screen_position;
 
 		std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
-		void UpdateEditorCam();
+		void MoveEditorCam();
 		#endif
 	};
 }
