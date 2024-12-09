@@ -191,10 +191,10 @@ namespace ChronoDrift
 	//	}
 	//	return nullptr;
 	//}
-  EditorPanel& Editor::GetPanel(const std::string& panel_name)
-  {
-    return *m_panels[panel_name];
-  }
+	EditorPanel* Editor::GetPanel(const std::string& panel_name)
+	{
+		return m_panels[panel_name];
+	}
 
 	void Editor::SelectEntity(FlexECS::Entity entity)
 	{

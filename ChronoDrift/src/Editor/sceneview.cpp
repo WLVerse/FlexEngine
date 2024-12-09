@@ -4,8 +4,8 @@
 #include "imguipayloads.h"
 #endif
 #include <FlexEngine/Renderer/OpenGL/openglspriterenderer.h>
-
 #include "Renderer/camera2d.h"
+#include <set>
 namespace ChronoDrift
 {
 	#ifndef GAME
@@ -27,7 +27,6 @@ namespace ChronoDrift
 
 	void SceneView::CalculateViewportPosition()
 	{
-		#ifndef GAME
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
 
@@ -55,7 +54,6 @@ namespace ChronoDrift
 		m_viewport_size = { width, height };
 		m_viewport_position = { (panel_size.x - m_viewport_size.x) / 2.0f, title_bar_height + TOP_PADDING / 2.0f }; // relative to imgui window
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
-		#endif
 	}
 
 	Vector4 SceneView::GetWorldClickPosition()
@@ -113,32 +111,59 @@ namespace ChronoDrift
 	FlexECS::Entity SceneView::FindClickedEntity()
 	{
 		FlexECS::Entity clicked_entity = FlexECS::Entity::Null;
-		int selected_z_index = INT_MIN;
 		Vector4 mouse_world_pos = GetWorldClickPosition();
-
+		
+		auto z_index_sort = [](const std::pair<FlexECS::EntityID, int>& a, const std::pair<FlexECS::EntityID, int>& b) 
+		{
+			if (a.second == b.second)
+					return a.first < b.first; 
+			return a.second >= b.second;
+		};
+		std::set<std::pair<FlexECS::EntityID, int>, decltype(z_index_sort)> clicked_entities(z_index_sort);
+		
 		//AABB tiem
 		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Shader, ZIndex>()) //you probably only wanna click on things that are rendered
+		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Shader, ZIndex, IsActive>()) //you probably only wanna click on things that are rendered
 		{
+			auto& active = entity.GetComponent<IsActive>()->is_active;
+			if (!active) continue;
+
 			auto& pos = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
-			//auto& transform = entity.GetComponent<Transform>()->transform;
-			//Vector2 pos = { -transform.m30, transform.m31 };
-			//Vector2 scale = { transform.m00, transform.m11 };
 
 			if (mouse_world_pos.x >= (pos.x - (scale.x / 2)) &&
 					mouse_world_pos.x <= (pos.x + (scale.x / 2)) &&
 					mouse_world_pos.y >= (pos.y - (scale.y / 2)) &&
 					mouse_world_pos.y <= (pos.y + (scale.y / 2)))
 			{
-				if (entity.GetComponent<ZIndex>()->z > selected_z_index)
-				{
-					clicked_entity = entity;
-					selected_z_index = entity.GetComponent<ZIndex>()->z;
-				}
+				clicked_entities.insert(std::make_pair(entity, entity.GetComponent<ZIndex>()->z));
 			}
 		}
 
+		if (!clicked_entities.empty())
+		{
+			FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
+			if (current_selected != FlexECS::Entity::Null && !current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
+
+			if (current_selected != FlexECS::Entity::Null)
+			{
+				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<ZIndex>()->z });
+				
+				if (current == clicked_entities.end() || ++current == clicked_entities.end())
+				{
+					clicked_entity = clicked_entities.begin()->first;
+				}
+				else 
+				{
+					clicked_entity = current->first;
+				}
+			}
+			else
+			{
+				clicked_entity = clicked_entities.begin()->first;
+			}
+		}
+		
 		return clicked_entity;
 	}
 
@@ -293,7 +318,7 @@ namespace ChronoDrift
 
 			HandleMouseAndKeyboardEvents();
 			DrawGizmos();
-			UpdateEditorCam();
+			MoveEditorCam();
 
 			//Create new entity when dragging an image from assets to scene
 			if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
@@ -319,48 +344,65 @@ namespace ChronoDrift
 		ImGui::End();
 	}
 
-	void SceneView::UpdateEditorCam()
+	void SceneView::MoveEditorCam()
 	{
-		if (ImGui::IsMouseDown(2)) //Use middle mouse button to drag and move
+		if (ImGui::IsWindowHovered() || m_dragging_camera)
 		{
-			ImVec2 drag_delta = ImGui::GetMouseDragDelta(2);
-			if(drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
-			Vector2 camera_pos_change{drag_delta.x, -drag_delta.y};
+			//Camera moving
+			if (ImGui::IsMouseDown(2)) //Use middle mouse button to drag and move
+			{
+				m_dragging_camera = true;
+				ImVec2 drag_delta = ImGui::GetMouseDragDelta(2);
+				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
+				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-			camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
+				camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
+			}
+			else if (ImGui::IsMouseReleased(2))
+			{
+				m_dragging_camera = false;
+			}
+
+			if (ImGui::IsMouseDown(1) && ImGui::IsKeyDown(ImGuiKey_LeftAlt)) //This additional control is because my middle mouse button is broken T_T
+			{
+				m_dragging_camera = true;
+				ImVec2 drag_delta = ImGui::GetMouseDragDelta(1);
+				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
+				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
+
+				camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
+			}
+			else if (ImGui::IsMouseReleased(1))
+			{
+				m_dragging_camera = false;
+			}
+
+
+			//Camera zooming
+			float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
+			float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
+			float minZoom = 100.0f;       // Minimum orthographic width
+			float maxZoom = 5000.0f;      // Maximum orthographic width
+
+			ImGuiIO& io = ImGui::GetIO();
+			if (io.MouseWheel != 0.0f)
+			{
+				float zoomDelta = io.MouseWheel * zoomSpeed;
+				m_EditorCam->m_OrthoWidth = std::clamp(m_EditorCam->m_OrthoWidth - zoomDelta, minZoom, maxZoom);
+				m_EditorCam->m_OrthoHeight = m_EditorCam->m_OrthoWidth / baseAspectRatio;
+			}
+			//Update data
+			Camera2D::UpdateProjectionMatrix(*m_EditorCam.get());
+			Camera2D::UpdateViewMatrix(*m_EditorCam.get());
+
+			//Update Camera Manager
+			FlexECS::EntityID currEditorID = Editor::GetInstance().GetCamManager().GetEditorCamera();
+			Editor::GetInstance().GetCamManager().UpdateData(currEditorID, *m_EditorCam.get());
 		}
-		else if (ImGui::IsMouseDown(1) && ImGui::IsKeyDown(ImGuiKey_LeftAlt)) //This additional control is because my middle mouse button is broken T_T
-		{
-			ImVec2 drag_delta = ImGui::GetMouseDragDelta(1);
-			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
-			Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
-
-			camera_pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			camera_pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			m_EditorCam->position += Vector3(camera_pos_change.x, camera_pos_change.y);
-		}
-
-		float baseAspectRatio = m_EditorCam->m_OrthoWidth / m_EditorCam->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
-		float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
-		float minZoom = 100.0f;       // Minimum orthographic width
-		float maxZoom = 5000.0f;      // Maximum orthographic width
-
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.MouseWheel != 0.0f)
-		{
-			float zoomDelta = io.MouseWheel * zoomSpeed;
-			m_EditorCam->m_OrthoWidth = std::clamp(m_EditorCam->m_OrthoWidth - zoomDelta, minZoom, maxZoom);
-			m_EditorCam->m_OrthoHeight = m_EditorCam->m_OrthoWidth / baseAspectRatio;
-		}
-		//Update data
-		Camera2D::UpdateProjectionMatrix(*m_EditorCam.get());
-		Camera2D::UpdateViewMatrix(*m_EditorCam.get());
-
-		//Update Camera Manager
-		FlexECS::EntityID currEditorID = Editor::GetInstance().GetCamManager().GetEditorCamera();
-		Editor::GetInstance().GetCamManager().UpdateData(currEditorID, *m_EditorCam.get());
 	}
 	#endif
 }

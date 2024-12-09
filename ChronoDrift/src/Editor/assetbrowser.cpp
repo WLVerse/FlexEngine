@@ -22,6 +22,7 @@ namespace ChronoDrift
 	void AssetBrowser::LoadAllDirectories()
 	{
 		m_directories.clear();
+		m_font_paths.clear();
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_root_directory))
 		{
@@ -40,6 +41,11 @@ namespace ChronoDrift
 	{
 		auto relative_path = std::filesystem::relative(entry, m_root_directory);
 		auto parent_path = relative_path.parent_path();
+
+		if (FLX_EXTENSIONS_CHECK_SAFETY("font", relative_path.extension().string()))
+		{
+			m_font_paths.push_back("\\" + relative_path.string());
+		}
 
 		Folder* current_folder = nullptr;
 		//check which folder this entry is within
@@ -80,7 +86,6 @@ namespace ChronoDrift
 				// Add file to folder normally
 				m_directories[parent_path].files.push_back(relative_path);
 			}
-
 		}
 	}
 
@@ -157,7 +162,8 @@ namespace ChronoDrift
 		SETASSETBROWSERWINDOW;
 		ImGui::Begin("Asset Browser");
 
-		if (ImGui::Button("Refresh")) {
+		if (ImGui::Button("Refresh")) 
+		{
 			AssetManager::Unload();
 			AssetManager::Load();
 			LoadAllDirectories();
