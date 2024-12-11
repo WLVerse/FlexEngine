@@ -1,5 +1,6 @@
-#pragma once
-
+// WLVERSE [https://wlverse.web.app]
+// FlexEngine.h
+// 
 // FlexEngine Main Include File
 // This file includes all the necessary files to use the FlexEngine library.
 // 
@@ -8,6 +9,14 @@
 // - Tools . . . . . . Tools for logging, timing, and other utilities.
 // - Wrappers  . . . . Wrappers for external libraries and tools.
 // - Data Structures . Data structures used in the engine.
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
+#pragma once
 
 
 /* |----------------------------| */
@@ -16,19 +25,19 @@
 
 // Contains the application class.
 // Inherit from FlexEngine::Application in the entry point to create a new application.
-#include "FlexEngine/Core/application.h"
+#include "FlexEngine/application.h"
 
 // Contains the layer class.
 // Inherit from FlexEngine::Layer to create a new layer.
 // Layers are used to separate different parts of the application.
 // Layers are updated and rendered in the order they are pushed.
-#include "FlexEngine/Core/layer.h"
+#include "FlexEngine/Layer/ilayer.h"
 
 // Manages all the assets in the application.
 // Load and store assets like textures and shaders.
 // All assets should be referenced by their key, which will
 // then be used to retrieve the asset.
-#include "FlexEngine/AssetManager/assetmanager.h"
+#include "FlexEngine/assetmanager.h"
 
 
 /* |-----------------------------| */
@@ -60,22 +69,22 @@
 // Use FLX_CORE_ASSERT for assertions for the application core.
 // Use FLX_ASSERT in place of regular assertions.
 // Use FLX_NULLPTR_ASSERT for checking pointers.
-#include "FlexEngine/Wrapper/flexassert.h"
+#include "FlexEngine/flexassert.h"
 
 // Formatter for storing metadata in files.
 // Uses a simple key-value pair system to store metadata in files.
-#include "FlexEngine/flexformatter.h"
+#include "FlexEngine/Utilities/flexformatter.h"
 
 // UUID class for generating unique identifiers.
-#include "FlexEngine/uuid.h"
+#include "FlexEngine/Utilities/uuid.h"
 
 // FlexID class for generating special unique identifiers.
 // The first 32 bits are the ID, the next 28 bits are the generation, and the last 4 bits are the flags.
-#include "FlexEngine/flexid.h"
+#include "FlexEngine/FlexECS/flexid.h"
 
 // Scoped timer to measure time taken by functions.
 // Macros are provided to measure the time taken by a function.
-#include "FlexEngine/timer.h"
+#include "FlexEngine/Utilities/timer.h"
 
 // Math functions and constants.
 // Contains constants like PI and EPSILON.
@@ -101,9 +110,9 @@
 #include "FlexEngine/StateManager/statemanager.h"
 
 // Implementation of Unity's PlayerPrefs.
-// Used to store and retrieve data from the playerprefs.json config file.
+// Used to store and retrieve data from the flexprefs.json config file.
 // Set float, int, string, and bool values.
-#include "FlexEngine/playerprefs.h"
+#include "FlexEngine/flexprefs.h"
 
 // Input handling abstracted from GLFW.
 // Use GLFW key codes.
@@ -117,15 +126,15 @@
 
 // Wraps the ImGui library for easier use.
 // Includes the ImGui library.
-#include "FlexEngine/Core/imguiwrapper.h"
+#include "FlexEngine/imguiwrapper.h"
 
 // Contains the path, file, and filelist class.
 // Has the Extension namespace with a list of safe and supported extensions.
 // Handles the functionality to read and write files.
 // The path class is used to ensure the validity of the path. Can throw exceptions.
-#include "FlexEngine/Wrapper/path.h"
-#include "FlexEngine/Wrapper/file.h"
-#include "FlexEngine/Wrapper/filelist.h"
+#include "FlexEngine/Utilities/path.h"
+#include "FlexEngine/Utilities/file.h"
+#include "FlexEngine/DataStructures/filelist.h"
 
 
 /* |-----------------------------| */

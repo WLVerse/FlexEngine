@@ -1,3 +1,23 @@
+// WLVERSE [https://wlverse.web.app]
+// primitives.cpp
+// 
+// TypeDescriptor for primitive types.
+// Supports the following types:
+// - bool
+// - int
+// - unsigned
+// - int64_t
+// - uint64_t
+// - double
+// - float
+// - std::string
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "Reflection/base.h"
 
 #pragma region Macros

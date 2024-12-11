@@ -1,3 +1,16 @@
+// WLVERSE [https://wlverse.web.app]
+// entity.cpp
+// 
+// Implementation of Entity class and functions that assist its management in the ECS
+//
+// AUTHORS
+// [90%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Everything else
+// [10%] Kuan Yew Chong (yewchong.k\@digipen.edu)
+//  - Update internal_addarchetype for updating caches
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "datastructures.h"
 
 namespace FlexEngine
@@ -9,7 +22,7 @@ namespace FlexEngine
 
     FLX_REFL_REGISTER_START(Entity)
       FLX_REFL_REGISTER_PROPERTY(entity_id)
-    FLX_REFL_REGISTER_END;
+      FLX_REFL_REGISTER_END;
 
     #pragma endregion
 
@@ -65,8 +78,6 @@ namespace FlexEngine
     // the ComponentIDList is sorted
     Archetype& Entity::Internal_CreateArchetype(ComponentIDList type)
     {
-      FLX_FLOW_FUNCTION();
-
       // create a new archetype
       Archetype& archetype = ARCHETYPE_INDEX[type];
 
@@ -83,6 +94,37 @@ namespace FlexEngine
         archetype.archetype_table.push_back(Column()); // create a column for each component
       }
 
+      // update caches with this archetype if needed
+      for (auto& a : Scene::GetActiveScene()->query_cache)
+      {
+        // check if query is a subset of the new archetype
+        bool skip = false;
+
+        for (auto& component_to_find : a.first)
+        {
+          if (std::find(archetype.type.begin(), archetype.type.end(), component_to_find) == archetype.type.end())
+          {
+            skip = true;
+            break;
+          }
+        }
+
+        if (!skip)
+        {
+          a.second.AddPtr(reinterpret_cast<std::vector<FlexEngine::FlexECS::Entity>*>(&archetype.entities));
+        }
+      }
+
+      // debugging
+      std::stringstream ss;
+      ss << "Created a new archetype: ";
+      for (ComponentID c : archetype.type)
+      {
+        ss << c;
+        if (c != archetype.type.back()) ss << ", ";
+      }
+      Log::Debug(ss);
+
       return archetype;
     }
 
@@ -96,8 +138,6 @@ namespace FlexEngine
     // like in the properties inspector, use flags instead
     void Entity::Internal_MoveEntity(EntityID entity, Archetype& from, size_t from_row, Archetype& to)
     {
-      FLX_FLOW_FUNCTION();
-
       // 1. Add the entity to the destination archetype's columns and entities vector
       // If the destination archetype does not have the component, it is being removed from the entity
       #pragma region Step 1

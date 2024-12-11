@@ -1,5 +1,5 @@
 #include <FlexEngine.h>
-#include <FlexEngine/Core/EntryPoint.h>
+#include <entrypoint.h>
 
 #include "States.h"
 

@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// functionqueue.cpp
+// 
+// A queue for functions that can be run in order of priority.
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "functionqueue.h"

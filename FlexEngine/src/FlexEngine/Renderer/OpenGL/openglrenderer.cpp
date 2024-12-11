@@ -1,7 +1,7 @@
 #include "openglrenderer.h"
 
-#include "FlexEngine/AssetManager/assetmanager.h" // FLX_ASSET_GET
-#include "FlexEngine/DataStructures/freequeue.h"
+#include "assetmanager.h" // FLX_ASSET_GET
+#include "DataStructures/freequeue.h"
 
 namespace FlexEngine
 {

@@ -2,7 +2,7 @@
 
 #include "openglmaterial.h"
 
-#include "AssetManager/assetmanager.h"
+#include "assetmanager.h"
 
 namespace FlexEngine
 {

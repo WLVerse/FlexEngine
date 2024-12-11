@@ -1,9 +1,20 @@
+// WLVERSE [https://wlverse.web.app]
+// mathconversions.cpp
+// 
+// Conversions between degrees and radians.
+// 
+// Values are taken from the glm library.
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "mathconversions.h"
 
 namespace FlexEngine
 {
-
-  // Values are taken from the glm library.
 
   float radians(float degrees)
   {

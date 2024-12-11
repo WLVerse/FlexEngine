@@ -14,7 +14,7 @@ namespace MicroChess
     FunctionQueue render_queue;
 
     // Render all entities
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, ZIndex, Position, Scale, Shader, Sprite>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, ZIndex, Position, Scale, Shader, Sprite>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 

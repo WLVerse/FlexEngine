@@ -2,7 +2,7 @@
 
 #include "flx_api.h"
 
-#include "AssetManager/assetkey.h"
+#include "assetkey.h"
 #include "Renderer/OpenGL/opengltexture.h"
 
 #include <vector>

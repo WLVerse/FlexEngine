@@ -2,7 +2,7 @@
 
 #include "flx_api.h"
 
-#include "Wrapper/path.h"
+#include "Utilities/path.h"
 #include "FlexMath/matrix4x4.h"
 
 namespace FlexEngine

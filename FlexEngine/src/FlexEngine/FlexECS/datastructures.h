@@ -1,15 +1,28 @@
+// WLVERSE [https://wlverse.web.app]
+// datastructures.h
+// 
+// API for the ECS system
+//
+// AUTHORS
+// [90%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - everything else
+// [10%] Kuan Yew Chong (yewchong.k\@digipen.edu)
+//   - cache query stuff, proxy container
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"
 
 #include "flexid.h" // <cstdint>
-#include "flexformatter.h"  // "Wrapper/datetime.h" "Wrapper/file.h" <sstream>
-                            // <RapidJSON/document.h> <RapidJSON/istreamwrapper.h> <RapidJSON/ostreamwrapper.h>
-                            // <RapidJSON/writer.h> <RapidJSON/prettywriter.h>
+#include "Utilities/flexformatter.h"  // "Wrapper/datetime.h" "Wrapper/file.h" <sstream>
+                                      // <RapidJSON/document.h> <RapidJSON/istreamwrapper.h> <RapidJSON/ostreamwrapper.h>
+                                      // <RapidJSON/writer.h> <RapidJSON/prettywriter.h>
 #include "flexlogger.h" // <filesystem> <fstream> <string>
 #include "Reflection/base.h"  // "Wrapper/flexassert.h" <rapidjson/document.h>
                               // <cstddef> <iostream> <string> <sstream> <vector> <map> <unordered_map> <functional>
-#include "Wrapper/file.h" // "Wrapper/path.h" <fstream>
+#include "Utilities/file.h" // "Wrapper/path.h" <fstream>
 
 #include <algorithm> // std::sort
 #include <typeindex> // std::type_index
@@ -129,8 +142,9 @@ namespace FlexEngine
     // Type used to store each unique component list only once
     // This is the main data structure used to store entities and components
     struct __FLX_API Archetype
-    { FLX_REFL_SERIALIZABLE
-      ArchetypeID id{};
+    {
+      FLX_REFL_SERIALIZABLE
+        ArchetypeID id{};
       ComponentIDList type;
       ArchetypeTable archetype_table; // This is where the components are stored
       std::vector<EntityID> entities;
@@ -155,8 +169,9 @@ namespace FlexEngine
     // NOTE: It is trusted that the Archetype* is valid
     // The Archetype ptr is owned by archetype_index which is managed in the stack
     struct __FLX_API EntityRecord
-    { FLX_REFL_SERIALIZABLE
-      Archetype* archetype;
+    {
+      FLX_REFL_SERIALIZABLE
+        Archetype* archetype;
       ArchetypeID archetype_id; // used during deserialization to reconnect the archetype ptr
       std::size_t row;
     };
@@ -167,8 +182,9 @@ namespace FlexEngine
 
     // Record in component_index with component column for archetype
     struct __FLX_API ArchetypeRecord
-    { FLX_REFL_SERIALIZABLE
-      std::size_t column;
+    {
+      FLX_REFL_SERIALIZABLE
+        std::size_t column;
     };
 
     // Used to lookup components in archetypes
@@ -193,12 +209,13 @@ namespace FlexEngine
 
     // The scene holds all the entities and components.
     class __FLX_API Scene
-    { FLX_REFL_SERIALIZABLE FLX_ID_SETUP
+    {
+      FLX_REFL_SERIALIZABLE FLX_ID_SETUP
 
-      // TODO: Implement reusing entity ids
-      //EntityID next_entity_id = 0;
+        // TODO: Implement reusing entity ids
+        //EntityID next_entity_id = 0;
 
-      static std::shared_ptr<Scene> s_active_scene;
+        static std::shared_ptr<Scene> s_active_scene;
 
     public:
 
@@ -241,8 +258,47 @@ namespace FlexEngine
     public:
       // Returns an entity list based off the list of components
       template <typename... Ts>
-      std::vector<Entity> View();
-      //#define FLX_ECS_VIEW(...) for (FlexEngine::FlexECS::Entity& entity : FlexEngine::FlexECS::Scene::GetActiveScene()->View<__VA_ARGS__>())
+      std::vector<Entity> Query();
+
+      template <typename... Ts>
+      std::vector<Entity> CachedQuery();
+
+      // Proxy class to return the combined list of entities as if it was one list
+      class ProxyContainer
+      {
+      public:
+        ProxyContainer() : entity_ids() {}
+
+        // Constructor 
+        ProxyContainer(std::vector<std::vector<FlexEngine::FlexECS::Entity>*>& ptrs)
+        {
+          for (auto& ptr : ptrs)
+          {
+            entity_ids.push_back(ptr);
+          }
+        }
+
+        // Returns a vector which is the combined list of these vectors
+        std::vector<FlexEngine::FlexECS::Entity> Get()
+        {
+          std::vector<FlexEngine::FlexECS::Entity> combined;
+          for (auto& container : entity_ids)
+          {
+            combined.insert(combined.end(), container->begin(), container->end());
+          }
+          return combined;
+        }
+
+        void AddPtr(std::vector<FlexEngine::FlexECS::Entity>* ptr)
+        {
+          entity_ids.push_back(ptr);
+        }
+
+      private:
+        std::vector<std::vector<FlexEngine::FlexECS::Entity>*> entity_ids; // Container of pointers to std::vector<EntityID>
+      };
+
+      std::map<ComponentIDList, ProxyContainer> query_cache; // Cache for the query results, in the form of a proxy object
 
       #pragma endregion
 
@@ -270,6 +326,10 @@ namespace FlexEngine
       // They only work on the current active scene.
       static void SetEntityFlags(EntityID& entity, const uint8_t flags);
 
+      static EntityID CloneEntity(EntityID entityToCopy);
+
+      static void SaveEntityAsPrefab(EntityID entityToSave, const std::string& prefabName);
+
       #pragma endregion
 
       #pragma region Scene serialization functions
@@ -290,13 +350,13 @@ namespace FlexEngine
       // need to be reconnected to the archetype_index.
       void Internal_RelinkEntityArchetypePointers();
 
-#ifdef _DEBUG
+      #ifdef _DEBUG
     public:
       void Dump() const;
       void DumpArchetypeIndex() const;
       void DumpEntityIndex() const;
       void DumpComponentIndex() const;
-#endif
+      #endif
     };
 
     // The entity class is a handle to an entity in the ECS.
@@ -304,9 +364,10 @@ namespace FlexEngine
     // but it does not store anything other than the entity id,
     // which is used to look up the entity in the ECS.
     class __FLX_API Entity
-    { FLX_REFL_SERIALIZABLE
+    {
+      FLX_REFL_SERIALIZABLE
 
-      EntityID entity_id;
+        EntityID entity_id;
 
     public:
 

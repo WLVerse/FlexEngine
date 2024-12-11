@@ -136,7 +136,7 @@ namespace MicroChess
   void BoardLayer::Update()
   {
     // display a custom cursor
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, CustomCursor, Position, Sprite>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, CustomCursor, Position, Sprite>())
     {
       auto& is_active = entity.GetComponent<IsActive>()->is_active;
       auto& cursor = entity.GetComponent<CustomCursor>()->type;
@@ -192,7 +192,7 @@ namespace MicroChess
     Box2D();
 
     // make the piece bigger when hovered
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, OnHover, Scale>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, OnHover, Scale>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
     
@@ -205,7 +205,7 @@ namespace MicroChess
 
     // remove the piece when clicked
     FunctionQueue destroy_queue;
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, OnClick>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, OnClick>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
     

@@ -1,10 +1,20 @@
+// WLVERSE [https://wlverse.web.app]
+// scene.cpp
+// 
+// The FlexEngine Entity-Component-System (ECS) implementation
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "datastructures.h"
 
 namespace FlexEngine
 {
   namespace FlexECS
   {
-
     // static member initialization
     std::shared_ptr<Scene> Scene::s_active_scene = nullptr;
     Scene Scene::Null = Scene();
@@ -229,6 +239,76 @@ namespace FlexEngine
       entity = updated_entity;
     }
 
+    /*!
+      \brief Clones entity via archetype row copy.
+      \param entity_to_copy Entity to clone.
+      \return EntityID of the cloned entity.
+    */
+    EntityID Scene::CloneEntity(EntityID entity_to_copy)
+    {
+      // Get the archetype of the entity to copy
+      EntityRecord& entity_record = ENTITY_INDEX[entity_to_copy];
+      Archetype& archetype = *entity_record.archetype;
+
+      // First we need to assign this new entity an ID
+      EntityID new_entity = ID::Create(ID::Flags::Flag_None, Scene::GetActiveScene()->_flx_id_next, Scene::GetActiveScene()->_flx_id_unused);
+
+      // Secondly, we update the scene's archetype by telling it we want to add one more entity of this index...
+      archetype.entities.push_back(new_entity);
+
+      // ... then update entity records of this new entity
+      EntityRecord new_entity_record = { &archetype, archetype.id, archetype.entities.size() - 1 };
+      ENTITY_INDEX[new_entity] = new_entity_record;
+
+      // Now, after the setup is complete, we copy the entire row over
+      for (std::size_t i{}; i < archetype.archetype_table.size(); i++)
+      {
+        // Perform deep copy, after all, the data inside is actually just a pointer, so we need to reserve memory to store the new one.
+        std::pair<size_t, void*> old_data = Internal_GetComponentData(archetype.archetype_table[i][entity_record.row]);
+        ComponentData<void> new_data_instance = Internal_CreateComponentData(old_data.first, old_data.second);
+        archetype.archetype_table[i].push_back(new_data_instance);
+      }
+
+      return new_entity;
+    }
+
+    /*!
+      \brief Saves an entity as a .flxprefab file
+      \param entityToSave ID of entity to save as prefab.
+      \param prefabName Name of the prefab file.
+    */
+    void Scene::SaveEntityAsPrefab(EntityID entityToSave, const std::string& prefabName)
+    {
+      // Get the current entity to write to prefab
+      EntityRecord& entity_record = ENTITY_INDEX[entityToSave];
+      Archetype& archetype = *entity_record.archetype;
+
+      // Create a new prefab file in asset manager directory, then open this file
+      std::string file_name = prefabName + ".flxprefab";
+      Path dir = Path::current("assets\\prefabs");
+      Path prefab_path = File::Create(dir, file_name);
+      File& prefab_file = File::Open(prefab_path);
+
+      // Concat in sstream before writing it to the formatter.
+      std::stringstream data_stream;
+      for (std::size_t i{}; i < archetype.archetype_table.size(); i++) // For component in the archetype...
+      {
+        // Automatic serialization as long as a type is provided.
+        Reflection::TypeDescriptor* type = TYPE_DESCRIPTOR_LOOKUP[archetype.type[i]];
+        type->Serialize(Internal_GetComponentData(archetype.archetype_table[i][entity_record.row]).second, data_stream);
+
+        if (i != archetype.archetype_table.size() - 1) data_stream << ","; // Add a comma to separate components.
+      }
+
+      // Wrap data in formatter
+      FlxFmtFile formatter = FlexFormatter::Create(data_stream.str(), true);
+      std::string file_contents = formatter.Save();
+      prefab_file.Write(file_contents);
+
+      // ... and close the file
+      File::Close(prefab_path);
+    }
+
     #pragma endregion
 
 
@@ -305,9 +385,9 @@ namespace FlexEngine
         auto it = std::find_if(
           archetype_index.begin(), archetype_index.end(),
           [&entity_record](auto& archetype_record)
-          {
-            return archetype_record.second.id == entity_record.archetype_id;
-          }
+        {
+          return archetype_record.second.id == entity_record.archetype_id;
+        }
         );
 
         if (it != archetype_index.end())
@@ -325,7 +405,7 @@ namespace FlexEngine
     #pragma endregion
 
 
-#ifdef _DEBUG
+    #ifdef _DEBUG
 
     void Scene::Dump() const
     {
@@ -336,7 +416,7 @@ namespace FlexEngine
 
     void Scene::DumpArchetypeIndex() const
     {
-      Log::Info("Dumping archetype_index");
+      FLX_FLOW_BEGINSCOPE();
       for (auto& [archetype, archetype_storage] : archetype_index)
       {
         Log::Debug("Archetype: " + std::to_string(archetype_storage.id));
@@ -349,23 +429,23 @@ namespace FlexEngine
           //Log::Debug("    Entities in component: " + std::to_string(archetype_storage.archetype_table[i].size()));
         }
       }
-      Log::Info("End of dump.");
+      FLX_FLOW_ENDSCOPE();
     }
 
     void Scene::DumpEntityIndex() const
     {
-      Log::Info("Dumping entity_index");
+      FLX_FLOW_BEGINSCOPE();
       for (auto& [id, entity_record] : entity_index)
       {
         Log::Debug("Entity: " + std::to_string(id));
         Log::Debug("  Archetype ID: " + std::to_string(entity_record.archetype->id));
       }
-      Log::Info("End of dump.");
+      FLX_FLOW_ENDSCOPE();
     }
 
     void Scene::DumpComponentIndex() const
     {
-      Log::Info("Dumping component_index");
+      FLX_FLOW_BEGINSCOPE();
       for (auto& [component_id, archetype_map] : component_index)
       {
         Log::Debug("Component: " + component_id);
@@ -375,10 +455,10 @@ namespace FlexEngine
           Log::Debug("    Column: " + std::to_string(archetype_record.column));
         }
       }
-      Log::Info("End of dump.");
+      FLX_FLOW_ENDSCOPE();
     }
 
-#endif
+    #endif
 
   }
 }

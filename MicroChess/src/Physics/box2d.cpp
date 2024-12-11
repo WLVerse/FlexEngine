@@ -13,7 +13,7 @@ namespace MicroChess
     Vector2 mouse_position = Input::GetMousePosition();
     bool mouse_clicked = Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT);
 
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, Parent, Position, Scale, BoundingBox2D, OnHover>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, Parent, Position, Scale, BoundingBox2D, OnHover>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 
@@ -61,7 +61,7 @@ namespace MicroChess
       }
     }
 
-    for (auto& entity : FlexECS::Scene::GetActiveScene()->View<IsActive, Parent, Position, Scale, BoundingBox2D, OnClick>())
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->Query<IsActive, Parent, Position, Scale, BoundingBox2D, OnClick>())
     {
       if (!entity.GetComponent<IsActive>()->is_active) continue;
 
