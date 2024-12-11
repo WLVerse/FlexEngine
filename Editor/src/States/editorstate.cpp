@@ -19,6 +19,9 @@ namespace Editor
     );
     AlignImGuiContext(window);
 
+    window->SetTargetFPS();
+    window->SetVSync(false);
+
     //window->PushLayer(std::make_shared<EditorLayer>());
   }
 

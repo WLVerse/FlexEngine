@@ -13,8 +13,6 @@ namespace Editor
     FreeQueue::Push(std::bind(&AssetManager::Unload), "Editor AssetManager");
 
     FlexEngine::Window* window = Application::GetCurrentWindow();
-    window->SetTargetFPS();
-    window->SetVSync(false);
     window->SetIcon(FLX_ASSET_GET(Asset::Texture, R"(\images\flexengine\flexengine-256.png)"));
 
     // Renderer Setup
