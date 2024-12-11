@@ -157,8 +157,8 @@ namespace FlexEngine
 
   void LayerStack::Update()
   {
-    for (auto& overlay : m_overlays) overlay->Update();
     for (auto& layer : m_layers) layer->Update();
+    for (auto& overlay : m_overlays) overlay->Update();
   }
 
 #ifdef _DEBUG
@@ -166,16 +166,16 @@ namespace FlexEngine
   {
     Log::Debug(__FUNCTION__);
 
-    Log::Debug("Overlays (" + std::to_string(m_overlays.size()) + ")");
-    for (auto& overlay : m_overlays)
-    {
-      Log::Debug(std::string(2, ' ') + overlay->GetName().c_str());
-    }
-
     Log::Debug("Layers (" + std::to_string(m_layers.size()) + ")");
     for (auto& layer : m_layers)
     {
       Log::Debug(std::string(2, ' ') + layer->GetName().c_str());
+    }
+
+    Log::Debug("Overlays (" + std::to_string(m_overlays.size()) + ")");
+    for (auto& overlay : m_overlays)
+    {
+      Log::Debug(std::string(2, ' ') + overlay->GetName().c_str());
     }
 
     Log::Debug("End of dump.");
