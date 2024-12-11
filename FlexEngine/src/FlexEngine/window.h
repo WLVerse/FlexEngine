@@ -154,6 +154,8 @@ namespace FlexEngine
 
     // passthrough functions for the layer stack
 
+    LayerStack& GetLayerStack() { return m_layerstack; }
+
     void PushLayer(std::shared_ptr<Layer> layer) { m_layerstack.PushLayer(layer); }
     void PushOverlay(std::shared_ptr<Layer> layer) { m_layerstack.PushOverlay(layer); }
     void PopLayer() { m_layerstack.PopLayer(); }

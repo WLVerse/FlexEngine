@@ -4,5 +4,54 @@
     <Filter Include="src">
       <UniqueIdentifier>{da116cb3-717b-4304-af70-bef7bd09f4d3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Layers">
+      <UniqueIdentifier>{c0c5e023-3758-4da8-a9b7-6696da82ab87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\States">
+      <UniqueIdentifier>{85c5662e-7d6c-4b20-89f1-62a1aac53f91}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\launch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\splashstate.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\editorstate.cpp">
+      <Filter>src\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\baselayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\splashlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\statisticspanellayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\States.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\splashstate.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\editorstate.h">
+      <Filter>src\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\baselayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\splashlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\statisticspanellayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

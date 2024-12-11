@@ -63,7 +63,25 @@ namespace FlexEngine
     // Updates all layers and overlays.
     void Update();
 
+    #pragma region Accessors
+
+    void SetLayerName(size_t index, const std::string& name) { m_layers[index]->SetName(name); }
+    const std::string& GetLayerName(size_t index) const { return m_layers[index]->GetName(); }
+
+    void SetOverlayName(size_t index, const std::string& name) { m_overlays[index]->SetName(name); }
+    const std::string& GetOverlayName(size_t index) const { return m_overlays[index]->GetName(); }
+
+    size_t GetLayerCount() const { return m_layers.size(); }
+    size_t GetOverlayCount() const { return m_overlays.size(); }
+
+    std::shared_ptr<Layer> GetLayer(size_t index) const { return m_layers[index]; }
+    std::shared_ptr<Layer> GetOverlay(size_t index) const { return m_overlays[index]; }
+
+    #pragma endregion
+
+
 #ifdef _DEBUG
+    // Dumps the layer stack to the console.
     void Dump();
 #endif
   };
