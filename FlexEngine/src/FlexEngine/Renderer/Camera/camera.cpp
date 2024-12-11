@@ -11,12 +11,15 @@
 
 #include "camera.h"
 
-Camera::Camera(float left, float right, float bottom, float top)
+namespace FlexEngine
 {
-  SetProjection(left, right, bottom, top);
-}
+  Camera::Camera(float left, float right, float bottom, float top, float near, float far)
+  {
+    SetProjection(left, right, bottom, top, near, far);
+  }
 
-void Camera::SetProjection(float left, float right, float bottom, float top)
-{
-  m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, -2.0f, 2.0f);
+  void Camera::SetProjection(float left, float right, float bottom, float top, float near, float far)
+  {
+    m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, near, far);
+  }
 }

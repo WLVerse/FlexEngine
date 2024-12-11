@@ -162,15 +162,7 @@ namespace FlexEngine
     Matrix4x4 model = Matrix4x4::Identity;
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
-    // View matrix is always the same for 2D rendering outside of camera translation
-    static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
-
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    /*Matrix4x4 projection_view = Matrix4x4::Orthographic(
-      0.0f, props.window_size.x,
-      props.window_size.y, 0.0f,
-      -2.0f, 2.0f
-    ) * view_matrix;*/
     asset_shader.SetUniform_mat4("u_projection_view", main_camera.GetProjViewMatrix());
 
     // draw

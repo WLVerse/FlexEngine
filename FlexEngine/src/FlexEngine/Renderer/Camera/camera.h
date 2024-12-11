@@ -1,7 +1,8 @@
 // WLVERSE [https://wlverse.web.app] 
 // camera.h
 // 
-// Class declaration for interfacing with the camera.
+// Class declaration for interfacing with the camera. Orthographic for now.
+// This camera uses a right hand system, following openGL. That is to say, camera looks towards negative Z.
 // 
 // AUTHORS 
 // [100%] Yew Chong (yewchong.k\@digipen.edu) 
@@ -10,25 +11,27 @@
 // Copyright (c) 2024 DigiPen, All rights reserved
 
 #include "FlexEngine/FlexMath/matrix4x4.h"
+#include "FlexEngine/FlexMath/vector3.h"
 
-class Camera
+namespace FlexEngine
 {
-  // expected result of computation is projection * view in this order.
-  FlexEngine::Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity; // There is no projection matrix as this is a 2D camera, we only have orthographic.
-  FlexEngine::Matrix4x4 m_view_matrix = {  1, 0,  0, 0,
-                                           0, 1,  0, 0,
-                                           0, 0, -1, 0,    // Flip the Z index using openGL's right-handed coordinate system
-                                           0, 0,  0, 1 };  
+  class Camera
+  {
+    Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
+    Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
 
-public:
-  Camera(float left, float right, float bottom, float top);
-  ~Camera() = default;
+  public:
+    Camera(float left, float right, float bottom, float top, float near, float far);
+    ~Camera() = default;
 
-  void SetProjection(float left, float right, float bottom, float top);
-  const FlexEngine::Matrix4x4& GetProjectionMatrix() const { return m_ortho_matrix; }
-  const FlexEngine::Matrix4x4& GetProjViewMatrix() const { return m_ortho_matrix * m_view_matrix; }
-  const FlexEngine::Matrix4x4& GetViewMatrix() const { return m_view_matrix; }
-};
+    void SetProjection(float left, float right, float bottom, float top, float near, float far);
+    const Matrix4x4& GetProjectionMatrix() const { return m_ortho_matrix; }
+    const Matrix4x4& GetViewMatrix() const { return m_view_matrix; }
+    const Matrix4x4 GetProjViewMatrix() const { return m_ortho_matrix * m_view_matrix; }
+    
+    void MoveCamera(Vector3 translation) { translation.x *= -1; m_view_matrix.Translate(translation); }
+  };
+}
 
 // Temporary camera static for testing
-static Camera main_camera(0.0f, 1280.f, 750.f, 0.0f);
+static FlexEngine::Camera main_camera(0.f, 1280.f, 750.f, 0.0f, -2.f, 2.f);
