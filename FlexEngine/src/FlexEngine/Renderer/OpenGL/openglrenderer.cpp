@@ -2,6 +2,7 @@
 
 #include "assetmanager.h" // FLX_ASSET_GET
 #include "DataStructures/freequeue.h"
+#include "Renderer/Camera/camera.h"
 
 namespace FlexEngine
 {
@@ -88,7 +89,9 @@ namespace FlexEngine
       -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Top-left
       -0.5f, -0.5f, 0.0f,   1.0f, 0.0f  // Bottom-left
     };
+
     static GLuint vao = 0, vbo = 0;
+
     if (vao == 0)
     {
       glGenVertexArrays(1, &vao);
@@ -154,16 +157,21 @@ namespace FlexEngine
     default:
       break;
     }
-
+    
+    // "Model scale" in this case refers to the scale of the object itself.
     Matrix4x4 model = Matrix4x4::Identity;
-    asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(-position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
+    asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
+
+    // View matrix is always the same for 2D rendering outside of camera translation
     static const Matrix4x4 view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up);
-    Matrix4x4 projection_view = Matrix4x4::Orthographic(
+
+    // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
+    /*Matrix4x4 projection_view = Matrix4x4::Orthographic(
       0.0f, props.window_size.x,
       props.window_size.y, 0.0f,
       -2.0f, 2.0f
-    ) * view_matrix;
-    asset_shader.SetUniform_mat4("u_projection_view", projection_view);
+    ) * view_matrix;*/
+    asset_shader.SetUniform_mat4("u_projection_view", main_camera.GetProjViewMatrix());
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);

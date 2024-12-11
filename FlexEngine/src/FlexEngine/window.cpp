@@ -132,6 +132,7 @@ namespace FlexEngine
 
   #pragma region Window Management Functions
 
+  // This is where the main window loop is, ie Your game loop
   void Window::Update()
   {
     // make sure the current window is the one we are working with

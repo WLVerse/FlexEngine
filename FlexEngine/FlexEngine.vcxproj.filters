@@ -44,6 +44,9 @@
     <Filter Include="src\FlexEngine\Layer">
       <UniqueIdentifier>{ba5cc04f-687b-4764-ae64-b0a6cf5c92ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\Renderer\Camera">
+      <UniqueIdentifier>{e3c64144-5c2e-4bbb-a426-b1df49e68fe4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -180,6 +183,9 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\flexprofiler.cpp">
       <Filter>src\FlexEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\Camera\camera.cpp">
+      <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +350,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\flxdata.h">
       <Filter>src\FlexEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h">
+      <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
