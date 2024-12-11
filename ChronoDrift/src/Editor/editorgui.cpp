@@ -230,13 +230,13 @@ namespace ChronoDrift
 	void EditorGUI::FontPath(std::string& path, std::string title)
 	{
 		PushID();
-
 		std::filesystem::path current_texture = path;
 		std::string filename = current_texture.filename().string();
 		if (filename == "") filename = "(no font)";
 		//default "\fonts\Bangers\Bangers-Regular.ttf"
 		ImGui::Text(title.c_str());
 		ImGui::SameLine();
+
 		ImGui::Button(filename.c_str());
 
 		if (const char* data = StartPayloadReceiver<const char>(PayloadTags::FONT))
@@ -244,6 +244,27 @@ namespace ChronoDrift
 			std::string new_file_path(data);
 			path = new_file_path;
 			EndPayloadReceiver();
+		}
+		ImGui::SameLine();
+
+		// Tiny circle button for Unity-style dropdown trigger
+		if (ImGui::Button("v"))
+		{
+			ImGui::OpenPopup("FontDropdown");
+		}
+
+		// Dropdown menu content
+		if (ImGui::BeginPopup("FontDropdown"))
+		{
+			for (const std::string& font : static_cast<AssetBrowser*>(Editor::GetInstance().GetPanel("AssetBrowser"))->GetLoadedFontsList())
+			{
+				if (ImGui::Selectable(font.c_str()))
+				{
+					path = font; // Update the path with the selected font
+					ImGui::CloseCurrentPopup(); // Close the dropdown after selection
+				}
+			}
+			ImGui::EndPopup();
 		}
 
 		PopID();

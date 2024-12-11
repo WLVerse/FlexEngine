@@ -63,7 +63,7 @@ namespace ChronoDrift
 		/*template <typename T>
 		T& GetPanel();*/
 
-		EditorPanel& GetPanel(const std::string& panel_name);
+		EditorPanel* GetPanel(const std::string& panel_name);
 
 		/*!***************************************************************************
 		* @brief
@@ -83,6 +83,9 @@ namespace ChronoDrift
 		void SetCamManager(FlexEngine::CameraManager& camManager);
 
 	private:
+		void HandleEntityDelete();
+		void FindChildrenToDelete(FlexEngine::FlexECS::EntityID id);
+
 		bool m_initialized = false;
 
 		HierarchyView m_hierarchy;
