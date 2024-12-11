@@ -158,12 +158,11 @@ namespace ChronoDrift
 			iter->second->EditorUI();
 		}
 
-		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : m_entities_to_delete)
+		if (!m_entities_to_delete.empty())
 		{
-			scene->DestroyEntity(entity);
+			HandleEntityDelete();
+			m_entities_to_delete.clear();
 		}
-		m_entities_to_delete.clear();
 
 		EditorGUI::EndFrame();
 	}
@@ -222,5 +221,35 @@ namespace ChronoDrift
 	void Editor::SetCamManager(CameraManager& camManager)
 	{
 		m_CamM_Instance = &camManager;
+	}
+	
+	void Editor::HandleEntityDelete()
+	{
+		for (auto entity : m_entities_to_delete)
+		{
+			FindChildrenToDelete(entity);
+		}
+
+		auto scene = FlexECS::Scene::GetActiveScene();
+		for (auto entity : m_entities_to_delete)
+		{
+			scene->DestroyEntity(entity);
+		}
+	}
+
+	void Editor::FindChildrenToDelete(FlexEngine::FlexECS::EntityID id)
+	{
+		FlexECS::Entity parent = id;
+		
+		auto scene = FlexECS::Scene::GetActiveScene();
+		for (auto& entity : scene->CachedQuery<Parent>())
+		{
+			auto pid = entity.GetComponent<Parent>()->parent;
+			if (pid == parent)
+			{
+				m_entities_to_delete.insert(entity);
+				FindChildrenToDelete(entity);
+			}
+		}
 	}
 }
