@@ -354,14 +354,17 @@
     <ClInclude Include="src\FlexEngine\flxdata.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h">
-      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h">
       <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\Camera\deletethisshit.h">
       <Filter>src\FlexEngine\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugger.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

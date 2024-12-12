@@ -11,29 +11,38 @@
 
 #pragma once
 #include <glad/glad.h>
+#include "flx_api.h"
+#include "Renderer/OpenGL/opengldebugger.h"
 
-class OpenGLFrameBuffer {
-public:
-  OpenGLFrameBuffer(int width, int height);
-  ~OpenGLFrameBuffer();
+namespace FlexEngine 
+{
+  class __FLX_API OpenGLFrameBuffer {
+  public:
+    OpenGLFrameBuffer() = default;              // Allows for a default construction of framebuffer for forward declaration, but know that this is not a valid framebuffer.
+    OpenGLFrameBuffer(int width, int height);
+    ~OpenGLFrameBuffer();
 
-  // Member call to replace the bind call
-  void Bind() const;
+    // A direct copy paste of the constructor for framebuffers that have been default constructed.
+    void Init(int newWidth, int newHeight);
 
-  // Universal unbind to default framebuffer
-  static void unbind() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+    // Member call to replace the bind call
+    void Bind() const;
 
-  // Resize the current framebuffer
-  void resize(int newWidth, int newHeight);
+    // Universal unbind to default framebuffer, with an additional check for failures during swap buffers.
+    static void Unbind() { glBindFramebuffer(GL_FRAMEBUFFER, 0); GET_OPENGL_ERROR() }
 
-  GLuint getColorAttachment() const;
+    // Resize the current framebuffer
+    void Resize(int newWidth, int newHeight);
 
-  int getWidth() const { return width; }
-  int getHeight() const { return height; }
+    GLuint GetColorAttachment() const;
 
-private:
-  GLuint framebuffer;
-  GLuint colorAttachment;
-  GLuint depthStencilAttachment;
-  int width, height;
-};
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
+
+  private:
+    GLuint framebuffer;
+    GLuint colorAttachment;
+    GLuint depthStencilAttachment;
+    int width, height;
+  };
+} // namespace FlexEngine

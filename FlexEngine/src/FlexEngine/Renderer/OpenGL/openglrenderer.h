@@ -58,7 +58,7 @@ namespace FlexEngine
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(FlexEngine::Camera const& cam, const Renderer2DProps& props = {});
+    static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
   };
 
 }

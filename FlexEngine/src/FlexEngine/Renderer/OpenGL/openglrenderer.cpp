@@ -75,7 +75,7 @@ namespace FlexEngine
     m_draw_calls++;
   }
 
-  void OpenGLRenderer::DrawTexture2D(FlexEngine::Camera const& cam, const Renderer2DProps& props)
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
   {
     // unit square
     // Flipped UVs for OpenGL

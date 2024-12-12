@@ -260,6 +260,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h" />
     <ClInclude Include="src\FlexEngine\Renderer\Camera\deletethisshit.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglbuffer.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugger.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmaterial.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmesh.h" />
