@@ -2,7 +2,6 @@
 
 #include "assetmanager.h" // FLX_ASSET_GET
 #include "DataStructures/freequeue.h"
-#include "Renderer/Camera/camera.h"
 
 namespace FlexEngine
 {
@@ -76,7 +75,7 @@ namespace FlexEngine
     m_draw_calls++;
   }
 
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props)
+  void OpenGLRenderer::DrawTexture2D(FlexEngine::Camera const& cam, const Renderer2DProps& props)
   {
     // unit square
     // Flipped UVs for OpenGL
@@ -163,7 +162,7 @@ namespace FlexEngine
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    asset_shader.SetUniform_mat4("u_projection_view", main_camera.GetProjViewMatrix());
+    asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);

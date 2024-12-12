@@ -10,8 +10,12 @@
 #include "Physics/box2d.h"
 #include "Renderer/sprite2d.h"
 
+#include "Renderer/Camera/camera.h"
+
+
 namespace MicroChess
 {
+  FlexEngine::Camera camera(0.f, 1280.f, 720.f, 0.f, -2.f, 2.f);
 
   void BoardLayer::SetupBoard()
   {
@@ -218,7 +222,7 @@ namespace MicroChess
     }
     destroy_queue.Flush();
 
-    RendererSprite2D();
+    //RendererSprite2D(camera);
   }
 
 }

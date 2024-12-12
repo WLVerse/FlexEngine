@@ -65,7 +65,7 @@ namespace MicroChess
     ImGui::Text("Mouse Position: (%.1f, %.1f)", Input::GetCursorPosition().x, Input::GetCursorPosition().y);
     ImGui::End();
 
-    RendererSprite2D();
+    //RendererSprite2D();
   }
 
 }

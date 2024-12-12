@@ -22,4 +22,10 @@ namespace FlexEngine
   {
     m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, near, far);
   }
+
+  // Since proj view matrix is cached, it rqeuires manual update
+  void Camera::Update()
+  {
+    m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
+  }
 }

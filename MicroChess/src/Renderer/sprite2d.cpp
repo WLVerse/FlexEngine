@@ -5,7 +5,7 @@
 namespace MicroChess
 {
 
-  void RendererSprite2D()
+  void RendererSprite2D(FlexEngine::Camera const& camera)
   {
     WindowProps window_props = Application::GetCurrentWindow()->GetProps();
     Renderer2DProps props;
@@ -49,7 +49,7 @@ namespace MicroChess
       props.color_to_multiply = sprite->color_to_multiply;
       props.alignment = static_cast<Renderer2DProps::Alignment>(sprite->alignment);
 
-      render_queue.Insert({ [props]() { OpenGLRenderer::DrawTexture2D(props); }, "", z_index });
+      render_queue.Insert({ [props, &camera]() { OpenGLRenderer::DrawTexture2D(camera, props); }, "", z_index });
     }
 
     // push settings
