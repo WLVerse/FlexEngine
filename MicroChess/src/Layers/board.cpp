@@ -222,7 +222,8 @@ namespace MicroChess
     }
     destroy_queue.Flush();
 
-    //RendererSprite2D(camera);
+    camera.Update();
+    RendererSprite2D(camera);
   }
 
 }

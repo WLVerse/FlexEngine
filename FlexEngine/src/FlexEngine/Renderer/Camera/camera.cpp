@@ -9,23 +9,21 @@
 // 
 // Copyright (c) 2024 DigiPen, All rights reserved
 
-#include "camera.h"
+#include "Renderer/Camera/camera.h"
 
 namespace FlexEngine
 {
-  Camera::Camera(float left, float right, float bottom, float top, float near, float far)
-  {
-    SetProjection(left, right, bottom, top, near, far);
-  }
+  //Camera::Camera(float left, float right, float bottom, float top, float near, float far)
+  //{
+  //  this->SetProjection(left, right, bottom, top, near, far);
+  //}
 
-  void Camera::SetProjection(float left, float right, float bottom, float top, float near, float far)
-  {
-    m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, near, far);
-  }
+  //void Camera::SetProjection(float left, float right, float bottom, float top, float near, float far)
+  //
 
-  // Since proj view matrix is cached, it rqeuires manual update
-  void Camera::Update()
-  {
-    m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
-  }
+  //// Since proj view matrix is cached, it rqeuires manual update
+  //void Camera::Update()
+  //{
+  //  m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
+  //}
 }

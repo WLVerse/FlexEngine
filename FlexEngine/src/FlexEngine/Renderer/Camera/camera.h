@@ -24,10 +24,16 @@ namespace FlexEngine
     Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
 
   public:
-    Camera(float left, float right, float bottom, float top, float near, float far);
+    Camera(float left, float right, float bottom, float top, float near, float far)
+    {
+      SetProjection(left, right, bottom, top, near, far);
+    }
     ~Camera() = default;
 
-    void SetProjection(float left, float right, float bottom, float top, float near, float far);
+    void SetProjection(float left, float right, float bottom, float top, float near, float far)
+    {
+      m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, near, far);
+    }
     const Matrix4x4& GetProjectionMatrix() const { return m_ortho_matrix; }
     const Matrix4x4& GetViewMatrix() const { return m_view_matrix; }
     const Matrix4x4& GetProjViewMatrix() const { return m_proj_view_matrix; }
@@ -37,6 +43,9 @@ namespace FlexEngine
     /*
       \brief Updates matrices, specifically, the projection view matrix.
     */
-    void Update(); 
+    void Update()
+    {
+      m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
+    }
   };
 }
