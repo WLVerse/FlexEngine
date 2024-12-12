@@ -202,6 +202,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\Renderer\buffer.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\Camera\camera.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglbuffer.cpp" />
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglmaterial.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglmesh.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglmodel.cpp" />
@@ -258,6 +259,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\Renderer\buffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglbuffer.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmaterial.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmesh.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmodel.h" />
