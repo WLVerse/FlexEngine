@@ -5,6 +5,8 @@ namespace Editor
 {
 
   Renderer2DProps props;
+  Camera camera(0.0f, 900.0f, 0.0f, 350.0f, -1.0f, 1.0f);
+  Asset::Texture texture;
 
   void SplashLayer::OnAttach()
   {
@@ -17,6 +19,8 @@ namespace Editor
     props.scale = { 900.0f, 350.0f };
     props.window_size = Vector2(900.0f, 350.0f);
     props.alignment = Renderer2DProps::Alignment_TopLeft;
+
+    texture.Load(Path::current("assets/images/flexengine/flexengine_splash.png"));
   }
 
   void SplashLayer::OnDetach()
@@ -27,7 +31,13 @@ namespace Editor
   void SplashLayer::Update()
   {
     // render splash screen
-    OpenGLRenderer::DrawTexture2D(props);
+    camera.Update();
+    OpenGLRenderer::DrawTexture2D(camera, props);
+
+    // imgui window display an image
+    //ImGui::Begin("Splash Screen");
+    //ImGui::Image(IMGUI_IMAGE(texture));
+    //ImGui::End();
   }
 
 }
