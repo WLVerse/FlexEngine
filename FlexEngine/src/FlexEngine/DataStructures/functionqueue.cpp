@@ -56,6 +56,11 @@ namespace FlexEngine
     }
   }
 
+  void FunctionQueue::Clear()
+  {
+    m_queue.clear();
+  }
+
   void FunctionQueue::Flush()
   {
     // guard

@@ -94,6 +94,10 @@ namespace FlexEngine
     // It also runs the function immediately after removing it from the queue.
     void RemoveAndExecute(const std::string& id);
 
+    // Clears the queue.
+    // Useful for when you want to clear the queue without running the functions.
+    void Clear();
+
     // Run all the functions in the queue
     // Functions will be run in order of priority from lowest to highest
     // Functions with the same priority will be run in the order they were added

@@ -47,6 +47,9 @@
     <Filter Include="src\FlexEngine\Renderer\Camera">
       <UniqueIdentifier>{e3c64144-5c2e-4bbb-a426-b1df49e68fe4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\FlexScripting">
+      <UniqueIdentifier>{e986e5fb-544e-4484-bad4-41ed3d714b79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -189,6 +192,9 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\FlexScripting\scriptregistry.cpp">
+      <Filter>src\FlexEngine\FlexScripting</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +371,12 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugger.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\FlexScripting\iscript.h">
+      <Filter>src\FlexEngine\FlexScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\FlexScripting\scriptregistry.h">
+      <Filter>src\FlexEngine\FlexScripting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

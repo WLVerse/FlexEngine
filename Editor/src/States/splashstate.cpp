@@ -22,10 +22,13 @@ namespace Editor
     window->SetTargetFPS(30);
     window->SetVSync(false);
 
-    window->PushLayer(std::make_shared<BaseLayer>());
-    window->PushLayer(std::make_shared<SplashLayer>());
+    auto& layerstack = window->GetLayerStack();
 
-    window->PushOverlay(std::make_shared<StatisticsPanelLayer>());
+    layerstack.AddLayer(std::make_shared<BaseLayer>());
+    layerstack.AddLayer(std::make_shared<SplashLayer>());
+    layerstack.AddLayer(std::make_shared<ScriptingLayer>());
+    
+    layerstack.AddOverlay(std::make_shared<StatisticsPanelLayer>());
   }
 
   void SplashState::OnExit()

@@ -30,6 +30,9 @@
     <ClCompile Include="src\Layers\statisticspanellayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layers\scriptinglayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\States.h">
@@ -51,6 +54,9 @@
       <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\statisticspanellayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\scriptinglayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>

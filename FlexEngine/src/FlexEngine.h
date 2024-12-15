@@ -193,3 +193,10 @@
 // The number that is generated is inclusive of the min and max values.
 // Can also be used to store a range of values by getting min and max.
 #include "FlexEngine/DataStructures/range.h"
+
+
+
+
+// temp
+#include "FlexEngine/FlexScripting/iscript.h"
+#include "FlexEngine/FlexScripting/scriptregistry.h"

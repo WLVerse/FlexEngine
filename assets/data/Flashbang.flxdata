@@ -1,0 +1,10 @@
+{
+    "flxdata": {
+        "name": "Flashbang",
+        "description": "Stuns Target for 2 turns",
+        "speed_cost": 5,
+        "is_target_enemy": true,
+        "target_type": "SINGLE",
+	"functions": "DAMAGE, 0, 2, STUN, 2, 0"
+    }
+}

@@ -120,6 +120,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /E /I /Y /Q</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -139,10 +142,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /E /I /Y /Q</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
+    <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\splashlayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
     <ClCompile Include="src\States\editorstate.cpp" />
@@ -151,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
+    <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\splashlayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
     <ClInclude Include="src\States.h" />

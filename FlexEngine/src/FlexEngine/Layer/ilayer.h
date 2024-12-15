@@ -45,18 +45,16 @@ namespace FlexEngine
   // build upon this class to create your own layers
   class Layer
   {
-    std::string m_layer_name;
+    std::string m_layer_name = "";
 
   public:
     Layer(const std::string& name = "Layer") : m_layer_name(name) {}
     virtual ~Layer() = default;
 
-    // setter
-
+    // Set the name of the layer
     void SetName(const std::string& name) { m_layer_name = name; }
 
-    // getter
-
+    // Get the name of the layer
     const std::string& GetName() const { return m_layer_name; }
 
     // called once when layer is attached to the layer stack

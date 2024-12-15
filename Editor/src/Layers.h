@@ -13,5 +13,6 @@
 #pragma once
 
 #include "Layers/baselayer.h"
+#include "Layers/scriptinglayer.h"
 #include "Layers/splashlayer.h"
 #include "Layers/statisticspanellayer.h"

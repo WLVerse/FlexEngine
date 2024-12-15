@@ -46,7 +46,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -193,6 +193,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\FlexMath\vector4.cpp" />
     <ClCompile Include="src\FlexEngine\flexprefs.cpp" />
     <ClCompile Include="src\FlexEngine\flexprofiler.cpp" />
+    <ClCompile Include="src\FlexEngine\FlexScripting\scriptregistry.cpp" />
     <ClCompile Include="src\FlexEngine\flxdata.cpp" />
     <ClCompile Include="src\FlexEngine\frameratecontroller.cpp" />
     <ClCompile Include="src\FlexEngine\imguiwrapper.cpp" />
@@ -249,6 +250,8 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\FlexMath\vector4.h" />
     <ClInclude Include="src\FlexEngine\flexprefs.h" />
     <ClInclude Include="src\FlexEngine\flexprofiler.h" />
+    <ClInclude Include="src\FlexEngine\FlexScripting\iscript.h" />
+    <ClInclude Include="src\FlexEngine\FlexScripting\scriptregistry.h" />
     <ClInclude Include="src\FlexEngine\flxdata.h" />
     <ClInclude Include="src\FlexEngine\frameratecontroller.h" />
     <ClInclude Include="src\FlexEngine\imguiwrapper.h" />

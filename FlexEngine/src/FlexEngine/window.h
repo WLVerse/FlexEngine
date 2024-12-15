@@ -156,11 +156,6 @@ namespace FlexEngine
 
     LayerStack& GetLayerStack() { return m_layerstack; }
 
-    void PushLayer(std::shared_ptr<Layer> layer) { m_layerstack.PushLayer(layer); }
-    void PushOverlay(std::shared_ptr<Layer> layer) { m_layerstack.PushOverlay(layer); }
-    void PopLayer() { m_layerstack.PopLayer(); }
-    void PopOverlay() { m_layerstack.PopOverlay(); }
-
     #pragma endregion
 
     // Returns the GLFW window pointer.

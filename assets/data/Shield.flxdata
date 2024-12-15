@@ -1,0 +1,10 @@
+{
+    "flxdata": {
+        "name": "Shield",
+        "description": "Immune to damage for 1 turn",
+        "speed_cost": 6,
+        "is_target_enemy": false,
+        "target_type": "SELF",
+        "functions": "IMMUNITY, 1, 0"
+    }
+}
