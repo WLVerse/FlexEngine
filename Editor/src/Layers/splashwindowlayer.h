@@ -6,11 +6,11 @@ using namespace FlexEngine;
 namespace Editor
 {
 
-  class BaseLayer : public FlexEngine::Layer
+  class SplashWindowLayer : public FlexEngine::Layer
   {
   public:
-    BaseLayer() : Layer("Base Layer") {}
-    ~BaseLayer() = default;
+    SplashWindowLayer() : Layer("Splash Window Layer") {}
+    ~SplashWindowLayer() = default;
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;

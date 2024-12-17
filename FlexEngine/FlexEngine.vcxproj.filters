@@ -166,9 +166,6 @@
     <ClCompile Include="src\FlexEngine\window.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\FlexEngine\windowprops.cpp">
-      <Filter>src\FlexEngine</Filter>
-    </ClCompile>
     <ClCompile Include="src\FlexEngine\application.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>

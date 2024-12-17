@@ -12,5 +12,6 @@
 
 #pragma once
 
-#include "States/editorstate.h"
-#include "States/splashstate.h"
+//#include "States/editorstate.h"
+//#include "States/splashstate.h"
+//#include "States/teststate.h"

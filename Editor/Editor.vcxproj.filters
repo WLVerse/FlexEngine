@@ -15,12 +15,6 @@
     <ClCompile Include="src\launch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\splashstate.cpp">
-      <Filter>src\States</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\editorstate.cpp">
-      <Filter>src\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\Layers\baselayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
@@ -33,19 +27,19 @@
     <ClCompile Include="src\Layers\scriptinglayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layers\editorbaselayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\splashwindowlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\editorwindowlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\States.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\Layers.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\splashstate.h">
-      <Filter>src\States</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\editorstate.h">
-      <Filter>src\States</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\baselayer.h">
       <Filter>src\Layers</Filter>
@@ -59,5 +53,24 @@
     <ClInclude Include="src\Layers\scriptinglayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\editorbaselayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\Layers\splashwindowlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\editorwindowlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\assets\images\flexengine\flexengine-256.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
 </Project>

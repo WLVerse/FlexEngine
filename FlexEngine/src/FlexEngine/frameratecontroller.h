@@ -12,12 +12,14 @@
 
 #pragma once
 
+#include "flx_api.h"
+
 #include <chrono>
 
 namespace FlexEngine
 {
 
-  class FramerateController
+  class __FLX_API FramerateController
   {
     std::chrono::time_point<std::chrono::high_resolution_clock> m_last_time = std::chrono::high_resolution_clock::now();
     float m_delta_time = 0.0f;

@@ -59,6 +59,6 @@ int main(int, char**)
   // Run the application
   app->Run();
 
-  // Exit the program
+  // This is required to flush the FreeQueue.
   std::exit(0);
 }

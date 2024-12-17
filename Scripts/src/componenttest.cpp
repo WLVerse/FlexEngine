@@ -9,12 +9,13 @@ public:
 
   void Start() override
   {
-    std::cout << "ComponentTest: Start" << std::endl;
+    Log::Debug("ComponentTest: Start");
 
-    //Vec2 pos(1.0f, 2.0f);
-    //pos.Print();
-    //pos.Invert();
-    //pos.Print();
+    // simple test to display the mouse position
+    Vector2 mouse_pos = Input::GetMousePosition();
+    std::stringstream ss;
+    ss << "Mouse Position: " << mouse_pos.x << ", " << mouse_pos.y;
+    Log::Debug(ss);
 
     //Reflection::TypeDescriptor* type = Reflection::TypeResolver<Vec2>::Get();
     //std::cout << "Type: " << type->ToString() << std::endl;
@@ -28,7 +29,7 @@ public:
 
   void Stop() override
   {
-    std::cout << "ComponentTest: Stop" << std::endl;
+    Log::Debug("ComponentTest: Stop");
   }
 };
 

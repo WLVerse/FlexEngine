@@ -59,6 +59,17 @@ namespace FlexEngine
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
     static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
+
+    // This function is designed to be extremely lightweight
+    // and doesn't require the camera, props, or asset manager.
+    // It uses the texture shader and a unit square mesh.
+    static void DrawSimpleTexture2D(
+      const Asset::Texture& texture = Asset::Texture::None,
+      const Vector2& position = Vector2(0.0f, 0.0f),
+      const Vector2& scale = Vector2(1600.0f, 900.0f),
+      const Vector2& window_size = Vector2(1600.0f, 900.0f),
+      Renderer2DProps::Alignment alignment = Renderer2DProps::Alignment_TopLeft
+    );
   };
 
 }

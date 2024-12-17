@@ -6,11 +6,11 @@ using namespace FlexEngine;
 namespace Editor
 {
 
-  class BaseLayer : public FlexEngine::Layer
+  class EditorWindowLayer : public FlexEngine::Layer
   {
   public:
-    BaseLayer() : Layer("Base Layer") {}
-    ~BaseLayer() = default;
+    EditorWindowLayer() : Layer("Editor Window Layer") {}
+    ~EditorWindowLayer() = default;
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;

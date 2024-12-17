@@ -3,6 +3,13 @@
 // 
 // The architecture of the engine is designed to only have one application instance.
 // This manages the windows and the main loop of the application.
+// 
+// All actions on the application, window, and layerstack are deferred and controlled
+// within the Application::Run function. It must be resolved in this order.
+// - Window LayerStack
+// - Window
+// - Application LayerStack
+// - Application
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -20,11 +27,245 @@
 namespace FlexEngine
 {
   // static member initialization
-  bool Application::m_is_closing = false;
+  //Application* Application::s_active_application = nullptr;
+
   bool Application::m_is_running = true;
-  bool Application::m_is_minimized = false;
-  std::vector<std::shared_ptr<Window>> Application::m_windows;
+  bool Application::m_is_closing = false;
+
+  Application::WindowRegistry Application::m_window_registry{};
+
   Window* Application::m_current_window = nullptr;
+
+  std::queue<Application::CommandData> Application::m_command_queue{};
+
+  LayerStack Application::m_layer_stack{};
+
+  Application::MessagingSystem::Messages Application::MessagingSystem::m_messages{};
+
+  #pragma region Application Loop Management
+
+  void Application::Quit()
+  {
+    // Step 1: Clear all layers in each window
+    for (auto& [window_name, window] : Application::GetWindowRegistry())
+    {
+      window->GetLayerStack().Clear(); // Clear layers in the window
+    }
+
+    // Step 2: Close all windows
+    Application::CloseAllWindows();
+
+    // Step 3: Clear the application-level layer stack
+    Application::GetLayerStack().Clear();
+
+    // Step 4: Signal the application to exit
+    m_is_running = false; // Flag to break out of the main Run loop
+  }
+
+  #pragma endregion
+
+  #pragma region Registry Pattern
+
+  void Application::OpenWindow(const std::string& window_name, const WindowProps& props)
+  {
+    // guard: check if window already exists
+    if (m_window_registry.count(window_name) != 0)
+    {
+      Log::Warning("Cannot open a window with a name that already exists in the registry. Window name: " + window_name);
+      return;
+    }
+
+    // create the window
+    // this validates the window name and properties
+    m_window_registry[window_name] = std::make_shared<Window>(window_name, props);
+
+    m_window_registry[window_name]->Open();
+
+    // set the newly open window as the active window context
+    m_window_registry[window_name]->SetCurrentContext();
+  }
+
+  void Application::CloseWindow(const std::string& window_name)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot close a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+
+    // Step 1: Clear the window's layers
+    m_window_registry[window_name]->GetLayerStack().Clear();
+
+    // Step 2: Close and clean up the window
+    m_window_registry[window_name]->Close();
+    m_window_registry.erase(window_name);
+  }
+
+  void Application::CloseAllWindows()
+  {
+    for (auto& [window_name, window] : m_window_registry)
+    {
+      // Step 1: Clear the window's layers
+      window->GetLayerStack().Clear();
+      // Step 2: Close and clean up the window
+      window->Close();
+    }
+
+    // Step 3: Clear the window registry
+    m_window_registry.clear();
+  }
+
+  #pragma endregion
+
+  #pragma region Command Pattern
+
+  void Application::ProcessCommands()
+  {
+    while (!m_command_queue.empty())
+    {
+      const auto& cmd = m_command_queue.front();
+
+      switch (cmd.command_type)
+      {
+        // Application
+
+      case Command::QuitApplication:
+        m_is_closing = true;
+        break;
+
+        // Application LayerStack
+
+      case Command::Application_AddLayer:
+        Application::GetLayerStack().AddLayer(cmd.layer);
+        break;
+
+      case Command::Application_AddOverlay:
+        Application::GetLayerStack().AddOverlay(cmd.layer);
+        break;
+
+      case Command::Application_RemoveLayer:
+        Application::GetLayerStack().RemoveLayer(cmd.layer->GetName());
+        break;
+
+      case Command::Application_RemoveOverlay:
+        Application::GetLayerStack().RemoveOverlay(cmd.layer->GetName());
+        break;
+
+      case Command::Application_ClearLayerStack:
+        Application::GetLayerStack().Clear();
+        break;
+
+        // Window
+
+      case Command::OpenWindow:
+        Application::OpenWindow(cmd.window_name, cmd.window_props);
+        break;
+
+      case Command::CloseWindow:
+        Application::CloseWindow(cmd.window_name);
+        break;
+
+      case Command::CloseAllWindows:
+        Application::CloseAllWindows();
+        break;
+
+        // Window LayerStack
+
+      case Command::Window_AddLayer:
+        Application::Window_AddLayer(cmd.window_name, cmd.layer);
+        break;
+
+      case Command::Window_AddOverlay:
+        Application::Window_AddOverlay(cmd.window_name, cmd.layer);
+        break;
+
+      case Command::Window_RemoveLayer:
+        Application::Window_RemoveLayer(cmd.window_name, cmd.layer->GetName());
+        break;
+
+      case Command::Window_RemoveOverlay:
+        Application::Window_RemoveOverlay(cmd.window_name, cmd.layer->GetName());
+        break;
+
+      case Command::Window_ClearLayerStack:
+        Application::Window_ClearLayerStack(cmd.window_name);
+        break;
+
+      default:
+        Log::Warning("Invalid command type processed in the application command queue." + std::to_string(static_cast<int>(cmd.command_type)));
+        break;
+      }
+
+      m_command_queue.pop();
+    }
+
+    // quit the application if the close flag is set
+    if (m_is_closing) Quit();
+  }
+
+  #pragma endregion
+
+  #pragma region LayerStack
+
+  void Application::Window_AddLayer(const std::string& window_name, std::shared_ptr<Layer> layer)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot add a layer to a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+    m_window_registry[window_name]->GetLayerStack().AddLayer(layer);
+  }
+
+  void Application::Window_AddOverlay(const std::string& window_name, std::shared_ptr<Layer> overlay)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot add an overlay to a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+    m_window_registry[window_name]->GetLayerStack().AddOverlay(overlay);
+  }
+
+  void Application::Window_RemoveLayer(const std::string& window_name, const std::string& layer_name)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot remove a layer from a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+    m_window_registry[window_name]->GetLayerStack().RemoveLayer(layer_name);
+  }
+
+  void Application::Window_RemoveOverlay(const std::string& window_name, const std::string& overlay_name)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot remove an overlay from a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+    m_window_registry[window_name]->GetLayerStack().RemoveOverlay(overlay_name);
+  }
+
+  void Application::Window_ClearLayerStack(const std::string& window_name)
+  {
+    // guard: check if window exists
+    if (m_window_registry.count(window_name) == 0)
+    {
+      Log::Warning("Cannot clear the layer stack of a window that doesn't exist in the registry. Window name: " + window_name);
+      return;
+    }
+    m_window_registry[window_name]->GetLayerStack().Clear();
+  }
+
+  #pragma endregion
+
+  #pragma region Application Framework Pattern (Inversion of Control)
 
   Application::Application()
   {
@@ -42,101 +283,39 @@ namespace FlexEngine
     FLX_FLOW_ENDSCOPE();
   }
 
-  void Application::Close()
-  {
-    m_is_closing = true;
-  }
-
-  void Application::Internal_Close()
-  {
-    FLX_FLOW_FUNCTION();
-
-    m_current_window = nullptr;
-
-    // close all windows
-    // done this way because the windows vector is modified in the loop
-    size_t windows_to_close = m_windows.size();
-    for (size_t i = 0; i < windows_to_close; i++) CloseWindow(m_windows[0]);
-
-    // make sure windows vector is empty
-    m_windows.clear();
-
-    m_is_running = false;
-  }
-
-  #pragma region Window Handling Functions
-
-  std::shared_ptr<Window> Application::OpenWindow(const WindowProps& props)
-  {
-    FLX_FLOW_FUNCTION();
-
-    auto window = std::make_shared<Window>(props);
-    m_windows.push_back(window);
-
-    // if this is the first window, set it as the current window
-    if (m_windows.size() == 1) Internal_SetCurrentWindow(window.get());
-
-    return window;
-  }
-
-  void Application::CloseWindow(const std::string& window_title)
-  {
-    // find the window with the given title and close it
-    CloseWindow(
-      *(std::find_if(
-        m_windows.begin(), m_windows.end(),
-        [&window_title](std::shared_ptr<Window> window) { return window->GetTitle() == window_title; }
-      ))
-    );
-  }
-
-  void Application::CloseWindow(std::shared_ptr<Window> window)
-  {
-    FLX_FLOW_FUNCTION();
-
-    window->Close();
-    m_windows.erase(std::remove(m_windows.begin(), m_windows.end(), window), m_windows.end());
-  }
-
-  #pragma endregion
-
-  #pragma region Active Window Handling
-
-  Window* Application::GetCurrentWindow()
-  {
-    return m_current_window;
-  }
-
-  void Application::Internal_SetCurrentWindow(Window* window)
-  {
-    m_current_window = window;
-  }
-
-  #pragma endregion
-
-
   void Application::Run()
   {
+
+    // This is the main loop of the application
     while (m_is_running)
     {
       // poll IO events (keys pressed/released, mouse moved etc.)
+      // this is suggested to always come first in the loop
       glfwPollEvents();
 
-      // run the application state
-      ApplicationStateManager::Update();
+      // run the layerstack
+      Application::GetLayerStack().Update();
+      //ApplicationStateManager::Update();
 
-      // quit application
-      if (
-        m_is_closing ||
-        Input::GetKey(GLFW_KEY_LEFT_CONTROL) && Input::GetKeyDown(GLFW_KEY_Q)
-      )
+      // keybind to close the application
+      if (Input::GetKey(GLFW_KEY_LEFT_CONTROL) && Input::GetKeyDown(GLFW_KEY_Q))
       {
-        Application::Internal_Close();
+        m_is_closing = true;
       }
+
+      // All actions on the application, window, and layerstack are deferred.
+      // This processes them all.
+      ProcessCommands();
 
       // input cleanup (updates key states and mouse delta for the next frame)
       Input::Cleanup();
+
+      // state switching only happens at the very end of the frame
+      //ApplicationStateManager::UpdateManager();
     }
+
   }
+
+  #pragma endregion
 
 }

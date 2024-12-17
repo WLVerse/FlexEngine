@@ -13,6 +13,9 @@
 #pragma once
 
 #include "Layers/baselayer.h"
+#include "Layers/editorbaselayer.h"
+#include "Layers/editorwindowlayer.h"
 #include "Layers/scriptinglayer.h"
 #include "Layers/splashlayer.h"
+#include "Layers/splashwindowlayer.h"
 #include "Layers/statisticspanellayer.h"

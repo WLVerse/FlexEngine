@@ -33,11 +33,18 @@ namespace FlexEngine
 
   LayerStack::~LayerStack()
   {
-    Clear();
+    //Internal_Clear();
   }
 
   void LayerStack::Clear()
   {
+    m_to_clear = true;
+  }
+
+  void LayerStack::Internal_Clear()
+  {
+    FLX_FLOW_FUNCTION();
+
     for (auto& overlay : m_overlays)
     {
       overlay->OnDetach();
@@ -52,8 +59,8 @@ namespace FlexEngine
     }
     m_layers.clear();
 
-    m_to_add.clear();
-    m_to_remove.clear();
+    m_to_add.Clear();
+    m_to_remove.Clear();
   }
 
   void LayerStack::Update()
@@ -62,7 +69,7 @@ namespace FlexEngine
     for (auto& overlay : m_overlays) overlay->Update();
 
     // execute deferred commands
-    Internal_ExecuteDeferredCommands();
+    //Internal_ExecuteDeferredCommands();
   }
 
   bool LayerStack::HasLayer(const std::string& layer_name) const
@@ -76,7 +83,9 @@ namespace FlexEngine
 
   void LayerStack::AddLayer(std::shared_ptr<Layer> layer, size_t index, const std::string& layer_name)
   {
-    FLX_FLOW_FUNCTION();
+    std::string _layer_name = (layer_name.empty() ? layer->GetName() : layer_name);
+
+    Log::Debug("Adding layer: " + _layer_name);
 
     // guard: check if layer is nullptr
     if (!layer)
@@ -88,7 +97,7 @@ namespace FlexEngine
     // guard: check if name already exists
     for (auto& l : m_layers)
     {
-      if (l->GetName() == layer_name)
+      if (l->GetName() == _layer_name)
       {
         Log::Error("Layer name already exists.");
         return;
@@ -109,12 +118,17 @@ namespace FlexEngine
     }
 #endif
 
-    m_to_add.insert({ LayerType::Layer, layer, index });
+    m_layers.insert(m_layers.begin() + index, layer);
+    layer->OnAttach();
+    //m_to_add.insert({ LayerType::Layer, layer, index });
+    //m_to_add.Insert({ [this, layer, index]() { Internal_Add(LayerType::Layer, layer, index); } });
   }
 
   void LayerStack::AddOverlay(std::shared_ptr<Layer> overlay, size_t index, const std::string& overlay_name)
   {
-    FLX_FLOW_FUNCTION();
+    std::string _overlay_name = (overlay_name.empty() ? overlay->GetName() : overlay_name);
+
+    Log::Debug("Adding overlay: " + _overlay_name);
 
     // guard: check if overlay is nullptr
     if (!overlay)
@@ -126,7 +140,7 @@ namespace FlexEngine
     // guard: check if name already exists
     for (auto& o : m_overlays)
     {
-      if (o->GetName() == overlay_name)
+      if (o->GetName() == _overlay_name)
       {
         Log::Error("Overlay name already exists.");
         return;
@@ -147,13 +161,14 @@ namespace FlexEngine
     }
 #endif
 
-    m_to_add.insert({ LayerType::Overlay, overlay, index });
+    m_overlays.insert(m_overlays.begin() + index, overlay);
+    overlay->OnAttach();
+    //m_to_add.insert({ LayerType::Overlay, overlay, index });
+    //m_to_add.Insert({ [this, overlay, index]() { Internal_Add(LayerType::Overlay, overlay, index); } });
   }
 
   void LayerStack::RemoveLayer(const std::string& layer_name)
   {
-    FLX_FLOW_FUNCTION();
-
     // guard: check if layer exists
     auto it = std::find_if(m_layers.begin(), m_layers.end(), [&](const auto& layer) { return layer->GetName() == layer_name; });
     if (it == m_layers.end())
@@ -162,12 +177,13 @@ namespace FlexEngine
       return;
     }
 
-    m_to_remove.insert({ LayerType::Layer, std::distance(m_layers.begin(), it) });
+    RemoveLayer(std::distance(m_layers.begin(), it));
   }
 
   void LayerStack::RemoveLayer(size_t index)
   {
-    FLX_FLOW_FUNCTION();
+    //FLX_FLOW_FUNCTION();
+    Log::Debug("Removing layer at index: " + std::to_string(index));
 
     // guard: check if index is out of bounds
     if (index >= m_layers.size())
@@ -176,13 +192,14 @@ namespace FlexEngine
       return;
     }
 
-    m_to_remove.insert({ LayerType::Layer, index });
+    m_layers[index]->OnDetach();
+    m_layers.erase(m_layers.begin() + index);
+    //m_to_remove.insert({ LayerType::Layer, index });
+    //m_to_remove.Insert({ [this, index]() { Internal_Remove(LayerType::Layer, index); } });
   }
 
   void LayerStack::RemoveOverlay(const std::string& overlay_name)
   {
-    FLX_FLOW_FUNCTION();
-
     // guard: check if overlay exists
     auto it = std::find_if(m_overlays.begin(), m_overlays.end(), [&](const auto& overlay) { return overlay->GetName() == overlay_name; });
     if (it == m_overlays.end())
@@ -191,12 +208,13 @@ namespace FlexEngine
       return;
     }
 
-    m_to_remove.insert({ LayerType::Overlay, std::distance(m_overlays.begin(), it) });
+    RemoveOverlay(std::distance(m_overlays.begin(), it));
   }
 
   void LayerStack::RemoveOverlay(size_t index)
   {
-    FLX_FLOW_FUNCTION();
+    //FLX_FLOW_FUNCTION();
+    Log::Debug("Removing overlay at index: " + std::to_string(index));
 
     // guard: check if index is out of bounds
     if (index >= m_overlays.size())
@@ -205,7 +223,10 @@ namespace FlexEngine
       return;
     }
 
-    m_to_remove.insert({ LayerType::Overlay, index });
+    m_overlays[index]->OnDetach();
+    m_overlays.erase(m_overlays.begin() + index);
+    //m_to_remove.insert({ LayerType::Overlay, index });
+    //m_to_remove.Insert({ [this, index]() { Internal_Remove(LayerType::Overlay, index); } });
   }
 
   std::shared_ptr<Layer> LayerStack::GetLayer(const std::string& layer_name) const
@@ -226,12 +247,14 @@ namespace FlexEngine
     if (m_to_add.empty() && m_to_remove.empty()) return;
 
     // apply deferred removals
-    for (const auto& [type, index] : m_to_remove) Internal_Remove(type, index);
-    m_to_remove.clear();
+    //for (const auto& [type, index] : m_to_remove) Internal_Remove(type, index);
+    //m_to_remove.clear();
+    //m_to_remove.Flush();
 
     // apply deferred additions
-    for (const auto& [type, layer, index] : m_to_add) Internal_Add(type, layer, index);
-    m_to_add.clear();
+    //for (const auto& [type, layer, index] : m_to_add) Internal_Add(type, layer, index);
+    //m_to_add.clear();
+    //m_to_add.Flush();
   }
 
   void LayerStack::Internal_Add(LayerType type, std::shared_ptr<Layer> layer, size_t index)

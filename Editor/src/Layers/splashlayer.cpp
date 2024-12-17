@@ -4,23 +4,17 @@
 namespace Editor
 {
 
-  Renderer2DProps props;
-  Camera camera(0.0f, 900.0f, 0.0f, 350.0f, -1.0f, 1.0f);
-  Asset::Texture texture;
+  // internal variables
+  Asset::Texture texture, icon;
 
   void SplashLayer::OnAttach()
   {
-    //props.shader = R"(/shaders/texture)";
-    props.texture = R"(/images/flexengine/flexengine_splash.png)";
-    //props.color = Vector3(1.0f, 0.0f, 1.0f);
-    //props.color_to_add = Vector3(0.0f, 0.0f, 0.0f);
-    //props.color_to_multiply = Vector3(1.0f, 1.0f, 1.0f);
-    //props.position = Vector2(0.0f, 0.0f);
-    props.scale = { 900.0f, 350.0f };
-    props.window_size = Vector2(900.0f, 350.0f);
-    props.alignment = Renderer2DProps::Alignment_TopLeft;
-
+    // load assets
     texture.Load(Path::current("assets/images/flexengine/flexengine_splash.png"));
+
+    // set window icon
+    icon.Load(Path::current("assets/images/flexengine/flexengine-256.png"));
+    Application::GetCurrentWindow()->SetIcon(icon);
   }
 
   void SplashLayer::OnDetach()
@@ -31,13 +25,48 @@ namespace Editor
   void SplashLayer::Update()
   {
     // render splash screen
-    camera.Update();
-    OpenGLRenderer::DrawTexture2D(camera, props);
+    OpenGLRenderer::DrawSimpleTexture2D(
+      texture,
+      Vector2(0.0f, 0.0f),
+      Vector2(900.0f, 350.0f),
+      Vector2(900.0f, 350.0f),
+      Renderer2DProps::Alignment_TopLeft
+    );
 
-    // imgui window display an image
-    //ImGui::Begin("Splash Screen");
-    //ImGui::Image(IMGUI_IMAGE(texture));
-    //ImGui::End();
+    // load the base layer
+    // the only reason why this is here is so that the render command above can run first
+    static bool added_base_layer = false;
+    if (!added_base_layer)
+    {
+      Application::QueueCommand(
+        Application::CommandData(
+          Application::Command::Application_AddLayer,
+          std::make_shared<BaseLayer>()
+        )
+      );
+      added_base_layer = true;
+    }
+
+    // code here will not be executed until the base layer is loaded
+    if (Application::MessagingSystem::Receive<bool>("Is base layer loaded?"))
+    {
+      #if 0
+      Log::Info("Loaded base layer, switching to editor.");
+      #else
+      Application::QueueCommand(
+        Application::CommandData(
+          Application::Command::Application_AddLayer,
+          std::make_shared<EditorWindowLayer>()
+        )
+      );
+      Application::QueueCommand(
+        Application::CommandData(
+          Application::Command::Application_RemoveLayer,
+          Application::GetLayerStack().GetLayer("Splash Window Layer")
+        )
+      );
+      #endif
+    }
   }
 
 }

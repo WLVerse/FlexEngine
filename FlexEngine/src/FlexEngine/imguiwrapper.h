@@ -1,8 +1,24 @@
 // WLVERSE [https://wlverse.web.app]
 // imguiwrapper.h
 // 
-// This static class is a wrapper to handle
-// the loading and unloading of the ImGui context.
+// This class is a wrapper to handle the loading and unloading
+// of the ImGui context, backend, and store the context pointer.
+// One context and backend setup is needed per window.
+// 
+// Since ImGui is not recommended for DLLs, this class can only work
+// by setting the context pointer before using ImGui functions.
+// Use the FLX_IMGUI_ALIGNCONTEXT macro to set the context pointer.
+// 
+// The order of operations is as follows:
+// The indentation represents the passing of control over to the
+// other DLLs.
+// - Init
+// - SetContext
+// - BeginFrame
+//   - SetContext
+//   - ImGui Functions
+// - EndFrame
+// - Shutdown
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -11,6 +27,10 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #pragma once
+
+#ifdef IMGUI_DISABLE
+#error "ImGui is disabled because IMGUI_DISABLE is defined. Please enable ImGui to use this header. If it's supposed to be disabled, look for where you might have accidentally included this header without putting #ifndef IMGUI_DISABLE"
+#endif
 
 #include "flx_api.h"
 
@@ -26,20 +46,38 @@ namespace FlexEngine
 
   class __FLX_API ImGuiWrapper
   {
+
+    #pragma region Managed RAII Pattern
+
+    // This is handled per window.
+    // Each window has its own context and backend.
+
   public:
-
-    // Sets the ImGui context for the current window
-    // ImGui is not recommended to be used in DLLs because of the global context pointer
-    // We must call this function before using ImGui across any DLL boundaries
-    #define AlignImGuiContext(window) ImGui::SetCurrentContext(window->GetImGuiContext());
-
     static ImGuiContext* Init(Window* window);
-    static void Shutdown(ImGuiContext* imgui_context);
+    static void Shutdown(Window* window);
 
+    #pragma endregion
+
+    #pragma region ImGui Extended Functions
+
+    // These functions are wrappers for the ImGui functions
+    // by the same name.
+
+  public:
+    // Runs the three ImGui new frame functions.
+    // 
+    // This is called by the window update function and does not
+    // need to be called manually anywhere else.
     static void BeginFrame();
+
+    // Runs the ImGui render function and passes the frame to the backend.
+    // This also automatically handles any multi-window rendering.
+    // 
+    // This is called by the window update function and does not
+    // need to be called manually anywhere else.
     static void EndFrame();
 
-    static unsigned int GetActiveWidgetID();
+    #pragma endregion
 
   };
 

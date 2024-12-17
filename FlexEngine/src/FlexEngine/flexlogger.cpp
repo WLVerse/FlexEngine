@@ -272,7 +272,7 @@ namespace FlexEngine
     // quit application if fatal
     if (level == LogLevel_Fatal)
     {
-      Log::DumpLogs();
+      //Log::DumpLogs();
       std::exit(EXIT_FAILURE);
     }
   }

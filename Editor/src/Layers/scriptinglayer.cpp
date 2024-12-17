@@ -146,6 +146,10 @@ namespace Editor
 
   void ScriptingLayer::Update()
   {
+    // Always remember to set the context before using ImGui
+    //FLX_GLFW_ALIGNCONTEXT();
+    FLX_IMGUI_ALIGNCONTEXT();
+
     Internal_DebugWithImGui();
   }
 

@@ -1,8 +1,24 @@
 // WLVERSE [https://wlverse.web.app]
 // imguiwrapper.cpp
 // 
-// This static class is a wrapper to handle
-// the loading and unloading of the ImGui context.
+// This class is a wrapper to handle the loading and unloading
+// of the ImGui context, backend, and store the context pointer.
+// One context and backend setup is needed per window.
+// 
+// Since ImGui is not recommended for DLLs, this class can only work
+// by setting the context pointer before using ImGui functions.
+// Use the FLX_IMGUI_ALIGNCONTEXT macro to set the context pointer.
+// 
+// The order of operations is as follows:
+// The indentation represents the passing of control over to the
+// other DLLs.
+// - Init
+// - SetContext
+// - BeginFrame
+//   - SetContext
+//   - ImGui Functions
+// - EndFrame
+// - Shutdown
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -13,9 +29,6 @@
 #include "pch.h"
 
 #include "imguiwrapper.h" // <imgui.h> <imgui_internal.h>
-
-//#include <imgui.h>
-//#include <imgui_internal.h>
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -172,13 +185,25 @@ namespace
 namespace FlexEngine
 {
 
+  #pragma region Managed RAII Pattern
+
   ImGuiContext* ImGuiWrapper::Init(Window* window)
   {
     FLX_FLOW_FUNCTION();
 
     IMGUI_CHECKVERSION();
 
+    // guard: check if imgui is already initialized
+    if (window->GetImGuiContext() != nullptr)
+    {
+      Log::Warning("ImGuiWrapper is already initialized. Cancelling initialization.");
+      return nullptr;
+    }
+    
+    // All code past this point is safe to run
+
     ImGuiContext* imgui_context = ImGui::CreateContext();
+
     // always remember to set the current context before running imgui functions
     ImGui::SetCurrentContext(imgui_context);
 
@@ -202,26 +227,42 @@ namespace FlexEngine
     io.Fonts->AddFontFromFileTTF(font_path.c_str(), 21.f);
 
     // setup platform/renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window->GetGLFWWindow(), true);
-    ImGui_ImplOpenGL3_Init(window->Props().opengl_version_text);
+    FLX_CORE_ASSERT(ImGui_ImplGlfw_InitForOpenGL(window->GetGLFWWindow(), true), "Failed to initialize GLFW backend!");
+    FLX_CORE_ASSERT(ImGui_ImplOpenGL3_Init(window->Props().opengl_version_text), "Failed to initialize OpenGL3 backend!");
 
     return imgui_context;
   }
 
-  void ImGuiWrapper::Shutdown(ImGuiContext* imgui_context)
+  void ImGuiWrapper::Shutdown(Window* window)
   {
     FLX_FLOW_FUNCTION();
 
-    // always remember to set the current context before running imgui functions
-    ImGui::SetCurrentContext(imgui_context);
+    // guard: check if imgui is already initialized
+    if (window->GetImGuiContext() == nullptr)
+    {
+      Log::Warning("ImGuiWrapper is not initialized. Cancelling shutdown.");
+      return;
+    }
 
+    // always remember to set the current context before running imgui functions
+    ImGui::SetCurrentContext(window->GetImGuiContext());
+
+    // Shutdown platform/backend bindings
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext(imgui_context);
+
+    // Destroy the ImGui context
+    ImGui::DestroyContext(window->GetImGuiContext());
   }
+
+  #pragma endregion
+
+  #pragma region ImGui Extended Functions
 
   void ImGuiWrapper::BeginFrame()
   {
+    FLX_IMGUI_ALIGNCONTEXT();
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -229,6 +270,8 @@ namespace FlexEngine
 
   void ImGuiWrapper::EndFrame()
   {
+    FLX_IMGUI_ALIGNCONTEXT();
+
     GLFWwindow* glfwwindow = Application::GetCurrentWindow()->GetGLFWWindow();
     ImGuiIO& io = ImGui::GetIO();
     int width, height;
@@ -239,8 +282,8 @@ namespace FlexEngine
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // Update and Render additional Platform Windows
-    // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-    // For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+    // Platform functions may change the current OpenGL context,
+    // so we save/restore it to make it safer.
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
       GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -250,9 +293,6 @@ namespace FlexEngine
     }
   }
 
-  unsigned int ImGuiWrapper::GetActiveWidgetID()
-  {
-    return GImGui->ActiveId;
-  }
+  #pragma endregion
 
 }

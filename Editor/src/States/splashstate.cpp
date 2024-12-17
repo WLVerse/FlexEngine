@@ -22,13 +22,12 @@ namespace Editor
     window->SetTargetFPS(30);
     window->SetVSync(false);
 
-    auto& layerstack = window->GetLayerStack();
+    // display splash screen first
+    // note that this layer does not rely on anything in the base layer
+    window->GetLayerStack().AddLayer(std::make_shared<SplashLayer>());
 
-    layerstack.AddLayer(std::make_shared<BaseLayer>());
-    layerstack.AddLayer(std::make_shared<SplashLayer>());
-    layerstack.AddLayer(std::make_shared<ScriptingLayer>());
-    
-    layerstack.AddOverlay(std::make_shared<StatisticsPanelLayer>());
+    // this is just for debugging
+    window->GetLayerStack().AddOverlay(std::make_shared<StatisticsPanelLayer>());
   }
 
   void SplashState::OnExit()

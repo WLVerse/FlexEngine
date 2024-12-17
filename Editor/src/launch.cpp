@@ -12,7 +12,7 @@
 #include <FlexEngine.h>
 #include <entrypoint.h>
 
-#include "States.h"
+#include "Layers.h"
 
 namespace Editor
 {
@@ -21,7 +21,20 @@ namespace Editor
   public:
     FlexApplication()
     {
-      FlexEngine::ApplicationStateManager::SetState<SplashState>();
+      // SplashWindowLayer
+      // EditorWindowLayer
+      FlexEngine::Application::QueueCommand(
+        FlexEngine::Application::CommandData(
+          FlexEngine::Application::Command::Application_AddLayer,
+          std::make_shared<SplashWindowLayer>()
+        )
+      );
+      //FlexEngine::Application::QueueCommand(
+      //  FlexEngine::Application::CommandData(
+      //    FlexEngine::Application::Command::Application_AddLayer,
+      //    std::make_shared<EditorWindowLayer>()
+      //  )
+      //);
     }
   };
 

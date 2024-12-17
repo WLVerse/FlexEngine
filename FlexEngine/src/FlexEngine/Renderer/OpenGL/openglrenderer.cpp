@@ -78,15 +78,14 @@ namespace FlexEngine
   void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
   {
     // unit square
-    // Flipped UVs for OpenGL
     static const float vertices[] = {
-      // Position        // TexCoords
-      -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   0.0f, 1.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   0.0f, 1.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   1.0f, 0.0f  // Bottom-left
+      // Position           // TexCoords
+      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
     };
 
     static GLuint vao = 0, vbo = 0;
@@ -163,6 +162,97 @@ namespace FlexEngine
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
     asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
+
+    // draw
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    m_draw_calls++;
+
+    glBindVertexArray(0);
+  }
+
+  void OpenGLRenderer::DrawSimpleTexture2D(
+    const Asset::Texture& texture,
+    const Vector2& position,
+    const Vector2& scale,
+    const Vector2& window_size,
+    Renderer2DProps::Alignment alignment
+  )
+  {
+    // unit square
+    static const float vertices[] = {
+      // Position           // TexCoords
+      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+    };
+
+    static GLuint vao = 0, vbo = 0;
+
+    if (vao == 0)
+    {
+      glGenVertexArrays(1, &vao);
+      glGenBuffers(1, &vbo);
+
+      glBindVertexArray(vao);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+      glBindVertexArray(0);
+
+      // free in freequeue
+      FreeQueue::Push(
+        [=]()
+      {
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
+      }
+      );
+    }
+
+    // guard
+    if (vao == 0 || scale == Vector2::Zero) return;
+
+    // bind all
+    glBindVertexArray(vao);
+
+    static Asset::Shader texture_shader(Path::current("assets/shaders/texture.vert"), Path::current("assets/shaders/texture.frag"));
+    texture_shader.Use();
+
+    texture_shader.SetUniform_bool("u_use_texture", true);
+    texture.Bind(texture_shader, "u_texture", 0);
+
+    // set default values even though they are not used
+    texture_shader.SetUniform_vec3("u_color", Vector3(1.0f, 1.0f, 1.0f));
+    texture_shader.SetUniform_vec3("u_color_to_add", Vector3(0.0f, 0.0f, 0.0f));
+    texture_shader.SetUniform_vec3("u_color_to_multiply", Vector3(1.0f, 1.0f, 1.0f)); // this is the important one
+
+    // alignment
+    Vector2 m_position = Vector2(position.x, position.y);
+    switch (alignment)
+    {
+    case Renderer2DProps::Alignment_TopLeft:
+      m_position += scale * 0.5f;
+      break;
+    case Renderer2DProps::Alignment_Center:
+    default:
+      break;
+    }
+
+    // model matrix
+    Matrix4x4 model = Matrix4x4::Identity;
+    texture_shader.SetUniform_mat4("u_model", model.Translate(Vector3(m_position.x, m_position.y, 0.0f)).Scale(Vector3(scale.x, scale.y, 1.0f)));
+
+    // proj view matrix
+    Matrix4x4 proj_view = Matrix4x4::Orthographic(0.0f, window_size.x, 0.0f, window_size.y, -1.0f, 1.0f);
+    texture_shader.SetUniform_mat4("u_projection_view", proj_view);
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);

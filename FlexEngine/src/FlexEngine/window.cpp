@@ -16,7 +16,9 @@
 
 #include "application.h"
 
+#ifndef IMGUI_DISABLE
 #include "imguiwrapper.h"
+#endif
 
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
@@ -37,7 +39,7 @@ namespace
     //  FlexEngine::OpenGLFrameBuffer::RegenerateAllTextures(width, height);
 
     // update the window properties
-    for (auto& win : FlexEngine::Application::GetWindows())
+    for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())
     {
       if (win->GetGLFWWindow() == window)
       {
@@ -48,7 +50,7 @@ namespace
     }
   }
 
-  void WindowFocusCallBack(GLFWwindow* window, int focused)
+  void WindowFocusCallBack(GLFWwindow*, int)
   {
     //FlexEngine::FMODWrapper::Core::WindowFocusCallback(window, focused);
     // Commented out as it causes tab down when clicking outside window
@@ -66,25 +68,26 @@ namespace
 
 namespace FlexEngine
 {
-  // Create a function to check whether 
-  // Flag to indicate whether full screen
-  Window::Window(WindowProps const& props)
-    : s_props(props)
+
+  #pragma region Managed Stateful RAII Pattern
+
+  void Window::Open()
   {
+    FLX_FLOW_FUNCTION();
+
+    FLX_CORE_ASSERT(!is_init, "Internal_Open is being called on an already initialized window.");
+
     // window hints
     glfwDefaultWindowHints();
-    for (auto& hint : s_props.window_hints)
+    for (auto& [hint, value] : m_props.window_hints)
     {
-      glfwWindowHint(hint.first, hint.second);
-
+      glfwWindowHint(hint, value);
     }
 
     // create window
-    m_glfwwindow = glfwCreateWindow(s_props.width, s_props.height, s_props.title.c_str(), nullptr, nullptr);
+    m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);
-
-    //glfwSetInputMode(m_glfwwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // load all OpenGL function pointers (glad)
     FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
@@ -100,100 +103,105 @@ namespace FlexEngine
     glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallBack); // For now only audio requires this, but someone else should handle this centrally.
     //glfwSetCharCallback(m_glfwwindow, CharCallback);
     //glfwSetDropCallback(m_glfwwindow, DropCallback);
-    #ifndef GAME
+
+    // functions below require is_init to be true
+    is_init = true;
+
+    #ifndef IMGUI_DISABLE
     // initialize imgui
     // this must be done after the window is created because imgui needs the OpenGL context
     // the shutdown is done in the window close function
-    m_imguicontext = ImGuiWrapper::Init(this);
+    m_imgui_context = ImGuiWrapper::Init(this);
     #endif
+
     // always move the window to the center of the screen
     // this is done after the window is created to avoid the window being created off-center
     CenterWindow();
   }
 
-  Window::~Window()
+  void Window::Close()
   {
+    FLX_FLOW_FUNCTION();
+
+    FLX_WINDOW_ISOPEN_ASSERT;
+
+    #ifndef IMGUI_DISABLE
+    // shutdown imgui
+    // the imgui initialization is done in the window constructor
+    ImGuiWrapper::Shutdown(this);
+    #endif
+
+    Application::Internal_SetCurrentWindow(nullptr);
+
     glfwDestroyWindow(m_glfwwindow);
+    m_glfwwindow = nullptr;
+
+    is_init = false;
   }
-
-  #pragma region Getter/Setter Functions
-
-  std::string Window::GetTitle() const { return s_props.title; }
-  unsigned int Window::GetWidth() const { return s_props.width; }
-  unsigned int Window::GetHeight() const { return s_props.height; }
-  WindowProps Window::GetProps() const { return Props(); }
-  WindowProps Window::Props() const { return s_props; }
-
-  void Window::SetTitle(std::string const& title) { s_props.title = title; }
-  void Window::SetWidth(unsigned int const& width) { s_props.width = width; }
-  void Window::SetHeight(unsigned int const& height) { s_props.height = height; }
 
   #pragma endregion
 
   #pragma region Window Management Functions
 
-  // This is where the main window loop is, ie Your game loop
   void Window::Update()
   {
+    FLX_WINDOW_ISOPEN_ASSERT;
+
     // make sure the current window is the one we are working with
-    Application::Internal_SetCurrentWindow(this);
-    glfwMakeContextCurrent(m_glfwwindow);
-    #ifndef GAME
-    ImGui::SetCurrentContext(m_imguicontext);
-    #endif
+    SetCurrentContext();
+
     // clear screen
     OpenGLRenderer::ClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
     OpenGLRenderer::ClearFrameBuffer();
 
     m_frameratecontroller.BeginFrame();
-    #ifndef GAME
+
+    #ifndef IMGUI_DISABLE
     ImGuiWrapper::BeginFrame();
     #endif
+
     // update layer stack
     m_layerstack.Update();
-    #ifndef GAME
+
+    #ifndef IMGUI_DISABLE
     ImGuiWrapper::EndFrame();
     #endif
+
     m_frameratecontroller.EndFrame();
 
     // swap buffers
     glfwSwapBuffers(m_glfwwindow);
   }
 
-  void Window::Close()
+  void Window::SetIcon(const Asset::Texture& icon) const
   {
-    // remove all layers from the layer stack
-    m_layerstack.Clear();
-    #ifndef GAME
-    // shutdown imgui
-    // the imgui initialization is done in the window constructor
-    ImGuiWrapper::Shutdown(m_imguicontext);
-    #endif
-    Application::Internal_SetCurrentWindow(nullptr);
+    FLX_FLOW_FUNCTION();
 
-    // set the window to close
-    glfwSetWindowShouldClose(m_glfwwindow, true);
+    FLX_WINDOW_ISOPEN_ASSERT;
+
+    // create the image
+    GLFWimage image{};
+    image.width = icon.GetWidth();
+    image.height = icon.GetHeight();
+    image.pixels = icon.GetTextureData();
+
+    // set the icon
+    glfwSetWindowIcon(m_glfwwindow, 1, &image);
   }
 
   void Window::CenterWindow()
   {
     FLX_FLOW_FUNCTION();
 
+    FLX_WINDOW_ISOPEN_ASSERT;
+
     // get the primary monitor
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    if (!monitor)
-    {
-      Log::Error("Failed to get primary monitor");
-      return;
-    }
+    FLX_NULLPTR_ASSERT(monitor, "Failed to get primary monitor while trying to center the window.");
 
     // get the video mode of the primary monitor
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    if (!mode)
-    {
-      Log::Error("Failed to get video mode of primary monitor");
-      return;
-    }
+    FLX_NULLPTR_ASSERT(mode, "Failed to get video mode of the primary monitor while trying to center the window.");
 
     // get the size of the primary monitor
     int monitor_width, monitor_height;
@@ -203,74 +211,61 @@ namespace FlexEngine
     int window_width, window_height;
     glfwGetWindowSize(m_glfwwindow, &window_width, &window_height);
 
-    // calculate the position of the window
+    #pragma warning(push)
+    #pragma warning(disable : 6011) // dereferencing null pointer
+
+    // calculate the centered position of the window
     int x = (mode->width - window_width) / 2;
     int y = (mode->height - window_height) / 2;
 
+    #pragma warning(pop)
+
     // set the position of the window
-    SetWindowPosition(x, y);
+    glfwSetWindowPos(m_glfwwindow, x, y);
+
+    // update the cached mini window params
+    CacheMiniWindowParams();
+  }
+
+  void Window::SetCurrentContext()
+  {
+    Application::Internal_SetCurrentWindow(this);
+
+    // glfw and imgui context are not ready yet
+    if (!is_init) return;
+
+    FLX_GLFW_ALIGNCONTEXT();
+
+    #ifndef IMGUI_DISABLE
+    FLX_IMGUI_ALIGNCONTEXT();
+    #endif
   }
 
   #pragma endregion
 
-  #pragma region Passthrough Functions
+  #pragma region Cached Mini Window Params
 
-  void Window::GetWindowPosition(int* out_x, int* out_y) const
+  void Window::CacheMiniWindowParams()
   {
-    // get the position of the window
-    glfwGetWindowPos(m_glfwwindow, out_x, out_y);
-  }
+    FLX_WINDOW_ISOPEN_ASSERT;
 
-  void Window::SetWindowPosition(int x, int y) const
-  {
-    // set the position of the window
-    glfwSetWindowPos(m_glfwwindow, x, y);
-  }
-
-  bool Window::IsFocused() const
-  {
-    return glfwGetWindowAttrib(m_glfwwindow, GLFW_FOCUSED);
-  }
-
-  bool Window::IsFullScreen()
-  {
-    return glfwGetWindowMonitor(GetGLFWWindow()) != nullptr;
-  }
-
-  void Window::CacheMiniWindowParams() {
     int xpos = 0, ypos = 0;
-    c_params.cached_mini_window_width = s_props.width;
-    c_params.cached_mini_window_height = s_props.height;
+    m_params.cached_mini_window_width = m_props.width;
+    m_params.cached_mini_window_height = m_props.height;
 
     // get the position of the window
     glfwGetWindowPos(m_glfwwindow, &xpos, &ypos);
-    c_params.cached_mini_window_xpos = xpos;
-    c_params.cached_mini_window_ypos = ypos;
+    m_params.cached_mini_window_xpos = xpos;
+    m_params.cached_mini_window_ypos = ypos;
   }
 
-  std::pair<int, int> Window::UnCacheMiniWindowsParams() {
-    s_props.width = c_params.cached_mini_window_width;
-    s_props.height = c_params.cached_mini_window_height;
-    return std::make_pair(c_params.cached_mini_window_xpos, c_params.cached_mini_window_ypos);
-  }
-
-  void Window::SetIcon(const Asset::Texture& icon) const
+  std::pair<int, int> Window::UnCacheMiniWindowsParams()
   {
-    FLX_FLOW_FUNCTION();
+    FLX_WINDOW_ISOPEN_ASSERT;
 
-    // create the image
-    GLFWimage image;
-    image.width = icon.GetWidth();
-    image.height = icon.GetHeight();
-    image.pixels = icon.GetTextureData();
-
-    // set the icon
-    glfwSetWindowIcon(m_glfwwindow, 1, &image);
-  }
-
-  void Window::SetVSync(bool enabled) const
-  {
-    glfwSwapInterval(enabled ? 1 : 0);
+    m_props.width = m_params.cached_mini_window_width;
+    m_props.height = m_params.cached_mini_window_height;
+    return std::make_pair(m_params.cached_mini_window_xpos, m_params.cached_mini_window_ypos);
   }
 
   #pragma endregion

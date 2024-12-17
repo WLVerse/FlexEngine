@@ -48,6 +48,7 @@
   class __FLX_API NAME##StateManager                                             \
   {                                                                              \
     static std::unique_ptr<State> m_state_current;                               \
+    static std::unique_ptr<State> m_state_next;                                  \
                                                                                  \
   public:                                                                        \
     /* Usage example : NAME##StateManager::SetState<GameState>(); */             \
@@ -63,6 +64,7 @@
     static void SetState(std::unique_ptr<State> state);                          \
                                                                                  \
     static void Restart();                                                       \
+    static void UpdateManager();                                                 \
     static void Update();                                                        \
     static void Exit();                                                          \
   }
@@ -81,12 +83,10 @@
     if (!state) return;                                                 \
                                                                         \
     /* same state */                                                    \
-    if (state == m_state_current) return;                               \
+    if (state == m_state_current || state == m_state_next) return;      \
                                                                         \
     /* set the next state */                                            \
-    Exit();                                                             \
-    m_state_current.swap(state);                                        \
-    m_state_current->OnEnter();                                         \
+    m_state_next.swap(state);                                           \
   }                                                                     \
                                                                         \
   void NAME##StateManager::Update()                                     \
@@ -95,6 +95,20 @@
     if (!m_state_current) return;                                       \
                                                                         \
     m_state_current->Update();                                          \
+  }                                                                     \
+                                                                        \
+  void NAME##StateManager::UpdateManager()                              \
+  {                                                                     \
+    /* no state */                                                      \
+    if (!m_state_next) return;                                          \
+                                                                        \
+    /* same state */                                                    \
+    if (m_state_next == m_state_current) return;                        \
+                                                                        \
+    /* set the next state */                                            \
+    Exit();                                                             \
+    m_state_current.swap(m_state_next);                                 \
+    m_state_current->OnEnter();                                         \
   }                                                                     \
                                                                         \
   void NAME##StateManager::Restart()                                    \
@@ -117,7 +131,8 @@
     m_state_current.reset();                                            \
   }                                                                     \
   /* static member initialization */                                    \
-  std::unique_ptr<State> NAME##StateManager::m_state_current = nullptr
+  std::unique_ptr<State> NAME##StateManager::m_state_current = nullptr; \
+  std::unique_ptr<State> NAME##StateManager::m_state_next = nullptr
 
 #pragma endregion
 
@@ -126,6 +141,6 @@
 namespace FlexEngine
 {
 
-  FLX_STATEMANAGER_REGISTER_DECL(Application);
+  //FLX_STATEMANAGER_REGISTER_DECL(Application);
 
 }

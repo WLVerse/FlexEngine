@@ -23,6 +23,7 @@
 
 #include "flx_api.h"
 
+#include "DataStructures/functionqueue.h"
 #include "ilayer.h" // <string>
 
 #include <memory>
@@ -51,9 +52,19 @@ namespace FlexEngine
       Layer,
       Overlay
     };
+    
+    //std::set<std::tuple<LayerType, std::shared_ptr<Layer>, size_t>> m_to_add;
+    //std::set<std::tuple<LayerType, size_t>> m_to_remove;
 
-    std::set<std::tuple<LayerType, std::shared_ptr<Layer>, size_t>> m_to_add;
-    std::set<std::tuple<LayerType, size_t>> m_to_remove;
+    // Command pattern
+
+  private:
+    FunctionQueue m_to_add{};
+    FunctionQueue m_to_remove{};
+
+  public:
+    FunctionQueue& GetToAdd() { return m_to_add; }
+    FunctionQueue& GetToRemove() { return m_to_remove; }
 
   public:
     LayerStack();
@@ -61,6 +72,11 @@ namespace FlexEngine
 
     // Removes all layers and overlays.
     void Clear();
+
+    bool m_to_clear = false;
+
+    // Checks if the layer stack is in the process of clearing.
+    bool IsClearing() const { return m_to_clear; }
 
     // Updates all layers and overlays.
     void Update();
@@ -71,6 +87,7 @@ namespace FlexEngine
     // Adds a layer or overlay to the layer stack.
     #pragma region Add
 
+  public:
     void AddLayer(std::shared_ptr<Layer> layer) { AddLayer(layer, m_layers.size()); }
     void AddLayer(std::shared_ptr<Layer> layer, size_t index) { AddLayer(layer, index, ""); }
     void AddLayer(std::shared_ptr<Layer> layer, const std::string& layer_name) { AddLayer(layer, m_layers.size(), layer_name); }
@@ -86,6 +103,7 @@ namespace FlexEngine
     // Removes a layer or overlay from the layer stack.
     #pragma region Remove
 
+  public:
     void RemoveLayer(const std::string& layer_name);
     void RemoveLayer(size_t index);
     
@@ -96,6 +114,7 @@ namespace FlexEngine
 
     #pragma region Accessors
 
+  public:
     void SetLayerName(size_t index, const std::string& name) { m_layers[index]->SetName(name); }
     const std::string& GetLayerName(size_t index) const { return m_layers[index]->GetName(); }
 
@@ -115,6 +134,7 @@ namespace FlexEngine
 
     #pragma region Internal Functions
 
+  public:
     // INTERNAL FUNCTION
     // This function is called at the end of the update function to
     // add or remove layers and overlays.
@@ -123,6 +143,7 @@ namespace FlexEngine
     // undefined behavior and invalidating iterators.
     void Internal_ExecuteDeferredCommands();
 
+    void Internal_Clear();
     void Internal_Add(LayerType type, std::shared_ptr<Layer> layer, size_t index);
     void Internal_Remove(LayerType type, size_t index);
 

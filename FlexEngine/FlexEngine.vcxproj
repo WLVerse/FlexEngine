@@ -219,7 +219,6 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\Utilities\flexformatter.cpp" />
     <ClCompile Include="src\FlexEngine\Utilities\path.cpp" />
     <ClCompile Include="src\FlexEngine\window.cpp" />
-    <ClCompile Include="src\FlexEngine\windowprops.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
