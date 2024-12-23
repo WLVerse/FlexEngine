@@ -142,14 +142,27 @@ namespace FlexEngine
     // Type used to store each unique component list only once
     // This is the main data structure used to store entities and components
     struct __FLX_API Archetype
-    {
-      FLX_REFL_SERIALIZABLE
-        ArchetypeID id{};
+    { //FLX_REFL_SERIALIZABLE
+      ArchetypeID id{};
       ComponentIDList type;
       ArchetypeTable archetype_table; // This is where the components are stored
       std::vector<EntityID> entities;
       std::unordered_map<ComponentID, ArchetypeEdge> edges;
     };
+
+    // Serialized version of the Archetype
+    struct __FLX_API _Archetype
+    { FLX_REFL_SERIALIZABLE
+      ArchetypeID id{};
+      ComponentIDList type;
+      std::vector<std::vector<std::string>> archetype_table;
+      std::vector<EntityID> entities;
+      std::unordered_map<ComponentID, ArchetypeEdge> edges;
+    };
+
+
+
+
 
     // Edges to other archetypes
     // Use pointers instead of references for lazy initialization
@@ -169,9 +182,8 @@ namespace FlexEngine
     // NOTE: It is trusted that the Archetype* is valid
     // The Archetype ptr is owned by archetype_index which is managed in the stack
     struct __FLX_API EntityRecord
-    {
-      FLX_REFL_SERIALIZABLE
-        Archetype* archetype;
+    { FLX_REFL_SERIALIZABLE
+      Archetype* archetype;
       ArchetypeID archetype_id; // used during deserialization to reconnect the archetype ptr
       std::size_t row;
     };
@@ -182,10 +194,13 @@ namespace FlexEngine
 
     // Record in component_index with component column for archetype
     struct __FLX_API ArchetypeRecord
-    {
-      FLX_REFL_SERIALIZABLE
+    { FLX_REFL_SERIALIZABLE
         std::size_t column;
     };
+
+
+
+
 
     // Used to lookup components in archetypes
     using ArchetypeMap = std::unordered_map<ArchetypeID, ArchetypeRecord>;
@@ -209,13 +224,12 @@ namespace FlexEngine
 
     // The scene holds all the entities and components.
     class __FLX_API Scene
-    {
-      FLX_REFL_SERIALIZABLE FLX_ID_SETUP
+    { FLX_REFL_SERIALIZABLE FLX_ID_SETUP
 
-        // TODO: Implement reusing entity ids
-        //EntityID next_entity_id = 0;
+      // TODO: Implement reusing entity ids
+      //EntityID next_entity_id = 0;
 
-        static std::shared_ptr<Scene> s_active_scene;
+      static std::shared_ptr<Scene> s_active_scene;
 
     public:
 
@@ -227,6 +241,7 @@ namespace FlexEngine
       std::unordered_map<ComponentIDList, Archetype> archetype_index;
       std::unordered_map<EntityID, EntityRecord> entity_index;
       std::unordered_map<ComponentID, ArchetypeMap> component_index;
+
 
       #pragma region String Storage
 
@@ -341,6 +356,20 @@ namespace FlexEngine
       void Save(File& file);
       static std::shared_ptr<Scene> Load(File& file);
       static void SaveActiveScene(File& file);
+
+    private:
+      // Interim structures
+      // This structure pre-serializes all components and
+      // in the future will handle pointers as well.
+      std::unordered_map<ComponentIDList, _Archetype> _archetype_index;
+
+      // INTERNAL FUNCTION
+      // Convert to serialized archetype
+      void Internal_ConvertToSerializedArchetype();
+
+      // INTERNAL FUNCTION
+      // Convert from serialized archetype
+      void Internal_ConvertFromSerializedArchetype();
 
       #pragma endregion
 

@@ -26,7 +26,15 @@ namespace FlexEngine
 
     #pragma region Reflection
 
-    FLX_REFL_REGISTER_START(Archetype)
+    //FLX_REFL_REGISTER_START(Archetype)
+    //  FLX_REFL_REGISTER_PROPERTY(id)
+    //  FLX_REFL_REGISTER_PROPERTY(type)
+    //  FLX_REFL_REGISTER_PROPERTY(archetype_table)
+    //  FLX_REFL_REGISTER_PROPERTY(entities)
+    //  //FLX_REFL_REGISTER_PROPERTY(edges)
+    //FLX_REFL_REGISTER_END;
+
+    FLX_REFL_REGISTER_START(_Archetype)
       FLX_REFL_REGISTER_PROPERTY(id)
       FLX_REFL_REGISTER_PROPERTY(type)
       FLX_REFL_REGISTER_PROPERTY(archetype_table)
@@ -47,7 +55,8 @@ namespace FlexEngine
     FLX_REFL_REGISTER_START(Scene)
       FLX_REFL_REGISTER_PROPERTY(_flx_id_next)
       FLX_REFL_REGISTER_PROPERTY(_flx_id_unused)
-      FLX_REFL_REGISTER_PROPERTY(archetype_index)
+      //FLX_REFL_REGISTER_PROPERTY(archetype_index)
+      FLX_REFL_REGISTER_PROPERTY(_archetype_index)
       FLX_REFL_REGISTER_PROPERTY(entity_index)
       FLX_REFL_REGISTER_PROPERTY(component_index)
       FLX_REFL_REGISTER_PROPERTY(string_storage)

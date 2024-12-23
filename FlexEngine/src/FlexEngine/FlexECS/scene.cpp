@@ -316,8 +316,17 @@ namespace FlexEngine
 
     // save the scene to a File
     // the flx formatter is wrapped here
+    // todo: ComponentData<void> needs to be serialized separately
+    // after doing explicit serialization for each component, we can then
+    // let the reflection system handle the rest of the serialization
+    // how this is implemented is by simply looping through every single component and saving them in a vector
+    // where reflection can then serialize them
     void Scene::Save(File& file)
     {
+      // convert the scene to a serialized archetype
+      // This is done to prevent the reflection system from serializing the ComponentData<void> pointers.
+      Internal_ConvertToSerializedArchetype();
+
       Reflection::TypeDescriptor* type_desc = Reflection::TypeResolver<FlexECS::Scene>::Get();
 
       std::stringstream ss;
@@ -330,6 +339,7 @@ namespace FlexEngine
         // make a new flx file
         flxfmtfile = FlexFormatter::Create(ss.str(), true);
       }
+
       else
       {
         // update the data
@@ -360,6 +370,9 @@ namespace FlexEngine
       std::shared_ptr<Scene> deserialized_scene = std::make_shared<Scene>();
       type_desc->Deserialize(deserialized_scene.get(), document);
 
+      // convert the serialized archetype to the scene's archetype
+      deserialized_scene->Internal_ConvertFromSerializedArchetype();
+
       // relink entity archetype pointers
       deserialized_scene->Internal_RelinkEntityArchetypePointers();
 
@@ -369,6 +382,94 @@ namespace FlexEngine
     void Scene::SaveActiveScene(File& file)
     {
       Scene::GetActiveScene()->Save(file);
+    }
+
+    void Scene::Internal_ConvertToSerializedArchetype()
+    {
+      _archetype_index.clear();
+
+      for (auto& [type, archetype] : archetype_index)
+      {
+        _Archetype _archetype;
+        _archetype.id = archetype.id;
+        _archetype.type = archetype.type;
+        _archetype.entities = archetype.entities;
+        _archetype.edges = archetype.edges;
+
+        // Convert the archetype_table to a vector of strings
+        // The type vector is a list of the typedescriptors which can be
+        // used to serialize the data
+
+        // For each type in the archetype
+        for (std::size_t i = 0; i < _archetype.type.size(); i++)
+        {
+          // Add a new row to the archetype_table
+          _archetype.archetype_table.push_back(std::vector<std::string>());
+
+          // For each entity in the archetype
+          for (std::size_t j = 0; j < archetype.archetype_table[i].size(); j++)
+          {
+            std::stringstream ss;
+
+            // Get the type descriptor
+            Reflection::TypeDescriptor* type_desc = TYPE_DESCRIPTOR_LOOKUP[_archetype.type[i]];
+
+            // Get the component data
+            void* data = Internal_GetComponentData(archetype.archetype_table[i][j]).second;
+
+            // Serialize the component data
+            type_desc->Serialize(data, ss);
+
+            _archetype.archetype_table[i].push_back(ss.str());
+          }
+        }
+
+        _archetype_index[archetype.type] = _archetype;
+      
+      }
+    
+    }
+
+    void Scene::Internal_ConvertFromSerializedArchetype()
+    {
+      archetype_index.clear();
+      for (auto& [_type, _archetype] : _archetype_index)
+      {
+        Archetype archetype;
+        archetype.id = _archetype.id;
+        archetype.type = _archetype.type;
+        archetype.entities = _archetype.entities;
+        archetype.edges = _archetype.edges;
+
+        // Convert the archetype_table from a vector of strings to a vector of ComponentData<void>
+        for (std::size_t i = 0; i < _archetype.archetype_table.size(); i++)
+        {
+          archetype.archetype_table.push_back(std::vector<ComponentData<void>>());
+
+          for (std::size_t j = 0; j < _archetype.archetype_table[i].size(); j++)
+          {
+            // Convert the string into json
+            Document document;
+            document.Parse(_archetype.archetype_table[i][j].c_str());
+            
+            // Get the type descriptor
+            Reflection::TypeDescriptor* type_desc = TYPE_DESCRIPTOR_LOOKUP[_archetype.type[i]];
+
+            // Deserialize the component data
+            // TODO: How can I know the size of the data?
+            void* data = new char[type_desc->size];
+            type_desc->Deserialize(data, document);
+
+            // Create a new ComponentData<void>
+            ComponentData<void> data_ptr = Internal_CreateComponentData(type_desc->size, data);
+
+            delete data;
+
+            archetype.archetype_table[i].push_back(data_ptr);
+          }
+        }
+        archetype_index[archetype.type] = archetype;
+      }
     }
 
     #pragma endregion
@@ -385,9 +486,9 @@ namespace FlexEngine
         auto it = std::find_if(
           archetype_index.begin(), archetype_index.end(),
           [&entity_record](auto& archetype_record)
-        {
-          return archetype_record.second.id == entity_record.archetype_id;
-        }
+          {
+            return archetype_record.second.id == entity_record.archetype_id;
+          }
         );
 
         if (it != archetype_index.end())
