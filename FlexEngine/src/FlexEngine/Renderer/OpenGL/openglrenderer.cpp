@@ -79,30 +79,28 @@ namespace FlexEngine
   {
     // unit square
     static const float vertices[] = {
-      // Position           // TexCoords
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+      // Position
+      -0.5f, -0.5f, 0.0f,
+       0.5f, -0.5f, 0.0f,
+       0.5f,  0.5f, 0.0f,
+       0.5f,  0.5f, 0.0f,
+      -0.5f,  0.5f, 0.0f,
+      -0.5f, -0.5f, 0.0f,
     };
 
-    static GLuint vao = 0, vbo = 0;
+    static GLuint vao = 0, vbo_pos = 0;
 
     if (vao == 0)
     {
       glGenVertexArrays(1, &vao);
-      glGenBuffers(1, &vbo);
+      glGenBuffers(1, &vbo_pos);
 
       glBindVertexArray(vao);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo_pos);
       glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
       glBindVertexArray(0);
 
@@ -110,11 +108,55 @@ namespace FlexEngine
       FreeQueue::Push(
         [=]()
         {
-          glDeleteBuffers(1, &vbo);
+          glDeleteBuffers(1, &vbo_pos);
           glDeleteVertexArrays(1, &vao);
         }
       );
     }
+
+
+    // support for spritesheets
+    bool is_spritesheet = props.texture_index > 0;
+
+    // create vbo for texcoords
+    GLuint vbo_uv = 0;
+    if (is_spritesheet)
+    {
+      auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
+      auto uv = asset_spritesheet.GetUV(props.texture_index);
+
+      float texcoords[] = {
+        // TexCoords
+        uv.x, uv.y, // Bottom-left
+        uv.z, uv.y, // Bottom-right
+        uv.z, uv.w, // Top-right
+        uv.z, uv.w, // Top-right
+        uv.x, uv.w, // Top-left
+        uv.x, uv.y  // Bottom-left
+      };
+
+      glGenBuffers(1, &vbo_uv);
+
+      glBindVertexArray(vao);
+
+      glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+      glBindVertexArray(0);
+
+      // free in freequeue
+      FreeQueue::Push(
+        [=]()
+        {
+          glDeleteBuffers(1, &vbo_uv);
+        },
+        "Free vbo_uv"
+      );
+    }
+
 
     // guard
     if (vao == 0 || props.shader == "" || props.scale == Vector2::Zero) return;
@@ -125,11 +167,22 @@ namespace FlexEngine
     auto& asset_shader = FLX_ASSET_GET(Asset::Shader, props.shader);
     asset_shader.Use();
 
-    if (props.texture != "")
+    if (props.asset != "")
     {
       asset_shader.SetUniform_bool("u_use_texture", true);
-      auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
-      asset_texture.Bind(asset_shader, "u_texture", 0);
+
+      if (!is_spritesheet)
+      {
+        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
+        asset_texture.Bind(asset_shader, "u_texture", 0);
+      }
+      else
+      {
+        // get the texture from the spritesheet
+        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
+        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+        asset_texture.Bind(asset_shader, "u_texture", 0);
+      }
     }
     else if (props.color != Vector3::Zero)
     {
@@ -168,6 +221,12 @@ namespace FlexEngine
     m_draw_calls++;
 
     glBindVertexArray(0);
+
+    // free vbo_uv
+    if (is_spritesheet)
+    {
+      FreeQueue::RemoveAndExecute("Free vbo_uv");
+    }
   }
 
   void OpenGLRenderer::DrawSimpleTexture2D(
@@ -210,10 +269,10 @@ namespace FlexEngine
       // free in freequeue
       FreeQueue::Push(
         [=]()
-      {
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-      }
+        {
+          glDeleteBuffers(1, &vbo);
+          glDeleteVertexArrays(1, &vao);
+        }
       );
     }
 

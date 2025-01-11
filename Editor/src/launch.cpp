@@ -21,20 +21,13 @@ namespace Editor
   public:
     FlexApplication()
     {
-      // SplashWindowLayer
-      // EditorWindowLayer
+      // Add the editor window layer which manages the editor window
       FlexEngine::Application::QueueCommand(
         FlexEngine::Application::CommandData(
           FlexEngine::Application::Command::Application_AddLayer,
-          std::make_shared<SplashWindowLayer>()
+          std::make_shared<EditorWindowLayer>()
         )
       );
-      //FlexEngine::Application::QueueCommand(
-      //  FlexEngine::Application::CommandData(
-      //    FlexEngine::Application::Command::Application_AddLayer,
-      //    std::make_shared<EditorWindowLayer>()
-      //  )
-      //);
     }
   };
 

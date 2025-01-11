@@ -86,6 +86,7 @@ namespace FlexEngine
         // 
         // currently supported:
         // - textures
+        // - spritesheets
         // - shaders
         // - models
 
@@ -101,7 +102,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           
           // load texture
-          assets[key] = Asset::Texture::Null;
+          assets.emplace(key, Asset::Texture());
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
           texture.Load(file.path);
           Log::Info("Loaded texture: " + key);
@@ -145,6 +146,16 @@ namespace FlexEngine
 
           // add the file to the linker
           shader_linker[file_name][shader_type] = &file;
+        }
+        else if (
+          file_extension.string() == ".flxspritesheet"
+        )
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+
+          // load spritesheet
+          assets.emplace(key, Asset::Spritesheet(file));
         }
       }
     );

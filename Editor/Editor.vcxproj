@@ -154,8 +154,6 @@
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
-    <ClCompile Include="src\Layers\splashlayer.cpp" />
-    <ClCompile Include="src\Layers\splashwindowlayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,8 +163,6 @@
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
-    <ClInclude Include="src\Layers\splashlayer.h" />
-    <ClInclude Include="src\Layers\splashwindowlayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
   </ItemGroup>
   <ItemGroup>

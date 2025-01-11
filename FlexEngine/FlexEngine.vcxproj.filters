@@ -193,6 +193,9 @@
     <ClCompile Include="src\FlexEngine\FlexScripting\scriptregistry.cpp">
       <Filter>src\FlexEngine\FlexScripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.cpp">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -374,6 +377,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\FlexScripting\scriptregistry.h">
       <Filter>src\FlexEngine\FlexScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
