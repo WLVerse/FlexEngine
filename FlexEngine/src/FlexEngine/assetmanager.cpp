@@ -212,19 +212,12 @@ namespace FlexEngine
   }
 
 
-  AssetVariant* AssetManager::Get(AssetKey key)
+  AssetVariant* AssetManager::Internal_Get(AssetKey key)
   {
-    // replace all / or \ in the key with the platform specific separator
-    // this is to ensure that the key is always the same
-    // regardless of the platform
     std::replace(key.begin(), key.end(), '/', Path::separator);
     std::replace(key.begin(), key.end(), '\\', Path::separator);
 
-    if (assets.count(key) == 0)
-    {
-      Log::Error(std::string("Asset not found: ") + key);
-      return nullptr;
-    }
+    if (assets.count(key) == 0) return nullptr;
     return &assets[key];
   }
 

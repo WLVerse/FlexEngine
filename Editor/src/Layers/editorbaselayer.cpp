@@ -16,12 +16,9 @@
 namespace Editor
 {
 
-  #ifdef SPRITESHEET_TEST
-  Asset::Texture spritesheet;
-  #endif
-
   void EditorBaseLayer::OnAttach()
   {
+
     // test scene
     #if 0
     {
@@ -95,9 +92,6 @@ namespace Editor
     }
     #endif
 
-    #ifdef SPRITESHEET_TEST
-    spritesheet.Load(Path::current("assets/images/Prop_Flaming_Barrel.png"));
-    #endif
   }
 
   void EditorBaseLayer::OnDetach()
@@ -117,27 +111,28 @@ namespace Editor
 
     // spritesheet test
     // draw a sprite with render system
-    #if 0
+    #if 1
     {
+      static auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, R"(/images/Prop_Flaming_Barrel.flxspritesheet)");
+      static float time = 0.0f;
+      time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      int index = (int)(time * asset_spritesheet.columns) % asset_spritesheet.columns;
+
       Renderer2DProps props;
-      props.asset = R"(/images/Prop_Flaming_Barrel.png)";
-      //props.texture_index = 0;
-      //props.window_size = Vector2(1600.0f, 900.0f);
+      props.asset = R"(/images/Prop_Flaming_Barrel.flxspritesheet)";
+      props.texture_index = index;
+      props.position = Vector2(0.0f, 0.0f);
+      props.scale = Vector2(384.0f / asset_spritesheet.columns, 96.0f);
+      props.window_size = Vector2(1600.0f, 900.0f);
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      static Camera camera(0.0f, 0.0f, 1600.0f, 900.0f, -1.0f, 1.0f);
+      static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
 
       OpenGLRenderer::DrawTexture2D(camera, props);
-    }
-    #else
-    {
-      ImGui::Begin("Sprite Test");
-      ImGui::Image(IMGUI_IMAGE(spritesheet));
-      ImGui::End();
 
       OpenGLRenderer::DrawSimpleTexture2D(
-        spritesheet,
-        Vector2(0.0f, 0.0f),
+        AssetManager::Get<Asset::Texture>(asset_spritesheet.texture),
+        Vector2(384.0f, 0.0f),
         Vector2(384.0f, 96.0f),
         Vector2(1600.0f, 900.0f),
         Renderer2DProps::Alignment_TopLeft

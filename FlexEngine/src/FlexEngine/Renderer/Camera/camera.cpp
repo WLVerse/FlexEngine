@@ -15,7 +15,8 @@ namespace FlexEngine
 {
   Camera::Camera(float left, float right, float bottom, float top, float near, float far)
   {
-    this->SetProjection(left, right, bottom, top, near, far);
+    SetProjection(left, right, bottom, top, near, far);
+    Update(); // Update the proj view matrix
   }
 
   void Camera::SetProjection(float left, float right, float bottom, float top, float near, float far)
@@ -23,7 +24,7 @@ namespace FlexEngine
     m_ortho_matrix = FlexEngine::Matrix4x4::Orthographic(left, right, bottom, top, near, far);
   }
 
-  // Since proj view matrix is cached, it rqeuires manual update
+  // Since proj view matrix is cached, it requires manual update
   void Camera::Update()
   {
     m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
