@@ -36,7 +36,6 @@ namespace Game
 
   void BaseLayer::Update()
   {
-    std::cout << "Update" << std::endl;
     if (Input::GetKeyDown(GLFW_KEY_1))
     {
       FMODWrapper::Core::PlaySound("attack", FLX_ASSET_GET(Asset::Sound, AssetKey("/audio/attack.mp3")));

@@ -51,7 +51,7 @@ class __FLX_API FMODWrapper
 public:
 
   // This class extends usage for middle level to call from.
-  class Core
+  class __FLX_API Core
   {
     static std::map<std::string, FMOD::Channel*> channels; // Stores all instances of channels in existence
 
