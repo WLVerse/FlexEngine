@@ -39,5 +39,8 @@ namespace FlexEngine
       \brief Updates matrices, specifically, the projection view matrix.
     */
     void Update();
+
+  private:
+    void UpdateCameraMatrix() { m_proj_view_matrix = m_ortho_matrix * m_view_matrix; }
   };
 }
