@@ -24,7 +24,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{fe4f065a-ce3a-4771-8483-54a6a7b0b456}</ProjectGuid>
+    <ProjectGuid>{0FA70FD0-8958-40BC-AF9D-EA23717F3533}</ProjectGuid>
     <RootNamespace>Editor</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

@@ -71,11 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)MicroChess\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
     <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)MicroChess\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
     <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -143,33 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="assets\shaders\texture.frag" />
-    <None Include="assets\shaders\texture.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Components\game.h" />
-    <ClInclude Include="src\Components\physics.h" />
-    <ClInclude Include="src\Components\rendering.h" />
     <ClInclude Include="src\Layers.h" />
-    <ClInclude Include="src\Layers\base.h" />
-    <ClInclude Include="src\Layers\board.h" />
-    <ClInclude Include="src\Layers\menu.h" />
-    <ClInclude Include="src\Physics\box2d.h" />
-    <ClInclude Include="src\Renderer\sprite2d.h" />
-    <ClInclude Include="src\States.h" />
-    <ClInclude Include="src\States\mainstate.h" />
+    <ClInclude Include="src\Layers\baselayer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Components\game.cpp" />
-    <ClCompile Include="src\Components\physics.cpp" />
-    <ClCompile Include="src\Components\rendering.cpp" />
-    <ClCompile Include="src\Layers\base.cpp" />
-    <ClCompile Include="src\Layers\board.cpp" />
-    <ClCompile Include="src\Layers\menu.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Physics\box2d.cpp" />
-    <ClCompile Include="src\Renderer\sprite2d.cpp" />
-    <ClCompile Include="src\States\mainstate.cpp" />
+    <ClCompile Include="src\launch.cpp" />
+    <ClCompile Include="src\Layers\baselayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
