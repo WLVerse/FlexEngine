@@ -123,7 +123,7 @@
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;fmodL_vc.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>glfw3.lib;Crypt32.lib;ImGuid.lib;fmodstudioL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -154,7 +154,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /s
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;fmod_vc.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -195,6 +195,8 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\flexprofiler.cpp" />
     <ClCompile Include="src\FlexEngine\FlexScripting\scriptregistry.cpp" />
     <ClCompile Include="src\FlexEngine\flxdata.cpp" />
+    <ClCompile Include="src\FlexEngine\FMOD\FMODWrapper.cpp" />
+    <ClCompile Include="src\FlexEngine\FMOD\Sound.cpp" />
     <ClCompile Include="src\FlexEngine\frameratecontroller.cpp" />
     <ClCompile Include="src\FlexEngine\imguiwrapper.cpp" />
     <ClCompile Include="src\FlexEngine\input.cpp" />
@@ -252,6 +254,8 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\FlexScripting\iscript.h" />
     <ClInclude Include="src\FlexEngine\FlexScripting\scriptregistry.h" />
     <ClInclude Include="src\FlexEngine\flxdata.h" />
+    <ClInclude Include="src\FlexEngine\FMOD\FMODWrapper.h" />
+    <ClInclude Include="src\FlexEngine\FMOD\Sound.h" />
     <ClInclude Include="src\FlexEngine\frameratecontroller.h" />
     <ClInclude Include="src\FlexEngine\imguiwrapper.h" />
     <ClInclude Include="src\FlexEngine\input.h" />

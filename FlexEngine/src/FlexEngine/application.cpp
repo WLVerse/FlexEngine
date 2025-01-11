@@ -23,6 +23,7 @@
 
 #include "StateManager/statemanager.h"
 #include "input.h"
+#include "FMOD/FMODWrapper.h" // Include for initializing fmod system at application start
 
 namespace FlexEngine
 {
@@ -273,12 +274,14 @@ namespace FlexEngine
 
     // initialize glfw
     FLX_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW!");
+    FMODWrapper::Load();
   }
 
   Application::~Application()
   {
     glfwMakeContextCurrent(NULL);
     glfwTerminate();
+    FMODWrapper::Unload();
 
     FLX_FLOW_ENDSCOPE();
   }
@@ -295,6 +298,8 @@ namespace FlexEngine
 
       // run the layerstack
       Application::GetLayerStack().Update();
+      FMODWrapper::Update();
+
       //ApplicationStateManager::Update();
 
       // keybind to close the application

@@ -16,6 +16,9 @@
     <ClInclude Include="src\Layers.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\loadlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\baselayer.cpp">
@@ -23,6 +26,9 @@
     </ClCompile>
     <ClCompile Include="src\launch.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\loadlayer.cpp">
+      <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

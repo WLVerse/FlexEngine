@@ -194,7 +194,7 @@
 // Can also be used to store a range of values by getting min and max.
 #include "FlexEngine/DataStructures/range.h"
 
-
+#include "FlexEngine/FMOD/FMODWrapper.h"
 
 
 // temp

@@ -146,6 +146,13 @@ namespace FlexEngine
           // add the file to the linker
           shader_linker[file_name][shader_type] = &file;
         }
+        else if (file_extension.string() == ".mp3")
+        {
+          FLX_FLOW_BEGINSCOPE();
+          AssetKey key = file.path.string().substr(default_directory_length);
+          assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
+          FLX_FLOW_ENDSCOPE();
+        }
       }
     );
 

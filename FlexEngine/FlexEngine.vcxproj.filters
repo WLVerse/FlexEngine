@@ -50,6 +50,9 @@
     <Filter Include="src\FlexEngine\FlexScripting">
       <UniqueIdentifier>{e986e5fb-544e-4484-bad4-41ed3d714b79}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\FMOD">
+      <UniqueIdentifier>{4dec8d9d-124a-4cfe-8a8b-25eb98508450}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -192,6 +195,12 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\FlexScripting\scriptregistry.cpp">
       <Filter>src\FlexEngine\FlexScripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\FMOD\FMODWrapper.cpp">
+      <Filter>src\FlexEngine\FMOD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\FMOD\Sound.cpp">
+      <Filter>src\FlexEngine\FMOD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -374,6 +383,12 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\FlexScripting\scriptregistry.h">
       <Filter>src\FlexEngine\FlexScripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\FMOD\FMODWrapper.h">
+      <Filter>src\FlexEngine\FMOD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\FMOD\Sound.h">
+      <Filter>src\FlexEngine\FMOD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
