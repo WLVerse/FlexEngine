@@ -202,6 +202,9 @@
     <ClCompile Include="src\FlexEngine\FMOD\Sound.cpp">
       <Filter>src\FlexEngine\FMOD</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglfont.cpp">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -389,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\FMOD\Sound.h">
       <Filter>src\FlexEngine\FMOD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglfont.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

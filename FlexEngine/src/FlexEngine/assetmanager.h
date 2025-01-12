@@ -27,6 +27,8 @@
 #include "Renderer/OpenGL/opengltexture.h"
 #include "Renderer/OpenGL/openglshader.h"
 #include "Renderer/OpenGL/openglmodel.h"
+
+#include "Renderer/OpenGL/openglfont.h"
 #include "fmod/Sound.h"
 
 #include <string>
@@ -37,7 +39,7 @@ namespace FlexEngine
 {
 
   // Variant of all asset types
-  using AssetVariant = std::variant<Asset::Texture, Asset::Shader, Asset::Model, Asset::Sound>;
+  using AssetVariant = std::variant<Asset::Texture, Asset::Shader, Asset::Model, Asset::Sound, Asset::Font>;
 
   // Helper macro to get an asset by its key.
   // Example usage: FLX_ASSET_GET(Asset::Texture, R"(/images/flexengine/flexengine-256.png)")
