@@ -133,15 +133,22 @@ namespace Editor
 		m_initialized = true;
 
 		// Setup map for all panels
-		m_panels["AssetBrowser"] = &m_assetbrowser;
-		//m_panels["Hierarchy"] = &m_hierarchy;
+		m_panels[std::type_index(typeid(AssetBrowser))] = &m_assetbrowser;
+		m_panels[std::type_index(typeid(HierarchyView))] = &m_hierarchy;
 		//m_panels["Inspector"] = &m_inspector;
 		//m_panels["SceneView"] = &m_sceneview;
 		//m_panels["GameView"] = &m_gameview;
 
+		//m_systems["Selection"] = &m_selection;
+		m_systems[std::type_index(typeid(SelectionSystem))] = &m_selection;
+
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
 		{
 		  iter->second->Init();
+		}
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
+		{
+			iter->second->Init();
 		}
 
 		SetupImGuiStyle();
@@ -153,21 +160,21 @@ namespace Editor
 		FLX_IMGUI_ALIGNCONTEXT();
 		EditorGUI::StartFrame();
 
+		//panels
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
 		{
 			iter->second->Update();
 		}
-
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
 		{
 			iter->second->EditorUI();
 		}
 
-		//if (!m_entities_to_delete.empty())
-		//{
-		//	HandleEntityDelete();
-		//	m_entities_to_delete.clear();
-		//}
+		//systems
+		for (auto iter = m_systems.begin(); iter != m_systems.end(); ++iter)
+		{
+			iter->second->Update();
+		}
 
 		EditorGUI::EndFrame();
 	}
@@ -183,22 +190,7 @@ namespace Editor
 		m_panels.clear();
 	}
 
-	EditorPanel* Editor::GetPanel(const std::string& panel_name)
-	{
-		return m_panels[panel_name];
-	}
 
-
-
-	void Editor::SelectEntity(FlexECS::Entity entity)
-	{
-		m_selected_entity = entity;
-	}
-
-	FlexECS::Entity Editor::GetSelectedEntity()
-	{
-		return m_selected_entity;
-	}
 
 	//EditorSystem* Editor::GetSystem(const std::string& system_name)
 	//{

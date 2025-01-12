@@ -45,6 +45,15 @@
     <ClCompile Include="src\assetbrowser.cpp">
       <Filter>src\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="src\selectionsystem.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hierarchyview.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\componentviewer.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -85,6 +94,18 @@
       <Filter>src\Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\assetbrowser.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editorsystem.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\selectionsystem.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hierarchyview.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\componentviewer.h">
       <Filter>src\Editor</Filter>
     </ClInclude>
   </ItemGroup>

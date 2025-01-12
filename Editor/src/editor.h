@@ -18,8 +18,15 @@
 using namespace FlexEngine;
 
 #include "editorpanel.h"
+#include "editorsystem.h"
 #include "assetbrowser.h"
+#include "hierarchyview.h"
+
+#include "selectionsystem.h"
+
 #include <memory>
+#include <typeindex>
+#include <typeinfo>
 
 namespace Editor
 {
@@ -50,29 +57,53 @@ namespace Editor
 		******************************************************************************/
 		void Shutdown();
 
-		EditorPanel* GetPanel(const std::string& panel_name);
-
-
-
-		void SelectEntity(FlexEngine::FlexECS::Entity);
-		FlexEngine::FlexECS::Entity GetSelectedEntity();
+		template <typename T> T* GetPanel();
+		template <typename T> T* GetSystem();
 
 
 	private:
-
+		bool m_initialized = false;
 		
 		AssetBrowser m_assetbrowser;
-		//HierarchyView m_hierarchy;
+		HierarchyView m_hierarchy;
 		//Inspector m_inspector;
 		//SceneView m_sceneview;
 		//GameView m_gameview;
 
-		bool m_initialized = false;
+		SelectionSystem m_selection;
 
 		//Selection system to be done
 		FlexEngine::FlexECS::Entity m_selected_entity = FlexEngine::FlexECS::Entity::Null;	//Which entity the inspector panel should focus on.
 
-		std::unordered_map<std::string, EditorPanel*> m_panels;
+		std::unordered_map<std::type_index, EditorPanel*> m_panels;
+		std::unordered_map<std::type_index, EditorSystem*> m_systems;
 
 	};
+
+
+	template <typename T>
+	T* Editor::GetPanel()
+	{
+		auto type = std::type_index(typeid(T));
+		auto it = m_panels.find(type);
+		if (it == m_panels.end())
+		{
+			FlexEngine::Log::Fatal("Panel not found!");
+		}
+
+		return static_cast<T*>(it->second);
+	}
+
+	template <typename T>
+	T* Editor::GetSystem()
+	{
+		auto type = std::type_index(typeid(T));
+		auto it = m_systems.find(type);
+		if (it == m_systems.end())
+		{
+			FlexEngine::Log::Fatal("Editor System not found!");
+		}
+
+		return static_cast<T*>(it->second);
+	}
 }

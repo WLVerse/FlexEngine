@@ -118,29 +118,30 @@ namespace Editor
 				{
 					std::string payload(file.string());
 					payload.insert(0, "\\");	//to fit the AssetKey format
-					/*
-					if (FLX_EXTENSIONS_CHECK_SAFETY("image", file.extension().string()))
+					std::string extension = file.extension().string();
+					//hardcode for now
+					if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
 					{
 						EditorGUI::StartPayload(PayloadTags::IMAGE, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
-					else if (FLX_EXTENSIONS_CHECK_SAFETY("shader", file.extension().string()))
+					else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
 					{
 						payload = payload.substr(0, payload.find_last_of('.')); //to fit the AssetKey::Shader format
 						EditorGUI::StartPayload(PayloadTags::SHADER, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
-					else if (FLX_EXTENSIONS_CHECK_SAFETY("audio", file.extension().string()))
+					else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
 					{
 						EditorGUI::StartPayload(PayloadTags::AUDIO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
-					else if (FLX_EXTENSIONS_CHECK_SAFETY("flx", file.extension().string()))
+					else if (extension == ".flxprefab")
 					{
 						EditorGUI::StartPayload(PayloadTags::PREFAB, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
-					else if (FLX_EXTENSIONS_CHECK_SAFETY("font", file.extension().string()))
+					else if (extension == ".ttf")
 					{
 						EditorGUI::StartPayload(PayloadTags::FONT, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
@@ -148,10 +149,9 @@ namespace Editor
 					else
 					{
 						//Find rocky if you want your filetype supported
-						ImGui::Text("Unsupported file type: %s", file.extension().string().c_str());
+						ImGui::Text("Unsupported file type: %s", extension.c_str());
 						EditorGUI::EndPayload();
 					}
-					*/
 				}
 			}
 			ImGui::TreePop();

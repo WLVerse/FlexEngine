@@ -7,7 +7,7 @@ namespace Editor
   void EditorBaseLayer::OnAttach()
   {
     // test scene
-    #if 0
+    #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
       {

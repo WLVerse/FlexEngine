@@ -137,7 +137,7 @@ namespace Editor
 		ImGui::Text(title.c_str()); ImGui::SameLine();
 		if (ImGui::Button(entity_name.c_str()) && entity != FlexECS::Entity::Null)
 		{
-			Editor::GetInstance().SelectEntity(entity);
+			Editor::GetInstance().GetSystem<SelectionSystem>()->SelectEntity(entity);
 		}
 
 		if (auto payload = StartPayloadReceiver<FlexECS::EntityID>(PayloadTags::ENTITY))
