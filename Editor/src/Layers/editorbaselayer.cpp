@@ -1,4 +1,5 @@
 #include "Layers.h"
+#include "editor.h"
 
 namespace Editor
 {
@@ -77,6 +78,8 @@ namespace Editor
       loaded_scene->DumpArchetypeIndex();
     }
     #endif
+
+    Editor::GetInstance().Init();
   }
 
   void EditorBaseLayer::OnDetach()
@@ -93,6 +96,8 @@ namespace Editor
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
+
+    Editor::GetInstance().Update();
   }
 
 }

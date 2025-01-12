@@ -7,6 +7,9 @@
     <Filter Include="src\Layers">
       <UniqueIdentifier>{c0c5e023-3758-4da8-a9b7-6696da82ab87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Editor">
+      <UniqueIdentifier>{2d8ed3a3-2b3f-4802-bfb0-5176ea6081e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp">
@@ -32,6 +35,15 @@
     </ClCompile>
     <ClCompile Include="src\Layers\editorwindowlayer.cpp">
       <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editorgui.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assetbrowser.cpp">
+      <Filter>src\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +71,21 @@
     </ClInclude>
     <ClInclude Include="src\Layers\editorwindowlayer.h">
       <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editorpanel.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editorgui.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imguipayloads.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\assetbrowser.h">
+      <Filter>src\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
