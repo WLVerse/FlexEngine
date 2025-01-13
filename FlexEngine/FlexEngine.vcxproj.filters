@@ -205,6 +205,9 @@
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglfont.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\Camera\cameramanager.cpp">
+      <Filter>src\FlexEngine\Renderer\Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -372,9 +375,6 @@
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h">
       <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\Camera\deletethisshit.h">
-      <Filter>src\FlexEngine\Renderer\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
@@ -395,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglfont.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\Camera\cameramanager.h">
+      <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

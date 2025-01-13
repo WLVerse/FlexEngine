@@ -15,35 +15,9 @@
 
 namespace FlexEngine 
 {
-  OpenGLFrameBuffer::OpenGLFrameBuffer(int width, int height) : width(width), height(height)
+  OpenGLFrameBuffer::OpenGLFrameBuffer(int width, int height)
   {
-    // Create and bind framebuffer
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-    // Create texture for color attachment
-    glGenTextures(1, &colorAttachment);
-    glBindTexture(GL_TEXTURE_2D, colorAttachment);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachment, 0);
-
-    // Create renderbuffer for depth and stencil attachment
-    glGenRenderbuffers(1, &depthStencilAttachment);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthStencilAttachment);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilAttachment);
-
-    // Check if framebuffer is complete
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-      FlexEngine::Log::Fatal("Framebuffer is incomplete!");
-    }
-
-    Log::Info("Framebuffer created with ID: " + std::to_string(framebuffer));
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind framebuffer to default after creation
+    Init(width, height);
   }
 
   OpenGLFrameBuffer::~OpenGLFrameBuffer()
@@ -85,6 +59,8 @@ namespace FlexEngine
       Log::Fatal("Framebuffer is incomplete!");
     }
 
+    Log::Info("Framebuffer created with ID: " + std::to_string(framebuffer));
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind framebuffer to default after creation
   }
 
@@ -95,7 +71,8 @@ namespace FlexEngine
     GET_OPENGL_ERROR()
   }
 
-  void OpenGLFrameBuffer::Resize(int newWidth, int newHeight) {
+  void OpenGLFrameBuffer::Resize(int newWidth, int newHeight) 
+  {
     width = newWidth;
     height = newHeight;
 
@@ -108,7 +85,8 @@ namespace FlexEngine
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
   }
 
-  GLuint OpenGLFrameBuffer::GetColorAttachment() const {
+  GLuint OpenGLFrameBuffer::GetColorAttachment() const 
+  {
     return colorAttachment;
   }
 } // namespace FlexEngine

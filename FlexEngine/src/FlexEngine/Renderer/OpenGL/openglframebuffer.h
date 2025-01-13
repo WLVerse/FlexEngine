@@ -16,7 +16,8 @@
 
 namespace FlexEngine 
 {
-  class __FLX_API OpenGLFrameBuffer {
+  class __FLX_API OpenGLFrameBuffer 
+  {
   public:
     OpenGLFrameBuffer() = default;              // Allows for a default construction of framebuffer for forward declaration, but know that this is not a valid framebuffer.
     OpenGLFrameBuffer(int width, int height);
