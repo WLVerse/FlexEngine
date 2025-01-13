@@ -86,6 +86,7 @@ namespace FlexEngine
         // 
         // currently supported:
         // - textures
+        // - spritesheets
         // - shaders
         // - models
 
@@ -101,7 +102,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           
           // load texture
-          assets[key] = Asset::Texture::Null;
+          assets.emplace(key, Asset::Texture());
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
           texture.Load(file.path);
           Log::Info("Loaded texture: " + key);
@@ -152,6 +153,16 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
           FLX_FLOW_ENDSCOPE();
+        }
+        else if (
+          file_extension.string() == ".flxspritesheet"
+        )
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+
+          // load spritesheet
+          assets.emplace(key, Asset::Spritesheet(file));
         }
       }
     );
@@ -208,19 +219,12 @@ namespace FlexEngine
   }
 
 
-  AssetVariant* AssetManager::Get(AssetKey key)
+  AssetVariant* AssetManager::Internal_Get(AssetKey key)
   {
-    // replace all / or \ in the key with the platform specific separator
-    // this is to ensure that the key is always the same
-    // regardless of the platform
     std::replace(key.begin(), key.end(), '/', Path::separator);
     std::replace(key.begin(), key.end(), '\\', Path::separator);
 
-    if (assets.count(key) == 0)
-    {
-      Log::Error(std::string("Asset not found: ") + key);
-      return nullptr;
-    }
+    if (assets.count(key) == 0) return nullptr;
     return &assets[key];
   }
 

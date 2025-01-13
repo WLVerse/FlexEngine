@@ -74,18 +74,19 @@ namespace FlexEngine
     glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
     m_draw_calls++;
   }
-
+  
+  // TODO: cache the vao and vbo
   void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
   {
     // unit square
     static const float vertices[] = {
       // Position           // TexCoords
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+      -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
+       0.5f, -0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
+       0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+       0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+      -0.5f,  0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
+      -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
     };
 
     static GLuint vao = 0, vbo = 0;
@@ -100,9 +101,10 @@ namespace FlexEngine
       glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
       glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+      //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      //glEnableVertexAttribArray(1);
+      //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
       glBindVertexArray(0);
 
@@ -117,7 +119,60 @@ namespace FlexEngine
     }
 
     // guard
-    if (vao == 0 || props.shader == "" || props.scale == Vector2::Zero) return;
+    if (vao == 0 || props.scale == Vector2::Zero) return;
+
+    // tex coords
+    bool is_spritesheet = props.texture_index >= 0;
+
+    float tex_coords[12] = {
+      0.0f, 1.0f, // Bottom-left
+      1.0f, 1.0f, // Bottom-right
+      1.0f, 0.0f, // Top-right
+      1.0f, 0.0f, // Top-right
+      0.0f, 0.0f, // Top-left
+      0.0f, 1.0f  // Bottom-left
+    };
+
+    if (is_spritesheet)
+    {
+      auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
+      auto uv = asset_spritesheet.GetUV(props.texture_index);
+      tex_coords[0] = uv.x;
+      tex_coords[1] = uv.y;
+      tex_coords[2] = uv.z;
+      tex_coords[3] = uv.y;
+      tex_coords[4] = uv.z;
+      tex_coords[5] = uv.w;
+      tex_coords[6] = uv.z;
+      tex_coords[7] = uv.w;
+      tex_coords[8] = uv.x;
+      tex_coords[9] = uv.w;
+      tex_coords[10] = uv.x;
+      tex_coords[11] = uv.y;
+    }
+
+    GLuint vbo_uv = 0;
+
+    glGenBuffers(1, &vbo_uv);
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tex_coords), tex_coords, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+    glBindVertexArray(0);
+
+    // free in freequeue
+    FreeQueue::Push(
+      [=]()
+      {
+        glDeleteBuffers(1, &vbo_uv);
+      },
+      "Free UV buffer"
+    );
+
 
     // bind all
     glBindVertexArray(vao);
@@ -125,11 +180,21 @@ namespace FlexEngine
     auto& asset_shader = FLX_ASSET_GET(Asset::Shader, props.shader);
     asset_shader.Use();
 
-    if (props.texture != "")
+    if (props.asset != "")
     {
-      asset_shader.SetUniform_bool("u_use_texture", true);
-      auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.texture);
-      asset_texture.Bind(asset_shader, "u_texture", 0);
+      if (!is_spritesheet)
+      {
+        asset_shader.SetUniform_bool("u_use_texture", true);
+        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
+        asset_texture.Bind(asset_shader, "u_texture", 0);
+      }
+      else
+      {
+        asset_shader.SetUniform_bool("u_use_texture", true);
+        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
+        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+        asset_texture.Bind(asset_shader, "u_texture", 0);
+      }
     }
     else if (props.color != Vector3::Zero)
     {
@@ -167,7 +232,17 @@ namespace FlexEngine
     glDrawArrays(GL_TRIANGLES, 0, 6);
     m_draw_calls++;
 
+    // error checking
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+    {
+      Log::Fatal("OpenGL Error: " + std::to_string(error));
+    }
+
     glBindVertexArray(0);
+
+    // free
+    FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
   void OpenGLRenderer::DrawSimpleTexture2D(
@@ -210,10 +285,10 @@ namespace FlexEngine
       // free in freequeue
       FreeQueue::Push(
         [=]()
-      {
-        glDeleteBuffers(1, &vbo);
-        glDeleteVertexArrays(1, &vao);
-      }
+        {
+          glDeleteBuffers(1, &vbo);
+          glDeleteVertexArrays(1, &vao);
+        }
       );
     }
 

@@ -15,9 +15,6 @@
     <ClCompile Include="src\Layers\baselayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\splashlayer.cpp">
-      <Filter>src\Layers</Filter>
-    </ClCompile>
     <ClCompile Include="src\Layers\statisticspanellayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
@@ -25,9 +22,6 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\editorbaselayer.cpp">
-      <Filter>src\Layers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Layers\splashwindowlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\editorwindowlayer.cpp">
@@ -41,9 +35,6 @@
     <ClInclude Include="src\Layers\baselayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\splashlayer.h">
-      <Filter>src\Layers</Filter>
-    </ClInclude>
     <ClInclude Include="src\Layers\statisticspanellayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
@@ -54,9 +45,6 @@
       <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="src\Layers\splashwindowlayer.h">
-      <Filter>src\Layers</Filter>
-    </ClInclude>
     <ClInclude Include="src\Layers\editorwindowlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
