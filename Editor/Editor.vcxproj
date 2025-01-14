@@ -155,6 +155,7 @@
     <ClCompile Include="src\editor.cpp" />
     <ClCompile Include="src\editorgui.cpp" />
     <ClCompile Include="src\hierarchyview.cpp" />
+    <ClCompile Include="src\inspector.cpp" />
     <ClCompile Include="src\launch.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\editorsystem.h" />
     <ClInclude Include="src\hierarchyview.h" />
     <ClInclude Include="src\imguipayloads.h" />
+    <ClInclude Include="src\inspector.h" />
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
@@ -184,6 +186,7 @@
     <ClInclude Include="src\Layers\splashwindowlayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
     <ClInclude Include="src\selectionsystem.h" />
+    <ClInclude Include="src\testcomponentviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\flexengine\flexengine-256.ico" />

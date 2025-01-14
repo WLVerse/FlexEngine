@@ -54,6 +54,9 @@
     <ClCompile Include="src\componentviewer.cpp">
       <Filter>src\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="src\inspector.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -106,6 +109,12 @@
       <Filter>src\Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\componentviewer.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\testcomponentviewer.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\inspector.h">
       <Filter>src\Editor</Filter>
     </ClInclude>
   </ItemGroup>

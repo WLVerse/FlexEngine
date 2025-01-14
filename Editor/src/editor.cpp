@@ -135,7 +135,7 @@ namespace Editor
 		// Setup map for all panels
 		m_panels[std::type_index(typeid(AssetBrowser))] = &m_assetbrowser;
 		m_panels[std::type_index(typeid(HierarchyView))] = &m_hierarchy;
-		//m_panels["Inspector"] = &m_inspector;
+		m_panels[std::type_index(typeid(Inspector))] = &m_inspector;
 		//m_panels["SceneView"] = &m_sceneview;
 		//m_panels["GameView"] = &m_gameview;
 
