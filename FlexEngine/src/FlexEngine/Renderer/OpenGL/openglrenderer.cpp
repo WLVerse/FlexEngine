@@ -300,36 +300,6 @@ namespace FlexEngine
       glBindVertexArray(vao);
       auto& asset_font = FLX_ASSET_GET(Asset::Font, text.m_fonttype);
 
-      // Lambda to calculate the width of a line of text
-      auto findLineWidth = [&](const std::string& line)
-      {
-          float total_length = 0.0f;
-          for (char c : line) 
-          {
-              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-              total_length += glyph.advance + (int)text.m_letterspacing;
-              if (total_length > text.m_maxwidthtextbox) break;
-          }
-          return std::min(total_length, text.m_maxwidthtextbox);
-      };
-      // Calculate total text height
-      auto findTotalTextHeight = [&]() -> float
-      {
-          float totalHeight = 0.0f, maxLineHeight = 0.0f;
-          for (char c : text.m_words)
-          {
-              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-              maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-
-              if (c == '\n' || maxLineHeight > text.m_maxwidthtextbox)
-              {
-                  totalHeight += maxLineHeight + text.m_linespacing;
-                  maxLineHeight = 0.0f;
-              }
-          }
-          return totalHeight + maxLineHeight; // Add last line height
-      };
-
       // Lambda to render a single glyph
       auto renderGlyph = [&](const Asset::Glyph& glyph, const Vector3& position) 
       {
@@ -356,36 +326,89 @@ namespace FlexEngine
           m_draw_calls++;
       };
 
-      // Lambda to set horizontal alignment
-      auto setAlignmentX = [&](Renderer2DText::AlignmentX alignment, const std::string& words) 
+      // Function to calculate text box dimensions
+      auto calculateTextBoxDimensions = [&](const std::string& words) -> std::pair<float, float>
       {
-          switch (alignment) 
+          float totalHeight = 0.0f, maxLineHeight = asset_font.GetGlyph('A').size.y;
+          float totalWidth = 0.0f, maxWidth = 0.0f;
+          float currentLineWidth = 0.0f;
+
+          for (char c : words)
           {
-          case Renderer2DText::Alignment_Left: return 0.0f;
-          case Renderer2DText::Alignment_Center: return -findLineWidth(words) / 2.0f;
-          case Renderer2DText::Alignment_Right: return -findLineWidth(words);
-          default: return 0.0f;
+              if (c == '\n')  // Handle explicit line breaks
+              {
+                  maxWidth = std::max(maxWidth, currentLineWidth);
+                  totalHeight += maxLineHeight;
+                  currentLineWidth = 0.0f;
+                  maxLineHeight = asset_font.GetGlyph('A').size.y; // Reset line height for new line
+                  continue;
+              }
+
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+
+              // Update line width and max line height for the current line
+              currentLineWidth += glyph.advance + static_cast<int>(text.m_letterspacing);
+              maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+
+              // Check if the current line exceeds the max width of the text box
+              if (currentLineWidth > text.m_maxwidthtextbox)
+              {
+                  maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
+                  totalHeight += maxLineHeight;
+                  currentLineWidth = glyph.advance + static_cast<int>(text.m_letterspacing); // Start new line
+                  maxLineHeight = glyph.size.y; // Reset line height for the new line
+
+                  // Check if total height exceeds the maximum allowed height
+                  if (totalHeight + maxLineHeight > text.m_maxheighttextbox)
+                  {
+                      totalHeight -= maxLineHeight; // Remove the extra line's height
+                      break;
+                  }
+              }
           }
+
+          // Account for the last line's dimensions
+          if (currentLineWidth > 0)
+          {
+              maxWidth = std::max(maxWidth, currentLineWidth);
+              totalHeight += maxLineHeight;
+          }
+
+          // Ensure dimensions do not exceed the max text box constraints
+          return { std::min(maxWidth, text.m_maxwidthtextbox), std::min(totalHeight, text.m_maxheighttextbox) };
       };
 
-      // Lambda to set vertical alignment
-      auto setAlignmentY = [&](Renderer2DText::AlignmentY alignment) 
+      // Function to set alignment
+      auto setAlignment = [&](std::pair<Renderer2DText::AlignmentX, Renderer2DText::AlignmentY> alignment, const std::string& words) -> Vector2
       {
-          switch (alignment) 
+          auto [lineWidth, totalHeight] = calculateTextBoxDimensions(words);
+
+          float alignXOffset = 0.0f;
+          switch (alignment.first)
           {
-          case Renderer2DText::Alignment_Top: return 0.0f;
-          case Renderer2DText::Alignment_Middle: return findTotalTextHeight() / 2.0f; // Center align
-          case Renderer2DText::Alignment_Bottom: return findTotalTextHeight(); // Start at the bottom
-          default: return 0.0f;
+          case Renderer2DText::Alignment_Left: alignXOffset = 0.0f; break;
+          case Renderer2DText::Alignment_Center: alignXOffset = -lineWidth / 2.0f; break;
+          case Renderer2DText::Alignment_Right: alignXOffset = -lineWidth; break;
+          default: alignXOffset = 0.0f; break;
           }
+
+          float alignYOffset = 0.0f;
+          switch (alignment.second)
+          {
+          case Renderer2DText::Alignment_Top: alignYOffset = 0.0f; break;
+          case Renderer2DText::Alignment_Middle: alignYOffset = -totalHeight / 2.0f; break;
+          case Renderer2DText::Alignment_Bottom: alignYOffset = -totalHeight; break;
+          default: alignYOffset = 0.0f; break;
+          }
+
+          return { alignXOffset, alignYOffset };
       };
 
       // Set initial pen position based on alignments
-      Vector3 pen_pos = Vector3::Zero;
+      Vector2 pen_pos = Vector2::Zero;
       float maxLineHeight = 0.0f, lineWidth = 0.0f;
       std::string currentLine;
-      pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), text.m_words);
-      pen_pos.y = setAlignmentY(static_cast<Renderer2DText::AlignmentY>(text.m_alignment.second));
+      pen_pos = setAlignment(text.m_alignment, text.m_words);
       float totalHeight = 0.0f; // Calculate total height for vertical alignment
       for (char c : text.m_words) 
       {
@@ -398,12 +421,12 @@ namespace FlexEngine
       {
           const Asset::Glyph& glyph = asset_font.GetGlyph(c);
           maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-          if (lineWidth + glyph.advance > text.m_maxwidthtextbox && c != ' ')
+          if (lineWidth + glyph.advance > text.m_maxwidthtextbox && c == ' ')
           {
               pen_pos.y += maxLineHeight + text.m_linespacing;
               lineWidth = 0.0f;
               remainingWords = remainingWords.substr(currentIndex);
-              pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), remainingWords);
+              pen_pos.x = setAlignment(text.m_alignment, remainingWords).x;
               currentIndex = 0;
           }
           renderGlyph(glyph, pen_pos);
