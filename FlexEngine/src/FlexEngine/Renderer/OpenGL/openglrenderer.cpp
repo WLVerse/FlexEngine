@@ -464,87 +464,93 @@ namespace FlexEngine
 
       // Updated text rendering logic
       auto words = splitIntoWords(text.m_words);
-      Vector2 origin_pen_pos = getAlignmentoffset(text.m_alignment, text.m_words);
-      Vector2 pen_pos = origin_pen_pos;
+      Vector2 pen_pos = getAlignmentoffset(text.m_alignment, ""); // Initial alignment offset
       float lineWidth = 0.0f, totalHeight = 0.0f, maxLineHeight = 0.0f;
       const Asset::Glyph& space = asset_font.GetGlyph(' ');
-      for (const std::string& word : words) 
+      std::string currentLine;
+      std::string nextLine;
+
+      for (size_t i = 0; i < words.size(); ++i)
       {
+          const std::string& word = words[i];
+
           if (word == "\n") // Handle explicit line break
-          { 
+          {
+              // Render the current line
+              pen_pos.x = getAlignmentoffset(text.m_alignment, currentLine).x;
+              for (char c : currentLine) {
+                  const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+                  renderGlyph(glyph, pen_pos);
+                  pen_pos.x += glyph.advance + text.m_letterspacing;
+              }
+
+              // Move to the next line
               pen_pos.y += maxLineHeight + text.m_linespacing;
               lineWidth = 0.0f;
               maxLineHeight = 0.0f;
+              currentLine.clear();
               continue;
           }
 
+          // Measure the word width
           float wordWidth = 0.0f;
           float wordHeight = 0.0f;
-          std::vector<Asset::Glyph> wordGlyphs;
-
-          // Measure word dimensions and gather glyphs
-          for (char c : word) 
-          {
+          for (char c : word) {
               const Asset::Glyph& glyph = asset_font.GetGlyph(c);
               wordWidth += glyph.advance + text.m_letterspacing;
               wordHeight = std::max(wordHeight, glyph.size.y);
-              wordGlyphs.push_back(glyph);
           }
 
-          // Check if word fits in the current line
-          if (lineWidth + wordWidth > text.m_maxwidthtextbox) 
+          // Check if the word fits in the current line
+          if (lineWidth + wordWidth > text.m_maxwidthtextbox)
           {
+              // Render the current line
+              pen_pos.x = getAlignmentoffset(text.m_alignment, currentLine).x;
+              for (char c : currentLine) {
+                  const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+                  renderGlyph(glyph, pen_pos);
+                  pen_pos.x += glyph.advance + text.m_letterspacing;
+              }
+
               // Move to the next line
-              pen_pos.x = origin_pen_pos.x;
               pen_pos.y += maxLineHeight + text.m_linespacing;
               totalHeight += maxLineHeight + text.m_linespacing;
               lineWidth = 0.0f;
               maxLineHeight = 0.0f;
 
               // Stop rendering if vertical overflow occurs
-              if (totalHeight + wordHeight > text.m_maxheighttextbox) 
+              if (totalHeight + wordHeight > text.m_maxheighttextbox)
               {
+                  currentLine = "";
                   break;
               }
 
-              // Handle long unbroken words (split across lines)
-              if (wordWidth > text.m_maxwidthtextbox) 
-              {
-                  for (const Asset::Glyph& glyph : wordGlyphs) 
-                  {
-                      if (lineWidth + glyph.advance > text.m_maxwidthtextbox) 
-                      {
-                          pen_pos.x = origin_pen_pos.x;
-                          pen_pos.y += maxLineHeight + text.m_linespacing;
-                          totalHeight += maxLineHeight + text.m_linespacing;
-                          lineWidth = 0.0f;
-                          maxLineHeight = 0.0f;
-                          if (totalHeight + glyph.size.y > text.m_maxheighttextbox) 
-                          {
-                              break;
-                          }
-                      }
-                      renderGlyph(glyph, pen_pos);
-                      pen_pos.x += glyph.advance + text.m_letterspacing;
-                      lineWidth += glyph.advance + text.m_letterspacing;
-                      maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-                  }
-                  continue;
-              }
+              // Reset the current line and add the current word to the next line
+              currentLine = word;
+              lineWidth = wordWidth;
+              maxLineHeight = wordHeight;
           }
-
-          // Render the word
-          for (const Asset::Glyph& glyph : wordGlyphs) 
+          else
           {
+              // Add the word to the current line
+              if (!currentLine.empty()) {
+                  currentLine += " ";
+              }
+              currentLine += word;
+              lineWidth += wordWidth  + text.m_letterspacing;
+              maxLineHeight = std::max(maxLineHeight, wordHeight);
+          }
+      }
+
+      // Render the last line
+      if (!currentLine.empty())
+      {
+          pen_pos.x = getAlignmentoffset(text.m_alignment, currentLine).x;
+          for (char c : currentLine) {
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
               renderGlyph(glyph, pen_pos);
               pen_pos.x += glyph.advance + text.m_letterspacing;
           }
-
-          // Render the spacing
-          pen_pos.x += space.advance + text.m_letterspacing;
-
-          lineWidth += wordWidth;
-          maxLineHeight = std::max(maxLineHeight, wordHeight);
       }
 
       // Cleanup
