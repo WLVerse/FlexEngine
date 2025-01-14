@@ -170,6 +170,175 @@ namespace FlexEngine
     glBindVertexArray(0);
   }
 
+  void OpenGLRenderer::DrawTexture2D(/*Camera const& cam, */const Renderer2DText& text)
+  {
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
+      asset_shader.Use();
+
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+      // unit square
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+           0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+          -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          // Configure VAO/VBO for text quads
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW); // 6 vertices per quad
+
+          // Configure vertex attributes
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+          glBindBuffer(GL_ARRAY_BUFFER, 0);
+          glBindVertexArray(0);
+
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteVertexArrays(1, &vao);
+              glDeleteBuffers(1, &vbo);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0 || text.m_shader == "") return;
+
+      if (text.m_fonttype.empty())
+      {
+          Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
+          return;
+      }
+      //if (text.m_words.empty() ||
+      //    (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
+      //    (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
+      //    return;
+
+      //if (followcam && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
+      //    followcam = false;
+
+      asset_shader.SetUniform_vec3("u_color", text.m_color);
+      asset_shader.SetUniform_mat4("u_model", text.m_transform);
+      asset_shader.SetUniform_mat4(
+          "projection",
+          Matrix4x4::Orthographic(0.0f, text.m_window_size.x, 0.0f, text.m_window_size.y, -1.0f, 1.0f)
+      );
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindVertexArray(vao);
+      auto& asset_font = FLX_ASSET_GET(Asset::Font, text.m_fonttype);
+
+      Vector3 pen_pos = Vector3::Zero;
+      float maxLineHeight = 0.0f, lineWidth = 0.0f;
+
+      // Lambda to calculate the width of a line of text
+      auto findLineWidth = [&](const std::string& line) -> int 
+      {
+          int total_length = 0;
+          for (char c : line) 
+          {
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+              total_length += glyph.advance + (int)text.m_letterspacing;
+              if (total_length > DRAW_TEXT_MAX_STRLEN) break;
+          }
+          return std::min(total_length, DRAW_TEXT_MAX_STRLEN);
+      };
+
+      // Lambda to render a single glyph
+      auto renderGlyph = [&](const Asset::Glyph& glyph, const Vector3& position) 
+      {
+          glBindTexture(GL_TEXTURE_2D, glyph.textureID);
+
+          float xpos = position.x - glyph.bearing.x;
+          float ypos = position.y - (glyph.bearing.y - glyph.size.y);
+          float w = -glyph.size.x;
+          float h = -glyph.size.y;
+
+          float quadVertices[6][4] = 
+          {
+              {xpos, ypos + h, 0.0f, 0.0f}, {xpos, ypos, 0.0f, 1.0f}, {xpos + w, ypos, 1.0f, 1.0f},
+              {xpos, ypos + h, 0.0f, 0.0f}, {xpos + w, ypos, 1.0f, 1.0f}, {xpos + w, ypos + h, 1.0f, 0.0f}
+          };
+
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quadVertices), quadVertices);
+          glDrawArrays(GL_TRIANGLES, 0, 6);
+          m_draw_calls++;
+      };
+
+      // Lambda to set horizontal alignment
+      auto setAlignmentX = [&](Renderer2DText::AlignmentX alignment, const std::string& words) 
+      {
+          switch (alignment) 
+          {
+          case Renderer2DText::Alignment_Left: return 0.0f;
+          case Renderer2DText::Alignment_Center: return (float)findLineWidth(words) / 2.0f;
+          case Renderer2DText::Alignment_Right: return (float)findLineWidth(words);
+          default: return 0.0f;
+          }
+      };
+
+      // Lambda to set vertical alignment
+      auto setAlignmentY = [&](Renderer2DText::AlignmentY alignment, float totalHeight) 
+      {
+          switch (alignment) 
+          {
+          case Renderer2DText::Alignment_Top: return 0.0f;
+          case Renderer2DText::Alignment_Middle: return totalHeight / 2.0f;
+          case Renderer2DText::Alignment_Bottom: return totalHeight;
+          default: return 0.0f;
+          }
+      };
+
+      // Set initial pen position based on alignments
+      pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), text.m_words);
+      float totalHeight = 0.0f; // Calculate total height for vertical alignment
+      for (char c : text.m_words) 
+      {
+          totalHeight += asset_font.GetGlyph(c).size.y + text.m_linespacing;
+      }
+      //pen_pos.y = setAlignmentY(static_cast<Renderer2DText::AlignmentY>(text.m_alignment.second), totalHeight);
+
+      std::string remainingWords = text.m_words;
+      int currentIndex = 0;
+
+      for (char c : text.m_words) 
+      {
+          const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+          maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+
+          if (lineWidth + glyph.advance > DRAW_TEXT_MAX_STRLEN && c != ' ') 
+          {
+              pen_pos.y += maxLineHeight + text.m_linespacing;
+              lineWidth = 0.0f;
+              remainingWords = remainingWords.substr(currentIndex);
+              pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), remainingWords);
+              currentIndex = 0;
+          }
+
+          renderGlyph(glyph, pen_pos);
+          pen_pos.x -= glyph.advance + text.m_letterspacing;
+          lineWidth += glyph.advance + text.m_letterspacing;
+          ++currentIndex;
+      }
+
+      glBindVertexArray(0);
+      glBindTexture(GL_TEXTURE_2D, 0);
+  }
+
   void OpenGLRenderer::DrawSimpleTexture2D(
     const Asset::Texture& texture,
     const Vector2& position,

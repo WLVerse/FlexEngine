@@ -11,7 +11,7 @@
 
 namespace FlexEngine
 {
-
+  #define DRAW_TEXT_MAX_STRLEN 2048
   struct __FLX_API Renderer2DProps
   {
     enum __FLX_API Alignment
@@ -29,6 +29,41 @@ namespace FlexEngine
     Vector2 scale = Vector2(1.0f, 1.0f);
     Vector2 window_size = Vector2(800.0f, 600.0f);
     Alignment alignment = Alignment_Center;
+  };
+
+  /*!***************************************************************************
+  * \brief
+  * Struct for 2D text rendering configuration and properties.
+  *
+  * The Renderer2DText struct encapsulates the necessary parameters for rendering
+  * 2D text, including shader paths, font types, color settings, transformation
+  * matrices, and alignment options for both X and Y axes.
+  ***************************************************************************/
+  struct __FLX_API Renderer2DText
+  {
+      enum __FLX_API AlignmentX
+      {
+          Alignment_Center = 0,      /*!< Center alignment */
+          Alignment_Left = 1,        /*!< Left alignment */
+          Alignment_Right = 2,       /*!< Right alignment */
+      };
+
+      enum __FLX_API AlignmentY
+      {
+          Alignment_Middle = 0,      /*!< Center alignment */
+          Alignment_Top = 1,         /*!< Top alignment */
+          Alignment_Bottom = 2,      /*!< Bottom alignment */
+      };
+
+      std::string m_shader = R"(/shaders/freetypetext)";  /*!< Path to the shader for text rendering */
+      std::string m_fonttype = R"()";                     /*!< Font type to use for rendering; empty means an error will occur */
+      std::string m_words;                                /*!< The actual text to render */
+      Vector3 m_color = Vector3::Zero;                    /*!< Color of the text */
+      Vector2 m_window_size = Vector2(800.0f, 600.0f);
+      Matrix4x4 m_transform = Matrix4x4::Identity;        /*!< Transformation matrix for positioning the text */
+      std::pair<AlignmentX, AlignmentY> m_alignment;      /*!< Pair indicating X and Y alignment settings */
+      float m_linespacing = 2.0f;
+      float m_letterspacing = 5.0f;
   };
 
   class __FLX_API OpenGLRenderer
@@ -59,6 +94,11 @@ namespace FlexEngine
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
     static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
+
+    // Overloaded function to draw text as a texture.
+    // Uses an internal unit square mesh to draw the texture.
+    // Pass in a shader that supports the texture and color uniforms.
+    static void DrawTexture2D(/*Camera const& cam, */const Renderer2DText& text = {});
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

@@ -77,6 +77,8 @@ namespace Editor
       loaded_scene->DumpArchetypeIndex();
     }
     #endif
+
+
   }
 
   void EditorBaseLayer::OnDetach()
@@ -93,6 +95,22 @@ namespace Editor
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
+  
+    //test text
+    #if 1
+    {
+        OpenGLRenderer::DrawSimpleTexture2D();
+
+        //Renderer2DText sample;
+        //sample.m_words = "a";
+        //sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+        //sample.m_transform = Matrix4x4::Identity;
+        //sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+        //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+
+        //OpenGLRenderer::DrawTexture2D(sample);
+    }
+    #endif
   }
 
 }
