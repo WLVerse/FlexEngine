@@ -10,11 +10,37 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
+#include "editor.h"
+
+#define TESTCOMPONENTVIEWER 1
+#if TESTCOMPONENTVIEWER
+#include "componentviewer.h"
+#include "testcomponentviewer.h"
+#endif
 
 #define SPRITESHEET_TEST
 
 namespace Editor
 {
+
+  #if TESTCOMPONENTVIEWER
+  COMPONENT_VIEWER_START(Position)
+    COMPONENT_VIEWER_DRAG_VECTOR2(position)
+  COMPONENT_VIEWER_END(Position)
+
+  COMPONENT_VIEWER_START(Rotation)
+    COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
+  COMPONENT_VIEWER_END(Rotation)
+
+  COMPONENT_VIEWER_START(Scale)
+    COMPONENT_VIEWER_DRAG_VECTOR2(scale)
+  COMPONENT_VIEWER_END(Scale)
+
+  COMPONENT_VIEWER_START(Transform)
+    COMPONENT_VIEWER_BOOL(is_dirty)
+    COMPONENT_VIEWER_MAT44(transform)
+  COMPONENT_VIEWER_END(Transform)
+  #endif
 
   void EditorBaseLayer::OnAttach()
   {
@@ -93,6 +119,13 @@ namespace Editor
     }
     #endif
 
+    Editor::GetInstance().Init();
+
+    REGISTER_COMPONENT_VIEWER(Position);
+    REGISTER_COMPONENT_VIEWER(Rotation);
+    REGISTER_COMPONENT_VIEWER(Scale);
+    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Transform, COMPONENT_ENABLE_ADD, COMPONENT_DISABLE_REMOVE);
+
   }
 
   void EditorBaseLayer::OnDetach()
@@ -106,7 +139,8 @@ namespace Editor
     FLX_IMGUI_ALIGNCONTEXT();
 
     // setup dockspace
-    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+    //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
@@ -140,6 +174,7 @@ namespace Editor
       );
     }
     #endif
+    Editor::GetInstance().Update();
   }
 
 }
