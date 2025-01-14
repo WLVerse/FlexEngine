@@ -11,7 +11,6 @@
 
 namespace FlexEngine
 {
-  #define DRAW_TEXT_MAX_STRLEN 2048
   struct __FLX_API Renderer2DProps
   {
     enum __FLX_API Alignment
@@ -64,7 +63,9 @@ namespace FlexEngine
       Matrix4x4 m_transform = Matrix4x4::Identity;        /*!< Transformation matrix for positioning the text */
       std::pair<AlignmentX, AlignmentY> m_alignment;      /*!< Pair indicating X and Y alignment settings */
       float m_linespacing = 2.0f;
-      float m_letterspacing = 5.0f;
+      float m_letterspacing = 2.0f;
+      float m_maxwidthtextbox = 500.0f;                   /*!< Dimension width of text box */
+      float m_maxheighttextbox = 500.0f;                  /*!< Dimension height of text box */
   };
 
   class __FLX_API OpenGLRenderer
@@ -99,7 +100,7 @@ namespace FlexEngine
     // Overloaded function to draw text as a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(/*Camera const& cam, */const Renderer2DText& text = {});
+    static void DrawTexture2D(Camera const& cam, const Renderer2DText& text = {});
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

@@ -137,22 +137,23 @@ namespace Editor
         Vector2(1600.0f, 900.0f),
         Renderer2DProps::Alignment_TopLeft
       );
-    }
-    #endif
 
-    //test text
-    #if 1
-    {
-        OpenGLRenderer::DrawSimpleTexture2D();
+      static std::string extra = "";
+      if (Input::GetKey(GLFW_KEY_J))
+          extra += "j";
+      Renderer2DText sample;
+      //sample.m_words = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+      sample.m_words = "testing" + extra;
+      sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+      sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
+          0.00, 1.00, 0.00, 0.00,
+          0.00, 0.00, 1.00, 0.00,
+           822.00, 448.00, 0.00, 1.00);
+      sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+      sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
 
-        //Renderer2DText sample;
-        //sample.m_words = "a";
-        //sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
-        //sample.m_transform = Matrix4x4::Identity;
-        //sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
-        //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
 
-        //OpenGLRenderer::DrawTexture2D(sample);
+      OpenGLRenderer::DrawTexture2D(camera, sample);
     }
     #endif
   }

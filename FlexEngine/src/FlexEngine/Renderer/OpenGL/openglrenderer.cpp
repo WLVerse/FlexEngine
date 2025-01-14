@@ -245,24 +245,8 @@ namespace FlexEngine
     FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
-  void OpenGLRenderer::DrawTexture2D(/*Camera const& cam, */const Renderer2DText& text)
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DText& text)
   {
-      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
-      asset_shader.Use();
-
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-      // unit square
-      static const float vertices[] = {
-          // Position           // TexCoords
-          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
-           0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
-           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-          -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
-          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
-      };
-
       static GLuint vao = 0, vbo = 0;
 
       if (vao == 0)
@@ -305,31 +289,45 @@ namespace FlexEngine
       //if (followcam && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
       //    followcam = false;
 
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
+      asset_shader.Use();
+
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
-      asset_shader.SetUniform_mat4(
-          "projection",
-          Matrix4x4::Orthographic(0.0f, text.m_window_size.x, 0.0f, text.m_window_size.y, -1.0f, 1.0f)
-      );
+      asset_shader.SetUniform_mat4("projection", cam.GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);
       glBindVertexArray(vao);
       auto& asset_font = FLX_ASSET_GET(Asset::Font, text.m_fonttype);
 
-      Vector3 pen_pos = Vector3::Zero;
-      float maxLineHeight = 0.0f, lineWidth = 0.0f;
-
       // Lambda to calculate the width of a line of text
-      auto findLineWidth = [&](const std::string& line) -> int 
+      auto findLineWidth = [&](const std::string& line)
       {
-          int total_length = 0;
+          float total_length = 0.0f;
           for (char c : line) 
           {
               const Asset::Glyph& glyph = asset_font.GetGlyph(c);
               total_length += glyph.advance + (int)text.m_letterspacing;
-              if (total_length > DRAW_TEXT_MAX_STRLEN) break;
+              if (total_length > text.m_maxwidthtextbox) break;
           }
-          return std::min(total_length, DRAW_TEXT_MAX_STRLEN);
+          return std::min(total_length, text.m_maxwidthtextbox);
+      };
+      // Calculate total text height
+      auto findTotalTextHeight = [&]() -> float
+      {
+          float totalHeight = 0.0f, maxLineHeight = 0.0f;
+          for (char c : text.m_words)
+          {
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+              maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+
+              if (c == '\n' || maxLineHeight > text.m_maxwidthtextbox)
+              {
+                  totalHeight += maxLineHeight + text.m_linespacing;
+                  maxLineHeight = 0.0f;
+              }
+          }
+          return totalHeight + maxLineHeight; // Add last line height
       };
 
       // Lambda to render a single glyph
@@ -337,15 +335,19 @@ namespace FlexEngine
       {
           glBindTexture(GL_TEXTURE_2D, glyph.textureID);
 
-          float xpos = position.x - glyph.bearing.x;
+          float xpos = position.x + glyph.bearing.x;
           float ypos = position.y - (glyph.bearing.y - glyph.size.y);
-          float w = -glyph.size.x;
+          float w = glyph.size.x;
           float h = -glyph.size.y;
 
           float quadVertices[6][4] = 
           {
-              {xpos, ypos + h, 0.0f, 0.0f}, {xpos, ypos, 0.0f, 1.0f}, {xpos + w, ypos, 1.0f, 1.0f},
-              {xpos, ypos + h, 0.0f, 0.0f}, {xpos + w, ypos, 1.0f, 1.0f}, {xpos + w, ypos + h, 1.0f, 0.0f}
+              {xpos, ypos + h, 0.0f, 0.0f}, 
+              {xpos, ypos, 0.0f, 1.0f}, 
+              {xpos + w, ypos, 1.0f, 1.0f},
+              {xpos, ypos + h, 0.0f, 0.0f}, 
+              {xpos + w, ypos, 1.0f, 1.0f}, 
+              {xpos + w, ypos + h, 1.0f, 0.0f}
           };
 
           glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -360,42 +362,43 @@ namespace FlexEngine
           switch (alignment) 
           {
           case Renderer2DText::Alignment_Left: return 0.0f;
-          case Renderer2DText::Alignment_Center: return (float)findLineWidth(words) / 2.0f;
-          case Renderer2DText::Alignment_Right: return (float)findLineWidth(words);
+          case Renderer2DText::Alignment_Center: return -findLineWidth(words) / 2.0f;
+          case Renderer2DText::Alignment_Right: return -findLineWidth(words);
           default: return 0.0f;
           }
       };
 
       // Lambda to set vertical alignment
-      auto setAlignmentY = [&](Renderer2DText::AlignmentY alignment, float totalHeight) 
+      auto setAlignmentY = [&](Renderer2DText::AlignmentY alignment) 
       {
           switch (alignment) 
           {
           case Renderer2DText::Alignment_Top: return 0.0f;
-          case Renderer2DText::Alignment_Middle: return totalHeight / 2.0f;
-          case Renderer2DText::Alignment_Bottom: return totalHeight;
+          case Renderer2DText::Alignment_Middle: return findTotalTextHeight() / 2.0f; // Center align
+          case Renderer2DText::Alignment_Bottom: return findTotalTextHeight(); // Start at the bottom
           default: return 0.0f;
           }
       };
 
       // Set initial pen position based on alignments
+      Vector3 pen_pos = Vector3::Zero;
+      float maxLineHeight = 0.0f, lineWidth = 0.0f;
+      std::string currentLine;
       pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), text.m_words);
+      pen_pos.y = setAlignmentY(static_cast<Renderer2DText::AlignmentY>(text.m_alignment.second));
       float totalHeight = 0.0f; // Calculate total height for vertical alignment
       for (char c : text.m_words) 
       {
           totalHeight += asset_font.GetGlyph(c).size.y + text.m_linespacing;
       }
-      //pen_pos.y = setAlignmentY(static_cast<Renderer2DText::AlignmentY>(text.m_alignment.second), totalHeight);
 
       std::string remainingWords = text.m_words;
       int currentIndex = 0;
-
       for (char c : text.m_words) 
       {
           const Asset::Glyph& glyph = asset_font.GetGlyph(c);
           maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-
-          if (lineWidth + glyph.advance > DRAW_TEXT_MAX_STRLEN && c != ' ') 
+          if (lineWidth + glyph.advance > text.m_maxwidthtextbox && c != ' ')
           {
               pen_pos.y += maxLineHeight + text.m_linespacing;
               lineWidth = 0.0f;
@@ -403,13 +406,11 @@ namespace FlexEngine
               pen_pos.x = setAlignmentX(static_cast<Renderer2DText::AlignmentX>(text.m_alignment.first), remainingWords);
               currentIndex = 0;
           }
-
           renderGlyph(glyph, pen_pos);
-          pen_pos.x -= glyph.advance + text.m_letterspacing;
+          pen_pos.x += glyph.advance + text.m_letterspacing;
           lineWidth += glyph.advance + text.m_letterspacing;
           ++currentIndex;
       }
-
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
