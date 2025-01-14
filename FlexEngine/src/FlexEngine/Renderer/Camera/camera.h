@@ -25,6 +25,7 @@ namespace FlexEngine
     Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
 
   public:
+    // The camera is automatically initalized upon construction
     Camera(float left, float right, float bottom, float top, float near, float far);
     ~Camera() = default;
 

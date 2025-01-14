@@ -208,6 +208,9 @@
     <ClCompile Include="src\FlexEngine\Renderer\Camera\cameramanager.cpp">
       <Filter>src\FlexEngine\Renderer\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.cpp">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -398,6 +401,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\Camera\cameramanager.h">
       <Filter>src\FlexEngine\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.h">
+      <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -29,7 +29,6 @@ namespace
 {
 
   // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-  #pragma warning(suppress : 4100) // unused parameters
   void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
   {
     // make sure the viewport matches the new window dimensions; note that width and 

@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// baselayer.h
+// 
+// Base layer that runs before everything.
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #pragma once
 
 #include <FlexEngine.h>

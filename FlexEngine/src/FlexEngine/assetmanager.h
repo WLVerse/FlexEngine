@@ -25,6 +25,7 @@
 #include "assetkey.h"
 #include "Utilities/path.h"
 #include "Renderer/OpenGL/opengltexture.h"
+#include "Renderer/OpenGL/openglspritesheet.h"
 #include "Renderer/OpenGL/openglshader.h"
 #include "Renderer/OpenGL/openglmodel.h"
 
@@ -39,11 +40,12 @@ namespace FlexEngine
 {
 
   // Variant of all asset types
-  using AssetVariant = std::variant<Asset::Texture, Asset::Shader, Asset::Model, Asset::Sound, Asset::Font>;
+  using AssetVariant = std::variant<Asset::Texture,Asset::Spritesheet,Asset::Shader, Asset::Model, Asset::Sound, Asset::Font>;
 
   // Helper macro to get an asset by its key.
+  // Deprecation warning: This macro is deprecated and will be removed in the future.
   // Example usage: FLX_ASSET_GET(Asset::Texture, R"(/images/flexengine/flexengine-256.png)")
-  #define FLX_ASSET_GET(TYPE, KEY) std::get<TYPE>(*AssetManager::Get(KEY))
+  #define FLX_ASSET_GET(TYPE, KEY) AssetManager::Get<TYPE>(KEY)
 
   class __FLX_API AssetManager
   {
@@ -62,9 +64,39 @@ namespace FlexEngine
     // Frees OpenGL textures and shaders
     static void Unload();
 
-    // Get an asset variant by its key
-    static AssetVariant* Get(AssetKey key);
+    #pragma region Getter
 
+  public:
+    // Get an asset variant by its key
+    // This will return a reference to the asset or throw an error if the asset is not found
+    template <typename T>
+    static T& Get(AssetKey key)
+    {
+      auto asset = Internal_Get(key);
+      if (asset == nullptr)
+      {
+        throw std::runtime_error("Asset key does not exist in the asset manager: " + key);
+      }
+      auto asset_ptr = std::get_if<T>(asset);
+      if (asset_ptr == nullptr)
+      {
+        throw std::runtime_error("Asset key does not match the requested type: " + key);
+      }
+      return *asset_ptr;
+    }
+
+  private:
+    // INTERNAL FUNCTION
+    // Get an asset variant by its key
+    // Returns nullptr if the asset is not found
+    // 
+    // Replaces all / or \ in the key with the platform specific separator
+    // This is to ensure that the key is always the same regardless of the platform
+    static AssetVariant* Internal_Get(AssetKey key);
+
+    #pragma endregion
+
+  public:
     // Get the default directory
     static Path DefaultDirectory();
 

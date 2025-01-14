@@ -21,7 +21,8 @@ namespace FlexEngine
     };
 
     std::string shader = R"(/shaders/texture)";
-    std::string texture = R"(/images/flexengine/flexengine-256.png)";
+    std::string asset = R"(/images/flexengine/flexengine-256.png)"; // Texture or spritesheet
+    int texture_index = -1; // For spritesheets, -1 means not a spritesheet
     Vector3 color = Vector3(1.0f, 0.0f, 1.0f);
     Vector3 color_to_add = Vector3(0.0f, 0.0f, 0.0f);
     Vector3 color_to_multiply = Vector3(1.0f, 1.0f, 1.0f);

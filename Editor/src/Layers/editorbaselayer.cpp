@@ -1,10 +1,24 @@
+// WLVERSE [https://wlverse.web.app]
+// editorbaselayer.h
+// 
+// Base layer for the editor.
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+
 #include "Layers.h"
+
+#define SPRITESHEET_TEST
 
 namespace Editor
 {
 
   void EditorBaseLayer::OnAttach()
   {
+
     // test scene
     #if 0
     {
@@ -78,7 +92,6 @@ namespace Editor
     }
     #endif
 
-
   }
 
   void EditorBaseLayer::OnDetach()
@@ -96,6 +109,37 @@ namespace Editor
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
   
+    // spritesheet test
+    // draw a sprite with render system
+    #if 1
+    {
+      static auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, R"(/images/Prop_Flaming_Barrel.flxspritesheet)");
+      static float time = 0.0f;
+      time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      int index = (int)(time * asset_spritesheet.columns) % asset_spritesheet.columns;
+
+      Renderer2DProps props;
+      props.asset = R"(/images/Prop_Flaming_Barrel.flxspritesheet)";
+      props.texture_index = index;
+      props.position = Vector2(0.0f, 0.0f);
+      props.scale = Vector2(384.0f / asset_spritesheet.columns, 96.0f);
+      props.window_size = Vector2(1600.0f, 900.0f);
+      props.alignment = Renderer2DProps::Alignment_TopLeft;
+
+      static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+
+      OpenGLRenderer::DrawTexture2D(camera, props);
+
+      OpenGLRenderer::DrawSimpleTexture2D(
+        AssetManager::Get<Asset::Texture>(asset_spritesheet.texture),
+        Vector2(384.0f, 0.0f),
+        Vector2(384.0f, 96.0f),
+        Vector2(1600.0f, 900.0f),
+        Renderer2DProps::Alignment_TopLeft
+      );
+    }
+    #endif
+
     //test text
     #if 1
     {
