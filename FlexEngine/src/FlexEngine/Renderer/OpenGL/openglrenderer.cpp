@@ -379,7 +379,7 @@ namespace FlexEngine
       };
 
       // Function to set alignment
-      auto setAlignment = [&](std::pair<Renderer2DText::AlignmentX, Renderer2DText::AlignmentY> alignment, const std::string& words) -> Vector2
+      auto getAlignmentoffset = [&](std::pair<Renderer2DText::AlignmentX, Renderer2DText::AlignmentY> alignment, const std::string& words) -> Vector2
       {
           auto [lineWidth, totalHeight] = calculateTextBoxDimensions(words);
 
@@ -404,36 +404,150 @@ namespace FlexEngine
           return { alignXOffset, alignYOffset };
       };
 
-      // Set initial pen position based on alignments
-      Vector2 pen_pos = Vector2::Zero;
-      float maxLineHeight = 0.0f, lineWidth = 0.0f;
-      std::string currentLine;
-      pen_pos = setAlignment(text.m_alignment, text.m_words);
-      float totalHeight = 0.0f; // Calculate total height for vertical alignment
-      for (char c : text.m_words) 
-      {
-          totalHeight += asset_font.GetGlyph(c).size.y + text.m_linespacing;
-      }
+      //// Set initial pen position based on alignments
+      //Vector2 pen_pos = Vector2::Zero;
+      //float maxLineHeight = 0.0f, lineWidth = 0.0f;
+      //std::string currentLine;
+      //pen_pos = setAlignment(text.m_alignment, text.m_words);
+      //float totalHeight = 0.0f; // Calculate total height for vertical alignment
+      //for (char c : text.m_words) 
+      //{
+      //    totalHeight += asset_font.GetGlyph(c).size.y + text.m_linespacing;
+      //}
 
-      std::string remainingWords = text.m_words;
-      int currentIndex = 0;
-      for (char c : text.m_words) 
+      //std::string remainingWords = text.m_words;
+      //int currentIndex = 0;
+      //for (char c : text.m_words) 
+      //{
+      //    const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+      //    maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+      //    if (lineWidth + glyph.advance > text.m_maxwidthtextbox && c == ' ')
+      //    {
+      //        pen_pos.y += maxLineHeight + text.m_linespacing;
+      //        lineWidth = 0.0f;
+      //        remainingWords = remainingWords.substr(currentIndex);
+      //        pen_pos.x = setAlignment(text.m_alignment, remainingWords).x;
+      //        currentIndex = 1;
+      //        continue;
+      //    }
+      //    renderGlyph(glyph, pen_pos);
+      //    pen_pos.x += glyph.advance + text.m_letterspacing;
+      //    lineWidth += glyph.advance + text.m_letterspacing;
+      //    ++currentIndex;
+      //}
+      //glBindVertexArray(0);
+      //glBindTexture(GL_TEXTURE_2D, 0);
+      // Lambda to categorize and process words
+      auto splitIntoWords = [&](const std::string& input) -> std::vector<std::string> 
       {
-          const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-          maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-          if (lineWidth + glyph.advance > text.m_maxwidthtextbox && c == ' ')
-          {
+          std::vector<std::string> words;
+          std::string currentWord;
+          for (char c : input) {
+              if (c == ' ' || c == '\n') {
+                  if (!currentWord.empty()) {
+                      words.push_back(currentWord);
+                      currentWord.clear();
+                  }
+                  if (c == '\n') {
+                      words.push_back("\n"); // Explicit newline
+                  }
+              }
+              else {
+                  currentWord += c;
+              }
+          }
+          if (!currentWord.empty()) {
+              words.push_back(currentWord);
+          }
+          return words;
+      };
+
+      // Updated text rendering logic
+      auto words = splitIntoWords(text.m_words);
+      Vector2 origin_pen_pos = getAlignmentoffset(text.m_alignment, text.m_words);
+      Vector2 pen_pos = origin_pen_pos;
+      float lineWidth = 0.0f, totalHeight = 0.0f, maxLineHeight = 0.0f;
+      const Asset::Glyph& space = asset_font.GetGlyph(' ');
+      for (const std::string& word : words) 
+      {
+          if (word == "\n") // Handle explicit line break
+          { 
               pen_pos.y += maxLineHeight + text.m_linespacing;
               lineWidth = 0.0f;
-              remainingWords = remainingWords.substr(currentIndex);
-              pen_pos.x = setAlignment(text.m_alignment, remainingWords).x;
-              currentIndex = 0;
+              maxLineHeight = 0.0f;
+              continue;
           }
-          renderGlyph(glyph, pen_pos);
-          pen_pos.x += glyph.advance + text.m_letterspacing;
-          lineWidth += glyph.advance + text.m_letterspacing;
-          ++currentIndex;
+
+          float wordWidth = 0.0f;
+          float wordHeight = 0.0f;
+          std::vector<Asset::Glyph> wordGlyphs;
+
+          // Measure word dimensions and gather glyphs
+          for (char c : word) 
+          {
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+              wordWidth += glyph.advance + text.m_letterspacing;
+              wordHeight = std::max(wordHeight, glyph.size.y);
+              wordGlyphs.push_back(glyph);
+          }
+
+          // Check if word fits in the current line
+          if (lineWidth + wordWidth > text.m_maxwidthtextbox) 
+          {
+              // Move to the next line
+              pen_pos.x = origin_pen_pos.x;
+              pen_pos.y += maxLineHeight + text.m_linespacing;
+              totalHeight += maxLineHeight + text.m_linespacing;
+              lineWidth = 0.0f;
+              maxLineHeight = 0.0f;
+
+              // Stop rendering if vertical overflow occurs
+              if (totalHeight + wordHeight > text.m_maxheighttextbox) 
+              {
+                  break;
+              }
+
+              // Handle long unbroken words (split across lines)
+              if (wordWidth > text.m_maxwidthtextbox) 
+              {
+                  for (const Asset::Glyph& glyph : wordGlyphs) 
+                  {
+                      if (lineWidth + glyph.advance > text.m_maxwidthtextbox) 
+                      {
+                          pen_pos.x = origin_pen_pos.x;
+                          pen_pos.y += maxLineHeight + text.m_linespacing;
+                          totalHeight += maxLineHeight + text.m_linespacing;
+                          lineWidth = 0.0f;
+                          maxLineHeight = 0.0f;
+                          if (totalHeight + glyph.size.y > text.m_maxheighttextbox) 
+                          {
+                              break;
+                          }
+                      }
+                      renderGlyph(glyph, pen_pos);
+                      pen_pos.x += glyph.advance + text.m_letterspacing;
+                      lineWidth += glyph.advance + text.m_letterspacing;
+                      maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+                  }
+                  continue;
+              }
+          }
+
+          // Render the word
+          for (const Asset::Glyph& glyph : wordGlyphs) 
+          {
+              renderGlyph(glyph, pen_pos);
+              pen_pos.x += glyph.advance + text.m_letterspacing;
+          }
+
+          // Render the spacing
+          pen_pos.x += space.advance + text.m_letterspacing;
+
+          lineWidth += wordWidth;
+          maxLineHeight = std::max(maxLineHeight, wordHeight);
       }
+
+      // Cleanup
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
