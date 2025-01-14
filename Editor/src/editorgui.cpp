@@ -195,12 +195,9 @@ namespace Editor
 		if (filename != "(no sprite)")
 		{
 			std::string asset_key = current_texture.string();
-			AssetVariant* asset_ptr = AssetManager::Get(asset_key);
-			if (asset_ptr)
-			{
-				Asset::Texture& texture = std::get<Asset::Texture>(*asset_ptr);
-				ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
-			}
+      
+			Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
+			ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
 		}
 
 		PopID();

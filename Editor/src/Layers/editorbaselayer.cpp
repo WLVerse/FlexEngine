@@ -11,57 +11,38 @@
 
 #include "Layers.h"
 #include "editor.h"
-
-#define TESTCOMPONENTVIEWER 1
-#if TESTCOMPONENTVIEWER
+#include "FlexEngine/FlexECS/enginecomponents.h"
+#include "editorcomponents.h"
 #include "componentviewer.h"
-#include "testcomponentviewer.h"
-#endif
-
-#define SPRITESHEET_TEST
 
 namespace Editor
 {
-
-  #if TESTCOMPONENTVIEWER
-  COMPONENT_VIEWER_START(Position)
-    COMPONENT_VIEWER_DRAG_VECTOR2(position)
-  COMPONENT_VIEWER_END(Position)
-
-  COMPONENT_VIEWER_START(Rotation)
-    COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
-  COMPONENT_VIEWER_END(Rotation)
-
-  COMPONENT_VIEWER_START(Scale)
-    COMPONENT_VIEWER_DRAG_VECTOR2(scale)
-  COMPONENT_VIEWER_END(Scale)
-
-  COMPONENT_VIEWER_START(Transform)
-    COMPONENT_VIEWER_BOOL(is_dirty)
-    COMPONENT_VIEWER_MAT44(transform)
-  COMPONENT_VIEWER_END(Transform)
-  #endif
 
   void EditorBaseLayer::OnAttach()
   {
 
     // test scene
-    #if 0
+    #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 0");
         entity.AddComponent<Vector2>({ 2, 4 });
+        entity.AddComponent<Transform>({});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 1");
         entity.AddComponent<Vector2>({ 35, 42 });
+        entity.AddComponent<Rotation>({});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2");
         entity.AddComponent<Vector2>({ 1, 2 });
         entity.AddComponent<Vector3>({ 1, 2, 3 });
         entity.AddComponent<Position>({});
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Scale>({});
+        entity.AddComponent<Transform>({});
       }
       //scene->DumpArchetypeIndex();
     }
@@ -120,12 +101,7 @@ namespace Editor
     #endif
 
     Editor::GetInstance().Init();
-
-    REGISTER_COMPONENT_VIEWER(Position);
-    REGISTER_COMPONENT_VIEWER(Rotation);
-    REGISTER_COMPONENT_VIEWER(Scale);
-    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Transform, COMPONENT_ENABLE_ADD, COMPONENT_DISABLE_REMOVE);
-
+    RegisterComponents();
   }
 
   void EditorBaseLayer::OnDetach()
@@ -174,6 +150,7 @@ namespace Editor
       );
     }
     #endif
+
     Editor::GetInstance().Update();
   }
 

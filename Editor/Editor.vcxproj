@@ -153,6 +153,7 @@
     <ClCompile Include="src\assetbrowser.cpp" />
     <ClCompile Include="src\componentviewer.cpp" />
     <ClCompile Include="src\editor.cpp" />
+    <ClCompile Include="src\editorcomponents.cpp" />
     <ClCompile Include="src\editorgui.cpp" />
     <ClCompile Include="src\hierarchyview.cpp" />
     <ClCompile Include="src\inspector.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="src\assetbrowser.h" />
     <ClInclude Include="src\componentviewer.h" />
     <ClInclude Include="src\editor.h" />
+    <ClInclude Include="src\editorcomponents.h" />
     <ClInclude Include="src\editorgui.h" />
     <ClInclude Include="src\editorpanel.h" />
     <ClInclude Include="src\editorsystem.h" />
@@ -182,7 +184,6 @@
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
     <ClInclude Include="src\selectionsystem.h" />
-    <ClInclude Include="src\testcomponentviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\flexengine\flexengine-256.ico" />

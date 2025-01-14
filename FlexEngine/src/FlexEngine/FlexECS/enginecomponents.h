@@ -10,12 +10,15 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 #pragma once
 
-#include "FlexEngine.h"
+#include "Reflection/base.h"
+#include "FlexECS/datastructures.h"
 #include "flx_api.h"
+#include "FlexMath/vector3.h"
+#include "FlexMath/matrix4x4.h"
 
 namespace FlexEngine
 {
-  using EntityName = FlexEngine::FlexECS::Scene::StringIndex;
+  using EntityName = std::string;
 
   /*!***************************************************************************
   * \class Position
@@ -37,7 +40,7 @@ namespace FlexEngine
   * how large or small the entity should be. The scale is defined using
   * a 2D vector.
   ******************************************************************************/
-  class Scale
+  class __FLX_API Scale
   {
     FLX_REFL_SERIALIZABLE
   public:
@@ -50,7 +53,7 @@ namespace FlexEngine
   * This class represents the rotation of an entity in 3D space. It uses
   * a 3D vector to define rotations along the x, y, and z axes.
   ******************************************************************************/
-  class Rotation
+  class __FLX_API Rotation
   {
     FLX_REFL_SERIALIZABLE
   public:
@@ -63,7 +66,7 @@ namespace FlexEngine
   * Transformation holds the final transformation matrix of an entity and decides whether it is active or not.
   * This component should only ever exist with Position, Scale, and Rotation components.
   ******************************************************************************/
-  class Transform
+  class __FLX_API Transform
   {
     FLX_REFL_SERIALIZABLE
   public:
@@ -79,7 +82,7 @@ namespace FlexEngine
   * rendering order relative to other entities. Higher `z` values are drawn
   * on top of lower ones.
   ******************************************************************************/
-  class ZIndex
+  class __FLX_API ZIndex
   {
     FLX_REFL_SERIALIZABLE
   public:
@@ -93,7 +96,7 @@ namespace FlexEngine
   * transformations where a child entity inherits its parent�s transformation
   * matrix. It supports complex scene graph structures.
   ******************************************************************************/
-  class Parent
+  class __FLX_API Parent
   {
     FLX_REFL_SERIALIZABLE
   public:
@@ -105,7 +108,7 @@ namespace FlexEngine
   * \brief 
   * This class represents the audio component of an entity
   ******************************************************************************/
-  class Audio
+  class __FLX_API Audio
   {
     FLX_REFL_SERIALIZABLE
   public:
