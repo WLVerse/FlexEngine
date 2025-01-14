@@ -1,0 +1,117 @@
+﻿// WLVERSE [https://wlverse.web.app]
+// EngineComponents.h
+// 
+// All components that the base engine supports
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2024 DigiPen, All rights reserved.
+#pragma once
+
+#include "FlexEngine.h"
+#include "flx_api.h"
+
+namespace FlexEngine
+{
+  using EntityName = FlexEngine::FlexECS::Scene::StringIndex;
+
+  /*!***************************************************************************
+  * \class Position
+  * \brief
+  * This class represents the position of an entity in 2D space. It defines
+  * where the entity is located in the scene using a 2D vector.
+  ******************************************************************************/
+  class __FLX_API Position
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector3 position = Vector3::Zero;
+  };
+
+  /*!***************************************************************************
+  * \class Scale
+  * \brief
+  * This class represents the scale of an entity in 2D space, determining
+  * how large or small the entity should be. The scale is defined using
+  * a 2D vector.
+  ******************************************************************************/
+  class Scale
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector3 scale = Vector3::One;
+  };
+
+  /*!***************************************************************************
+  * \class Rotation
+  * \brief
+  * This class represents the rotation of an entity in 3D space. It uses
+  * a 3D vector to define rotations along the x, y, and z axes.
+  ******************************************************************************/
+  class Rotation
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector3 rotation = Vector3::Zero;
+  };
+  
+  /*!***************************************************************************
+  * \class Transform
+  * \brief
+  * Transformation holds the final transformation matrix of an entity and decides whether it is active or not.
+  * This component should only ever exist with Position, Scale, and Rotation components.
+  ******************************************************************************/
+  class Transform
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    bool is_dirty = true; //Determines if transform needs to be updated
+    Matrix4x4 transform = Matrix4x4::Identity;
+    bool is_active = true;
+  };
+
+  /*!***************************************************************************
+  * \class ZIndex
+  * \brief
+  * This class represents the z-order (depth) of an entity, determining its
+  * rendering order relative to other entities. Higher `z` values are drawn
+  * on top of lower ones.
+  ******************************************************************************/
+  class ZIndex
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    int z;
+  };
+
+  /*!***************************************************************************
+  * \class Parent
+  * \brief
+  * This class represents the parent entity of an entity, enabling hierarchical
+  * transformations where a child entity inherits its parent�s transformation
+  * matrix. It supports complex scene graph structures.
+  ******************************************************************************/
+  class Parent
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Entity parent = FlexECS::Entity::Null;
+  };
+
+  /*!***************************************************************************
+  * \class Audio
+  * \brief 
+  * This class represents the audio component of an entity
+  ******************************************************************************/
+  class Audio
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    bool should_play;
+    bool should_stop;
+    bool is_looping;
+    std::string audio_file;
+  };
+}

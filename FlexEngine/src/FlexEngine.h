@@ -196,6 +196,8 @@
 
 #include "FlexEngine/FMOD/FMODWrapper.h"
 
+// Include declarations for engine components
+#include "FlexEngine/FlexECS/enginecomponents.h"
 
 // temp
 #include "FlexEngine/FlexScripting/iscript.h"

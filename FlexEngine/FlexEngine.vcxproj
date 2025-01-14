@@ -180,6 +180,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\DataStructures\freequeue.cpp" />
     <ClCompile Include="src\FlexEngine\DataStructures\functionqueue.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\datastructures.cpp" />
+    <ClCompile Include="src\FlexEngine\FlexECS\enginecomponents.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\entity.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\flexid.cpp" />
     <ClCompile Include="src\FlexEngine\FlexECS\scene.cpp" />
@@ -238,6 +239,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\DataStructures\range.h" />
     <ClInclude Include="src\FlexEngine\flexassert.h" />
     <ClInclude Include="src\FlexEngine\FlexECS\datastructures.h" />
+    <ClInclude Include="src\FlexEngine\FlexECS\enginecomponents.h" />
     <ClInclude Include="src\FlexEngine\FlexECS\flexid.h" />
     <ClInclude Include="src\FlexEngine\flexlogger.h" />
     <ClInclude Include="src\FlexEngine\FlexMath\mathconversions.h" />

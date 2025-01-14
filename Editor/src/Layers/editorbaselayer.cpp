@@ -35,6 +35,7 @@ namespace Editor
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2");
         entity.AddComponent<Vector2>({ 1, 2 });
         entity.AddComponent<Vector3>({ 1, 2, 3 });
+        entity.AddComponent<Position>({});
       }
       //scene->DumpArchetypeIndex();
     }
