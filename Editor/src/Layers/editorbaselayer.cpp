@@ -143,7 +143,7 @@ namespace Editor
       if (Input::GetKey(GLFW_KEY_J))
           extra += "j";
       Renderer2DText sample;
-      static std::string fullText = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent";//"The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+      static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
       static std::string displayedText = ""; // Start with an empty string
       static float elapsedTime = 0.0f;       // To track time
       elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
@@ -163,13 +163,13 @@ namespace Editor
       //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
       //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
       //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
-      sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
-      //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+      //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
+      sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
       //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
       //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
       //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
       //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
-      //sample.m_maxwidthtextbox = 750.0f;
+      sample.m_maxwidthtextbox = 850.0f;
 
       OpenGLRenderer::DrawTexture2D(camera, sample);
     }
