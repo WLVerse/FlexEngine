@@ -154,9 +154,15 @@ namespace FlexEngine
           assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
           FLX_FLOW_ENDSCOPE();
         }
-        else if (
-          file_extension.string() == ".flxspritesheet"
-        )
+        else if (file_extension.string() == ".ttf")
+        {
+            FLX_FLOW_BEGINSCOPE();
+            AssetKey key = file.path.string().substr(default_directory_length);
+            assets[key] = Asset::Font{ key };
+            FLX_FLOW_ENDSCOPE();
+            Log::Info("Loaded font path: " + key);
+        }
+        else if (file_extension.string() == ".flxspritesheet")
         {
           // create an asset key
           AssetKey key = file.path.string().substr(default_directory_length);

@@ -116,6 +116,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/wd4099 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -205,7 +206,9 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\Reflection\primitives.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\buffer.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\Camera\camera.cpp" />
+    <ClCompile Include="src\FlexEngine\Renderer\Camera\cameramanager.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglbuffer.cpp" />
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglfont.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglmaterial.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglmesh.cpp" />
@@ -267,9 +270,10 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\Reflection\base.h" />
     <ClInclude Include="src\FlexEngine\Renderer\buffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h" />
-    <ClInclude Include="src\FlexEngine\Renderer\Camera\deletethisshit.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\Camera\cameramanager.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglbuffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengldebugger.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglfont.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmaterial.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglmesh.h" />

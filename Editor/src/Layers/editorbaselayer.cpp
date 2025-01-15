@@ -119,7 +119,7 @@ namespace Editor
     ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
-
+  
     // spritesheet test
     // draw a sprite with render system
     #if 1
@@ -148,6 +148,41 @@ namespace Editor
         Vector2(1600.0f, 900.0f),
         Renderer2DProps::Alignment_TopLeft
       );
+
+
+      static std::string extra = "";
+      if (Input::GetKey(GLFW_KEY_J))
+          extra += "j";
+      Renderer2DText sample;
+      static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+      static std::string displayedText = ""; // Start with an empty string
+      static float elapsedTime = 0.0f;       // To track time
+      elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
+      if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
+          displayedText += fullText[displayedText.size()]; // Append the next character
+          elapsedTime = 0.0f; // Reset the timer
+      }
+      sample.m_words = displayedText;
+      //sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
+      sample.m_color = Vector3::Zero;
+      sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+      sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
+          0.00, 1.00, 0.00, 0.00,
+          0.00, 0.00, 1.00, 0.00,
+           822.00, 248.00, 0.00, 1.00);
+      sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+      //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
+      //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
+      //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
+      //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
+      sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+      //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
+      //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
+      //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
+      //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
+      sample.m_maxwidthtextbox = 850.0f;
+
+      OpenGLRenderer::DrawTexture2D(camera, sample);
     }
     #endif
 
