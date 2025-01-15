@@ -330,8 +330,7 @@ namespace FlexEngine
       auto calculateTextBoxDimensions = [&](const std::string& words) -> std::pair<float, float>
       {
           float totalHeight = 0.0f, maxLineHeight = asset_font.GetGlyph('A').size.y;
-          float totalWidth = 0.0f, maxWidth = 0.0f;
-          float currentLineWidth = 0.0f;
+          float maxWidth = 0.0f, currentLineWidth = 0.0f;
 
           for (char c : words)
           {
@@ -355,7 +354,7 @@ namespace FlexEngine
               {
                   maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
                   totalHeight += maxLineHeight;
-                  currentLineWidth = glyph.advance + static_cast<int>(text.m_letterspacing); // Start new line
+                  currentLineWidth = static_cast<float>(glyph.advance) + text.m_letterspacing; // Start new line
                   maxLineHeight = glyph.size.y; // Reset line height for the new line
 
                   // Check if total height exceeds the maximum allowed height
