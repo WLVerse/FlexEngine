@@ -1,0 +1,30 @@
+#include "editorcomponents.h"
+#include "componentviewer.h"
+
+namespace Editor
+{
+  COMPONENT_VIEWER_START(Position)
+    COMPONENT_VIEWER_DRAG_VECTOR3(position)
+    COMPONENT_VIEWER_END(Position)
+
+    COMPONENT_VIEWER_START(Rotation)
+    COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
+    COMPONENT_VIEWER_END(Rotation)
+
+    COMPONENT_VIEWER_START(Scale)
+    COMPONENT_VIEWER_DRAG_VECTOR3(scale)
+    COMPONENT_VIEWER_END(Scale)
+
+    COMPONENT_VIEWER_START(Transform)
+    COMPONENT_VIEWER_BOOL(is_dirty)
+    COMPONENT_VIEWER_MAT44(transform)
+    COMPONENT_VIEWER_END(Transform)
+
+    void RegisterComponents()
+  {
+    REGISTER_COMPONENT_VIEWER(Position);
+    REGISTER_COMPONENT_VIEWER(Rotation);
+    REGISTER_COMPONENT_VIEWER(Scale);
+    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Transform, COMPONENT_ENABLE_ADD, COMPONENT_DISABLE_REMOVE);
+  }
+}

@@ -211,6 +211,9 @@
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\FlexECS\enginecomponents.cpp">
+      <Filter>src\FlexEngine\FlexECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -404,6 +407,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\FlexECS\enginecomponents.h">
+      <Filter>src\FlexEngine\FlexECS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,8 +10,10 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
-
-#define SPRITESHEET_TEST
+#include "editor.h"
+#include "FlexEngine/FlexECS/enginecomponents.h"
+#include "editorcomponents.h"
+#include "componentviewer.h"
 
 namespace Editor
 {
@@ -20,21 +22,27 @@ namespace Editor
   {
 
     // test scene
-    #if 0
+    #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 0");
         entity.AddComponent<Vector2>({ 2, 4 });
+        entity.AddComponent<Transform>({});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 1");
         entity.AddComponent<Vector2>({ 35, 42 });
+        entity.AddComponent<Rotation>({});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2");
         entity.AddComponent<Vector2>({ 1, 2 });
         entity.AddComponent<Vector3>({ 1, 2, 3 });
+        entity.AddComponent<Position>({});
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Scale>({});
+        entity.AddComponent<Transform>({});
       }
       //scene->DumpArchetypeIndex();
     }
@@ -92,6 +100,8 @@ namespace Editor
     }
     #endif
 
+    Editor::GetInstance().Init();
+    RegisterComponents();
   }
 
   void EditorBaseLayer::OnDetach()
@@ -105,7 +115,8 @@ namespace Editor
     FLX_IMGUI_ALIGNCONTEXT();
 
     // setup dockspace
-    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+    //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+    ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
     //#pragma warning(suppress: 4189) // local variable is initialized but not referenced
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
   
@@ -174,6 +185,8 @@ namespace Editor
       OpenGLRenderer::DrawTexture2D(camera, sample);
     }
     #endif
+
+    Editor::GetInstance().Update();
   }
 
 }

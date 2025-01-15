@@ -11,6 +11,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "third_party\ImGui\ImGui.vcxproj", "{109EA810-6B3C-4660-BAA8-29590973839B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests", "UnitTests\UnitTests.vcxproj", "{08B4C589-22F1-45A8-B50F-9ECF7785A4C7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3E5799F5-C88A-446F-929F-98F4F73BE2F5} = {3E5799F5-C88A-446F-929F-98F4F73BE2F5}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Editor", "Editor\Editor.vcxproj", "{FE4F065A-CE3A-4771-8483-54A6A7B0B456}"
 	ProjectSection(ProjectDependencies) = postProject
