@@ -105,7 +105,7 @@ namespace Editor
 
 	void AssetBrowser::RenderFolderDropdown(Folder& folder)
 	{
-		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow;
+		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
 		// Highlight the selected folder
 		if (m_selected_folder == &folder)
@@ -240,11 +240,16 @@ namespace Editor
 
 		if (ImGui::BeginPopup("AddFilePopup"))
 		{
-			ImGui::Text("Select Folder");
+			ImGui::Text(("Selecting Folder: " + m_selected_folder->name).c_str());
 
 			for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
 			{
-				RenderFolderDropdown(*subfolder);
+				ImVec2 dropdown_size(470.0f, 250.0f);
+				if (ImGui::BeginChild("FolderDropdown", dropdown_size, true, ImGuiWindowFlags_HorizontalScrollbar))
+				{
+					RenderFolderDropdown(*subfolder);
+					ImGui::EndChild();
+				}
 			}
 
 			ImGui::Separator();
