@@ -117,4 +117,22 @@ namespace FlexEngine
     bool is_looping;
     std::string audio_file;
   };
+
+  // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
+  class __FLX_API Sprite
+  {
+    FLX_REFL_SERIALIZABLE
+  };
+
+  // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
+  class __FLX_API Animator
+  {
+    FLX_REFL_SERIALIZABLE
+  };
+
+  // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
+  class __FLX_API Text
+  {
+    FLX_REFL_SERIALIZABLE
+  };
 }

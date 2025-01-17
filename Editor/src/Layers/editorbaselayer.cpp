@@ -43,6 +43,7 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({});
         entity.AddComponent<Transform>({});
+        entity.AddComponent<Audio>({true, false, false, "/audio/attack.mp3"});
       }
       //scene->DumpArchetypeIndex();
     }
