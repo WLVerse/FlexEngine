@@ -22,6 +22,7 @@ using namespace FlexEngine;
 #include "assetbrowser.h"
 #include "hierarchyview.h"
 #include "inspector.h"
+#include "prefabeditor.h"
 
 #include "selectionsystem.h"
 
@@ -68,6 +69,7 @@ namespace Editor
 		AssetBrowser m_assetbrowser;
 		HierarchyView m_hierarchy;
 		Inspector m_inspector;
+		PrefabEditor m_prefabeditor;
 		//SceneView m_sceneview;
 		//GameView m_gameview;
 

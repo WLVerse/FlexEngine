@@ -54,6 +54,9 @@
     <ClCompile Include="src\editorcomponents.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\prefabeditor.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -107,6 +110,9 @@
     </ClInclude>
     <ClInclude Include="src\editorcomponents.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prefabeditor.h">
+      <Filter>src\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
