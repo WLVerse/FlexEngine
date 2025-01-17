@@ -12,6 +12,8 @@ namespace Editor
 
 	void AssetBrowser::Update()
 	{
+		RenderDeleteConfirmationPopup();
+
 		if (m_should_delete_file)
 		{
 			if (std::filesystem::exists(m_file_to_delete))
@@ -139,10 +141,46 @@ namespace Editor
 			{
 				if (std::filesystem::exists(m_root_directory / file))
 				{
-					m_should_delete_file = true;
 					m_file_to_delete = m_root_directory / file;
+					m_show_delete_confirmation = true;
 				}
 			}
+			ImGui::EndPopup();
+		}
+	}
+
+	void AssetBrowser::RenderDeleteConfirmationPopup()
+	{
+		if (m_show_delete_confirmation)
+		{
+			ImGui::OpenPopup("Confirm Delete");
+		}
+
+		if (ImGui::BeginPopupModal("Confirm Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Are you sure you want to delete this file?\nThis action cannot be undone.");
+			ImGui::Separator();
+
+			ImGui::Text("File: %s", m_file_to_delete.filename().string().c_str());
+
+			if (ImGui::Button("Yes"))
+			{
+				if (std::filesystem::exists(m_file_to_delete))
+				{
+					m_should_delete_file = true;
+				}
+				m_show_delete_confirmation = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("No"))
+			{
+				m_show_delete_confirmation = false; // Cancel deletion
+				ImGui::CloseCurrentPopup();
+			}
+
 			ImGui::EndPopup();
 		}
 	}
