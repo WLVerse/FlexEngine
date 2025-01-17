@@ -50,10 +50,17 @@ namespace Editor
 		******************************************************************************/
 		void AddToDirectoryStructure(const std::filesystem::path& entry);
 
+		void RenderFolderDropdown(Folder& folder);
 
-		const std::filesystem::path m_root_directory = "./assets";
+		void DeleteFilePopup(std::filesystem::path& file);
+
+		const std::filesystem::path m_root_directory = "../../assets";
 
 		std::filesystem::path m_selected_file = "";
+		Folder* m_selected_folder;
+
+		bool m_should_delete_file;
+		std::filesystem::path m_file_to_delete;
 
 		std::unordered_map<std::filesystem::path, Folder> m_directories;
 		Folder m_root_folder;	//Need to know what's inside the root folder is so we know where to start displaying
@@ -61,6 +68,8 @@ namespace Editor
 		//Additional tracking of certain file types
 		//For things such as font dropdown menus.
 		std::vector<std::string> m_font_paths;
+
+		char m_text_input[128] = "";	//create file name, search...
 	};
 
 
