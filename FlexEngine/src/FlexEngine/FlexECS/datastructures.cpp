@@ -59,8 +59,6 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(_archetype_index)
       FLX_REFL_REGISTER_PROPERTY(entity_index)
       FLX_REFL_REGISTER_PROPERTY(component_index)
-      FLX_REFL_REGISTER_PROPERTY(string_storage)
-      FLX_REFL_REGISTER_PROPERTY(string_storage_free_list)
     FLX_REFL_REGISTER_END;
 
     #pragma endregion
