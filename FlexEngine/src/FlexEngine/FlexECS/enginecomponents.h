@@ -122,12 +122,15 @@ namespace FlexEngine
   class __FLX_API Sprite
   {
     FLX_REFL_SERIALIZABLE
+    std::string sprite;
   };
 
   // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
   class __FLX_API Animator
   {
     FLX_REFL_SERIALIZABLE
+    std::string spritesheet_file;
+    bool should_play = true;
   };
 
   // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!

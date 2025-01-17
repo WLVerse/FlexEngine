@@ -130,6 +130,7 @@ namespace FlexEngine
 
     // Create a new ComponentData<void>
     __FLX_API ComponentData<void> Internal_CreateComponentData(std::size_t size, void* data);
+    __FLX_API ComponentData<void> Internal_CreateComponentData_string(void* data);
 
     // Get the size and data pointer from a ComponentData<void>
     __FLX_API std::pair<std::size_t, void*> Internal_GetComponentData(ComponentData<void> data);
