@@ -243,31 +243,6 @@ namespace FlexEngine
       std::unordered_map<ComponentID, ArchetypeMap> component_index;
 
 
-      #pragma region String Storage
-
-    public:
-      using StringIndex = std::size_t;
-
-    private:
-      // String storage to prevent strings from being freed.
-      // Components that are strings should store the index of the string in this vector.
-      std::vector<std::string> string_storage;
-
-      // Strings that are removed from the string storage are added to this list.
-      // New strings will always use the first available index in this list.
-      std::vector<StringIndex> string_storage_free_list;
-
-    public:
-      std::string& Internal_StringStorage_Get(StringIndex index);
-
-      StringIndex Internal_StringStorage_New(const std::string& str);
-      void Internal_StringStorage_Delete(StringIndex index);
-
-      // Defragment the string storage by moving all strings to the front of the vector
-      // void Internal_StringStorage_Defragment();
-
-      #pragma endregion
-
       #pragma region ECS View
 
     public:
