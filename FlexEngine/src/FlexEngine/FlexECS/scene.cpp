@@ -88,7 +88,16 @@ namespace FlexEngine
       // type erasure
       T data_copy = name;
       void* data_copy_ptr = reinterpret_cast<void*>(&data_copy);
+
+      // Create the component data
+      // There's a special case for strings because they are not trivially copyable
+#if false
       ComponentData<void> data_ptr = Internal_CreateComponentData(sizeof(T), data_copy_ptr);
+#else
+      // Use the string specialization because the type is a string
+      FLX_ASSERT(typeid(T) == typeid(std::string), "The type in Scene::CreateEntity must be a string.");
+      ComponentData<void> data_ptr = Internal_CreateComponentData_StdString(data_copy_ptr);
+#endif
 
       // Get the archetype for the entity
       ComponentIDList type = { component };

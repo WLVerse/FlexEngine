@@ -112,8 +112,17 @@ void FlexEngine::FlexECS::Entity::AddComponent(const T& data)
   T data_copy = data;
   void* data_copy_ptr = reinterpret_cast<void*>(&data_copy);
 
-  // if the type is std::string, run Internal_CreateComponentData_string instead
-  ComponentData<void> data_ptr = std::is_same<T, std::string>::value ? Internal_CreateComponentData_string(data_copy_ptr) : Internal_CreateComponentData(sizeof(T), data_copy_ptr);
+  // if the type is std::string, run Internal_CreateComponentData_StdString instead
+  // std::string is not trivially copyable, so it needs a special case
+  ComponentData<void> data_ptr = nullptr;
+  if (std::is_same<T, std::string>::value)
+  {
+    data_ptr = Internal_CreateComponentData_StdString(data_copy_ptr);
+  }
+  else
+  {
+    data_ptr = Internal_CreateComponentData(sizeof(T), data_copy_ptr);
+  }
 
   // figure out the current archetype for the entity
   EntityRecord& entity_record = ENTITY_INDEX[entity];

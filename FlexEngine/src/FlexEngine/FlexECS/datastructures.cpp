@@ -83,11 +83,12 @@ namespace FlexEngine
     }
 
     // Special case for std::string
-    // Copy the entire std::string object first
-    // Then allocate memory for the string data and copy it over as well
-    // Set the new data pointer to the string data
-    __FLX_API ComponentData<void> Internal_CreateComponentData_string(void* data)
+    // Copy the entire std::string object
+    __FLX_API ComponentData<void> Internal_CreateComponentData_StdString(void* data)
     {
+      // Cast to std::string
+      std::string& data_string = *reinterpret_cast<std::string*>(data);
+
       // Create a new data structure
       std::size_t size = sizeof(std::string);
       void* ptr = new char[sizeof(std::size_t) + size];
@@ -97,29 +98,31 @@ namespace FlexEngine
         return nullptr;
       }
 
-      // Copy the size of the data
+      // Copy the size of the data 
       memcpy(ptr, &size, sizeof(std::size_t));
 
-      // Allocate more memory for the string data
-      std::string* _data = reinterpret_cast<std::string*>(data);
-      std::size_t string_size = _data->size();
-      void* string_ptr = new char[string_size];
-      if (!string_ptr)
-      {
-        FLX_ASSERT(false, "Failed to allocate memory for component data!");
-        return nullptr;
-      }
+      // Uses the placement new operator to copy the std::string object
+      // This operator constructs an object in the memory allocated by the new operator
+      // It is important to note that the std::string object is not copied, but the data inside the object is copied
+      void* string_memory = reinterpret_cast<char*>(ptr) + sizeof(size_t);
+      new (string_memory) std::string(data_string); // Placement new
 
-      // Copy the data
-      memcpy(reinterpret_cast<std::size_t*>(ptr) + 1, data, size);
+      return ComponentData<void>(
+        ptr,
+        [](void* ptr)
+        {
+          // Split the ptr first to free the std::string*
+          void* data_ptr = reinterpret_cast<void*>(reinterpret_cast<std::size_t*>(ptr) + 1);
 
-      // Copy the string data
-      memcpy(string_ptr, m_data->c_str(), string_size);
-      
-      // Copy the string data pointer
+          // Doing this will clear the memory allocated for the std::string data
+          std::string* data_string = reinterpret_cast<std::string*>(data_ptr);
 
+          // Call the destructor of the std::string object
+          data_string->~basic_string();
 
-      return ComponentData<void>(ptr, [](void* ptr) { delete[] reinterpret_cast<char*>(ptr); });
+          delete[] reinterpret_cast<char*>(ptr);
+        }
+      );
     }
 
     __FLX_API std::pair<std::size_t, void*> Internal_GetComponentData(ComponentData<void> data)
