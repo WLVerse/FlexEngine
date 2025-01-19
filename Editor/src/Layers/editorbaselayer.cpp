@@ -36,7 +36,7 @@ namespace Editor
         entity.AddComponent<Rotation>({});
       }
       {
-        FlexECS::Entity entity = scene->CreateEntity("Save Test 2");
+        FlexECS::Entity entity = scene->CreateEntity("Save Test 2222222222222222222");
         entity.AddComponent<Vector2>({ 1, 2 });
         entity.AddComponent<Vector3>({ 1, 2, 3 });
         entity.AddComponent<Position>({});
