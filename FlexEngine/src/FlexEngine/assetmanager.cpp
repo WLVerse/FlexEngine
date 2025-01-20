@@ -152,6 +152,7 @@ namespace FlexEngine
           FLX_FLOW_BEGINSCOPE();
           AssetKey key = file.path.string().substr(default_directory_length);
           assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
+          Log::Info("Loaded sound path: " + key);
           FLX_FLOW_ENDSCOPE();
         }
         else if (file_extension.string() == ".ttf")
