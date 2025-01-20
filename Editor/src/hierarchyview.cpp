@@ -58,8 +58,8 @@ namespace Editor
 			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 			new_entity.AddComponent<Transform>({});
 			new_entity.AddComponent<ZIndex>({});
-			new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
-			new_entity.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
+			new_entity.AddComponent<Sprite>({ FLX_STRING_NEW(image_key) });
+			new_entity.AddComponent<Shader>({ FLX_STRING_NEW(R"(\shaders\texture)") });
 			EditorGUI::EndPayloadReceiver();
 		}
 		#endif
@@ -93,7 +93,7 @@ namespace Editor
 			EditorGUI::PushID();
 			FlexECS::Entity entity(id);
 
-			std::string name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
+			std::string name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
 			ImGuiTreeNodeFlags node_flags =
 				ImGuiTreeNodeFlags_DefaultOpen |
 				ImGuiTreeNodeFlags_FramePadding |

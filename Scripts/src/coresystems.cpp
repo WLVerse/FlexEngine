@@ -31,7 +31,7 @@ public:
         if (audio->audio_file == "")
         {
           Log::Warning("Audio not attached to entity: " +
-            FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()));
+            FLX_STRING_GET(*element.GetComponent<EntityName>()));
 
           audio->should_play = false;
           continue;
@@ -39,13 +39,13 @@ public:
 
        /* if (audio->is_looping)
         {
-          FMODWrapper::Core::PlayLoopingSound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
-                                              FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+          FMODWrapper::Core::PlayLoopingSound(FLX_STRING_GET(*element.GetComponent<EntityName>()),
+                                              FLX_ASSET_GET(Asset::Sound, AssetKey{ FLX_STRING_GET(element.GetComponent<Audio>()->audio_file) }));
         }
         else
         {
-          FMODWrapper::Core::PlaySound(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*element.GetComponent<EntityName>()),
-                                       FLX_ASSET_GET(Asset::Sound, AssetKey{ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(element.GetComponent<Audio>()->audio_file) }));
+          FMODWrapper::Core::PlaySound(FLX_STRING_GET(*element.GetComponent<EntityName>()),
+                                       FLX_ASSET_GET(Asset::Sound, AssetKey{ FLX_STRING_GET(element.GetComponent<Audio>()->audio_file) }));
         }*/
 
         element.GetComponent<Audio>()->should_play = false;

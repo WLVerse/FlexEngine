@@ -245,6 +245,29 @@ namespace FlexEngine
 
       #pragma region String Storage
 
+      // String storage to prevent strings from being freed.
+      // std::strings are not trivially copyable, so they cannot be stored in the archetype_table.
+      // We solve this problem by storing the strings in a separate vector and storing the index in the archetype_table.
+      // This way, the strings are not freed when the archetype_table is cleared.
+      // This is also useful for deduplicating strings if the same string is used multiple times.
+
+      // Macros for access to the string storage
+
+      // Get a string from the string storage using its index.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_GET(index) or FLX_STRING_GET(3)
+      #define FLX_STRING_GET(index) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(index)
+
+      // Add a string to the string storage.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_NEW(string) or FLX_STRING_NEW(R("string"))
+      #define FLX_STRING_NEW(string) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(string)
+
+      // Remove a string from the string storage.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_DELETE(index) or FLX_STRING_DELETE(3)
+      #define FLX_STRING_DELETE(index) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Delete(index)
+
     public:
       using StringIndex = std::size_t;
 

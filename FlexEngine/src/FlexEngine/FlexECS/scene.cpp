@@ -126,7 +126,7 @@ namespace FlexEngine
       ComponentID component = Reflection::TypeResolver<T>::Get()->name;
 
       // type erasure
-      T data_copy = Scene::GetActiveScene()->Internal_StringStorage_New(name);
+      T data_copy = FLX_STRING_NEW(name);
       void* data_copy_ptr = reinterpret_cast<void*>(&data_copy);
       ComponentData<void> data_ptr = Internal_CreateComponentData(sizeof(T), data_copy_ptr);
 

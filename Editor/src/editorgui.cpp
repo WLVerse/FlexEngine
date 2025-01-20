@@ -130,7 +130,7 @@ namespace Editor
 		std::string entity_name{ "(no entity)" };
 		if (entity != FlexECS::Entity::Null)
 		{
-			entity_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
+			entity_name = FLX_STRING_GET(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
 		}
 
 		ImGui::BeginGroup();
