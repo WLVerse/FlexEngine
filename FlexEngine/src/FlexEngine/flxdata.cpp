@@ -25,7 +25,8 @@ namespace FlexEngine
     void FlxData::Load()
     {
       // If FlxData doesn't exist, create it.
-      std::ifstream ifs(Path::current("assets" + SAVE_FILE_NAME).c_str()); // asset/SAVE_FILE_NAME
+      //std::ifstream ifs(Path::current("assets" + SAVE_FILE_NAME).c_str()); // asset/SAVE_FILE_NAME
+      std::ifstream ifs(Path::current(SAVE_FILE_NAME).c_str()); // asset/SAVE_FILE_NAME
       if (!ifs.is_open())
       {
         Log::Warning("Failed to open flxdata, creating a new one with name: " + SAVE_FILE_NAME);
@@ -48,7 +49,8 @@ namespace FlexEngine
     void FlxData::Save(bool prettify)
     {
       // Check for validity of file to write to, if not writeable, create a new one.
-      std::ofstream ofs(Path::current("assets" + SAVE_FILE_NAME).c_str());
+      std::ofstream ofs(Path::current(SAVE_FILE_NAME).c_str());
+      //std::ofstream ofs(Path::current("assets" + SAVE_FILE_NAME).c_str());
       if (!ofs.is_open())
       {
         Log::Fatal("Failed to open flxdata: Creating a default one with name: " + SAVE_FILE_NAME);

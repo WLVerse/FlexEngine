@@ -28,7 +28,8 @@ namespace Editor
 		void Shutdown();
 
 	private:
-
+		std::vector<std::pair<std::string, std::variant<std::string, bool, int>>> prefab_keys;
+		std::string file_name;
 	};
 
 }
