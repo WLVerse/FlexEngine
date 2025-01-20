@@ -244,6 +244,70 @@ namespace FlexEngine
       std::unordered_map<ComponentID, ArchetypeMap> component_index;
 
 
+      #pragma region String Storage
+
+      // String storage to prevent strings from being freed.
+      // std::strings are not trivially copyable, so they cannot be stored in the archetype_table.
+      // We solve this problem by storing the strings in a separate vector and storing the index in the archetype_table.
+      // This way, the strings are not freed when the archetype_table is cleared.
+      // This is also useful for deduplicating strings if the same string is used multiple times.
+      // StringIndex 0 is reserved for null strings.
+
+      // Macros for access to the string storage
+
+      // Get a string from the string storage using its index.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_GET(index) or FLX_STRING_GET(3)
+      #define FLX_STRING_GET(index) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(index)
+
+      // Add a string to the string storage.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_NEW(string) or FLX_STRING_NEW(R"(string)")
+      #define FLX_STRING_NEW(string) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(string)
+
+      // Remove a string from the string storage.
+      // This macro works on the active scene.
+      // Usage: FLX_STRING_DELETE(index) or FLX_STRING_DELETE(3)
+      #define FLX_STRING_DELETE(index) FlexEngine::FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Delete(index)
+
+      // Null string index
+      #define FLX_STRING_NULL 0
+
+    public:
+      using StringIndex = std::size_t;
+
+    private:
+      // String storage to prevent strings from being freed.
+      // Components that are strings should store the index of the string in this vector.
+      std::vector<std::string> string_storage = { "" };
+
+      // Strings that are removed from the string storage are added to this list.
+      // New strings will always use the first available index in this list.
+      std::vector<StringIndex> string_storage_free_list = {};
+
+    public:
+      // INTERNAL FUNCTION
+      // Prefer using the macros FLX_STRING_GET, FLX_STRING_NEW, and FLX_STRING_DELETE
+      std::string& Internal_StringStorage_Get(StringIndex index);
+
+      // INTERNAL FUNCTION
+      // Prefer using the macros FLX_STRING_GET, FLX_STRING_NEW, and FLX_STRING_DELETE
+      StringIndex Internal_StringStorage_New(const std::string& str);
+
+      // INTERNAL FUNCTION
+      // Prefer using the macros FLX_STRING_GET, FLX_STRING_NEW, and FLX_STRING_DELETE
+      void Internal_StringStorage_Delete(StringIndex index);
+
+      // INTERNAL FUNCTION
+      // Defragment the string storage by moving all strings to the front of the vector
+      // This should not be called by the user, but handled automatically in the backend
+      // TODO: defragment the string storage when the free list is too large
+      // TODO: defragment before saving
+      // TODO: defragment after loading screens
+      //void Internal_StringStorage_Defragment();
+
+      #pragma endregion
+
       #pragma region ECS View
 
     public:

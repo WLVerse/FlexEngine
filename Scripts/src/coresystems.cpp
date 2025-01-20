@@ -28,23 +28,22 @@ public:
       FlexEngine::Audio* audio = element.GetComponent<Audio>();
       if (audio->should_play)
       {
-        if (audio->audio_file == "" || audio->audio_file.c_str() == nullptr)
+        if (audio->audio_file == FLX_STRING_NULL) // or you can use if (!audio->audio_file)
         {
-          Log::Warning("Audio not attached to entity: " + *element.GetComponent<EntityName>());
-
+          Log::Warning("Audio not attached to entity: " + FLX_STRING_GET(*element.GetComponent<EntityName>()));
           audio->should_play = false;
           continue;
         }
 
         if (audio->is_looping)
         {
-          FMODWrapper::Core::PlayLoopingSound(*element.GetComponent<EntityName>(),
-                                              FLX_ASSET_GET(Asset::Sound, AssetKey{ element.GetComponent<Audio>()->audio_file }));
+          FMODWrapper::Core::PlayLoopingSound(FLX_STRING_GET(*element.GetComponent<EntityName>()),
+                                              FLX_ASSET_GET(Asset::Sound, AssetKey{ FLX_STRING_GET(element.GetComponent<Audio>()->audio_file) }));
         }
         else
         {
-      /*    FMODWrapper::Core::PlaySound(*element.GetComponent<EntityName>(),
-                                       FLX_ASSET_GET(Asset::Sound, AssetKey{ element.GetComponent<Audio>()->audio_file }));*/
+          /*    FMODWrapper::Core::PlaySound(FLX_STRING_GET(*element.GetComponent<EntityName>()),
+                                           FLX_ASSET_GET(Asset::Sound, AssetKey{ FLX_STRING_GET(element.GetComponent<Audio>()->audio_file) }));*/
           FMODWrapper::Core::PlaySound("test", FLX_ASSET_GET(Asset::Sound, "/audio/attack.mp3"));
         }
 
