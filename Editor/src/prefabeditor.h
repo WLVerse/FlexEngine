@@ -28,7 +28,10 @@ namespace Editor
 		void Shutdown();
 
 	private:
-		std::vector<std::pair<std::string, std::variant<std::string, bool, int>>> prefab_keys;
+		// store prefab key names and values
+		// First variable: Original Key Name, Second Variable: New Key Name, Third Variable: Key Value
+		std::vector<std::tuple<std::string, std::string, std::variant<std::string, bool, int>>> prefab_keys;
+		// prefab file name
 		std::string file_name;
 	};
 

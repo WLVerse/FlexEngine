@@ -166,7 +166,7 @@ namespace FlexEngine
     {
       if (HasKey(key))
       {
-        document.RemoveMember(key);
+        document[header].RemoveMember(key);
       }
       else Log::Warning("Attmpted to delete a key that does not exist: " + key);
     }
