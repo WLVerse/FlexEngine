@@ -17,7 +17,10 @@
 #include "editorgui.h"
 
 using namespace FlexEngine;
-using EntityName = std::string;
+
+// Make sure this is updated along with the actual using directive in enginecomponents.h
+// Otherwise just use the one in enginecomponents.h
+using EntityName = FlexECS::Scene::StringIndex;
 
 namespace Editor
 {
@@ -93,7 +96,7 @@ namespace Editor
 			EditorGUI::PushID();
 			FlexECS::Entity entity(id);
 
-			std::string name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
+      std::string name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
 			ImGuiTreeNodeFlags node_flags =
 				ImGuiTreeNodeFlags_DefaultOpen |
 				ImGuiTreeNodeFlags_FramePadding |
