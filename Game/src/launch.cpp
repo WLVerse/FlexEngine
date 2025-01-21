@@ -21,12 +21,7 @@ namespace Game
   public:
     FlexApplication()
     {
-      FlexEngine::Application::QueueCommand(
-        FlexEngine::Application::CommandData(
-          FlexEngine::Application::Command::Application_AddLayer,
-          std::make_shared<BaseLayer>()
-        )
-      );
+      FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<BaseLayer>());
     }
   };
 

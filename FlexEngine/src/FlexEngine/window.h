@@ -67,6 +67,9 @@ namespace FlexEngine
     };
     const char* opengl_version_text = "#version 460 core";
 
+    // Null for testing purposes
+    static const WindowProps Null;
+
     WindowProps() = default;
     WindowProps(
       const std::string& _title,
@@ -80,6 +83,26 @@ namespace FlexEngine
       , window_hints(_window_hints)
       , opengl_version_text(_opengl_version_text)
     {
+    }
+
+    // comparison
+    bool operator==(const WindowProps& other) const
+    {
+      return title == other.title
+        && width == other.width
+        && height == other.height
+        && window_hints == other.window_hints
+        && opengl_version_text == other.opengl_version_text;
+    }
+    bool operator!=(const WindowProps& other) const
+    {
+      return !(*this == other);
+    }
+
+    // bool for quick comparisons in if statements
+    operator bool() const
+    {
+      return *this != Null;
     }
   };
 
