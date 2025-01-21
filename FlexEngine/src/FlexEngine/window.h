@@ -100,6 +100,9 @@ namespace FlexEngine
     }
 
     // bool for quick comparisons in if statements
+    // This is useful for checking if the window properties are null.
+    // Returns false if the window properties are null.
+    // Usage: if (window_props) { ... }
     operator bool() const
     {
       return *this != Null;
