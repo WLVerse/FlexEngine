@@ -46,8 +46,8 @@ namespace Editor
 			prefab_keys.clear();
 			FileList files = FileList::Browse(
 				"Open Prefab",
-				Path::current(), "default.flxdata",
-				L"FlexScene Files (*.flxdata)\0" L"*.flxdata\0",
+				Path::current("assets/data"), "default.flxdata",
+				L"FlexData Files (*.flxdata)\0" L"*.flxdata\0",
 				//L"All Files (*.*)\0" L"*.*\0",
 				false,
 				false
