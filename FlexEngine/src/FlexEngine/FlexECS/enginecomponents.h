@@ -18,7 +18,7 @@
 
 namespace FlexEngine
 {
-  using EntityName = std::string;
+  using EntityName = FlexECS::Scene::StringIndex;
 
   /*!***************************************************************************
   * \class Position
@@ -115,6 +115,30 @@ namespace FlexEngine
     bool should_play;
     bool should_stop;
     bool is_looping;
-    std::string audio_file;
+    FlexECS::Scene::StringIndex audio_file;
+  };
+  
+  class __FLX_API Sprite
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Scene::StringIndex sprite_handle;
+    int handle = -1; // Indicates it is not a spritesheet by default
+  };
+
+  class __FLX_API Animator
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Scene::StringIndex spritesheet_file;
+    bool should_play = true;
+    float time = 0.f;
+  };
+
+  // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
+  class __FLX_API Text
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
   };
 }

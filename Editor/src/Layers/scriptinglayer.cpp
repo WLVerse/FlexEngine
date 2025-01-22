@@ -163,6 +163,9 @@ namespace Editor
     FLX_IMGUI_ALIGNCONTEXT();
 
     Internal_DebugWithImGui();
+
+    auto script = ScriptRegistry::GetScript("GameplayLoops");
+    if (script) script->Update();
   }
 
 }

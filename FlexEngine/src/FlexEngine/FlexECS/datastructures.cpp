@@ -59,8 +59,6 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(_archetype_index)
       FLX_REFL_REGISTER_PROPERTY(entity_index)
       FLX_REFL_REGISTER_PROPERTY(component_index)
-      FLX_REFL_REGISTER_PROPERTY(string_storage)
-      FLX_REFL_REGISTER_PROPERTY(string_storage_free_list)
     FLX_REFL_REGISTER_END;
 
     #pragma endregion
@@ -68,7 +66,7 @@ namespace FlexEngine
     __FLX_API ComponentData<void> Internal_CreateComponentData(std::size_t size, void* data)
     {
       // Create a new data structure
-      void* ptr = new char[sizeof(std::size_t) + size];
+      void* ptr = ::operator new(sizeof(std::size_t) + size);
       if (!ptr)
       {
         FLX_ASSERT(false, "Failed to allocate memory for component data!");
@@ -81,7 +79,7 @@ namespace FlexEngine
       // Copy the data
       memcpy(reinterpret_cast<std::size_t*>(ptr) + 1, data, size);
 
-      return ComponentData<void>(ptr, [](void* ptr) { delete[] reinterpret_cast<char*>(ptr); });
+      return ComponentData<void>(ptr, [](void* ptr) { ::operator delete(ptr); });
     }
 
     __FLX_API std::pair<std::size_t, void*> Internal_GetComponentData(ComponentData<void> data)

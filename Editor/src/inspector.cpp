@@ -17,7 +17,7 @@
 #include "componentviewer.h"
 
 using namespace FlexEngine;
-using EntityName = FlexEngine::FlexECS::Scene::StringIndex;
+using EntityName = std::string;
 
 namespace Editor
 {
@@ -52,7 +52,7 @@ namespace Editor
 				ImGui::SameLine();
 			}
 
-			std::string& name = scene->Internal_StringStorage_Get(*entity.GetComponent<EntityName>());
+      std::string& name = entity.GetComponent<EntityName>();
 			EditorGUI::EditableTextField(name);
 
 			//Hardcode these 3 components first so they appear
