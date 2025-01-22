@@ -6,32 +6,26 @@ namespace Game
   void BaseLayer::OnAttach()
   {
     // First, create a window
-    Application::QueueCommand(
-      Application::CommandData(
-        Application::Command::OpenWindow,
-        "Game",
-        WindowProps(
-          "Chrono Drift",
-          1600, 900,
-          {
-            FLX_DEFAULT_WINDOW_HINTS,
-            { GLFW_DECORATED, true },
-            { GLFW_RESIZABLE, true }
-          }
-        )
+    FLX_COMMAND_OPEN_WINDOW(
+      "Game",
+      WindowProps(
+        "Chrono Drift",
+        1600, 900,
+        {
+          FLX_DEFAULT_WINDOW_HINTS,
+          { GLFW_DECORATED, true },
+          { GLFW_RESIZABLE, true }
+        }
       )
     );
 
     // Second, load assets
-    Application::QueueCommand(
-      Application::CommandData(
-        Application::Command::Application_AddLayer, "Load Layer", std::make_shared<LoadLayer>()
-      )
-    );
+    FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<LoadLayer>());
   }
 
   void BaseLayer::OnDetach()
   {
+    FLX_COMMAND_CLOSE_WINDOW("Game");
   }
 
   void BaseLayer::Update()

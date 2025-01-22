@@ -67,6 +67,13 @@ namespace
 
 namespace FlexEngine
 {
+  // static member initialization
+  const WindowProps WindowProps::Null = WindowProps(
+    "Null",
+    0, 0,
+    {},
+    ""
+  );
 
   #pragma region Managed Stateful RAII Pattern
 

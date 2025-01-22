@@ -22,12 +22,7 @@ namespace Editor
     FlexApplication()
     {
       // Add the editor window layer which manages the editor window
-      FlexEngine::Application::QueueCommand(
-        FlexEngine::Application::CommandData(
-          FlexEngine::Application::Command::Application_AddLayer,
-          std::make_shared<EditorWindowLayer>()
-        )
-      );
+      FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<EditorWindowLayer>());
     }
   };
 
