@@ -53,6 +53,9 @@
     <Filter Include="src\FlexEngine\FMOD">
       <UniqueIdentifier>{4dec8d9d-124a-4cfe-8a8b-25eb98508450}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\Physics">
+      <UniqueIdentifier>{cea91fb9-789a-43f3-a7a3-df8d0aee0375}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -213,6 +216,9 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\FlexECS\enginecomponents.cpp">
       <Filter>src\FlexEngine\FlexECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Physics\physicssystem.cpp">
+      <Filter>src\FlexEngine\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -410,6 +416,9 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\FlexECS\enginecomponents.h">
       <Filter>src\FlexEngine\FlexECS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Physics\physicssystem.h">
+      <Filter>src\FlexEngine\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -203,6 +203,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClCompile Include="src\FlexEngine\imguiwrapper.cpp" />
     <ClCompile Include="src\FlexEngine\input.cpp" />
     <ClCompile Include="src\FlexEngine\Layer\layerstack.cpp" />
+    <ClCompile Include="src\FlexEngine\Physics\physicssystem.cpp" />
     <ClCompile Include="src\FlexEngine\Reflection\primitives.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\buffer.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\Camera\camera.cpp" />
@@ -267,6 +268,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /s 
     <ClInclude Include="src\FlexEngine\input.h" />
     <ClInclude Include="src\FlexEngine\Layer\ilayer.h" />
     <ClInclude Include="src\FlexEngine\Layer\layerstack.h" />
+    <ClInclude Include="src\FlexEngine\Physics\physicssystem.h" />
     <ClInclude Include="src\FlexEngine\Reflection\base.h" />
     <ClInclude Include="src\FlexEngine\Renderer\buffer.h" />
     <ClInclude Include="src\FlexEngine\Renderer\Camera\camera.h" />

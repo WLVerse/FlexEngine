@@ -1,4 +1,5 @@
 #include <FlexEngine.h>
+#include "FlexEngine/Physics/physicssystem.h"
 using namespace FlexEngine;
 
 class CoreSystemsScript : public Script
@@ -19,7 +20,8 @@ public:
     // Transform
     
     // Physics
-    
+    FlexEngine::PhysicsSystem::UpdatePhysicsSystem();
+
     // Graphics
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
     {
