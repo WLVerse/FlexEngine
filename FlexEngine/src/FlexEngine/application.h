@@ -109,9 +109,179 @@ namespace FlexEngine
 
     #pragma region Command Pattern
 
+    #pragma region Helper Macros
+
+    // Helper macros to reduce boilerplate code
+    // The macros are named FLX_COMMAND_<COMMAND_NAME>()
+
+    // Quit the application.
+    // Usage: FLX_COMMAND_QUIT_APPLICATION();
+    #define FLX_COMMAND_QUIT_APPLICATION() \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::QuitApplication \
+        ) \
+      )
+
+    #pragma region Application
+
+    // Add a layer to the application layerstack.
+    // Pass in a shared pointer to the layer.
+    // Usage: FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<Layer>());
+    #define FLX_COMMAND_ADD_APPLICATION_LAYER(layer) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Application_AddLayer, \
+          layer \
+        ) \
+      )
+
+    // Add an overlay to the application layerstack.
+    // Pass in a shared pointer to the overlay.
+    // Usage: FLX_COMMAND_ADD_APPLICATION_OVERLAY(std::make_shared<Layer>());
+    #define FLX_COMMAND_ADD_APPLICATION_OVERLAY(overlay) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Application_AddOverlay, \
+          overlay \
+        ) \
+      )
+
+    // Remove a layer from the application layerstack.
+    // Pass in the pointer to the layer.
+    // Usage: FLX_COMMAND_REMOVE_APPLICATION_LAYER(Layer);
+    #define FLX_COMMAND_REMOVE_APPLICATION_LAYER(layer) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Application_RemoveLayer, \
+          layer \
+        ) \
+      )
+
+    // Remove an overlay from the application layerstack.
+    // Pass in the pointer to the overlay.
+    // Usage: FLX_COMMAND_REMOVE_APPLICATION_OVERLAY(Overlay);
+    #define FLX_COMMAND_REMOVE_APPLICATION_OVERLAY(overlay) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Application_RemoveOverlay, \
+          overlay \
+        ) \
+      )
+
+    // Clear the application layerstack.
+    // Usage: FLX_COMMAND_CLEAR_APPLICATION_LAYER_STACK();
+    #define FLX_COMMAND_CLEAR_APPLICATION_LAYER_STACK() \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Application_ClearLayerStack \
+        ) \
+      )
+
+    #pragma endregion
+
+    // Open a window.
+    // Pass in the name of the window and the window properties.
+    // Usage: FLX_COMMAND_OPEN_WINDOW("WindowName", WindowProps(...));
+    #define FLX_COMMAND_OPEN_WINDOW(window_name, props) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::OpenWindow, \
+          window_name, \
+          props \
+        ) \
+      )
+
+    // Close a window.
+    // Pass in the name of the window.
+    // Usage: FLX_COMMAND_CLOSE_WINDOW("WindowName");
+    #define FLX_COMMAND_CLOSE_WINDOW(window_name) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::CloseWindow, \
+          window_name \
+        ) \
+      )
+
+    // Close all windows.
+    // Usage: FLX_COMMAND_CLOSE_ALL_WINDOWS();
+    #define FLX_COMMAND_CLOSE_ALL_WINDOWS() \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::CloseAllWindows \
+        ) \
+      )
+
+    #pragma region Window
+    
+    // Add a layer to the window layerstack.
+    // Pass in the name of the window and a shared pointer to the layer.
+    // Usage: FLX_COMMAND_ADD_WINDOW_LAYER("WindowName", std::make_shared<Layer>());
+    #define FLX_COMMAND_ADD_WINDOW_LAYER(window_name, layer) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Window_AddLayer, \
+          window_name, \
+          layer \
+        ) \
+      )
+
+    // Add an overlay to the window layerstack.
+    // Pass in the name of the window and a shared pointer to the overlay.
+    // Usage: FLX_COMMAND_ADD_WINDOW_OVERLAY("WindowName", std::make_shared<Layer>());
+    #define FLX_COMMAND_ADD_WINDOW_OVERLAY(window_name, overlay) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Window_AddOverlay, \
+          window_name, \
+          overlay \
+        ) \
+      )
+
+    // Remove a layer from the window layerstack.
+    // Pass in the name of the window and the layer pointer.
+    // Usage: FLX_COMMAND_REMOVE_WINDOW_LAYER("WindowName", Layer);
+    #define FLX_COMMAND_REMOVE_WINDOW_LAYER(window_name, layer) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Window_RemoveLayer, \
+          window_name, \
+          layer \
+        ) \
+      )
+
+    // Remove an overlay from the window layerstack.
+    // Pass in the name of the window and the overlay pointer.
+    // Usage: FLX_COMMAND_REMOVE_WINDOW_OVERLAY("WindowName", Overlay);
+    #define FLX_COMMAND_REMOVE_WINDOW_OVERLAY(window_name, overlay) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Window_RemoveOverlay, \
+          window_name, \
+          overlay \
+        ) \
+      )
+
+    // Clear the window layerstack.
+    // Pass in the name of the window.
+    // Usage: FLX_COMMAND_CLEAR_WINDOW_LAYER_STACK("WindowName");
+    #define FLX_COMMAND_CLEAR_WINDOW_LAYER_STACK(window_name) \
+      FlexEngine::Application::QueueCommand( \
+        FlexEngine::Application::CommandData( \
+          FlexEngine::Application::Command::Window_ClearLayerStack, \
+          window_name \
+        ) \
+      )
+
+    #pragma endregion
+
+    #pragma endregion
+
   public:
     enum class Command
     {
+      NullCommand = 0,
+
       QuitApplication,
 
       Application_AddLayer,
@@ -135,12 +305,17 @@ namespace FlexEngine
 
     struct __FLX_API CommandData
     {
-      Command command_type;
-      std::string window_name;
-      WindowProps window_props;
+      Command command_type = Command::LastCommand;
+      std::string window_name = "";
+      WindowProps window_props = WindowProps::Null;
       std::shared_ptr<Layer> layer = nullptr;
 
-      CommandData(Command type, const std::string& _window_name = "")
+      CommandData(Command type)
+        : command_type(type)
+      {
+      }
+
+      CommandData(Command type, const std::string& _window_name)
         : command_type(type), window_name(_window_name)
       {
       }
