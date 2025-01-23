@@ -54,9 +54,7 @@ namespace Editor
     hmodule_scripting = LoadLibraryA(dll_path);
     if (!hmodule_scripting)
     {
-      std::stringstream ss;
-      ss << "Failed to load DLL. Error code: " << std::to_string(GetLastError());
-      Log::Error(ss);
+      Log::Error("Failed to load DLL. Error code: " + std::to_string(GetLastError()));
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }

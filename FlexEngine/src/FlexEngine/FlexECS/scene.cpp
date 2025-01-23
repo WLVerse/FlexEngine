@@ -404,7 +404,7 @@ namespace FlexEngine
       document.Parse(flxfmtfile.data.c_str());
       if (document.HasParseError())
       {
-        Log::Error("Failed to parse scene data.");
+        Log::Error("The scene file could not be parsed. RapidJson Parse Error: " + std::string(GetParseErrorString(document.GetParseError())));
         return std::make_shared<Scene>(Scene::Null);
       }
 
@@ -538,7 +538,10 @@ namespace FlexEngine
         }
         else
         {
-          Log::Error("Entity archetype not found in archetype index.");
+          Log::Error(
+            "Entity archetype not found in archetype index while relinking entity archetype pointers. "
+            "Entity ID: " + std::to_string(uuid) + ", Archetype ID: " + std::to_string(entity_record.archetype_id)
+          );
         }
       }
     }

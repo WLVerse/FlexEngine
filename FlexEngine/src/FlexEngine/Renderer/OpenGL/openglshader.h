@@ -31,9 +31,18 @@ namespace FlexEngine
       #pragma region Validity
 
       // Internal helper macro to check if the shader is valid
-      #define _FLX_SHADER_VALIDITY_CHECK if (!IsValid()) { Log::Error("Tried to use a shader that isn't valid!"); return; }
+      #define _FLX_SHADER_VALIDITY_CHECK \
+        if (!IsValid()) \
+        { \
+          Log::Error( \
+            "Tried to use a shader that isn't valid! " \
+            "Shader: " + m_path_to_vertex_shader.string() + " " + m_path_to_fragment_shader.string() \
+          ); \
+          return; \
+        }
 
       // Returns true if the shader program is valid
+      // Simply checks if it is not 0 since it should be an actual number if it is valid
       bool IsValid() const;
 
       #pragma endregion

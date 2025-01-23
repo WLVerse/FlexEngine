@@ -187,7 +187,7 @@ namespace FlexEngine
     // if there is an error, return an empty rapidjson::Document
     if (document.HasParseError())
     {
-      Log::Error(std::string("Parse error while parsing file into FlxFmtFile: ") + GetParseErrorString(document.GetParseError()));
+      Log::Error("Parse error while parsing file into FlxFmtFile. RapidJson Parse Error: " + std::string(GetParseErrorString(document.GetParseError())));
       return FlxFmtFile::Null;
     }
 
