@@ -105,6 +105,7 @@ namespace FlexEngine
     return true;
   }
 
+  #pragma warning(suppress: 4505) // unreferenced local function has been removed
   static bool Internal_LoadTextureFromMemory(const unsigned char* texture_data, int size, unsigned char** out_texture_data, unsigned int* out_texture, int* out_width, int* out_height)
   {
     // Decompress the texture
