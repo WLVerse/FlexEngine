@@ -10,7 +10,11 @@ namespace FlexEngine
   namespace Asset
   {
 
-    // Helper class for building and compiling shaders using glad
+    // Helper class for building and compiling shaders
+    // TODO: Rework to have a .flxshader file that stores the shader paths
+    // TODO: use the flxfmt formatter
+    // TODO: save any changes to file
+    // TODO: generate a new metadata file in editor
     class __FLX_API Shader
     {
       unsigned int m_shader_program = 0;

@@ -157,11 +157,11 @@ namespace FlexEngine
         }
         else if (file_extension.string() == ".ttf")
         {
-            FLX_FLOW_BEGINSCOPE();
-            AssetKey key = file.path.string().substr(default_directory_length);
-            assets[key] = Asset::Font{ key };
-            FLX_FLOW_ENDSCOPE();
-            Log::Info("Loaded font path: " + key);
+          FLX_FLOW_BEGINSCOPE();
+          AssetKey key = file.path.string().substr(default_directory_length);
+          assets[key] = Asset::Font{ key };
+          FLX_FLOW_ENDSCOPE();
+          Log::Info("Loaded font path: " + key);
         }
         else if (file_extension.string() == ".flxspritesheet")
         {
