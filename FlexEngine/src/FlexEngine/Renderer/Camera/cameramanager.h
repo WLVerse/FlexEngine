@@ -50,6 +50,7 @@ namespace FlexEngine
     * 0 -> Editor Cam
     * 1-Inf -> Scene Cam
     *************************************************************************/
+    //This layer handles the ECS integration, rendering details, and managing the lifecycle of cameras.
     class __FLX_API CameraManager 
     {
         static std::unordered_map<FlexECS::EntityID, Camera> m_cameraEntities; /*!< Maps entity IDs to Camera */

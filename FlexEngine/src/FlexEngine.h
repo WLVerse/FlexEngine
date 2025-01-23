@@ -109,6 +109,10 @@
 // Macros are provided to make the state management easier.
 #include "FlexEngine/StateManager/statemanager.h"
 
+// Used to store and easy access to all available camera data.
+// Create one in script.
+#include "FlexEngine/Renderer/Camera/cameramanager.h"
+
 // Implementation of Unity's PlayerPrefs.
 // Used to store and retrieve data from the flexprefs.json config file.
 // Set float, int, string, and bool values.

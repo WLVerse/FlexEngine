@@ -37,6 +37,8 @@ namespace FlexEngine
     
     void MoveCamera(Vector3 translation) { translation.x *= -1; m_view_matrix.Translate(translation); } // Negative 1 as camera move left = world moves right
 
+    bool getIsActive();
+
     /*
       \brief Updates matrices, specifically, the projection view matrix.
     */

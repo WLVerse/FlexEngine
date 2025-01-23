@@ -63,7 +63,7 @@ namespace FlexEngine
     void CameraManager::CreateDefaultEditorCamera()
     {
         FlexECS::EntityID editorCameraID = 0; // Reserved for the editor camera
-        Camera editorCamera; // Default editor camera data
+        Camera editorCamera{}; // Default editor camera data
 
         AddCameraEntity(editorCameraID, editorCamera);
         SwitchEditorCamera(editorCameraID);
@@ -99,7 +99,7 @@ namespace FlexEngine
             m_cameraEntities[entityID] = cameraData;
         }
 
-        if (m_currMainID == INVALID_ENTITY_ID && cameraData.isactive)
+        if (m_currMainID == INVALID_ENTITY_ID && cameraData.getIsActive())
         {
             SwitchMainCamera(entityID);
         }
@@ -206,7 +206,7 @@ namespace FlexEngine
         auto it = m_cameraEntities.find(entityID);
         if (it != m_cameraEntities.end())
         {
-            it->second.isactive = active;
+            it->second.getIsActive() = active;
             Log::Debug("SetCameraActive() => Set camera entityID " + std::to_string(entityID) +
                        " active state to " + (active ? "true" : "false"));
 
@@ -225,13 +225,13 @@ namespace FlexEngine
     {
         if (m_currMainID == INVALID_ENTITY_ID ||
             m_cameraEntities.count(m_currMainID) == 0 ||
-            !m_cameraEntities[m_currMainID].isactive)
+            !m_cameraEntities[m_currMainID].getIsActive())
         {
             m_currMainID = INVALID_ENTITY_ID;
 
             for (const auto& [id, camera] : m_cameraEntities)
             {
-                if (id != m_currEditorID && camera.isactive)
+                if (id != m_currEditorID && camera.getIsActive())
                 {
                     m_currMainID = id;
                     break;

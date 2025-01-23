@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="scenemanager.cpp" />
     <ClCompile Include="src\componenttest.cpp" />
     <ClCompile Include="src\coresystems.cpp" />
   </ItemGroup>

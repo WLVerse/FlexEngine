@@ -12,5 +12,8 @@
     <ClCompile Include="src\coresystems.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="scenemanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

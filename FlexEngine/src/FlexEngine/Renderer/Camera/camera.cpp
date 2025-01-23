@@ -29,4 +29,9 @@ namespace FlexEngine
   {
     UpdateCameraMatrix();
   }
+
+  bool Camera::getIsActive()
+  {
+      return isactive;
+  }
 }

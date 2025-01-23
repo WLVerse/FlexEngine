@@ -6,14 +6,15 @@ class CoreSystemsScript : public Script
 public:
   CoreSystemsScript() { ScriptRegistry::RegisterScript(this); }
   std::string GetName() const override { return "GameplayLoops"; }
-
+  
   void Start() override
   {
-   
+
   }
 
   void Update() override
   {
+    // Camera TODO
     static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
 
     // Transform
@@ -85,6 +86,7 @@ public:
       }
     }
 
+    //Text TODO
     static std::string extra = "";
     if (Input::GetKey(GLFW_KEY_J))
       extra += "j";
