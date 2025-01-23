@@ -2,7 +2,7 @@
 
 #include "flx_api.h"
 
-#include "Utilities/path.h"
+#include "Utilities/file.h"
 #include "FlexMath/matrix4x4.h"
 
 namespace FlexEngine
@@ -17,17 +17,30 @@ namespace FlexEngine
     // TODO: generate a new metadata file in editor
     class __FLX_API Shader
     {
+      // The metadata file for the shader
+      File& metadata;
+
+    public:
+      // Load the shader from a metadata file
+      Shader(File& _metadata);
+
+      // Must be implemented to free the shader
+      // RAII
+      ~Shader();
+
+    private:
       unsigned int m_shader_program = 0;
       unsigned int m_vertex_shader = 0;
       unsigned int m_fragment_shader = 0;
+      //unsigned int m_geometry_shader = 0;
+
+      Path m_path_to_vertex_shader;
+      Path m_path_to_fragment_shader;
+      //Path m_path_to_geometry_shader;
 
     public:
-      Shader() = default;
-      Shader(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader);
-      ~Shader();
 
       // Links the vertex and fragment shaders into a shader program
-      void Create(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader);
       void Destroy();
 
       // Use the shader program with glUseProgram
@@ -52,6 +65,7 @@ namespace FlexEngine
     private:
       void Internal_CreateVertexShader(const Path& path_to_vertex_shader);
       void Internal_CreateFragmentShader(const Path& path_to_fragment_shader);
+      //void Internal_CreateGeometryShader(const Path& path_to_geometry_shader);
       void Internal_Link();
 
       #pragma endregion
@@ -63,15 +77,12 @@ namespace FlexEngine
       {
         Vertex = 0,
         Fragment,
-        Geometry
+        //Geometry
       };
 
       #pragma endregion
 
 #ifdef _DEBUG
-    private:
-      Path m_path_to_vertex_shader;
-      Path m_path_to_fragment_shader;
     public:
       void Dump() const;
 #endif

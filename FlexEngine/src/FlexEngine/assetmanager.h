@@ -61,6 +61,7 @@ namespace FlexEngine
     // Load all assets in the directory
     static void Load();
 
+    // Explicitly call this function to free all assets
     // Frees OpenGL textures and shaders
     static void Unload();
 

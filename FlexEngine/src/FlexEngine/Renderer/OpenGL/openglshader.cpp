@@ -9,29 +9,74 @@ namespace FlexEngine
   namespace Asset
   {
 
-    Shader::Shader(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader)
+    Shader::Shader(File& _metadata)
+      : metadata(_metadata)
     {
-      Create(path_to_vertex_shader, path_to_fragment_shader);
+      // parse the file
+      // the file is just a text file with the texture path, columns, and rows
+      std::stringstream ss(metadata.Read());
+
+      // parse format
+      // <shader_type>: <path>
+      // vertex: path/to/vertex.shader
+      // fragment: path/to/fragment.shader
+      std::string line;
+      std::size_t line_number = 0; // for debugging
+      while (std::getline(ss, line))
+      {
+        line_number++;
+
+        // skip empty lines
+        if (line.empty()) continue;
+
+        // split the line into shader type and path
+        std::size_t colon = line.find(':');
+        std::string shader_type = line.substr(0, colon);
+        std::string path = line.substr(colon + 1);
+        Path path_to_shader;
+
+        // warn for missing colon
+        if (colon == std::string::npos)
+        {
+          Log::Warning("The shader file has an invalid line. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          continue;
+        }
+
+        // warn for bad shader type
+        if (shader_type != "vertex" && shader_type != "fragment")
+        {
+          Log::Warning("The shader file has an invalid shader type. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          continue;
+        }
+
+        // error for invalid paths
+        try
+        {
+          path_to_shader = Path(path);
+        }
+        catch (const std::invalid_argument& e)
+        {
+          Log::Error(e.what() + std::string(" ") + metadata.path.string() + " Line: " + std::to_string(line_number));
+          continue;
+        }
+
+        // create the shader
+        if (shader_type == "vertex")
+        {
+          m_path_to_vertex_shader = path_to_shader;
+          Internal_CreateVertexShader(m_path_to_vertex_shader);
+        }
+        else if (shader_type == "fragment")
+        {
+          m_path_to_fragment_shader = path_to_shader;
+          Internal_CreateFragmentShader(m_path_to_fragment_shader);
+        }
+      }
     }
 
     Shader::~Shader()
     {
       Destroy();
-    }
-
-    void Shader::Create(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader)
-    {
-      FLX_FLOW_FUNCTION();
-
-      Internal_CreateVertexShader(path_to_vertex_shader);
-      Internal_CreateFragmentShader(path_to_fragment_shader);
-      Internal_Link();
-
-#ifdef _DEBUG
-      // store paths for debugging
-      m_path_to_vertex_shader = path_to_vertex_shader;
-      m_path_to_fragment_shader = path_to_fragment_shader;
-#endif
     }
 
     void Shader::Destroy()
@@ -40,10 +85,8 @@ namespace FlexEngine
       if (m_fragment_shader != 0) glDeleteShader(m_fragment_shader);
       if (m_shader_program != 0) glDeleteProgram(m_shader_program);
 
-#ifdef _DEBUG
       m_path_to_vertex_shader = Path();
       m_path_to_fragment_shader = Path();
-#endif
     }
 
     void Shader::Use() const
