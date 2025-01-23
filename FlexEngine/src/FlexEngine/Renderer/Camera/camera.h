@@ -20,6 +20,7 @@ namespace FlexEngine
 {
   class __FLX_API Camera
   {
+    bool isactive = false;
     Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
     Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
     Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
