@@ -28,6 +28,16 @@ namespace FlexEngine
       // RAII
       ~Shader();
 
+      #pragma region Validity
+
+      // Internal helper macro to check if the shader is valid
+      #define _FLX_SHADER_VALIDITY_CHECK if (!IsValid()) { Log::Error("Tried to use a shader that isn't valid!"); return; }
+
+      // Returns true if the shader program is valid
+      bool IsValid() const;
+
+      #pragma endregion
+
     private:
       unsigned int m_shader_program = 0;
       unsigned int m_vertex_shader = 0;
@@ -63,6 +73,12 @@ namespace FlexEngine
       #pragma region Internal Functions
 
     private:
+      // INTERNAL FUNCTION
+      // Parse the metadata file.
+      // This function calls the other internal functions to
+      // create and link the shaders.
+      bool Internal_Parse();
+
       void Internal_CreateVertexShader(const Path& path_to_vertex_shader);
       void Internal_CreateFragmentShader(const Path& path_to_fragment_shader);
       //void Internal_CreateGeometryShader(const Path& path_to_geometry_shader);

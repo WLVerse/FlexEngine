@@ -13,79 +13,20 @@ namespace FlexEngine
       : metadata(_metadata)
     {
       // parse the file
-      // the file is just a text file with the texture path, columns, and rows
-      std::stringstream ss(metadata.Read());
-
-      // parse format
-      // <shader_type>: <path>
-      // vertex: path/to/vertex.shader
-      // fragment: path/to/fragment.shader
-      std::string line;
-      std::size_t line_number = 0; // for debugging
-      while (std::getline(ss, line))
+      if (!Internal_Parse())
       {
-        line_number++;
-
-        // skip empty lines
-        if (line.empty()) continue;
-
-        // skip comments
-        if (
-          line[0] == '/' && line[1] == '/' ||
-          line[0] == '#'
-        ) continue;
-
-        // remove all whitespace
-        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
-
-        // split the line into shader type and path
-        std::size_t colon = line.find(':');
-        std::string shader_type = line.substr(0, colon);
-        std::string path = line.substr(colon + 1);
-        Path path_to_shader;
-
-        // warn for missing colon
-        if (colon == std::string::npos)
-        {
-          Log::Warning("The shader file has an invalid line. " + metadata.path.string() + " Line: " + std::to_string(line_number));
-          continue;
-        }
-
-        // warn for bad shader type
-        if (shader_type != "vertex" && shader_type != "fragment")
-        {
-          Log::Warning("The shader file has an invalid shader type. " + metadata.path.string() + " Line: " + std::to_string(line_number));
-          continue;
-        }
-
-        // error for invalid paths
-        try
-        {
-          path_to_shader = Path(path);
-        }
-        catch (const std::invalid_argument& e)
-        {
-          Log::Error(e.what() + std::string(" ") + metadata.path.string() + " Line: " + std::to_string(line_number));
-          continue;
-        }
-
-        // create the shader
-        if (shader_type == "vertex")
-        {
-          m_path_to_vertex_shader = path_to_shader;
-          Internal_CreateVertexShader(m_path_to_vertex_shader);
-        }
-        else if (shader_type == "fragment")
-        {
-          m_path_to_fragment_shader = path_to_shader;
-          Internal_CreateFragmentShader(m_path_to_fragment_shader);
-        }
+        Log::Error("Shader file could not be parsed! " + metadata.path.string());
       }
     }
 
     Shader::~Shader()
     {
       Destroy();
+    }
+
+    bool Shader::IsValid() const
+    {
+      return m_shader_program != 0;
     }
 
     void Shader::Destroy()
@@ -100,12 +41,7 @@ namespace FlexEngine
 
     void Shader::Use() const
     {
-      // guard
-      if (m_shader_program == 0)
-      {
-        FLX_ASSERT(false, "Shader program has not been created yet!");
-        return;
-      }
+      _FLX_SHADER_VALIDITY_CHECK;
 
       glUseProgram(m_shader_program);
     }
@@ -155,12 +91,87 @@ namespace FlexEngine
       // guard
       if (m_shader_program == 0)
       {
-        Log::Warning("Shader program has not been created yet!");
+        Log::Warning("Cannot get the shader program because it is not valid or hasn't been created yet!");
       }
       return m_shader_program;
     }
 
     #pragma region Internal Functions
+
+    bool Shader::Internal_Parse()
+    {
+      // parse the file
+      // the file is just a text file with the type and path of the shader
+      std::stringstream ss(metadata.Read());
+
+      // parse format
+      // <shader_type>: <path>
+      // vertex: path/to/vertex.shader
+      // fragment: path/to/fragment.shader
+      std::string line;
+      std::size_t line_number = 0; // for debugging
+      while (std::getline(ss, line))
+      {
+        line_number++;
+
+        // skip empty lines
+        if (line.empty()) return false;
+
+        // skip comments
+        if (
+          line[0] == '/' && line[1] == '/' ||
+          line[0] == '#'
+        ) return false;
+
+        // remove all whitespace
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+
+        // split the line into shader type and path
+        std::size_t colon = line.find(':');
+        std::string shader_type = line.substr(0, colon);
+        std::string path = line.substr(colon + 1);
+        Path path_to_shader;
+
+        // warn for missing colon
+        if (colon == std::string::npos)
+        {
+          Log::Error("The shader file has a missing colon. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // warn for bad shader type
+        if (shader_type != "vertex" && shader_type != "fragment")
+        {
+          Log::Error("The shader file has an invalid shader type. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // error for invalid paths
+        try
+        {
+          path_to_shader = Path(path);
+        }
+        catch (const std::invalid_argument& e)
+        {
+          Log::Error(e.what() + std::string(" ") + metadata.path.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // create the shader
+        if (shader_type == "vertex")
+        {
+          m_path_to_vertex_shader = path_to_shader;
+          Internal_CreateVertexShader(m_path_to_vertex_shader);
+        }
+        else if (shader_type == "fragment")
+        {
+          m_path_to_fragment_shader = path_to_shader;
+          Internal_CreateFragmentShader(m_path_to_fragment_shader);
+        }
+      }
+
+      return true;
+    }
 
     void Shader::Internal_CreateVertexShader(const Path& path_to_vertex_shader)
     {
