@@ -108,44 +108,15 @@ namespace FlexEngine
           Log::Info("Loaded texture: " + key);
         }
         else if (
-          file_extension.string() == ".vert" ||
-          file_extension.string() == ".frag" ||
-          file_extension.string() == ".geom" ||
-          file_extension.string() == ".glsl" ||
-          file_extension.string() == ".hlsl"
+          file_extension.string() == ".flxshader"
         )
         {
-          // ignore .glsl and .hlsl files
-          // they are not currently supported
-          // TODO: add support for these files
-          if (file_extension.string() == ".glsl" || file_extension.string() == ".hlsl")
-          {
-            Log::Warning(std::string("Unsupported shader type: ") + file_extension.string());
-            return;
-          }
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
 
-          std::string file_name = file.path.stem().string();
-
-          Asset::Shader::Type shader_type;
-               if (file_extension.string() == ".vert") shader_type = Asset::Shader::Type::Vertex;
-          else if (file_extension.string() == ".frag") shader_type = Asset::Shader::Type::Fragment;
-          else if (file_extension.string() == ".geom") shader_type = Asset::Shader::Type::Geometry;
-          else
-          {
-            Log::Warning(std::string("Unsupported shader type: ") + file_extension.string());
-            return;
-          }
-
-          // add it to the linker
-          // the shader linker will link shaders with the same name after all shaders are loaded
-          if (shader_linker.count(file_name) == 0)
-          {
-            // create a new entry in the linker
-            shader_linker[file_name] = {nullptr, nullptr, nullptr};
-          }
-
-          // add the file to the linker
-          shader_linker[file_name][shader_type] = &file;
+          // load shader
+          assets.emplace(key, Asset::Shader(file));
+          Log::Info("Loaded shader: " + key);
         }
         else if (file_extension.string() == ".mp3")
         {
@@ -157,11 +128,11 @@ namespace FlexEngine
         }
         else if (file_extension.string() == ".ttf")
         {
-            FLX_FLOW_BEGINSCOPE();
-            AssetKey key = file.path.string().substr(default_directory_length);
-            assets[key] = Asset::Font{ key };
-            FLX_FLOW_ENDSCOPE();
-            Log::Info("Loaded font path: " + key);
+          FLX_FLOW_BEGINSCOPE();
+          AssetKey key = file.path.string().substr(default_directory_length);
+          assets[key] = Asset::Font{ key };
+          FLX_FLOW_ENDSCOPE();
+          Log::Info("Loaded font path: " + key);
         }
         else if (file_extension.string() == ".flxspritesheet")
         {
@@ -170,33 +141,10 @@ namespace FlexEngine
 
           // load spritesheet
           assets.emplace(key, Asset::Spritesheet(file));
+          Log::Info("Loaded spritesheet: " + key);
         }
       }
     );
-
-    // perform shader linking
-    // currently geometry shaders are not supported
-    Log::Flow("Linking shaders...");
-    for (auto& [key, files] : shader_linker)
-    {
-      // guard: check if all shaders are present
-      if (files[Asset::Shader::Type::Vertex] == nullptr || files[Asset::Shader::Type::Fragment] == nullptr)
-      {
-        Log::Error(std::string("Shader ") + key + " is missing a vertex or fragment shader!");
-        continue;
-      }
-
-      // create an asset key
-      std::string key_string = files[0]->path.string().substr(default_directory_length);
-      key_string = key_string.substr(0, key_string.find_last_of('.'));
-      AssetKey assetkey = key_string;
-
-      // create a new shader
-      assets[assetkey] = Asset::Shader();
-      Asset::Shader& shader = std::get<Asset::Shader>(assets[assetkey]);
-      shader.Create(files[Asset::Shader::Type::Vertex]->path, files[Asset::Shader::Type::Fragment]->path);
-      Log::Info("Loaded shader: " + assetkey);
-    }
 
     FLX_FLOW_ENDSCOPE();
   }

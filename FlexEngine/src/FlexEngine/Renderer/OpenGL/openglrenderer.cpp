@@ -650,7 +650,9 @@ namespace FlexEngine
     // bind all
     glBindVertexArray(vao);
 
-    static Asset::Shader texture_shader(Path::current("assets/shaders/texture.vert"), Path::current("assets/shaders/texture.frag"));
+    static Asset::Shader texture_shader(
+      File::Open(Path::current("assets/shaders/texture.flxshader"))
+    );
     texture_shader.Use();
 
     texture_shader.SetUniform_bool("u_use_texture", true);

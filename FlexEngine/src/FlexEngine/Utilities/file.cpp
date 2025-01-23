@@ -61,14 +61,14 @@ namespace FlexEngine
     // guard
     if (!path.is_file())
     {
-      Log::Warning("Attempted to read a non-file: " + std::to_string(path));
+      Log::Warning("Attempted to read a non-file. This is probably a folder/directory." + std::to_string(path));
       return data;
     }
 
     std::ifstream file(path, std::ios::binary);
     if (!file.is_open())
     {
-      Log::Error("Failed to open file: " + std::to_string(path));
+      Log::Error("The file did not open while trying to read it. " + std::to_string(path));
       return data;
     }
 
