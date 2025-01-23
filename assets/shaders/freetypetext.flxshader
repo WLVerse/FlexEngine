@@ -1,2 +1,2 @@
-vertex:asset/shader/freetypetext.vert
-fragment:asset/shader/freetypetext.frag
+vertex: assets/shaders/freetypetext.vert
+fragment: assets/shaders/freetypetext.frag

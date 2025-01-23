@@ -1,2 +1,2 @@
-vertex:asset/shader/texture.vert
-fragment:asset/shader/texture.frag
+vertex: assets/shaders/texture.vert
+fragment: assets/shaders/texture.frag

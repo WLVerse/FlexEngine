@@ -29,6 +29,15 @@ namespace FlexEngine
         // skip empty lines
         if (line.empty()) continue;
 
+        // skip comments
+        if (
+          line[0] == '/' && line[1] == '/' ||
+          line[0] == '#'
+        ) continue;
+
+        // remove all whitespace
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+
         // split the line into shader type and path
         std::size_t colon = line.find(':');
         std::string shader_type = line.substr(0, colon);
@@ -162,6 +171,7 @@ namespace FlexEngine
       if (m_vertex_shader != 0)
       {
         Log::Warning("Vertex shader already exists, overriding it!");
+        glDeleteShader(m_vertex_shader);
       }
 
       // read vertex shader file
@@ -194,6 +204,7 @@ namespace FlexEngine
       if (m_fragment_shader != 0)
       {
         Log::Warning("Fragment shader already exists, overriding it!");
+        glDeleteShader(m_fragment_shader);
       }
 
       // read fragment shader file

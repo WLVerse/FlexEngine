@@ -1,2 +1,2 @@
-vertex:asset/shader/batchtexture.vert
-fragment:asset/shader/batchtexture.frag
+vertex: assets/shaders/batchtexture.vert
+fragment: assets/shaders/batchtexture.frag
