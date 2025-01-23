@@ -145,12 +145,15 @@ namespace FlexEngine
     file.Read();
 
     // guard: wrong file extension
-    // only .flx files are supported
+    // only .flx* files are supported
     std::string extension = file.path.extension().string();
 
     if (extension.substr(0, 4) != ".flx")
     {
-      Log::Warning("Unsupported file extension: " + file.path.string());
+      Log::Warning(
+        "Unsupported file extension: " + file.path.string() +
+        " The FlexFormatter only runs on files with .flx in the extension like .flxspritesheet or .flxshader."
+      );
       return FlxFmtFile::Null;
     }
 
@@ -162,8 +165,10 @@ namespace FlexEngine
     // guard: wrong file type
     if (file_type != expected_file_type)
     {
-      Log::Warning("File type mismatch: " + extension);
-      Log::Warning("Expected:           " + FlxFmtFileType_ReverseLookup(expected_file_type));
+      Log::Warning(
+        "File type mismatch: " + extension +
+        " Expected: " + FlxFmtFileType_ReverseLookup(expected_file_type)
+      );
       return FlxFmtFile::Null;
     }
 
@@ -218,11 +223,17 @@ namespace FlexEngine
 
     if (format_version != FLXFMT_VERSION)
     {
-      Log::Info("File format version mismatch: " + std::to_string(format_version));
-      Log::Info("Current version:              " + std::to_string(FLXFMT_VERSION));
+      Log::Info(
+        "File format version mismatch: " + std::to_string(format_version) +
+        " Expected: " + std::to_string(FLXFMT_VERSION)
+      );
       if (format_version > FLXFMT_VERSION)
       {
-        Log::Warning("Forward compatibility is not supported.");
+        Log::Warning(
+          "Forward compatibility is not supported. "
+          "Current version: " + std::to_string(FLXFMT_VERSION) +
+          " File version: " + std::to_string(format_version)
+        );
         return FlxFmtFile::Null;
       }
       else

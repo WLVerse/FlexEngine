@@ -91,7 +91,10 @@ namespace FlexEngine
       // guard
       if (m_shader_program == 0)
       {
-        Log::Warning("Cannot get the shader program because it is not valid or hasn't been created yet!");
+        Log::Warning(
+          "Cannot get the shader program because it is not valid or hasn't been created yet! "
+          "Shader: " + metadata.path.string()
+        );
       }
       return m_shader_program;
     }
@@ -181,7 +184,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_vertex_shader != 0)
       {
-        Log::Warning("Vertex shader already exists, overriding it!");
+        Log::Warning("Vertex shader already exists, overriding it! Shader: " + metadata.path.string());
         glDeleteShader(m_vertex_shader);
       }
 
@@ -214,7 +217,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_fragment_shader != 0)
       {
-        Log::Warning("Fragment shader already exists, overriding it!");
+        Log::Warning("Fragment shader already exists, overriding it! Shader: " + metadata.path.string());
         glDeleteShader(m_fragment_shader);
       }
 

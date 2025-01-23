@@ -40,13 +40,17 @@ namespace FlexEngine
     // guard: asset already exists
     if (assets.count(key) != 0)
     {
-      Log::Warning(std::string("AssetManager: Asset already exists: ") + key);
+      Log::Warning(
+        "The internal texture already exists. "
+        "Instead of creating a new one, we reuse the one that already exists. "
+        "Asset key: " + std::string(key)
+      );
       return key;
     }
 
     // add texture to assets
     assets[key] = texture;
-    Log::Info(std::string("AssetManager: Added texture: ") + key);
+    Log::Info("Added internal texture to the asset manager. Asset key: " + std::string(key));
     return key;
   }
 

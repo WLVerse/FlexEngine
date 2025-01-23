@@ -82,7 +82,7 @@ namespace FlexEngine
     unsigned char* image_data = stbi_load(filename, out_width, out_height, NULL, 4);
     if (!image_data)
     {
-      Log::Warning(std::string("Could not load texture file: ") + filename);
+      Log::Warning("Could not load texture from file using stbi_load. File: " + std::string(filename));
       return false;
     }
 
@@ -91,7 +91,7 @@ namespace FlexEngine
     *out_texture_data = new unsigned char[texture_size];
     if (!(*out_texture_data))
     {
-      Log::Error(std::string("Could not allocate memory for texture data: ") + filename);
+      Log::Error("Could not allocate memory for texture data. File: " + std::string(filename));
       stbi_image_free(image_data);
       return false;
     }
