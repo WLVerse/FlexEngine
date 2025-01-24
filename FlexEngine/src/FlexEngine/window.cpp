@@ -22,12 +22,14 @@
 
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
+
 //#include "Renderer/OpenGL/openglframebuffer.h"
 //#include "FMOD/FMODWrapper.h"
 
+FlexEngine::OpenGLFrameBufferManager FlexEngine::Window::FrameBufferManager;
+
 namespace
 {
-
   // glfw: whenever the window size changed (by OS or user resize) this callback function executes
   void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
   {
@@ -123,6 +125,8 @@ namespace FlexEngine
     // always move the window to the center of the screen
     // this is done after the window is created to avoid the window being created off-center
     CenterWindow();
+
+    FrameBufferManager.Init();
   }
 
   void Window::Close()

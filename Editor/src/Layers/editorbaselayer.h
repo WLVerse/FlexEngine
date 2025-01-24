@@ -25,8 +25,6 @@ namespace Editor
     std::string current_save_name = default_save_name;
 
     ImGuiID dockspace_main_id = 0;
-
-    FlexEngine::OpenGLFrameBufferManager* framebufferManager = nullptr;
   public:
     EditorBaseLayer() : Layer("Editor Base Layer") {}
     ~EditorBaseLayer() = default;

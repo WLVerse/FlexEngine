@@ -66,7 +66,7 @@ namespace FlexEngine
 
   void OpenGLFrameBuffer::Bind() const 
   {
-    Log::Info("Bind framebuffer with ID: " + std::to_string(framebuffer));
+    //Log::Info("Bind framebuffer with ID: " + std::to_string(framebuffer));
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     GET_OPENGL_ERROR()
   }

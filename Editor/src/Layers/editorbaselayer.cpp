@@ -106,14 +106,10 @@ namespace Editor
     Editor::GetInstance().Init();
     RegisterComponents();
 
-    framebufferManager = new FlexEngine::OpenGLFrameBufferManager();
 
     // Add custom framebuffers
-    FlexEngine::OpenGLFrameBuffer* customFramebuffer1 = new OpenGLFrameBuffer(1024, 768);
-    framebufferManager->AddFrameBuffer("custom1", *customFramebuffer1);
-
-    FlexEngine::OpenGLFrameBuffer* customFramebuffer2 = new OpenGLFrameBuffer(1280, 720);
-    framebufferManager->AddFrameBuffer("custom2", *customFramebuffer2);
+    Window::FrameBufferManager.AddFrameBuffer("custom1", Vector2(1080, 640));                                             
+    Window::FrameBufferManager.AddFrameBuffer("custom2", Vector2(1280, 720));
 
   }
 
@@ -123,8 +119,8 @@ namespace Editor
 
   void EditorBaseLayer::Update()
   {
-    framebufferManager->SetCurrentFrameBuffer("custom1");
-    framebufferManager->GetCurrentFrameBuffer()->GetColorAttachment();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("custom1");
+    Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
     // Always remember to set the context before using ImGui
     FLX_IMGUI_ALIGNCONTEXT();

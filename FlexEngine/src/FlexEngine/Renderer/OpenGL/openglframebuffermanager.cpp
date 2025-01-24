@@ -6,15 +6,6 @@ namespace FlexEngine
 {
     std::unordered_map<std::string, OpenGLFrameBuffer*> OpenGLFrameBufferManager::m_FrameBuffers;
 
-    OpenGLFrameBufferManager::OpenGLFrameBufferManager() 
-    {
-        // Initialize with a default framebuffer
-        OpenGLFrameBuffer* defaultFramebuffer = new OpenGLFrameBuffer();
-        defaultFramebuffer->Init(800, 600); // Default size
-        m_FrameBuffers["default"] = defaultFramebuffer;
-        m_CurrentFrameBuffer = defaultFramebuffer;
-    }
-
     OpenGLFrameBufferManager::~OpenGLFrameBufferManager() 
     {
         // Clean up all dynamically allocated framebuffers
@@ -25,9 +16,19 @@ namespace FlexEngine
         m_FrameBuffers.clear();
     }
 
-    void OpenGLFrameBufferManager::AddFrameBuffer(const std::string& name, OpenGLFrameBuffer& framebuffer) 
+    void OpenGLFrameBufferManager::Init()
     {
-        m_FrameBuffers[name] = &framebuffer;
+        // Initialize with a default framebuffer
+        OpenGLFrameBuffer* defaultFramebuffer = new OpenGLFrameBuffer();
+        defaultFramebuffer->Init(800, 600); // Default size
+        m_FrameBuffers["default"] = defaultFramebuffer;
+        m_CurrentFrameBuffer = defaultFramebuffer;
+    }
+
+    void OpenGLFrameBufferManager::AddFrameBuffer(const std::string& name, Vector2 screenDimensions)
+    {
+        OpenGLFrameBuffer* newFB = new OpenGLFrameBuffer(static_cast<int>(screenDimensions.x), static_cast<int>(screenDimensions.y));
+        m_FrameBuffers[name] = newFB;
     }
 
     OpenGLFrameBuffer* OpenGLFrameBufferManager::GetFrameBuffer(const std::string& name) 

@@ -27,7 +27,6 @@
 #include "DataStructures/functionqueue.h"
 #include "Layer/layerstack.h"
 #include "window.h"
-
 #include <string>
 #include <vector>
 #include <memory> // std::shared_ptr
@@ -423,6 +422,8 @@ namespace FlexEngine
     static void Run();
 
     friend int ::main(int, char**);
+
+    static OpenGLFrameBufferManager FrameBufferManager;
 
     #pragma endregion
 
