@@ -49,6 +49,11 @@ namespace FlexEngine
   {
     //m_key_down.fill(false);
     //m_key_up.fill(false);
+    if (key == -1)
+    {
+      Log::Info("Unsupported key was inputted. If this key is needed, please inform someone!!");
+      return;
+    }
 
     switch (action)
     {
