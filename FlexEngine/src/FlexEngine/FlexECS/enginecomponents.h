@@ -117,4 +117,16 @@ namespace FlexEngine
     bool is_looping;
     std::string audio_file;
   };
+
+  /*!***************************************************************************
+  * \class Prefab
+  * \brief
+  * This class represents the prefab component of an entity
+  ******************************************************************************/
+  class __FLX_API Prefab
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    std::string prefab_name;
+  };
 }

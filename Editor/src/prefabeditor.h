@@ -32,7 +32,8 @@ namespace Editor
 		// First variable: Original Key Name, Second Variable: New Key Name, Third Variable: Key Value
 		std::vector<std::tuple<std::string, std::string, std::variant<std::string, bool, int>>> prefab_keys;
 		// prefab file name
-		std::string file_name;
+		// First variable: Original File Name, Second Variable: New File Name
+		std::pair<FileList, std::string> file_name;
 	};
 
 }

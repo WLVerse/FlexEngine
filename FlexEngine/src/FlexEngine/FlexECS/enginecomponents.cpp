@@ -48,4 +48,8 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(audio_file) 
     FLX_REFL_REGISTER_END;
 
+  FLX_REFL_REGISTER_START(Prefab)
+    FLX_REFL_REGISTER_PROPERTY(prefab_name)
+    FLX_REFL_REGISTER_END;
+
 }
