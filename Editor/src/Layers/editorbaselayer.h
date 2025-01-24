@@ -26,6 +26,7 @@ namespace Editor
 
     ImGuiID dockspace_main_id = 0;
 
+    FlexEngine::OpenGLFrameBufferManager* framebufferManager = nullptr;
   public:
     EditorBaseLayer() : Layer("Editor Base Layer") {}
     ~EditorBaseLayer() = default;
