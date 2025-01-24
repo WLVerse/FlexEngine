@@ -172,6 +172,7 @@
 // The current implementation is exclusively for OpenGL.
 #include "FlexEngine/Renderer/OpenGL/openglshader.h"
 
+#include "FlexEngine/Renderer/OpenGL/openglframebuffermanager.h"
 
 /* |-----------------------------| */
 /* |------ Data Structures ------| */

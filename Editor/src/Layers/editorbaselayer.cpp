@@ -105,15 +105,23 @@ namespace Editor
 
     Editor::GetInstance().Init();
     RegisterComponents();
+
+
+    // Add custom framebuffers
+    Window::FrameBufferManager.AddFrameBuffer("custom1", Vector2(1080, 640));                                             
+    Window::FrameBufferManager.AddFrameBuffer("custom2", Vector2(1280, 720));
+
   }
 
   void EditorBaseLayer::OnDetach()
   {
-
   }
 
   void EditorBaseLayer::Update()
   {
+    Window::FrameBufferManager.SetCurrentFrameBuffer("custom1");
+    Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+
     // Always remember to set the context before using ImGui
     FLX_IMGUI_ALIGNCONTEXT();
 
@@ -124,6 +132,9 @@ namespace Editor
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
     Editor::GetInstance().Update();
+
+    // good practise
+    OpenGLFrameBuffer::Unbind();
   }
 
 }

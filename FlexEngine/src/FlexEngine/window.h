@@ -21,6 +21,7 @@
 #include "Layer/layerstack.h" // <string> <memory> <vector>
 #include "DataStructures/functionqueue.h" // FunctionQueue
 #include "Renderer/OpenGL/opengltexture.h" // Asset::Texture
+#include "FlexEngine/Renderer/OpenGL/openglframebuffermanager.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h> // always put glad before glfw
@@ -272,6 +273,8 @@ namespace FlexEngine
     #define FLX_IMGUI_ALIGNCONTEXT() ImGui::SetCurrentContext(Application::GetCurrentWindow()->GetImGuiContext())
 
     ImGuiContext* GetImGuiContext() { return m_imgui_context; }
+
+    static OpenGLFrameBufferManager FrameBufferManager;
 
     #endif
 
