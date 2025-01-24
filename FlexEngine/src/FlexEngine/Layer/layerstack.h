@@ -135,13 +135,6 @@ namespace FlexEngine
     #pragma region Internal Functions
 
   public:
-    // INTERNAL FUNCTION
-    // This function is called at the end of the update function to
-    // add or remove layers and overlays.
-    // Add and remove operations are queued to ensure that they
-    // happen at the end of the update function to prevent
-    // undefined behavior and invalidating iterators.
-    void Internal_ExecuteDeferredCommands();
 
     void Internal_Clear();
     void Internal_Add(LayerType type, std::shared_ptr<Layer> layer, size_t index);

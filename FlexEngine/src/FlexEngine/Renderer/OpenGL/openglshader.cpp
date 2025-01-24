@@ -15,7 +15,7 @@ namespace FlexEngine
       // parse the file
       if (!Internal_Parse())
       {
-        Log::Error("Shader file could not be parsed! " + metadata.path.string());
+        Log::Error("Shader file could not be parsed! Shader: " + metadata.path.string());
       }
     }
 
@@ -91,7 +91,10 @@ namespace FlexEngine
       // guard
       if (m_shader_program == 0)
       {
-        Log::Warning("Cannot get the shader program because it is not valid or hasn't been created yet!");
+        Log::Warning(
+          "Cannot get the shader program because it is not valid or hasn't been created yet! "
+          "Shader: " + metadata.path.string()
+        );
       }
       return m_shader_program;
     }
@@ -135,14 +138,14 @@ namespace FlexEngine
         // warn for missing colon
         if (colon == std::string::npos)
         {
-          Log::Error("The shader file has a missing colon. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error("The shader file has a missing colon. Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
         // warn for bad shader type
         if (shader_type != "vertex" && shader_type != "fragment")
         {
-          Log::Error("The shader file has an invalid shader type. " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error("The shader file has an invalid shader type. Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
@@ -153,7 +156,7 @@ namespace FlexEngine
         }
         catch (const std::invalid_argument& e)
         {
-          Log::Error(e.what() + std::string(" ") + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error(std::string(e.what()) + " Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
@@ -181,7 +184,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_vertex_shader != 0)
       {
-        Log::Warning("Vertex shader already exists, overriding it!");
+        Log::Warning("Vertex shader already exists, overriding it! Shader: " + metadata.path.string());
         glDeleteShader(m_vertex_shader);
       }
 
@@ -202,7 +205,11 @@ namespace FlexEngine
       if (!success)
       {
         glGetShaderInfoLog(m_vertex_shader, 512, NULL, infoLog);
-        Log::Error(std::string("Vertex shader did not compile!\n") + infoLog + '\n');
+        Log::Error(
+          "Vertex shader did not compile. "
+          "Shader: " + metadata.path.string() + " Vertex shader: " + path_to_vertex_shader.string() + '\n' +
+          infoLog + '\n'
+        );
       }
     }
 
@@ -214,7 +221,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_fragment_shader != 0)
       {
-        Log::Warning("Fragment shader already exists, overriding it!");
+        Log::Warning("Fragment shader already exists, overriding it! Shader: " + metadata.path.string());
         glDeleteShader(m_fragment_shader);
       }
 
@@ -235,7 +242,11 @@ namespace FlexEngine
       if (!success)
       {
         glGetShaderInfoLog(m_fragment_shader, 512, NULL, infoLog);
-        Log::Error(std::string("Fragment shader did not compile!\n") + infoLog + '\n');
+        Log::Error(
+          "Fragment shader did not compile. "
+          "Shader: " + metadata.path.string() + " Fragment shader: " + path_to_fragment_shader.string() + '\n' +
+          infoLog + '\n'
+        );
       }
     }
 
@@ -246,7 +257,7 @@ namespace FlexEngine
       // guard: check if shaders are compiled
       if (m_vertex_shader == 0 || m_fragment_shader == 0)
       {
-        FLX_ASSERT(false, "Shader could not be linked because one of the shaders is missing!");
+        Log::Error("Shader could not be linked because one of the shaders is missing! Shader: " + metadata.path.string());
         return;
       }
 
@@ -266,7 +277,12 @@ namespace FlexEngine
         glDetachShader(m_shader_program, m_vertex_shader);
         glDetachShader(m_shader_program, m_fragment_shader);
         glGetProgramInfoLog(m_shader_program, 512, NULL, infoLog);
-        FLX_ASSERT(false, std::string("Shader linker error! ") + infoLog);
+        Log::Error(
+          "Shader linker error! "
+          "Shader: " + metadata.path.string() + '\n' +
+          infoLog + '\n'
+        );
+        return;
       }
 
       // delete shaders

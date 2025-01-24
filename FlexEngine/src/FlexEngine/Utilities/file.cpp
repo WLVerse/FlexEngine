@@ -61,7 +61,10 @@ namespace FlexEngine
     // guard
     if (!path.is_file())
     {
-      Log::Warning("Attempted to read a non-file. This is probably a folder/directory." + std::to_string(path));
+      Log::Warning(
+        "Attempted to read a non-file. This is probably a folder/directory. "
+        "Path:" + std::to_string(path)
+      );
       return data;
     }
 
@@ -98,7 +101,7 @@ namespace FlexEngine
     // guard
     if (!path.is_file())
     {
-      Log::Warning("Attempted to write to a non-file: " + std::to_string(path));
+      Log::Warning("Attempted to write to a non-file. Path: " + std::to_string(path));
       return;
     }
 
@@ -132,21 +135,28 @@ namespace FlexEngine
     // guard: path is not a directory
     if (!path.is_directory())
     {
-      Log::Warning("Attempted to create a file in a non-directory: " + std::to_string(path));
+      Log::Warning("Attempted to create a file in a non-directory. Path: " + std::to_string(path));
       return path;
     }
 
     // guard: filename
     if (filename.empty() || filename.find_first_of(Path::invalid_characters) != std::string::npos)
     {
-      Log::Warning("Attempted to create a file with an invalid filename: " + std::to_string(path) + Path::separator + filename);
+      Log::Warning(
+        "Attempted to create a file with an invalid filename. "
+        "Path: " + std::to_string(path) + Path::separator + filename
+      );
       return path;
     }
 
     // guard: length
     if ((path.string().length() + filename.length()) >= 260)
     {
-      Log::Warning("Attempted to create a file with a filename that is too long: " + std::to_string(path) + Path::separator + filename);
+      Log::Warning(
+        "Attempted to create a file with a filename that is too long. "
+        "Path" + std::to_string(path) + Path::separator + filename +
+        " (" + std::to_string(path.string().length() + filename.length()) + ")"
+      );
       return path;
     }
 
