@@ -133,7 +133,7 @@ namespace Editor
 
     Editor::GetInstance().Update();
 
-    // To prevent flashing
+    // good practise
     OpenGLFrameBuffer::Unbind();
   }
 
