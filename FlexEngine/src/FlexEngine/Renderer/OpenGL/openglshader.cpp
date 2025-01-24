@@ -9,14 +9,8 @@ namespace FlexEngine
   namespace Asset
   {
 
-    Shader::Shader(File& _metadata)
-      : metadata(_metadata)
+    Shader::Shader()
     {
-      // parse the file
-      if (!Internal_Parse())
-      {
-        Log::Error("Shader file could not be parsed! Shader: " + metadata.path.string());
-      }
     }
 
     Shader::~Shader()
@@ -29,12 +23,24 @@ namespace FlexEngine
       return m_shader_program != 0;
     }
 
+    void Shader::Load(Path metadata)
+    {
+      m_path_to_metadata = metadata;
+
+      // parse the file
+      if (!Internal_Parse())
+      {
+        Log::Error("Shader file could not be parsed! Shader: " + m_path_to_metadata.string());
+      }
+    }
+
     void Shader::Destroy()
     {
       if (m_vertex_shader != 0) glDeleteShader(m_vertex_shader);
       if (m_fragment_shader != 0) glDeleteShader(m_fragment_shader);
       if (m_shader_program != 0) glDeleteProgram(m_shader_program);
 
+      m_path_to_metadata = Path();
       m_path_to_vertex_shader = Path();
       m_path_to_fragment_shader = Path();
     }
@@ -93,7 +99,7 @@ namespace FlexEngine
       {
         Log::Warning(
           "Cannot get the shader program because it is not valid or hasn't been created yet! "
-          "Shader: " + metadata.path.string()
+          "Shader: " + m_path_to_metadata.string()
         );
       }
       return m_shader_program;
@@ -105,7 +111,8 @@ namespace FlexEngine
     {
       // parse the file
       // the file is just a text file with the type and path of the shader
-      std::stringstream ss(metadata.Read());
+      File& file = File::Open(m_path_to_metadata);
+      std::stringstream ss(file.Read());
 
       // parse format
       // <shader_type>: <path>
@@ -138,14 +145,14 @@ namespace FlexEngine
         // warn for missing colon
         if (colon == std::string::npos)
         {
-          Log::Error("The shader file has a missing colon. Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error("The shader file has a missing colon. Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
         // warn for bad shader type
         if (shader_type != "vertex" && shader_type != "fragment")
         {
-          Log::Error("The shader file has an invalid shader type. Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error("The shader file has an invalid shader type. Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
@@ -156,7 +163,7 @@ namespace FlexEngine
         }
         catch (const std::invalid_argument& e)
         {
-          Log::Error(std::string(e.what()) + " Shader: " + metadata.path.string() + " Line: " + std::to_string(line_number));
+          Log::Error(std::string(e.what()) + " Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
           return false;
         }
 
@@ -173,6 +180,9 @@ namespace FlexEngine
         }
       }
 
+      // link the shaders
+      Internal_Link();
+
       return true;
     }
 
@@ -184,7 +194,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_vertex_shader != 0)
       {
-        Log::Warning("Vertex shader already exists, overriding it! Shader: " + metadata.path.string());
+        Log::Warning("Vertex shader already exists, overriding it! Shader: " + m_path_to_metadata.string());
         glDeleteShader(m_vertex_shader);
       }
 
@@ -207,10 +217,12 @@ namespace FlexEngine
         glGetShaderInfoLog(m_vertex_shader, 512, NULL, infoLog);
         Log::Error(
           "Vertex shader did not compile. "
-          "Shader: " + metadata.path.string() + " Vertex shader: " + path_to_vertex_shader.string() + '\n' +
+          "Shader: " + m_path_to_metadata.string() + " Vertex shader: " + path_to_vertex_shader.string() + '\n' +
           infoLog + '\n'
         );
       }
+
+      Log::Debug("Created vertex shader with id: " + std::to_string(m_vertex_shader));
     }
 
     void Shader::Internal_CreateFragmentShader(const Path& path_to_fragment_shader)
@@ -221,7 +233,7 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_fragment_shader != 0)
       {
-        Log::Warning("Fragment shader already exists, overriding it! Shader: " + metadata.path.string());
+        Log::Warning("Fragment shader already exists, overriding it! Shader: " + m_path_to_metadata.string());
         glDeleteShader(m_fragment_shader);
       }
 
@@ -244,10 +256,12 @@ namespace FlexEngine
         glGetShaderInfoLog(m_fragment_shader, 512, NULL, infoLog);
         Log::Error(
           "Fragment shader did not compile. "
-          "Shader: " + metadata.path.string() + " Fragment shader: " + path_to_fragment_shader.string() + '\n' +
+          "Shader: " + m_path_to_metadata.string() + " Fragment shader: " + path_to_fragment_shader.string() + '\n' +
           infoLog + '\n'
         );
       }
+
+      Log::Debug("Created fragment shader with id: " + std::to_string(m_fragment_shader));
     }
 
     void Shader::Internal_Link()
@@ -257,12 +271,14 @@ namespace FlexEngine
       // guard: check if shaders are compiled
       if (m_vertex_shader == 0 || m_fragment_shader == 0)
       {
-        Log::Error("Shader could not be linked because one of the shaders is missing! Shader: " + metadata.path.string());
+        Log::Error("Shader could not be linked because one of the shaders is missing! Shader: " + m_path_to_metadata.string());
         return;
       }
 
       // create shader program
       m_shader_program = glCreateProgram();
+
+      Log::Debug("Created shader program with id: " + std::to_string(m_shader_program));
 
       glAttachShader(m_shader_program, m_vertex_shader);
       glAttachShader(m_shader_program, m_fragment_shader);
@@ -279,7 +295,7 @@ namespace FlexEngine
         glGetProgramInfoLog(m_shader_program, 512, NULL, infoLog);
         Log::Error(
           "Shader linker error! "
-          "Shader: " + metadata.path.string() + '\n' +
+          "Shader: " + m_path_to_metadata.string() + '\n' +
           infoLog + '\n'
         );
         return;

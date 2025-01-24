@@ -79,12 +79,12 @@ namespace FlexEngine
     // .glsl and .hlsl files are currently not supported
     // but in the future they will skip this linker because
     // they contain all the necessary information in one file
-    std::unordered_map<std::string, std::array<File*, 3>> shader_linker;
+    //std::unordered_map<std::string, std::array<File*, 3>> shader_linker;
 
     Log::Flow("Loading assets...");
     // iterate through all files in the directory
     list.each(
-      [&default_directory_length, &shader_linker](File& file)
+      [&default_directory_length](File& file)
       {
         // determine what type of asset it is
         // 
@@ -119,7 +119,9 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
 
           // load shader
-          assets.emplace(key, Asset::Shader(file));
+          assets.emplace(key, Asset::Shader());
+          Asset::Shader& shader = std::get<Asset::Shader>(assets[key]);
+          shader.Load(file.path);
           Log::Info("Loaded shader: " + key);
         }
         else if (file_extension.string() == ".mp3")

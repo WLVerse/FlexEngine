@@ -177,7 +177,7 @@ namespace FlexEngine
     // bind all
     glBindVertexArray(vao);
 
-    auto& asset_shader = FLX_ASSET_GET(Asset::Shader, props.shader);
+    auto& asset_shader = AssetManager::Get<Asset::Shader>(props.shader);
     asset_shader.Use();
 
     if (props.asset != "")
@@ -650,9 +650,14 @@ namespace FlexEngine
     // bind all
     glBindVertexArray(vao);
 
-    static Asset::Shader texture_shader(
-      File::Open(Path::current("assets/shaders/texture.flxshader"))
-    );
+    // jank optimization to run once
+    static Asset::Shader texture_shader;
+    static bool texture_shader_loaded = false;
+    if (!texture_shader_loaded)
+    {
+      texture_shader.Load(Path::current("assets/shaders/texture.flxshader"));
+      texture_shader_loaded = true;
+    }
     texture_shader.Use();
 
     texture_shader.SetUniform_bool("u_use_texture", true);

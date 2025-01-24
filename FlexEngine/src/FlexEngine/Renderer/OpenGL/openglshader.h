@@ -17,12 +17,9 @@ namespace FlexEngine
     // TODO: generate a new metadata file in editor
     class __FLX_API Shader
     {
-      // The metadata file for the shader
-      File& metadata;
-
     public:
       // Load the shader from a metadata file
-      Shader(File& _metadata);
+      Shader();
 
       // Must be implemented to free the shader
       // RAII
@@ -53,11 +50,16 @@ namespace FlexEngine
       unsigned int m_fragment_shader = 0;
       //unsigned int m_geometry_shader = 0;
 
+      Path m_path_to_metadata;
+
       Path m_path_to_vertex_shader;
       Path m_path_to_fragment_shader;
       //Path m_path_to_geometry_shader;
 
     public:
+
+      // Load the shader from the metadata file
+      void Load(Path metadata);
 
       // Links the vertex and fragment shaders into a shader program
       void Destroy();

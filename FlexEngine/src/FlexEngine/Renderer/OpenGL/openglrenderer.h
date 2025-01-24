@@ -19,7 +19,7 @@ namespace FlexEngine
       Alignment_TopLeft = 1,
     };
 
-    std::string shader = R"(/shaders/texture)";
+    std::string shader = R"(/shaders/texture.flxshader)";
     std::string asset = R"(/images/flexengine/flexengine-256.png)"; // Texture or spritesheet
     int texture_index = -1; // For spritesheets, -1 means not a spritesheet
     Vector3 color = Vector3(1.0f, 0.0f, 1.0f);
@@ -55,7 +55,7 @@ namespace FlexEngine
           Alignment_Bottom = 2,      /*!< Bottom alignment */
       };
 
-      std::string m_shader = R"(/shaders/freetypetext)";  /*!< Path to the shader for text rendering */
+      std::string m_shader = R"(/shaders/freetypetext.flxshader)";  /*!< Path to the shader for text rendering */
       std::string m_fonttype = R"()";                     /*!< Font type to use for rendering; empty means an error will occur */
       std::string m_words;                                /*!< The actual text to render */
       Vector3 m_color = Vector3::Zero;                    /*!< Color of the text */
