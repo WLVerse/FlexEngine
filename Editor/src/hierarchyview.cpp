@@ -77,12 +77,12 @@ namespace Editor
 			if (ImGui::MenuItem("Create Entity"))
 			{
 				//Add default components
-				//FlexECS::Entity new_entity = FlexECS::Scene::CreateEntity();
+				FlexECS::Entity new_entity = FlexECS::Scene::CreateEntity();
 				//new_entity.AddComponent<IsActive>({});
-				//new_entity.AddComponent<Position>({});
-				//new_entity.AddComponent<Rotation>({});
+				new_entity.AddComponent<Position>({});
+				new_entity.AddComponent<Rotation>({});
 				//new_entity.AddComponent<Scale>({});
-				//new_entity.AddComponent<Transform>({});
+				new_entity.AddComponent<Transform>({});
 				//new_entity.AddComponent<ZIndex>({});
 			}
 			ImGui::EndPopup();
@@ -141,7 +141,7 @@ namespace Editor
 				}
 				if (ImGui::MenuItem("Destroy Entity"))
 				{
-					selection_system->DeleteSelectedEntities();
+					selection_system->DeleteEntity(entity);
 				}
 				ImGui::EndPopup();
 			}
