@@ -14,6 +14,7 @@ public:
     {
         Log::Debug("SceneManager: Start");
 
+        //I want to use CameraManager::getInstance()...
         //m_camManager
     }
 

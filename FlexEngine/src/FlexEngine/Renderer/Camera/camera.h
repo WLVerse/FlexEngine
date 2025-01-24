@@ -28,7 +28,7 @@ namespace FlexEngine
   public:
     // The camera is automatically initalized upon construction
     Camera(float left, float right, float bottom, float top, float near, float far);
-    ~Camera() = default;
+    ~Camera() = default; //Destroy Camera in cameramanager
 
     void SetProjection(float left, float right, float bottom, float top, float near, float far);
     const Matrix4x4& GetProjectionMatrix() const { return m_ortho_matrix; }
