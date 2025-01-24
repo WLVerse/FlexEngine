@@ -396,4 +396,26 @@ namespace FlexEngine
 
   #pragma endregion
 
+  #pragma region Headless Window (Master Window)
+
+  void Application::Internal_CreateMasterWindow()
+  {
+    // guard: check if the master window already exists
+    if (m_master_window)
+    {
+      Log::Warning("The master window already exists. Cannot create another master window.");
+      return;
+    }
+
+    // create the master window
+    m_master_window = glfwCreateWindow(1, 1, "Master Window (Headless)", nullptr, nullptr);
+    FLX_NULLPTR_ASSERT(m_master_window, "Failed to create the master window.");
+    glfwMakeContextCurrent(m_master_window);
+
+    // load all OpenGL function pointers (glad)
+    FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
+  }
+
+  #pragma endregion
+
 }

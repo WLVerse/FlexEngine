@@ -13,6 +13,10 @@
 // - Window
 // - Application LayerStack
 // - Application
+// 
+// The application contains a headless window, this forces this application to
+// always have a window. This is useful for applications that require
+// multi-window support.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -427,6 +431,26 @@ namespace FlexEngine
 
     #pragma endregion
 
+    #pragma region Headless Window (Master Window)
+
+    // The master window is a headless window that is always open.
+    // It stores the opengl context that is shared between every window.
+
+  public:
+
+    // Returns the master window, used for opengl context sharing.
+    GLFWwindow* GetMasterWindow() { return m_master_window; }
+
+  private:
+
+    static GLFWwindow* m_master_window;
+
+    // INTERNAL FUNCTION
+    // Creates the headless window and stores it.
+    // This is not a window and also not stored in the window registry.
+    void Internal_CreateMasterWindow();
+
+    #pragma endregion
   };
 
   // Application Framework Pattern (Inversion of Control)
