@@ -160,6 +160,10 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	std::string& path_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
 	EditorGUI::TexturePath(path_##name);
 
+	#define COMPONENT_VIEWER_SPRITESHEET_PATH(name) \
+	std::string& path_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
+	EditorGUI::SpritesheetPath(path_##name);
+
 	#define COMPONENT_VIEWER_AUDIO_PATH(name) \
 	std::string& path_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
 	EditorGUI::AudioPath(path_##name);

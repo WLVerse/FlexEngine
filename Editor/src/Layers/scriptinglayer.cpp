@@ -162,8 +162,12 @@ namespace Editor
 
     Internal_DebugWithImGui();
 
-    auto script = ScriptRegistry::GetScript("GameplayLoops");
-    if (script) script->Update();
+
+    if (is_scripting_dll_loaded)
+    {
+      auto script = ScriptRegistry::GetScript("GameplayLoops");
+      if (script) script->Update();
+    }
   }
 
 }

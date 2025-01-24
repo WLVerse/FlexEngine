@@ -40,7 +40,7 @@ namespace Editor
     COMPONENT_VIEWER_END(Sprite)
 
   COMPONENT_VIEWER_START(Animator)
-    COMPONENT_VIEWER_TEXTURE_PATH(spritesheet_file)   //This may be wrong. Might need to need to make filepath to spritesheet
+    COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_file)   //This may be wrong. Might need to need to make filepath to spritesheet
     COMPONENT_VIEWER_BOOL(should_play)
     COMPONENT_VIEWER_DRAG_FLOAT(time)
     COMPONENT_VIEWER_END(Animator)
