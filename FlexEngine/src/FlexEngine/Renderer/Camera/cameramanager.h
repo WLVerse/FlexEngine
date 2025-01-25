@@ -42,127 +42,74 @@ namespace FlexEngine
 
     /*!************************************************************************
     * \class CameraManager
-    * \brief
-    * A manager for handling camera entities within the ECS framework. It provides
-    * functionality to register, update, and retrieve camera data, as well as
-    * manage transitions between main and editor cameras.
-    *
-    * 0 -> Editor Cam
-    * 1-Inf -> Scene Cam
+    * \brief A singleton camera bank for managing camera data and ensuring
+    * a default editor camera is created upon initialization.
     *************************************************************************/
-    //This layer handles the ECS integration, rendering details, and managing the lifecycle of cameras.
-    class __FLX_API CameraManager 
+    class __FLX_API CameraManager
     {
-        static std::unordered_map<FlexECS::EntityID, Camera> m_cameraEntities; /*!< Maps entity IDs to Camera */
-        FlexECS::EntityID m_currMainID = INVALID_ENTITY_ID; /*!< Current main camera entity ID */
-        FlexECS::EntityID m_currEditorID = INVALID_ENTITY_ID; /*!< Current editor camera entity ID */
-        bool m_autoCreateEditorCamera; /*!< Flag for auto editor camera creation */
-
-        /*!************************************************************************
-         * \brief Initializes the CameraManager, creating a default editor camera if enabled.
-         *************************************************************************/
-        void CreateDefaultEditorCamera();
-
-        /*!************************************************************************
-         * \brief Ensures the main camera ID is valid, switching to another active camera if necessary.
-         *************************************************************************/
-        void ValidateMainCamera();
-
-        /*!************************************************************************
-         * \brief Clears all registered camera entities, removing their data from the manager.
-         *************************************************************************/
-        void ClearAllCameras();
+        std::unordered_map<FlexECS::EntityID, Camera> m_cameraEntities; /*!< Storage for cameras. */
+        FlexECS::EntityID m_editorCameraID = INVALID_ENTITY_ID; /*!< Reserved editor camera ID. */
 
     public:
-        // Non-copyable and non-movable to prevent accidental duplication
-        CameraManager(const CameraManager&) = delete;
-        CameraManager& operator=(const CameraManager&) = delete;
-        CameraManager(CameraManager&&) = delete;
-        CameraManager& operator=(CameraManager&&) = delete;
-
         /*!************************************************************************
-         * \brief Constructor for CameraManager.
-         * \param autoCreateEditor If true, automatically creates an editor camera on initialization.
+         * \brief Retrieves the singleton instance of the CameraManager.
+         * \return Reference to the singleton CameraManager.
          *************************************************************************/
-        CameraManager(bool autoCreateEditor = true);
-
-        /*!************************************************************************
-         * \brief Destructor for CameraManager, ensuring all camera entities are cleaned up.
-         *************************************************************************/
-        ~CameraManager();
-
-        /*!************************************************************************
-         * \brief Adds a camera entity to the manager.
-         * \param entityID ID of the entity to associate with the camera.
-         * \param Camera Camera data to associate with the entity.
-         *************************************************************************/
-        void AddCameraEntity(FlexECS::EntityID entityID, const Camera& cameraData);
-
-        /*!************************************************************************
-         * \brief Removes a specific camera entity by its ID.
-         * \param entityID The ID of the camera entity to remove.
-         * \return True if the camera was removed, false otherwise.
-         *************************************************************************/
-        bool RemoveCameraEntity(FlexECS::EntityID entityID);
-
-        /*!************************************************************************
-         * \brief Switches the main camera to the given entity ID.
-         * \param entityID ID of the new main camera.
-         * \return True if successful, false otherwise.
-         *************************************************************************/
-        bool SwitchMainCamera(FlexECS::EntityID entityID);
-
-        /*!************************************************************************
-         * \brief Switches the editor camera to the given entity ID.
-         * \param entityID ID of the new editor camera.
-         * \return True if successful, false otherwise.
-         *************************************************************************/
-        bool SwitchEditorCamera(FlexECS::EntityID entityID);
+        static CameraManager& Instance();
 
         /*!************************************************************************
          * \brief Retrieves the camera data for a specific entity.
          * \param entityID ID of the entity to retrieve camera data for.
-         * \return Pointer to CameraData if the entity exists, nullptr otherwise.
+         * \return Pointer to Camera if the entity exists, nullptr otherwise.
          *************************************************************************/
         const Camera* GetCameraData(FlexECS::EntityID entityID) const;
 
         /*!************************************************************************
-         * \brief Gets the current main camera ID.
-         * \return Main camera entity ID.
+         * \brief Adds or updates a camera for the given entity ID.
+         * \param entityID ID of the entity.
+         * \param cameraData Camera data to associate with the entity.
          *************************************************************************/
-        FlexECS::EntityID GetMainCamera() const { return m_currMainID; }
+        void SetCameraData(FlexECS::EntityID entityID, const Camera& cameraData);
 
         /*!************************************************************************
-         * \brief Gets the current editor camera ID.
+        * \brief Create a camera and parses it in 
+        * \param entityID The ID of the camera entity to remove.
+        * \return EntityID
+        *************************************************************************/
+        FlexECS::EntityID CreateCamera(const Camera& cameraData);
+
+        /*!************************************************************************
+         * \brief Removes the camera associated with an entity, if it's not the editor camera.
+         * \param entityID The ID of the camera entity to remove.
+         * \return True if successful, false otherwise.
+         *************************************************************************/
+        bool RemoveCamera(FlexECS::EntityID entityID);
+
+        /*!************************************************************************
+         * \brief Clears all cameras except the editor camera.
+         *************************************************************************/
+        void ClearCameras();
+
+        /*!************************************************************************
+         * \brief Gets the editor camera entity ID.
          * \return Editor camera entity ID.
          *************************************************************************/
-        FlexECS::EntityID GetEditorCamera() const { return m_currEditorID; }
+        FlexECS::EntityID GetEditorCameraID() const { return m_editorCameraID; }
+
+    private:
+        CameraManager(); /*!< Private constructor to enforce singleton. */
+        ~CameraManager() = default; /*!< Private destructor. */
+
+        CameraManager(const CameraManager&) = delete; /*!< Non-copyable. */
+        CameraManager& operator=(const CameraManager&) = delete; /*!< Non-assignable. */
+        CameraManager(CameraManager&&) = delete; /*!< Non-movable. */
+        CameraManager& operator=(CameraManager&&) = delete; /*!< Non-move assignable. */
 
         /*!************************************************************************
-         * \brief Checks if a given entity ID is registered as a camera.
-         * \param entityID ID of the entity to check.
-         * \return True if the entity is registered as a camera, false otherwise.
+         * \brief Creates the default editor camera.
          *************************************************************************/
-        bool HasCameraEntity(FlexECS::EntityID entityID) const;
+        void CreateEditorCamera();
 
-        /*!************************************************************************
-         * \brief Updates the CameraData for a given entity ID.
-         * \param entityID The ID of the entity to update.
-         * \param curr The new CameraData to update.
-         *************************************************************************/
-        void UpdateData(FlexECS::EntityID entityID, const Camera& curr);
-
-        /*!************************************************************************
-         * \brief Sets the active state of a camera entity.
-         * \param entityID The ID of the camera entity to update.
-         * \param active True to enable the camera, false to disable it.
-         *************************************************************************/
-        void SetCameraActive(FlexECS::EntityID entityID, bool active);
-
-        /*!************************************************************************
-         * \brief Removes all cameras associated with the current scene.
-         *************************************************************************/
-        void RemoveCamerasInScene();
     };
-}
 
+}

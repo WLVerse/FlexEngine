@@ -12,7 +12,7 @@
     <ClCompile Include="src\coresystems.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\scenemanager.cpp">
+    <ClCompile Include="src\camerahandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
