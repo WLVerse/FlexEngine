@@ -15,6 +15,7 @@
 #include "flx_api.h"
 #include "FlexMath/vector3.h"
 #include "FlexMath/matrix4x4.h"
+#include "../Renderer/Camera/camera.h"
 
 namespace FlexEngine
 {
@@ -143,6 +144,6 @@ namespace FlexEngine
       FlexECS::Scene::StringIndex text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("TEST");
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
-      std::pair<int, int> alignment = { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle }; // Default value: centered (all bits set)
+      std::pair<int, int> alignment = std::make_pair(1, 1); // Default value: centered (all bits set)
   };
 }

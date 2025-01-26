@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 
-#include "Renderer/Camera/camera.h" // For rendering, need to include camera
+#include "Renderer/Camera/CameraManager.h"
 
 namespace FlexEngine
 {
@@ -95,12 +95,12 @@ namespace FlexEngine
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
+    static void DrawTexture2D(const Renderer2DProps& props = {}, const Camera* cam = nullptr);
 
     // Overloaded function to draw text as a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(Camera const& cam, const Renderer2DText& text = {});
+    static void DrawTexture2D(const Renderer2DText& text = {}, const Camera* cam = nullptr);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

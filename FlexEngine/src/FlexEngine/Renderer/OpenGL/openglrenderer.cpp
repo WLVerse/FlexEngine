@@ -76,7 +76,7 @@ namespace FlexEngine
   }
   
   // TODO: cache the vao and vbo
-  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera* cam)
   {
     // unit square
     static const float vertices[] = {
@@ -226,7 +226,7 @@ namespace FlexEngine
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
+    asset_shader.SetUniform_mat4("u_projection_view", cam != nullptr? cam->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -245,7 +245,7 @@ namespace FlexEngine
     FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
-  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DText& text)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const Camera* cam)
   {
       static GLuint vao = 0, vbo = 0;
 
@@ -294,7 +294,7 @@ namespace FlexEngine
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
-      asset_shader.SetUniform_mat4("projection", cam.GetProjViewMatrix());
+      asset_shader.SetUniform_mat4("projection", cam != nullptr ? cam->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);
       glBindVertexArray(vao);
@@ -677,7 +677,7 @@ namespace FlexEngine
     Matrix4x4 model = Matrix4x4::Identity;
     texture_shader.SetUniform_mat4("u_model", model.Translate(Vector3(m_position.x, m_position.y, 0.0f)).Scale(Vector3(scale.x, scale.y, 1.0f)));
 
-    // proj view matrix
+    // proj view matrix TODO
     Matrix4x4 proj_view = Matrix4x4::Orthographic(0.0f, window_size.x, 0.0f, window_size.y, -1.0f, 1.0f);
     texture_shader.SetUniform_mat4("u_projection_view", proj_view);
 

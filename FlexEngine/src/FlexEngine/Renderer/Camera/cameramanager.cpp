@@ -37,7 +37,7 @@ namespace FlexEngine
 {
     #pragma region Static Member Initialization
 
-    std::unordered_map<FlexECS::EntityID, Camera&> CameraManager::m_cameraEntities;
+    std::unordered_map<FlexECS::EntityID, std::unique_ptr<Camera>> CameraManager::m_cameraEntities;
     FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
     
     #pragma endregion
@@ -53,12 +53,12 @@ namespace FlexEngine
         Camera editorCamera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
         // Initialize editorCamera as needed
         m_editorCameraID = 0; // Assign a unique ID for the editor camera
-        m_cameraEntities[m_editorCameraID] = editorCamera;
+        m_cameraEntities[m_editorCameraID] = std::make_unique<Camera>(editorCamera);
     }
 
     void CameraManager::SetCameraRef(FlexECS::EntityID entityID, const Camera& cam)
     {
-        m_cameraEntities[entityID] = cam;
+        m_cameraEntities[entityID] = std::make_unique<Camera>(cam);
     }
 
     void CameraManager::RemoveCamera(FlexECS::EntityID entityID)
@@ -68,8 +68,9 @@ namespace FlexEngine
 
     const Camera* CameraManager::GetCameraRef(FlexECS::EntityID entityID)
     {
+        // Find the camera by entity ID
         auto it = m_cameraEntities.find(entityID);
-        return (it != m_cameraEntities.end()) ? &it->second : nullptr;
+        return (it != m_cameraEntities.end()) ? it->second.get() : nullptr;
     }
 
     bool CameraManager::HasCamera(FlexECS::EntityID entityID)
@@ -81,6 +82,13 @@ namespace FlexEngine
     {
         m_cameraEntities.clear();
         m_editorCameraID = INVALID_ENTITY_ID;
+    }
+    
+    const Camera* CameraManager::GetEditorCamera()
+    {
+        // Retrieve the editor camera
+        auto it = m_cameraEntities.find(m_editorCameraID);
+        return (it != m_cameraEntities.end()) ? it->second.get() : nullptr;
     }
     #pragma endregion
 }

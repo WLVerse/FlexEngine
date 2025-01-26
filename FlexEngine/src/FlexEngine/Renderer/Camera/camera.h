@@ -27,7 +27,7 @@ namespace FlexEngine
         struct __FLX_API CamData
         {
             FLX_REFL_SERIALIZABLE
-                Vector3 position = Vector3::Zero;        /*!< Camera position in world space */
+            Vector3 position = Vector3::Zero;        /*!< Camera position in world space */
             Vector3 target = Vector3::Zero;          /*!< Target the camera is facing towards */
             Vector3 up = Vector3::Up;                /*!< Up vector for the camera's orientation */
             Vector3 right = Vector3::Right;          /*!< Right vector for the camera's orientation */

@@ -14,9 +14,8 @@ public:
 
   void Update() override
   {
-    // Camera TODO
-    static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
-
+    // Camera
+    // static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
     // Transform
     
     // Physics
@@ -54,7 +53,7 @@ public:
       props.window_size = Vector2(1600.0f, 900.0f);
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(camera, props);
+      OpenGLRenderer::DrawTexture2D(props);
     }
 
     // Audio
@@ -119,7 +118,7 @@ public:
     //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
     sample.m_maxwidthtextbox = 850.0f;
 
-    OpenGLRenderer::DrawTexture2D(camera, sample);
+    OpenGLRenderer::DrawTexture2D(sample);
   }
 
   void Stop() override
