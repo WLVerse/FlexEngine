@@ -16,35 +16,65 @@
 #include "FlexEngine/FlexMath/vector3.h"
 #include "flx_api.h"
 
+#include "Reflection/base.h"
+
 namespace FlexEngine
 {
-  class __FLX_API Camera
-  {
-    bool isactive = false;
-    Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
-    Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
-    Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
+ 
+    class __FLX_API Camera
+    {
+        #pragma region Reflection
+        struct __FLX_API CamData
+        {
+            FLX_REFL_SERIALIZABLE
+                Vector3 position = Vector3::Zero;        /*!< Camera position in world space */
+            Vector3 target = Vector3::Zero;          /*!< Target the camera is facing towards */
+            Vector3 up = Vector3::Up;                /*!< Up vector for the camera's orientation */
+            Vector3 right = Vector3::Right;          /*!< Right vector for the camera's orientation */
 
-  public:
-    // The camera is automatically initalized upon construction
-    Camera(float left, float right, float bottom, float top, float near, float far);
-    ~Camera() = default; //Destroy Camera in cameramanager
+            float fieldOfView = 45.0f;               /*!< Field of view in degrees */
+            float aspectRatio = 1.77f;               /*!< Aspect ratio (width/height) */
+            float nearClip = 0.1f;                   /*!< Near clipping plane */
+            float farClip = 100.0f;                  /*!< Far clipping plane */
+            bool m_isOrthographic = true;            /*!< Flag indicating orthographic (true) or perspective (false) projection */
 
-    void SetProjection(float left, float right, float bottom, float top, float near, float far);
-    const Matrix4x4& GetProjectionMatrix() const { return m_ortho_matrix; }
-    const Matrix4x4& GetViewMatrix() const { return m_view_matrix; }
-    const Matrix4x4& GetProjViewMatrix() const { return m_proj_view_matrix; }
-    
-    void MoveCamera(Vector3 translation) { translation.x *= -1; m_view_matrix.Translate(translation); } // Negative 1 as camera move left = world moves right
+            bool is_active = true;
+            float m_OrthoWidth = 1280.0f;
+            float m_OrthoHeight = 750.0f;
+        };
+        #pragma endregion
+        Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
+        Matrix4x4 m_perspective_matrix = FlexEngine::Matrix4x4::Identity;
+        Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
+        Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
 
-    bool getIsActive();
+        CamData m_data;
 
-    /*
-      \brief Updates matrices, specifically, the projection view matrix.
-    */
-    void Update();
+    public:
+        Camera() = default;
+        Camera(float left, float right, float bottom, float top, float near, float far);
+        ~Camera() = default;
 
-  private:
-    void UpdateCameraMatrix() { m_proj_view_matrix = m_ortho_matrix * m_view_matrix; }
-  };
+        // Set orthographic projection
+        void SetOrthographic(float left, float right, float bottom, float top, float near, float far);
+
+        // Set perspective projection
+        void SetPerspective(float fieldOfView, float aspectRatio, float near, float far);
+
+        // Getters for matrices
+        const Matrix4x4& GetProjectionMatrix() const;
+        const Matrix4x4& GetViewMatrix() const;
+        const Matrix4x4& GetProjViewMatrix() const;
+
+        // Activate perspective or orthographic mode
+        void SetMode(bool isOrthographic);
+
+        // Updates the view and projection view matrices
+        void Update();
+
+        bool getIsActive();
+
+    private:
+        void UpdateCameraMatrix();
+    };
 }

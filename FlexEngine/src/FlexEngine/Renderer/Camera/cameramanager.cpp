@@ -36,242 +36,51 @@
 namespace FlexEngine
 {
     #pragma region Static Member Initialization
-    std::unordered_map<FlexECS::EntityID, Camera> CameraManager::m_cameraEntities;
+
+    std::unordered_map<FlexECS::EntityID, Camera&> CameraManager::m_cameraEntities;
+    FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
+    
     #pragma endregion
 
     #pragma region Private
-    CameraManager::CameraManager(bool autoCreateEditor)
-        : m_autoCreateEditorCamera(autoCreateEditor), m_currEditorID(INVALID_ENTITY_ID)
+
+    #pragma endregion
+
+    #pragma region Camera Lifetime Management
+    void CameraManager::Initialize()
     {
-        if (m_autoCreateEditorCamera)
-        {
-            CreateDefaultEditorCamera();
-            Log::Debug("CameraManager initialized with an editor camera.");
-        }
-        else
-        {
-            Log::Debug("CameraManager initialized without an editor camera.");
-        }
+        // Create the default editor camera
+        Camera editorCamera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+        // Initialize editorCamera as needed
+        m_editorCameraID = 0; // Assign a unique ID for the editor camera
+        m_cameraEntities[m_editorCameraID] = editorCamera;
     }
 
-    CameraManager::~CameraManager()
+    void CameraManager::SetCameraRef(FlexECS::EntityID entityID, const Camera& cam)
     {
-        ClearAllCameras();
-        Log::Debug("CameraManager destroyed and all cameras cleared.");
+        m_cameraEntities[entityID] = cam;
     }
 
-    void CameraManager::CreateDefaultEditorCamera()
+    void CameraManager::RemoveCamera(FlexECS::EntityID entityID)
     {
-        FlexECS::EntityID editorCameraID = 0; // Reserved for the editor camera
-        Camera editorCamera{}; // Default editor camera data
-
-        AddCameraEntity(editorCameraID, editorCamera);
-        SwitchEditorCamera(editorCameraID);
+        m_cameraEntities.erase(entityID);
     }
 
-    void CameraManager::ClearAllCameras()
+    const Camera* CameraManager::GetCameraRef(FlexECS::EntityID entityID)
     {
-        Log::Debug("ClearAllCameras() => Removing all cameras.");
+        auto it = m_cameraEntities.find(entityID);
+        return (it != m_cameraEntities.end()) ? &it->second : nullptr;
+    }
+
+    bool CameraManager::HasCamera(FlexECS::EntityID entityID)
+    {
+        return m_cameraEntities.find(entityID) != m_cameraEntities.end();
+    }
+
+    void CameraManager::Clear()
+    {
         m_cameraEntities.clear();
-        m_currMainID = INVALID_ENTITY_ID;
-        m_currEditorID = INVALID_ENTITY_ID;
-    }
-    #pragma endregion
-
-    #pragma region Camera Management
-    void CameraManager::AddCameraEntity(FlexECS::EntityID entityID, const Camera& cameraData)
-    {
-        if (entityID == INVALID_ENTITY_ID)
-        {
-            Log::Error("AddCameraEntity() => Invalid entity ID provided.");
-            return;
-        }
-
-        auto result = m_cameraEntities.emplace(entityID, cameraData);
-        if (result.second)
-        {
-            Log::Debug("AddCameraEntity() => Added camera with entityID " + std::to_string(entityID));
-        }
-        else
-        {
-            Log::Warning("AddCameraEntity() => Camera with entityID " + std::to_string(entityID) +
-                         " already exists. Overwriting.");
-            m_cameraEntities[entityID] = cameraData;
-        }
-
-        if (m_currMainID == INVALID_ENTITY_ID && cameraData.getIsActive())
-        {
-            SwitchMainCamera(entityID);
-        }
-    }
-
-    bool CameraManager::SwitchMainCamera(FlexECS::EntityID entityID)
-    {
-        if (entityID == INVALID_ENTITY_ID || m_cameraEntities.empty())
-        {
-            Log::Error("SwitchMainCamera() => Invalid operation with an empty camera list or invalid entityID.");
-            return false;
-        }
-
-        if (m_cameraEntities.count(entityID))
-        {
-            m_currMainID = entityID;
-            Log::Debug("SwitchMainCamera() => Main camera switched to entityID " + std::to_string(entityID));
-            return true;
-        }
-
-        Log::Warning("SwitchMainCamera() => Camera entityID not found.");
-        return false;
-    }
-
-    bool CameraManager::SwitchEditorCamera(FlexECS::EntityID entityID)
-    {
-        if (entityID == INVALID_ENTITY_ID || m_cameraEntities.empty())
-        {
-            Log::Error("SwitchEditorCamera() => Invalid operation with an empty camera list or invalid entityID.");
-            return false;
-        }
-
-        if (m_cameraEntities.count(entityID))
-        {
-            m_currEditorID = entityID;
-            Log::Debug("SwitchEditorCamera() => Editor camera switched to entityID " + std::to_string(entityID));
-            return true;
-        }
-
-        Log::Warning("SwitchEditorCamera() => Camera entityID not found.");
-        return false;
-    }
-
-    bool CameraManager::RemoveCameraEntity(FlexECS::EntityID entityID)
-    {
-        if (m_cameraEntities.erase(entityID))
-        {
-            Log::Debug("RemoveCameraEntity() => Removed camera with entityID " + std::to_string(entityID));
-
-            if (entityID == m_currMainID)
-            {
-                m_currMainID = INVALID_ENTITY_ID;
-            }
-            if (entityID == m_currEditorID)
-            {
-                m_currEditorID = INVALID_ENTITY_ID;
-            }
-
-            return true;
-        }
-
-        Log::Warning("RemoveCameraEntity() => Camera entityID " + std::to_string(entityID) + " not found.");
-        return false;
-    }
-
-    void CameraManager::RemoveCamerasInScene()
-    {
-        Log::Info("RemoveCamerasInScene() => Removing non-editor cameras.");
-        for (auto it = m_cameraEntities.begin(); it != m_cameraEntities.end();)
-        {
-            if (it->first != m_currEditorID)
-            {
-                Log::Debug("Removing camera with entityID " + std::to_string(it->first));
-                it = m_cameraEntities.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-
-        if (m_currMainID != m_currEditorID)
-        {
-            m_currMainID = INVALID_ENTITY_ID;
-        }
-    }
-
-    void CameraManager::UpdateData(FlexECS::EntityID entityID, const Camera& curr)
-    {
-        auto it = m_cameraEntities.find(entityID);
-        if (it != m_cameraEntities.end())
-        {
-            it->second = curr;
-            Log::Debug("UpdateData() => Updated camera data for entityID " + std::to_string(entityID));
-        }
-        else
-        {
-            Log::Warning("UpdateData() => Camera with entityID " + std::to_string(entityID) + " not found.");
-        }
-    }
-
-    void CameraManager::SetCameraActive(FlexECS::EntityID entityID, bool active)
-    {
-        auto it = m_cameraEntities.find(entityID);
-        if (it != m_cameraEntities.end())
-        {
-            it->second.getIsActive() = active;
-            Log::Debug("SetCameraActive() => Set camera entityID " + std::to_string(entityID) +
-                       " active state to " + (active ? "true" : "false"));
-
-            if (!active)
-            {
-                ValidateMainCamera();
-            }
-        }
-        else
-        {
-            Log::Warning("SetCameraActive() => Camera with entityID " + std::to_string(entityID) + " not found.");
-        }
-    }
-
-    void CameraManager::ValidateMainCamera()
-    {
-        if (m_currMainID == INVALID_ENTITY_ID ||
-            m_cameraEntities.count(m_currMainID) == 0 ||
-            !m_cameraEntities[m_currMainID].getIsActive())
-        {
-            m_currMainID = INVALID_ENTITY_ID;
-
-            for (const auto& [id, camera] : m_cameraEntities)
-            {
-                if (id != m_currEditorID && camera.getIsActive())
-                {
-                    m_currMainID = id;
-                    break;
-                }
-            }
-
-            if (m_currMainID == INVALID_ENTITY_ID)
-            {
-                Log::Warning("ValidateMainCamera() => No valid main camera found.");
-            }
-        }
-    }
-    #pragma endregion
-
-    #pragma region Get Functions
-    FlexECS::EntityID CameraManager::GetMainCamera() const
-    {
-        return m_currMainID;
-    }
-
-    FlexECS::EntityID CameraManager::GetEditorCamera() const
-    {
-        return m_currEditorID;
-    }
-
-    const Camera* CameraManager::GetCameraData(FlexECS::EntityID entityID) const
-    {
-        auto it = m_cameraEntities.find(entityID);
-        if (it != m_cameraEntities.end())
-        {
-            return &it->second;
-        }
-
-        Log::Warning("GetCameraData() => Camera with entityID " + std::to_string(entityID) + " not found.");
-        return nullptr;
-    }
-
-    bool CameraManager::HasCameraEntity(FlexECS::EntityID entityID) const
-    {
-        return m_cameraEntities.count(entityID) > 0;
+        m_editorCameraID = INVALID_ENTITY_ID;
     }
     #pragma endregion
 }

@@ -11,14 +11,13 @@ namespace FlexEngine
     * \brief Monitors entities with camera components and communicates with
     * the CameraManager to manage their lifetimes.
     *************************************************************************/
-    class CameraHandler
+    class CameraHandler : public Script
     {
-    public:
         /*!************************************************************************
-         * \brief Registers a camera entity with the CameraManager.
-         * \param entityID The entity ID of the camera component.
-         * \param cameraData Initial camera data.
-         *************************************************************************/
+        * \brief Registers a camera entity with the CameraManager.
+        * \param entityID The entity ID of the camera component.
+        * \param cameraData Initial camera data.
+        *************************************************************************/
         void RegisterCamera(FlexECS::EntityID entityID, const Camera& cameraData);
 
         /*!************************************************************************
@@ -32,22 +31,45 @@ namespace FlexEngine
          * \param entityID The entity ID to validate.
          * \return True if the camera is valid, false otherwise.
          *************************************************************************/
-        bool ValidateCameras(FlexECS::EntityID entityID) const;
+        bool ValidateCamera(FlexECS::EntityID entityID) const;
+
+    public:
+        CameraHandler() { ScriptRegistry::RegisterScript(this); }
+        std::string GetName() const override { return "CameraHandler"; }
+
+        void Start() override
+        {
+            //Maybe register all cameras in scene
+        }
+
+        void Update() override
+        {
+            ValidateCamera(1);
+        }
+
+        void Stop() override
+        {
+            //maybe unregister all cameras in scene
+        }
     };
 
+    // Static instance to ensure registration
+    static CameraHandler CamHandler;
 
-    void CameraHandler::RegisterCamera(FlexECS::EntityID entityID, const Camera& cameraData)
+    void CameraHandler::RegisterCamera(FlexECS::EntityID entityID, const Camera& cam)
     {
-        CameraManager::Instance().SetCameraData(entityID, cameraData);
+        CameraManager::SetCameraRef(entityID, cam);
     }
 
     void CameraHandler::UnregisterCamera(FlexECS::EntityID entityID)
     {
-        CameraManager::Instance().RemoveCamera(entityID);
+        CameraManager::RemoveCamera(entityID);
     }
 
-    bool CameraHandler::ValidateCameras(FlexECS::EntityID entityID) const
+    //In future, this function is meant to update the camera data by running through all 
+    // available cameras in core system, then update the data in bank if is_dirty
+    bool CameraHandler::ValidateCamera(FlexECS::EntityID entityID) const
     {
-        return CameraManager::Instance().GetCameraData(entityID) != nullptr;
+        return CameraManager::HasCamera(entityID);
     }
 }

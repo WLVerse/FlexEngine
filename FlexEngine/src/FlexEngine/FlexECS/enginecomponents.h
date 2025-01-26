@@ -135,10 +135,14 @@ namespace FlexEngine
     float time = 0.f;
   };
 
-  // THESE ARE STUBS, DO NOT USE OTHERWISE IMPLEMENT FIRST!!!!
   class __FLX_API Text
   {
-    FLX_REFL_SERIALIZABLE
+      FLX_REFL_SERIALIZABLE
   public:
+      FlexECS::Scene::StringIndex fonttype = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\fonts\Prompt\Prompt-Black.ttf)");
+      FlexECS::Scene::StringIndex text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("TEST");
+      Vector3 color = Vector3::One;
+      // border color, border size, underline, etc
+      std::pair<int, int> alignment = { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle }; // Default value: centered (all bits set)
   };
 }
