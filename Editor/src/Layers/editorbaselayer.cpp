@@ -119,11 +119,12 @@ namespace Editor
 
   void EditorBaseLayer::Update()
   {
+    // Always remember to align the context across dlls first
+    FLX_GLFW_ALIGNCONTEXT();
+    FLX_IMGUI_ALIGNCONTEXT();
+
     Window::FrameBufferManager.SetCurrentFrameBuffer("custom1");
     Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
-
-    // Always remember to set the context before using ImGui
-    FLX_IMGUI_ALIGNCONTEXT();
 
     // setup dockspace
     //ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;

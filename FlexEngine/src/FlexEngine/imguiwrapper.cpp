@@ -184,33 +184,35 @@ namespace
 
 namespace FlexEngine
 {
+  // static member initialization
+  ImGuiContext* ImGuiWrapper::m_imgui_context = nullptr;
 
   #pragma region Managed RAII Pattern
 
-  ImGuiContext* ImGuiWrapper::Init(Window* window)
+  void ImGuiWrapper::Init()
   {
     FLX_FLOW_FUNCTION();
 
     IMGUI_CHECKVERSION();
 
     // guard: check if imgui is already initialized
-    if (window->GetImGuiContext() != nullptr)
+    if (ImGui::GetCurrentContext() != nullptr)
     {
       Log::Warning("ImGuiWrapper is already initialized. Cancelling initialization.");
-      return nullptr;
+      return;
     }
-    
+
     // All code past this point is safe to run
 
-    ImGuiContext* imgui_context = ImGui::CreateContext();
+    m_imgui_context = ImGui::CreateContext();
 
     // always remember to set the current context before running imgui functions
-    ImGui::SetCurrentContext(imgui_context);
+    ImGui::SetCurrentContext(m_imgui_context);
+    FLX_NULLPTR_ASSERT(ImGui::GetCurrentContext(), "Failed to create ImGui context.");
 
     ImGuiIO& io = ImGui::GetIO();
 
     // set config flags
-    // todo: refactor this to window props
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -223,36 +225,45 @@ namespace FlexEngine
 
     // load font
     std::string font_path = Path::current("/assets/fonts/Suez_One/SuezOne-Regular.ttf");
-    Log::Debug(font_path);
     io.Fonts->AddFontFromFileTTF(font_path.c_str(), 21.f);
 
     // setup platform/renderer bindings
-    FLX_CORE_ASSERT(ImGui_ImplGlfw_InitForOpenGL(window->GetGLFWWindow(), true), "Failed to initialize GLFW backend!");
-    FLX_CORE_ASSERT(ImGui_ImplOpenGL3_Init(window->Props().opengl_version_text), "Failed to initialize OpenGL3 backend!");
-
-    return imgui_context;
+    FLX_CORE_ASSERT(ImGui_ImplGlfw_InitForOpenGL(Application::GetMasterWindow(), true), "Failed to initialize GLFW backend!");
+    FLX_CORE_ASSERT(ImGui_ImplOpenGL3_Init(Application::GetOpenGLVersionText()), "Failed to initialize OpenGL3 backend!");
   }
 
-  void ImGuiWrapper::Shutdown(Window* window)
+  void ImGuiWrapper::Shutdown()
   {
     FLX_FLOW_FUNCTION();
 
     // guard: check if imgui is already initialized
-    if (window->GetImGuiContext() == nullptr)
+    if (ImGui::GetCurrentContext() == nullptr || m_imgui_context == nullptr)
     {
       Log::Warning("ImGuiWrapper is not initialized. Cancelling shutdown.");
       return;
     }
 
-    // always remember to set the current context before running imgui functions
-    ImGui::SetCurrentContext(window->GetImGuiContext());
-
-    // Shutdown platform/backend bindings
+    // All code past this point is safe to run
+    
+    // shutdown platform/renderer bindings
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
-    // Destroy the ImGui context
-    ImGui::DestroyContext(window->GetImGuiContext());
+    // destroy imgui context
+    ImGui::DestroyContext(m_imgui_context);
+    m_imgui_context = nullptr;
+  }
+
+  ImGuiContext* ImGuiWrapper::GetContext()
+  {
+    FLX_NULLPTR_ASSERT(m_imgui_context, "The ImGui context is not initialized.");
+    return m_imgui_context;
+  }
+
+  void ImGuiWrapper::Internal_SetCurrentContext(ImGuiContext* context)
+  {
+    ImGui::SetCurrentContext(context);
+    ImGui::GetMainViewport()->PlatformHandle = FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow();
   }
 
   #pragma endregion

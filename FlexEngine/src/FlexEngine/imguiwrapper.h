@@ -49,12 +49,39 @@ namespace FlexEngine
 
     #pragma region Managed RAII Pattern
 
-    // This is handled per window.
-    // Each window has its own context and backend.
+    // Only loaded once because the first window is the master window.
+    // This is because we're using shared contexts.
+    // This also helps localize the context pointer to the window.
+
+  private:
+    static ImGuiContext* m_imgui_context;
 
   public:
-    static ImGuiContext* Init(Window* window);
-    static void Shutdown(Window* window);
+    static void Init();
+    static void Shutdown();
+
+    static ImGuiContext* GetContext();
+
+    // Aligns the context pointer.
+    // 
+    // ImGui is not recommended to be used in DLLs because of the global context pointer.
+    // We must call this function before using ImGui across any DLL boundaries.
+    // 
+    // !!IMPORTANT!! This cannot be a function. It MUST be a macro because we want
+    // ImGui::SetCurrentContext to actually be called wherever this macro is used.
+    // If it's a function, it will only set the context for the function's boundary,
+    // which is always in this DLL.
+    #define FLX_IMGUI_ALIGNCONTEXT() \
+      FlexEngine::ImGuiWrapper::Internal_SetCurrentContext(FlexEngine::ImGuiWrapper::GetContext()); \
+      ImGui::SetCurrentContext(FlexEngine::ImGuiWrapper::GetContext()); \
+      ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)ImGui::FindViewportByPlatformHandle(FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()))
+      //ImGui::GetMainViewport()->PlatformHandle = FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()
+
+    // INTERNAL FUNCTION
+    // Passthrough function for ImGui::SetCurrentContext, which
+    // is needed if we want to call this function across DLL boundaries.
+    // This also sets the main viewport platform handle.
+    static void Internal_SetCurrentContext(ImGuiContext* context);
 
     #pragma endregion
 

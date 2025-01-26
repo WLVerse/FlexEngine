@@ -21,8 +21,8 @@
 
 #include "application.h"
 
-#include "StateManager/statemanager.h"
 #include "input.h"
+#include "imguiwrapper.h"
 #include "FMOD/FMODWrapper.h" // Include for initializing fmod system at application start
 
 namespace FlexEngine
@@ -42,6 +42,8 @@ namespace FlexEngine
   LayerStack Application::m_layer_stack{};
 
   Application::MessagingSystem::Messages Application::MessagingSystem::m_messages{};
+
+  const char* Application::m_opengl_version_text = _FLX_OPENGL_VERSION_TEXT;
 
   #pragma region Application Loop Management
 
@@ -353,8 +355,13 @@ namespace FlexEngine
 
   Application::~Application()
   {
+    // close all windows
+    CloseAllWindows();
+
+    // terminate glfw
     glfwMakeContextCurrent(NULL);
     glfwTerminate();
+
     FMODWrapper::Unload();
 
     FLX_FLOW_ENDSCOPE();

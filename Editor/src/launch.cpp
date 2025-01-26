@@ -21,8 +21,10 @@ namespace Editor
   public:
     FlexApplication()
     {
+      FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<SplashWindowLayer>());
+
       // Add the editor window layer which manages the editor window
-      FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<EditorWindowLayer>());
+      //FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<EditorWindowLayer>());
     }
   };
 

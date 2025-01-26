@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3dll.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -143,7 +143,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3dll.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -164,6 +164,8 @@
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
+    <ClCompile Include="src\Layers\splashlayer.cpp" />
+    <ClCompile Include="src\Layers\splashwindowlayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
     <ClCompile Include="src\selectionsystem.cpp" />
   </ItemGroup>
@@ -184,6 +186,8 @@
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
+    <ClInclude Include="src\Layers\splashlayer.h" />
+    <ClInclude Include="src\Layers\splashwindowlayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
     <ClInclude Include="src\selectionsystem.h" />
   </ItemGroup>

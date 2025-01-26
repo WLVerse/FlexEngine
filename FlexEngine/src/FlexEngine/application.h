@@ -42,6 +42,10 @@ int main(int, char**);
 namespace FlexEngine
 {
 
+  // Hardcoded application settings
+  // This is the default OpenGL version for the engine
+  #define _FLX_OPENGL_VERSION_TEXT "#version 460 core"
+
   // The architecture of the engine is designed to only have one application instance.
   class __FLX_API Application
   {
@@ -435,6 +439,8 @@ namespace FlexEngine
 
     // The master window is a headless window that is always open.
     // It stores the opengl context that is shared between every window.
+  private:
+    static const char* m_opengl_version_text;
 
   public:
 
@@ -442,6 +448,7 @@ namespace FlexEngine
     GLFWwindow* GetMasterWindow() { return m_master_window; }
 
   private:
+    static const char* GetOpenGLVersionText() { return m_opengl_version_text; }
 
     static GLFWwindow* m_master_window;
 

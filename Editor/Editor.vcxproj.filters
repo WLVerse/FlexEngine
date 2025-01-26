@@ -10,6 +10,9 @@
     <Filter Include="src\Editor">
       <UniqueIdentifier>{2d8ed3a3-2b3f-4802-bfb0-5176ea6081e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Layers\Splash">
+      <UniqueIdentifier>{53b3764a-f5a0-417a-a33f-802a0580b829}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp">
@@ -53,6 +56,12 @@
     </ClCompile>
     <ClCompile Include="src\editorcomponents.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\splashlayer.cpp">
+      <Filter>src\Layers\Splash</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\splashwindowlayer.cpp">
+      <Filter>src\Layers\Splash</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +116,12 @@
     </ClInclude>
     <ClInclude Include="src\editorcomponents.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\splashwindowlayer.h">
+      <Filter>src\Layers\Splash</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\splashlayer.h">
+      <Filter>src\Layers\Splash</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

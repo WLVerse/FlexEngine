@@ -30,7 +30,32 @@ FlexEngine::OpenGLFrameBufferManager FlexEngine::Window::FrameBufferManager;
 
 namespace
 {
-  // glfw: whenever the window size changed (by OS or user resize) this callback function executes
+  void WindowPosCallback(GLFWwindow* window, int xpos, int ypos)
+  {
+    // update the window properties
+    for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())
+    {
+      if (win->GetGLFWWindow() == window)
+      {
+        win->UpdateWindowSize(xpos, ypos);
+        break;
+      }
+    }
+  }
+
+  void WindowSizeCallback(GLFWwindow* window, int width, int height)
+  {
+    // update the window properties
+    for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())
+    {
+      if (win->GetGLFWWindow() == window)
+      {
+        win->UpdateWindowSize(width, height);
+        break;
+      }
+    }
+  }
+
   void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
   {
     // make sure the viewport matches the new window dimensions; note that width and 
@@ -40,15 +65,14 @@ namespace
     //  FlexEngine::OpenGLFrameBuffer::RegenerateAllTextures(width, height);
 
     // update the window properties
-    for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())
-    {
-      if (win->GetGLFWWindow() == window)
-      {
-        win->SetWidth(width);
-        win->SetHeight(height);
-        break;
-      }
-    }
+    //for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())
+    //{
+    //  if (win->GetGLFWWindow() == window)
+    //  {
+    //    win->UpdateWindowSize(width, height);
+    //    break;
+    //  }
+    //}
   }
 
   void WindowFocusCallBack(GLFWwindow*, int)
@@ -73,8 +97,7 @@ namespace FlexEngine
   const WindowProps WindowProps::Null = WindowProps(
     "Null",
     0, 0,
-    {},
-    ""
+    {}
   );
 
   #pragma region Managed Stateful RAII Pattern
@@ -84,6 +107,7 @@ namespace FlexEngine
     FLX_FLOW_FUNCTION();
 
     FLX_CORE_ASSERT(!is_init, "Internal_Open is being called on an already initialized window.");
+    FLX_CORE_ASSERT(!is_closing, "Internal_Open is being being called on a closing window.");
 
     // window hints
     glfwDefaultWindowHints();
@@ -105,7 +129,8 @@ namespace FlexEngine
     glfwSetCursorPosCallback(m_glfwwindow, Input::CursorPositionCallback);
     glfwSetMouseButtonCallback(m_glfwwindow, Input::MouseButtonCallback);
     glfwSetScrollCallback(m_glfwwindow, Input::ScrollCallback);
-    //glfwSetWindowSizeCallback(m_glfwwindow, WindowSizeCallback);
+    glfwSetWindowPosCallback(m_glfwwindow, WindowPosCallback);
+    glfwSetWindowSizeCallback(m_glfwwindow, WindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_glfwwindow, FramebufferSizeCallback);
     //glfwSetWindowCloseCallback(m_glfwwindow, WindowCloseCallback);
     glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallBack); // For now only audio requires this, but someone else should handle this centrally.
@@ -134,12 +159,6 @@ namespace FlexEngine
     FLX_FLOW_FUNCTION();
 
     FLX_WINDOW_ISOPEN_ASSERT;
-
-    #ifndef IMGUI_DISABLE
-    // shutdown imgui
-    // the imgui initialization is done in the window constructor
-    ImGuiWrapper::Shutdown(this);
-    #endif
 
     Application::Internal_SetCurrentWindow(nullptr);
 

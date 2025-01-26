@@ -26,10 +26,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h> // always put glad before glfw
 
-#ifndef IMGUI_DISABLE
-#include <imgui.h> // ImGuiContext
-#endif
-
 #include <string>
 #include <vector>
 #include <memory> // std::shared_ptr
@@ -61,39 +57,44 @@ namespace FlexEngine
     using WindowHint = std::pair<int, int>;
 
     std::string title = "FlexEngine";
+    int xpos = 0;
+    int ypos = 0;
     int width = 1280;
     int height = 720;
     const std::vector<WindowHint> window_hints = {
       FLX_DEFAULT_WINDOW_HINTS
     };
-    const char* opengl_version_text = "#version 460 core";
 
     // Null for testing purposes
     static const WindowProps Null;
 
     WindowProps() = default;
+
+    // Constructor
+    // Does not set the position of the window as all windows are automatically centered.
     WindowProps(
       const std::string& _title,
       int _width, int _height,
       const std::vector<WindowHint>& _window_hints = {
         FLX_DEFAULT_WINDOW_HINTS
-      },
-      const char* _opengl_version_text = "#version 460 core"
+      }
     ) : title(_title)
       , width(_width), height(_height)
       , window_hints(_window_hints)
-      , opengl_version_text(_opengl_version_text)
     {
     }
 
     // comparison
     bool operator==(const WindowProps& other) const
     {
-      return title == other.title
-        && width == other.width
-        && height == other.height
-        && window_hints == other.window_hints
-        && opengl_version_text == other.opengl_version_text;
+      return
+        title == other.title &&
+        xpos == other.xpos &&
+        ypos == other.ypos &&
+        width == other.width &&
+        height == other.height &&
+        window_hints == other.window_hints
+      ;
     }
     bool operator!=(const WindowProps& other) const
     {
@@ -126,6 +127,7 @@ namespace FlexEngine
 
   class __FLX_API Window
   {
+
     #pragma region Managed Stateful RAII Pattern
 
     // This is a managed stateful RAII class.
@@ -176,14 +178,26 @@ namespace FlexEngine
     std::string GetName() const { return name; }
 
     std::string GetTitle() const { return m_props.title; }
+
+    int GetXPos() const { return m_props.xpos; }
+    int GetYPos() const { return m_props.ypos; }
+
     unsigned int GetWidth() const { return m_props.width; }
     unsigned int GetHeight() const { return m_props.height; }
+
     WindowProps Props() const { return m_props; }
     WindowProps GetProps() const { return Props(); }
 
-    void SetTitle(const std::string& title) { m_props.title = title; }
-    void SetWidth(const unsigned int& width) { m_props.width = width; }
-    void SetHeight(const unsigned int& height) { m_props.height = height; }
+    //void SetTitle(const std::string& title) { m_props.title = title; }
+    //void SetWidth(const unsigned int& width) { m_props.width = width; }
+    //void SetHeight(const unsigned int& height) { m_props.height = height; }
+
+    #pragma endregion
+
+    #pragma region GLFW Callback Updaters
+
+    void UpdateWindowPosition(int xpos, int ypos) { m_props.xpos = xpos; m_props.ypos = ypos; }
+    void UpdateWindowSize(int width, int height) { m_props.width = width; m_props.height = height; }
 
     #pragma endregion
 
@@ -239,28 +253,11 @@ namespace FlexEngine
 
     GLFWwindow* m_glfwwindow = nullptr;
 
-    // Aligns the context pointer.
-    // 
-    // ImGui is not recommended to be used in DLLs because of the global context pointer.
-    // We must call this function before using ImGui across any DLL boundaries.
-    // 
-    // !!IMPORTANT!! This cannot be a function. It MUST be a macro because we want
-    // ImGui::SetCurrentContext to actually be called wherever this macro is used.
-    // If it's a function, it will only set the context for the function's boundary,
-    // which is always in this DLL.
-    #define FLX_GLFW_ALIGNCONTEXT() glfwMakeContextCurrent(Application::GetCurrentWindow()->GetGLFWWindow())
-
     // Returns the GLFW window pointer.
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
     GLFWwindow* GetGLFWWindow() const { FLX_WINDOW_ISOPEN_ASSERT; return m_glfwwindow; }
 
-    #ifndef IMGUI_DISABLE
-
-  private:
-    ImGuiContext* m_imgui_context = nullptr;
-
-  public:
     // Aligns the context pointer.
     // 
     // ImGui is not recommended to be used in DLLs because of the global context pointer.
@@ -270,15 +267,23 @@ namespace FlexEngine
     // ImGui::SetCurrentContext to actually be called wherever this macro is used.
     // If it's a function, it will only set the context for the function's boundary,
     // which is always in this DLL.
-    #define FLX_IMGUI_ALIGNCONTEXT() ImGui::SetCurrentContext(Application::GetCurrentWindow()->GetImGuiContext())
+    #define FLX_GLFW_ALIGNCONTEXT() \
+      FlexEngine::Window::Internal_glfwMakeContextCurrent(FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()); \
+      glfwMakeContextCurrent(FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow())
 
-    ImGuiContext* GetImGuiContext() { return m_imgui_context; }
+    // INTERNAL FUNCTION
+    // Passthrough function for glfwMakeContextCurrent, which
+    // is needed if we want to call this function across DLL boundaries.
+    static void Internal_glfwMakeContextCurrent(GLFWwindow* window) { glfwMakeContextCurrent(window); }
 
-    static OpenGLFrameBufferManager FrameBufferManager;
-
-    #endif
+    // INTERNAL FUNCTION
+    // Passthrough function for glfwGetCurrentContext, which
+    // is needed if we want to call this function across DLL boundaries.
+    static GLFWwindow* Internal_glfwGetCurrentContext() { return glfwGetCurrentContext(); }
 
     #pragma endregion
+
+    static OpenGLFrameBufferManager FrameBufferManager;
 
   };
 

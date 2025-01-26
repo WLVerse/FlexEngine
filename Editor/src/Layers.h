@@ -17,3 +17,5 @@
 #include "Layers/editorwindowlayer.h"
 #include "Layers/scriptinglayer.h"
 #include "Layers/statisticspanellayer.h"
+#include "Layers/splashlayer.h"
+#include "Layers/splashwindowlayer.h"

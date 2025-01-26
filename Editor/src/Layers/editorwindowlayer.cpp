@@ -31,7 +31,7 @@ namespace Editor
 
     // This currently only stores the asset manager
     // It must be run after the window is created
-    FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<BaseLayer>());
+    //FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<BaseLayer>());
 
     // This is the base layer for the editor
     FLX_COMMAND_ADD_WINDOW_LAYER(
@@ -40,10 +40,10 @@ namespace Editor
     );
 
     // Scripting layer
-    FLX_COMMAND_ADD_WINDOW_LAYER(
-      "Editor",
-      std::make_shared<ScriptingLayer>()
-    );
+    //FLX_COMMAND_ADD_WINDOW_LAYER(
+    //  "Editor",
+    //  std::make_shared<ScriptingLayer>()
+    //);
 
     // Statistics panel for debugging
     FLX_COMMAND_ADD_WINDOW_LAYER(
