@@ -34,6 +34,8 @@ namespace Editor
         FlexECS::Entity entity = scene->CreateEntity("Save Test 1");
         entity.AddComponent<Vector2>({ 35, 42 });
         entity.AddComponent<Rotation>({});
+        entity.AddComponent<Transform>({true, Matrix4x4::Identity, true});
+        entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW("ComponentTest") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2222222222222222222222222222222222");
