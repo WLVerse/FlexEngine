@@ -15,6 +15,7 @@
 #include "flx_api.h"
 #include "Reflection/base.h"
 #include "FlexScripting/iscript.h"
+#include "FlexEngine/FlexECS/datastructures.h"
 
 #include <unordered_map>
 
@@ -36,7 +37,8 @@ namespace FlexEngine
   // Script component
   class __FLX_API ScriptComponent
   { FLX_REFL_SERIALIZABLE
-    std::string script_name = "";
+  public:
+    FlexECS::Scene::StringIndex script_name;
   };
 
 }

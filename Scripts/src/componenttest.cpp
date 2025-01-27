@@ -6,6 +6,11 @@ class ComponentTestScript : public Script
 public:
   ComponentTestScript() { ScriptRegistry::RegisterScript(this); }
   std::string GetName() const override { return "ComponentTest"; }
+  
+  void Awake() override
+  {
+    Log::Debug("ComponentTest: Awake");
+  }
 
   void Start() override
   {
@@ -24,7 +29,7 @@ public:
 
   void Update() override
   {
-
+    Log::Debug("ComponentTest: Update");
   }
 
   void Stop() override
