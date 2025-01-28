@@ -5,6 +5,9 @@
 
 namespace Editor
 {
+	//Temporary hardcoding (for testing) that follows the hardcoded camera dimensions in rendercall script
+	static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+
 	constexpr float TOP_PADDING = 10.0f;
 
 	void SceneView::Init()
@@ -51,8 +54,8 @@ namespace Editor
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
 	}
 
-	#if 0
-	Vector4 SceneView::GetWorldClickPosition()
+	#if 1
+	FlexEngine::Vector4 SceneView::GetWorldClickPosition()
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
@@ -70,7 +73,7 @@ namespace Editor
 
 
 		Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
-		Matrix4x4 inverse = (m_EditorCam->proj_viewMatrix).Inverse();
+		Matrix4x4 inverse = (editor_camera.GetProjectionMatrix()).Inverse();
 		Vector4 clip = { ndc_click_pos.x,
 										 ndc_click_pos.y,
 										 1.0f,
@@ -84,7 +87,7 @@ namespace Editor
 	ImVec2 SceneView::WorldToScreen(const FlexEngine::Vector2& position)
 	{
 		Vector4 world_pos = { -position.x, position.y, 0.0f, 1.0f };
-		Vector4 clip = m_EditorCam->proj_viewMatrix * world_pos;
+		Vector4 clip = editor_camera.GetProjViewMatrix() * world_pos;
 		if (clip.w != 0.0f)
 		{
 			clip.x /= clip.w;
@@ -117,11 +120,12 @@ namespace Editor
 		};
 		std::set<std::pair<FlexECS::EntityID, int>, decltype(z_index_sort)> clicked_entities(z_index_sort);
 		
-		//AABB tiem
+		//Gets all entities under the mouse (including entities overlapping each other)
+		//Sorts them based on z-index (or should it be Position.z???)
 		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Shader, ZIndex, IsActive>()) //you probably only wanna click on things that are rendered
+		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Sprite, ZIndex>()) //you probably only wanna click on things that are rendered
 		{
-			auto& active = entity.GetComponent<IsActive>()->is_active;
+			auto& active = entity.GetComponent<Transform>()->is_active;
 			if (!active) continue;
 
 			auto& pos = entity.GetComponent<Position>()->position;
@@ -136,9 +140,17 @@ namespace Editor
 			}
 		}
 
+		//Cycles to the next z-index entity, so we can select the entity even when covered by another.
 		if (!clicked_entities.empty())
 		{
-			FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
+			//FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
+			FlexECS::Entity current_selected = FlexECS::Entity::Null;
+			auto& selected_list = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
+			if (selected_list.size() == 1)
+			{
+				current_selected = *selected_list.begin();
+			}
+
 			if (current_selected != FlexECS::Entity::Null && !current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
 
 			if (current_selected != FlexECS::Entity::Null)
@@ -164,8 +176,7 @@ namespace Editor
 	}
 	#endif
 
-
-#if 0
+	#if 1
 	void SceneView::HandleMouseAndKeyboardEvents()
 	{
 		if (ImGui::IsWindowFocused())
@@ -180,11 +191,11 @@ namespace Editor
 					FlexECS::Entity entity = FindClickedEntity();
 					if (entity != FlexECS::Entity::Null && within_viewport)
 					{
-						Editor::GetInstance().SelectEntity(entity);
+						Editor::GetInstance().GetSystem<SelectionSystem>()->SelectEntity(entity);
 					}
 					else
 					{
-						Editor::GetInstance().SelectEntity(FlexECS::Entity::Null);
+						Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
 					}
 				}
 			}
@@ -206,18 +217,25 @@ namespace Editor
 			//Delete Entity
 			if (ImGui::IsKeyPressed(ImGuiKey_Delete))
 			{
-				Editor::GetInstance().DeleteSelectedEntity();
+				Editor::GetInstance().GetSystem<SelectionSystem>()->DeleteSelectedEntities();
 			}
 		}
 	}
 
-#endif
+	#endif
 
-	#if 0
+	#if 1
 	void SceneView::DrawGizmos()
 	{
+		//only supports 1 selected entity right now.
 		m_gizmo_hovered = false;
-		FlexECS::Entity selected_entity = Editor::GetInstance().GetSelectedEntity();
+		FlexECS::Entity selected_entity = FlexECS::Entity::Null;
+		auto& selected_list = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
+		if (selected_list.size() == 1)
+		{
+			selected_entity = *selected_list.begin();
+		}
+
 		if (selected_entity == FlexECS::Entity::Null) 
 			return;
 
@@ -259,9 +277,10 @@ namespace Editor
 			//Scale the change in position with relation to screen size
 			//pos_change represents how much the gizmo moved in absolute screen coordinates.
 			//Need to convert screen space to world space
-			pos_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			pos_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			entity_position += pos_change;
+																											//this check prevents division by zero crash
+			pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			entity_position += Vector3(pos_change.x, pos_change.y, 0.0f);
 		}
 		else if (m_current_gizmo_type == GizmoType::SCALE)
 		{
@@ -282,9 +301,9 @@ namespace Editor
 				scale_change.y = -scale_change.y;
 			}
 
-			scale_change.x *= m_EditorCam->m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			scale_change.y *= m_EditorCam->m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			entity_scale += scale_change;
+			scale_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+			scale_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+			entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);;
 		}
 		else if (m_current_gizmo_type == GizmoType::ROTATE)
 		{
@@ -311,7 +330,6 @@ namespace Editor
 
 		ImGui::Begin("Scene", nullptr, window_flags);
 		#if 1
-		{
 			CalculateViewportPosition();
 
 			//Display Scene texture
@@ -323,8 +341,8 @@ namespace Editor
 			ImGui::Image((ImTextureID)static_cast<uintptr_t>(texture),
 				m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
 
-			//HandleMouseAndKeyboardEvents();
-			//DrawGizmos();
+			HandleMouseAndKeyboardEvents();
+			DrawGizmos();
 			//MoveEditorCam();
 
 			//Create new entity when dragging an image from assets to scene
@@ -347,7 +365,6 @@ namespace Editor
 				//new_entity.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
 				//EditorGUI::EndPayloadReceiver();
 			}
-		}
 		#endif
 
 		ImGui::End();

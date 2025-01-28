@@ -34,11 +34,11 @@ namespace Editor
 		};
 
 		void CalculateViewportPosition();	//position of viewport image and size
-		//void HandleMouseAndKeyboardEvents();
-		//FlexEngine::FlexECS::Entity FindClickedEntity();
-		//FlexEngine::Vector4 GetWorldClickPosition();
-		//ImVec2 WorldToScreen(const FlexEngine::Vector2& position);
-		//void DrawGizmos();
+		void HandleMouseAndKeyboardEvents();
+		FlexEngine::FlexECS::Entity FindClickedEntity();
+		FlexEngine::Vector4 GetWorldClickPosition();
+		ImVec2 WorldToScreen(const FlexEngine::Vector2& position);
+		void DrawGizmos();
 		//void MoveEditorCam();
 
 		bool m_gizmo_hovered;
