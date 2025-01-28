@@ -34,7 +34,7 @@ namespace FlexEngine
             m_data.position.y + m_data.m_OrthoHeight / 2,
             m_data.position.y - m_data.m_OrthoHeight / 2, 
             m_data.nearClip,
-            m_data.farClip);
+            m_data.farClip); //?
         UpdateCameraMatrix();
     }
 
@@ -98,8 +98,20 @@ namespace FlexEngine
 
     void Camera::Update()
     {
-        m_view_matrix = Matrix4x4::LookAt(m_data.position, m_data.target, m_data.up);
-        UpdateCameraMatrix();
+        if (m_data.m_isOrthographic) //Orthographic
+        {
+            SetOrthographic(m_data.position.x - m_data.m_OrthoWidth / 2,
+                            m_data.position.x + m_data.m_OrthoWidth / 2,
+                            m_data.position.y - m_data.m_OrthoHeight / 2,
+                            m_data.position.y + m_data.m_OrthoHeight / 2,
+                            m_data.nearClip,
+                            m_data.farClip); //? Must do like this
+        }
+        else //Perspective
+        {
+            m_view_matrix = Matrix4x4::LookAt(m_data.position, m_data.target, m_data.up);
+
+        }
     }
 
     void Camera::UpdateCameraMatrix()

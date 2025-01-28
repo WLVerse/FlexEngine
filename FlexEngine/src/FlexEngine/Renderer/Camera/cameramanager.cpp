@@ -1,94 +1,154 @@
-
-/*!************************************************************************
- // WLVERSE [https://wlverse.web.app]
- // scenecamsorter.cpp
- //
- // This file defines the `SceneCamSorter` class, a singleton utility
- // within the FlexEngine framework for managing camera entities in a 3D scene.
- // The `SceneCamSorter` class provides functionalities for registering and
- // tracking active camera entities, facilitating seamless transitions between
- // main and editor cameras. It also offers methods to retrieve and update
- // `Camera` properties, which encapsulate essential camera attributes
- // such as position, orientation, and projection matrices.
- //
- // Key functionalities include:
- // - Adding, switching, and removing camera entities in the scene.
- // - Providing fast access to `Camera`, including view and projection
- //   matrices, for any registered camera.
- // - Ensuring only one instance manages camera sorting, adhering to the
- //   singleton design pattern.
- //
- // The `Camera` struct, also defined here, includes properties for world
- // position, orientation vectors, and other parameters essential for view
- // transformations in both perspective and orthographic projections.
- //
- // AUTHORS
- // [100%] Soh Wei Jie (weijie.soh@digipen.edu)
- //   - Main Author
- //   - Developed the camera management interface, singleton pattern, and
- //     entity registration features within FlexEngine.
- //
- // Copyright (c) 2024 DigiPen, All rights reserved.
- **************************************************************************/
-
 #include "cameramanager.h"
+#include <stdexcept>
 
 namespace FlexEngine
 {
     #pragma region Static Member Initialization
 
-    std::unordered_map<FlexECS::EntityID, std::shared_ptr<Camera>> CameraManager::m_cameraEntities;
+    std::unordered_map<FlexECS::EntityID, Camera*> CameraManager::m_cameraEntities;
     FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
-    
-    #pragma endregion
-
-    #pragma region Private
 
     #pragma endregion
 
     #pragma region Camera Lifetime Management
+
     void CameraManager::Initialize()
     {
-        // Create the default editor camera
-        Camera editorCamera({ 800.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
-        // Initialize editorCamera as needed
-        m_editorCameraID = 0; // Assign a unique ID for the editor camera
-        m_cameraEntities[m_editorCameraID] = std::make_shared<Camera>(editorCamera);
+        try
+        {
+            Log::Debug("Initializing CameraManager...");
+            // Create the default editor camera manually
+            Camera* editorCamera = new Camera({ 800.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+
+            m_editorCameraID = 0; // Assign a unique ID for the editor camera
+            Log::Debug("Editor camera created with ID: " + std::to_string(m_editorCameraID));
+
+            m_cameraEntities[m_editorCameraID] = editorCamera;
+            Log::Debug("Editor camera registered in CameraManager.");
+
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::Initialize: " + std::string(e.what()));
+        }
     }
 
-    void CameraManager::SetCameraRef(FlexECS::EntityID entityID, const Camera& cam)
+    void CameraManager::SetCamera(FlexECS::EntityID entityID, Camera* const& cam)
     {
-        m_cameraEntities[entityID] = std::make_shared<Camera>(cam);
+        try
+        {
+            Log::Debug("Setting camera with Entity ID: " + std::to_string(entityID));
+            if (!cam)
+            {
+                throw std::invalid_argument("Camera pointer is null.");
+            }
+            m_cameraEntities[entityID] = cam;
+            Log::Debug("Camera set for Entity ID: " + std::to_string(entityID));
+
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::SetCamera (EntityID: " + std::to_string(entityID) + "): " + std::string(e.what()));
+        }
     }
 
     void CameraManager::RemoveCamera(FlexECS::EntityID entityID)
     {
-        m_cameraEntities.erase(entityID);
+        try
+        {
+            Log::Debug("Removing camera with Entity ID: " + std::to_string(entityID));
+            auto it = m_cameraEntities.find(entityID);
+            if (it == m_cameraEntities.end())
+            {
+                throw std::out_of_range("Camera with EntityID " + std::to_string(entityID) + " not found.");
+            }
+
+            // Manually delete the camera to avoid memory leaks
+            delete it->second;
+            m_cameraEntities.erase(entityID);
+            Log::Debug("Camera removed for Entity ID: " + std::to_string(entityID));
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::RemoveCamera (EntityID: " + std::to_string(entityID) + "): " + std::string(e.what()));
+        }
     }
 
-    const Camera* CameraManager::GetCameraRef(FlexECS::EntityID entityID)
+    Camera* CameraManager::GetCamera(FlexECS::EntityID entityID)
     {
-        // Find the camera by entity ID
-        auto it = m_cameraEntities.find(entityID);
-        return (it != m_cameraEntities.end()) ? it->second.get() : nullptr;
+        try
+        {
+            //Log::Debug("Getting camera with Entity ID: " + std::to_string(entityID));
+            auto it = m_cameraEntities.find(entityID);
+            if (it == m_cameraEntities.end())
+            {
+                throw std::out_of_range("Camera with EntityID " + std::to_string(entityID) + " not found.");
+            }
+
+            //Log::Debug("Camera found for Entity ID: " + std::to_string(entityID));
+            return it->second;
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::GetCamera (EntityID: " + std::to_string(entityID) + "): " + std::string(e.what()));
+            return nullptr;  // Return null if the camera was not found
+        }
     }
 
     bool CameraManager::HasCamera(FlexECS::EntityID entityID)
     {
-        return m_cameraEntities.find(entityID) != m_cameraEntities.end();
+        try
+        {
+            bool exists = m_cameraEntities.find(entityID) != m_cameraEntities.end();
+            return exists;
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::HasCamera (EntityID: " + std::to_string(entityID) + "): " + std::string(e.what()));
+            return false;
+        }
     }
 
     void CameraManager::Clear()
     {
-        m_cameraEntities.clear();
-        m_editorCameraID = INVALID_ENTITY_ID;
+        try
+        {
+            Log::Debug("Clearing all cameras from CameraManager...");
+            // Manually delete all camera objects
+            for (auto& pair : m_cameraEntities)
+            {
+                delete pair.second;
+            }
+            m_cameraEntities.clear();
+            m_editorCameraID = INVALID_ENTITY_ID;
+            Log::Debug("All cameras cleared.");
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::Clear: " + std::string(e.what()));
+        }
     }
-    
-    const Camera* CameraManager::GetEditorCamera()
+
+    Camera* CameraManager::GetEditorCamera()
     {
-        // Retrieve the editor camera
-        auto it = m_cameraEntities.find(m_editorCameraID);
-        return (it != m_cameraEntities.end()) ? it->second.get() : nullptr;
+        try
+        {
+            Log::Debug("Getting editor camera...");
+            auto it = m_cameraEntities.find(m_editorCameraID);
+            if (it == m_cameraEntities.end())
+            {
+                throw std::out_of_range("Editor camera not found.");
+            }
+
+            Log::Debug("Editor camera found.");
+            return it->second;
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::GetEditorCamera: " + std::string(e.what()));
+            return nullptr;  // Return null if the editor camera is not found
+        }
     }
+
     #pragma endregion
 }

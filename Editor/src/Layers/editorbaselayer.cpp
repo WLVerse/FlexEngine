@@ -152,6 +152,7 @@ namespace Editor
 
         for (auto& entity : cameraEntities)
         {
+
             auto camera = entity.GetComponent<Camera>();
             if (camera)
             {
@@ -161,14 +162,15 @@ namespace Editor
                 float speed = 5.0f;
                 
                 // Check for WASD input
-                if (Input::GetKeyDown('W')) // Replace 'W' with your input library's key codes
-                    position.y += speed;  // Move forward
-                if (Input::GetKeyDown('S'))
-                    position.y -= speed;  // Move backward
-                if (Input::GetKeyDown('A'))
-                    position.x -= speed;  // Move left
-                if (Input::GetKeyDown('D'))
-                    position.x += speed;  // Move right
+                if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
+                    entity.GetComponent<Camera>()->m_data.position.y += speed;  // Move forward
+                if (Input::GetKey('S'))
+                    entity.GetComponent<Camera>()->m_data.position.y -= speed;  // Move backward
+                if (Input::GetKey('A'))
+                    entity.GetComponent<Camera>()->m_data.position.x += speed;  // Move left
+                if (Input::GetKey('D'))
+                    entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move right
+            
             }
         }
     }

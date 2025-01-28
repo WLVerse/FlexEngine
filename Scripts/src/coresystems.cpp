@@ -23,12 +23,18 @@ public:
   void Update() override
   {
     // Camera 
-      FlexECS::EntityID currGameCamID = 0;
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<ScriptComponent>())
-      {
-          if (FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name) == "CameraHandler")
-              currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript(FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name)))->GetMainGameCameraID();
-      }
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+    {
+        auto ref = element.GetComponent<Camera>();
+        if (ref->getIsActive() /*&& isdirty*/)
+            element.GetComponent<Camera>()->Update();
+    }
+    FlexECS::EntityID currGameCamID = 0;
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<ScriptComponent>())
+    {
+        if (FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name) == "CameraHandler")
+            currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript(FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name)))->GetMainGameCameraID();
+    }
     // Transform
     
     // Physics
