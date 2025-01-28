@@ -130,10 +130,9 @@ namespace FlexEngine
 
                         // Set the first valid camera as the main game camera if not already set
                         if (m_mainGameCameraID == INVALID_ENTITY_ID)
-                        {
                             m_mainGameCameraID = elem.Get();
-                            foundActiveCamera = true;
-                        }
+
+                        foundActiveCamera = true;
                     }
                     else
                     {
