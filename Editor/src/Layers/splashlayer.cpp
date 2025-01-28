@@ -54,8 +54,25 @@ namespace Editor
     // code here will not be executed until the base layer is loaded
     if (Application::MessagingSystem::Receive<bool>("Is base layer loaded?"))
     {
-      Log::Debug("Base layer loaded! Switching to EditorWindowLayer");
-      FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<EditorWindowLayer>());
+      Log::Debug("Base layer loaded! Loading EditorBaseLayer");
+      FLX_COMMAND_ADD_WINDOW_LAYER(
+        "Editor",
+        std::make_shared<EditorBaseLayer>()
+      );
+
+      // Scripting layer
+      //FLX_COMMAND_ADD_WINDOW_LAYER(
+      //  "Editor",
+      //  std::make_shared<ScriptingLayer>()
+      //);
+
+      // Statistics panel for debugging
+      FLX_COMMAND_ADD_WINDOW_LAYER(
+        "Editor",
+        std::make_shared<StatisticsPanelLayer>()
+      );
+      
+      // Remove the splash window layer, which will also close the window
       //FLX_COMMAND_REMOVE_APPLICATION_LAYER(Application::GetLayerStack().GetLayer("Splash Window Layer"));
     }
   }

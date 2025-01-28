@@ -256,7 +256,7 @@ namespace FlexEngine
     // Returns the GLFW window pointer.
     // Do not use this unless you know what you are doing.
     // The function is unsafe because it returns a raw pointer.
-    GLFWwindow* GetGLFWWindow() const { FLX_WINDOW_ISOPEN_ASSERT; return m_glfwwindow; }
+    GLFWwindow* GetGLFWWindow() const { return m_glfwwindow; }
 
     // Aligns the context pointer.
     // 

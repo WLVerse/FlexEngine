@@ -28,7 +28,6 @@
 namespace FlexEngine
 {
   // static member initialization
-  //Application* Application::s_active_application = nullptr;
 
   bool Application::m_is_running = true;
   bool Application::m_is_closing = false;
@@ -37,13 +36,13 @@ namespace FlexEngine
 
   Window* Application::m_current_window = nullptr;
 
+  Window* Application::m_main_window = nullptr;
+
   std::queue<Application::CommandData> Application::m_command_queue{};
 
   LayerStack Application::m_layer_stack{};
 
   Application::MessagingSystem::Messages Application::MessagingSystem::m_messages{};
-
-  const char* Application::m_opengl_version_text = _FLX_OPENGL_VERSION_TEXT;
 
   #pragma region Application Loop Management
 
@@ -79,13 +78,20 @@ namespace FlexEngine
     }
 
     // create the window
-    // this validates the window name and properties
+    
+    // Step 1: Validate the window name and properties
     m_window_registry[window_name] = std::make_shared<Window>(window_name, props);
 
+    // Step 2: Open the window
+    // Main window is set here.
     m_window_registry[window_name]->Open();
 
-    // set the newly open window as the active window context
+    // Step 3: Set the window as the current window
     m_window_registry[window_name]->SetCurrentContext();
+
+    // Step 4: Send a message that the window is open
+    std::string message = window_name + " opened";
+    Application::MessagingSystem::Send<bool>(message, true);
   }
 
   void Application::CloseWindow(const std::string& window_name)
@@ -97,25 +103,46 @@ namespace FlexEngine
       return;
     }
 
+    // Step 0: Defer the main window closing, close all windows first
+    if (m_main_window == m_window_registry[window_name].get())
+    {
+      CloseAllWindows();
+      return;
+    }
+
     // Step 1: Clear the window's layers
     m_window_registry[window_name]->GetLayerStack().Clear();
 
     // Step 2: Close and clean up the window
     m_window_registry[window_name]->Close();
     m_window_registry.erase(window_name);
+
+    // Step 3: Send a message that the window is closed
+    std::string message = window_name + " closed";
+    Application::MessagingSystem::Send<bool>(message, true);
   }
 
   void Application::CloseAllWindows()
   {
     for (auto& [window_name, window] : m_window_registry)
     {
+      // Step 0: Defer main window closing
+      if (m_main_window == window.get()) continue;
       // Step 1: Clear the window's layers
       window->GetLayerStack().Clear();
       // Step 2: Close and clean up the window
       window->Close();
     }
 
-    // Step 3: Clear the window registry
+    // Step 3: Close the main window
+    if (m_main_window)
+    {
+      m_main_window->GetLayerStack().Clear();
+      m_main_window->Close();
+      m_main_window = nullptr;
+    }
+
+    // Step 4: Clear the window registry
     m_window_registry.clear();
   }
 
@@ -380,47 +407,24 @@ namespace FlexEngine
       Application::GetLayerStack().Update();
       FMODWrapper::Update();
 
-      //ApplicationStateManager::Update();
-
       // keybind to close the application
-      if (Input::GetKey(GLFW_KEY_LEFT_CONTROL) && Input::GetKeyDown(GLFW_KEY_Q))
+      // this is hardcoded to ensure that the application can always be closed
+      if (
+        Input::GetKey(GLFW_KEY_LEFT_CONTROL) && Input::GetKeyDown(GLFW_KEY_Q) ||
+        Input::GetKey(GLFW_KEY_RIGHT_CONTROL) && Input::GetKeyDown(GLFW_KEY_Q)
+      )
       {
         m_is_closing = true;
       }
 
       // All actions on the application, window, and layerstack are deferred.
       // This processes them all.
-      ProcessCommands();
+      Application::ProcessCommands();
 
       // input cleanup (updates key states and mouse delta for the next frame)
       Input::Cleanup();
-
-      // state switching only happens at the very end of the frame
-      //ApplicationStateManager::UpdateManager();
     }
 
-  }
-
-  #pragma endregion
-
-  #pragma region Headless Window (Master Window)
-
-  void Application::Internal_CreateMasterWindow()
-  {
-    // guard: check if the master window already exists
-    if (m_master_window)
-    {
-      Log::Warning("The master window already exists. Cannot create another master window.");
-      return;
-    }
-
-    // create the master window
-    m_master_window = glfwCreateWindow(1, 1, "Master Window (Headless)", nullptr, nullptr);
-    FLX_NULLPTR_ASSERT(m_master_window, "Failed to create the master window.");
-    glfwMakeContextCurrent(m_master_window);
-
-    // load all OpenGL function pointers (glad)
-    FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
   }
 
   #pragma endregion

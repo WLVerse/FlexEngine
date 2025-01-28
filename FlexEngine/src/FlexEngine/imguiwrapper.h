@@ -73,8 +73,8 @@ namespace FlexEngine
     // which is always in this DLL.
     #define FLX_IMGUI_ALIGNCONTEXT() \
       FlexEngine::ImGuiWrapper::Internal_SetCurrentContext(FlexEngine::ImGuiWrapper::GetContext()); \
-      ImGui::SetCurrentContext(FlexEngine::ImGuiWrapper::GetContext()); \
-      ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)ImGui::FindViewportByPlatformHandle(FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()))
+      ImGui::SetCurrentContext(FlexEngine::ImGuiWrapper::GetContext())
+      //ImGui::SetCurrentViewport(nullptr, (ImGuiViewportP*)ImGui::FindViewportByPlatformHandle(FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()))
       //ImGui::GetMainViewport()->PlatformHandle = FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow()
 
     // INTERNAL FUNCTION

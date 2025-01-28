@@ -14,9 +14,9 @@
 // - Application LayerStack
 // - Application
 // 
-// The application contains a headless window, this forces this application to
-// always have a window. This is useful for applications that require
-// multi-window support.
+// All auxiliary windows share the context of the main window.
+// It loads the OpenGL context, glad, and imgui context.
+// Closing the main window will close all auxiliary windows.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -44,7 +44,7 @@ namespace FlexEngine
 
   // Hardcoded application settings
   // This is the default OpenGL version for the engine
-  #define _FLX_OPENGL_VERSION_TEXT "#version 460 core"
+  #define FLX_OPENGL_VERSION_TEXT "#version 460 core"
 
   // The architecture of the engine is designed to only have one application instance.
   class __FLX_API Application
@@ -69,6 +69,7 @@ namespace FlexEngine
     #pragma endregion
 
     #pragma region Registry Pattern
+
     // This pattern is used to manage the windows in the application.
 
   public:
@@ -80,15 +81,19 @@ namespace FlexEngine
   public:
     static WindowRegistry& GetWindowRegistry() { return m_window_registry; }
 
-    // Sets the newly open window as the active window context
-    // Window initialization is deferred to the end of the frame
+    // Sets the newly open window as the active window context.
+    // Window initialization is deferred to the end of the frame.
     static void OpenWindow(const std::string& window_name, const WindowProps& props = {});
 
+    // Closing the main window will close all windows.
     static void CloseWindow(const std::string& window_name);
 
+    // Closes all windows.
+    // The main window is closed last.
     static void CloseAllWindows();
 
   private:
+
     // allow access to internal functions
     friend class Window;
 
@@ -111,6 +116,28 @@ namespace FlexEngine
     // Sets the current window pointer
     // This does not set the current window context for glfw or imgui
     static void Internal_SetCurrentWindow(Window* window) { m_current_window = window; }
+
+    #pragma endregion
+
+    #pragma region Main Window
+
+    // The main window is defined as the first window that the application opens.
+    // It loads initalizes the opengl context and loads the opengl functions with glad.
+    // This is used for opengl context sharing.
+    // Closing this window will close all other windows, effectively closing the application.
+
+  private:
+    static Window* m_main_window;
+
+  public:
+    // Returns the main window.
+    // This is the first window that the application opens.
+    static Window* GetMainWindow() { return m_main_window; }
+
+  private:
+    // INTERNAL FUNCTION
+    // Sets the main window pointer.
+    static void Internal_SetMainWindow(Window* window) { m_main_window = window; }
 
     #pragma endregion
 
@@ -379,6 +406,8 @@ namespace FlexEngine
     // Send a message by calling Send<Type>("test", data)
     // A listener would be checking for the message by calling Receive<Type>("test")
     // Any data can be sent by casting it to std::any
+    // It is impossible to send a message with the same name twice
+    // The message is cleared after it is received
     class __FLX_API MessagingSystem
     {
     public:
@@ -397,6 +426,7 @@ namespace FlexEngine
         // guard
         if (m_messages.count(message) != 0) return;
         m_messages[message] = std::any(data);
+        Log::Info("Message sent: " + message);
       }
       template <typename T>
       static T Receive(const std::string& message)
@@ -431,33 +461,10 @@ namespace FlexEngine
 
     friend int ::main(int, char**);
 
+    #pragma endregion
+
     static OpenGLFrameBufferManager FrameBufferManager;
 
-    #pragma endregion
-
-    #pragma region Headless Window (Master Window)
-
-    // The master window is a headless window that is always open.
-    // It stores the opengl context that is shared between every window.
-  private:
-    static const char* m_opengl_version_text;
-
-  public:
-
-    // Returns the master window, used for opengl context sharing.
-    GLFWwindow* GetMasterWindow() { return m_master_window; }
-
-  private:
-    static const char* GetOpenGLVersionText() { return m_opengl_version_text; }
-
-    static GLFWwindow* m_master_window;
-
-    // INTERNAL FUNCTION
-    // Creates the headless window and stores it.
-    // This is not a window and also not stored in the window registry.
-    void Internal_CreateMasterWindow();
-
-    #pragma endregion
   };
 
   // Application Framework Pattern (Inversion of Control)

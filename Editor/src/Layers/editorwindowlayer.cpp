@@ -16,6 +16,7 @@ namespace Editor
 
   void EditorWindowLayer::OnAttach()
   {
+    // This is the main window.
     FLX_COMMAND_OPEN_WINDOW(
       "Editor",
       WindowProps(
@@ -29,27 +30,14 @@ namespace Editor
       )
     );
 
-    // This currently only stores the asset manager
-    // It must be run after the window is created
-    //FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<BaseLayer>());
-
     // This is the base layer for the editor
-    FLX_COMMAND_ADD_WINDOW_LAYER(
-      "Editor",
-      std::make_shared<EditorBaseLayer>()
-    );
-
-    // Scripting layer
     //FLX_COMMAND_ADD_WINDOW_LAYER(
     //  "Editor",
-    //  std::make_shared<ScriptingLayer>()
+    //  std::make_shared<EditorBaseLayer>()
     //);
 
-    // Statistics panel for debugging
-    FLX_COMMAND_ADD_WINDOW_LAYER(
-      "Editor",
-      std::make_shared<StatisticsPanelLayer>()
-    );
+    // Splash window
+    FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<SplashWindowLayer>());
   }
 
   void EditorWindowLayer::OnDetach()

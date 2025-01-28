@@ -21,6 +21,8 @@ namespace Editor
   void EditorBaseLayer::OnAttach()
   {
 
+    #pragma region Scene Tests
+
     // test scene
     #if 1
     {
@@ -102,6 +104,9 @@ namespace Editor
       loaded_scene->DumpArchetypeIndex();
     }
     #endif
+
+    #pragma endregion
+
 
     Editor::GetInstance().Init();
     RegisterComponents();

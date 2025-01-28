@@ -56,6 +56,7 @@ namespace
     }
   }
 
+  #pragma warning(suppress: 4100) // unused parameter 'window'
   void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
   {
     // make sure the viewport matches the new window dimensions; note that width and 
@@ -116,13 +117,34 @@ namespace FlexEngine
       glfwWindowHint(hint, value);
     }
 
-    // create window
-    m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
-    FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
-    glfwMakeContextCurrent(m_glfwwindow);
+    // special case: main window
+    if (!Application::GetMainWindow())
+    {
+      Log::Debug("Creating main window: " + m_props.title);
+      Application::Internal_SetMainWindow(this);
 
-    // load all OpenGL function pointers (glad)
-    FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
+      // create window
+      m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
+      FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
+      glfwMakeContextCurrent(m_glfwwindow);
+
+      // load all OpenGL function pointers (glad)
+      FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
+
+      #ifndef IMGUI_DISABLE
+      // initialize imgui
+      // this must be done after the window is created because imgui needs the OpenGL context
+      // the shutdown is done in the window close function
+      ImGuiWrapper::Init();
+      #endif
+    }
+    else
+    {
+      // create shared window
+      m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, Application::GetMainWindow()->GetGLFWWindow());
+      FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
+      glfwMakeContextCurrent(m_glfwwindow);
+    }
 
     // set callbacks
     glfwSetKeyCallback(m_glfwwindow, Input::KeyCallback);
@@ -139,13 +161,6 @@ namespace FlexEngine
 
     // functions below require is_init to be true
     is_init = true;
-
-    #ifndef IMGUI_DISABLE
-    // initialize imgui
-    // this must be done after the window is created because imgui needs the OpenGL context
-    // the shutdown is done in the window close function
-    m_imgui_context = ImGuiWrapper::Init(this);
-    #endif
 
     // always move the window to the center of the screen
     // this is done after the window is created to avoid the window being created off-center

@@ -223,13 +223,15 @@ namespace FlexEngine
     //ImGui::StyleColorsDark();
     CustomImguiStyle();
 
-    // load font
+    // load hardcoded imgui font
     std::string font_path = Path::current("/assets/fonts/Suez_One/SuezOne-Regular.ttf");
     io.Fonts->AddFontFromFileTTF(font_path.c_str(), 21.f);
 
     // setup platform/renderer bindings
-    FLX_CORE_ASSERT(ImGui_ImplGlfw_InitForOpenGL(Application::GetMasterWindow(), true), "Failed to initialize GLFW backend!");
-    FLX_CORE_ASSERT(ImGui_ImplOpenGL3_Init(Application::GetOpenGLVersionText()), "Failed to initialize OpenGL3 backend!");
+    GLFWwindow* glfwwindow = Application::GetMainWindow()->GetGLFWWindow();
+    FLX_NULLPTR_ASSERT(glfwwindow, "Failed to get GLFW window while initializing ImGui.");
+    FLX_CORE_ASSERT(ImGui_ImplGlfw_InitForOpenGL(glfwwindow, true), "Failed to initialize GLFW backend!");
+    FLX_CORE_ASSERT(ImGui_ImplOpenGL3_Init(FLX_OPENGL_VERSION_TEXT), "Failed to initialize OpenGL3 backend!");
   }
 
   void ImGuiWrapper::Shutdown()
@@ -263,7 +265,7 @@ namespace FlexEngine
   void ImGuiWrapper::Internal_SetCurrentContext(ImGuiContext* context)
   {
     ImGui::SetCurrentContext(context);
-    ImGui::GetMainViewport()->PlatformHandle = FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow();
+    //ImGui::GetMainViewport()->PlatformHandle = FlexEngine::Application::GetCurrentWindow()->GetGLFWWindow();
   }
 
   #pragma endregion
