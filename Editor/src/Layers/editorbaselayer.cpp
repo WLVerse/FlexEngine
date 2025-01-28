@@ -26,9 +26,20 @@ namespace Editor
     {
       auto scene = FlexECS::Scene::CreateScene();
       {
-        FlexECS::Entity entity = scene->CreateEntity("Save Test 0");
-        entity.AddComponent<Vector2>({ 2, 4 });
+        FlexECS::Entity entity = scene->CreateEntity("Sprite1 Test");
+        entity.AddComponent<Position>({ {300, 300, 0} });
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Scale>({ {200, 200, 0}});
         entity.AddComponent<Transform>({});
+        entity.AddComponent<Sprite>({});
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Sprite2 Test");
+        entity.AddComponent<Position>({ {600, 600, 0} });
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Scale>({ {250, 250, 0} });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<Sprite>({});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 1");
@@ -110,8 +121,8 @@ namespace Editor
 
 
     // Add custom framebuffers
-    Window::FrameBufferManager.AddFrameBuffer("custom1", Vector2(1080, 640));                                             
-    Window::FrameBufferManager.AddFrameBuffer("custom2", Vector2(1280, 720));
+    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
+    Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
 
   }
 
@@ -121,8 +132,8 @@ namespace Editor
 
   void EditorBaseLayer::Update()
   {
-    Window::FrameBufferManager.SetCurrentFrameBuffer("custom1");
-    Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+    //Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    //Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
     // Always remember to set the context before using ImGui
     FLX_IMGUI_ALIGNCONTEXT();
@@ -136,7 +147,7 @@ namespace Editor
     Editor::GetInstance().Update();
 
     // good practise
-    OpenGLFrameBuffer::Unbind();
+    //OpenGLFrameBuffer::Unbind();
   }
 
 }

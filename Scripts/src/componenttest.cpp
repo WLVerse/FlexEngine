@@ -29,7 +29,7 @@ public:
 
   void Update() override
   {
-    Log::Debug("ComponentTest: Update");
+    //Log::Debug("ComponentTest: Update");
   }
 
   void Stop() override

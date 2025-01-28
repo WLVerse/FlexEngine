@@ -170,6 +170,10 @@ namespace Editor
       script = ScriptRegistry::GetScript("GameplayLoops");
       if (script) script->Update();
     }
+    else
+    {
+      Internal_LoadScriptingDLL();
+    }
   }
 
 }
