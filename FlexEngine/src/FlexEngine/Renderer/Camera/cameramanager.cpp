@@ -37,7 +37,7 @@ namespace FlexEngine
 {
     #pragma region Static Member Initialization
 
-    std::unordered_map<FlexECS::EntityID, std::unique_ptr<Camera>> CameraManager::m_cameraEntities;
+    std::unordered_map<FlexECS::EntityID, std::shared_ptr<Camera>> CameraManager::m_cameraEntities;
     FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
     
     #pragma endregion
@@ -53,12 +53,12 @@ namespace FlexEngine
         Camera editorCamera({ 800.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
         // Initialize editorCamera as needed
         m_editorCameraID = 0; // Assign a unique ID for the editor camera
-        m_cameraEntities[m_editorCameraID] = std::make_unique<Camera>(editorCamera);
+        m_cameraEntities[m_editorCameraID] = std::make_shared<Camera>(editorCamera);
     }
 
     void CameraManager::SetCameraRef(FlexECS::EntityID entityID, const Camera& cam)
     {
-        m_cameraEntities[entityID] = std::make_unique<Camera>(cam);
+        m_cameraEntities[entityID] = std::make_shared<Camera>(cam);
     }
 
     void CameraManager::RemoveCamera(FlexECS::EntityID entityID)

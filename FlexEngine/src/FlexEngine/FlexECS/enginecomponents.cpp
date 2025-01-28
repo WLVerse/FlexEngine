@@ -62,6 +62,10 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(Camera)
       FLX_REFL_REGISTER_PROPERTY(m_data)
       FLX_REFL_REGISTER_PROPERTY(is_active)
+      FLX_REFL_REGISTER_PROPERTY(m_ortho_matrix)
+      FLX_REFL_REGISTER_PROPERTY(m_perspective_matrix)
+      FLX_REFL_REGISTER_PROPERTY(m_view_matrix)
+      FLX_REFL_REGISTER_PROPERTY(m_proj_view_matrix)
    FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(CameraData)

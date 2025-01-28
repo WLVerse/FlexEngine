@@ -45,8 +45,9 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({});
         entity.AddComponent<Transform>({});
+        entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
         entity.AddComponent<Audio>({ true, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
+        entity.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
       }
       FlexECS::Entity cam = scene->CreateEntity("Test Cam");
@@ -54,8 +55,11 @@ namespace Editor
       cam.AddComponent<Rotation>({});
       cam.AddComponent<Scale>({});
       cam.AddComponent<Transform>({});
+      //There are two ways to initialize, 1st is to write directly which i do not recommend like so -> need to write each exact variable
       //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
-      
+      // Second way is to create a camera outside and then copy constructor it -> Easier
+      Camera gameTestCamera({ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+      cam.AddComponent<Camera>(gameTestCamera);
       //scene->DumpArchetypeIndex();
     }
     #endif
@@ -141,6 +145,33 @@ namespace Editor
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
     Editor::GetInstance().Update();
+
+    //Test for cam
+    {
+        auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
+
+        for (auto& entity : cameraEntities)
+        {
+            auto camera = entity.GetComponent<Camera>();
+            if (camera)
+            {
+                auto& position = camera->m_data.position;
+
+                // Adjust movement speed as needed
+                float speed = 5.0f;
+                
+                // Check for WASD input
+                if (Input::GetKeyDown('W')) // Replace 'W' with your input library's key codes
+                    position.y += speed;  // Move forward
+                if (Input::GetKeyDown('S'))
+                    position.y -= speed;  // Move backward
+                if (Input::GetKeyDown('A'))
+                    position.x -= speed;  // Move left
+                if (Input::GetKeyDown('D'))
+                    position.x += speed;  // Move right
+            }
+        }
+    }
 
     // good practise
     OpenGLFrameBuffer::Unbind();

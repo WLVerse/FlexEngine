@@ -42,7 +42,7 @@ namespace FlexEngine
 
     class __FLX_API CameraManager
     {
-        static std::unordered_map<FlexECS::EntityID, std::unique_ptr<Camera>> m_cameraEntities; /*!< Storage for cameras. */
+        static std::unordered_map<FlexECS::EntityID, std::shared_ptr<Camera>> m_cameraEntities; /*!< Storage for cameras. */
         static FlexECS::EntityID m_editorCameraID; /*!< Reserved editor camera ID. */
     
     public:

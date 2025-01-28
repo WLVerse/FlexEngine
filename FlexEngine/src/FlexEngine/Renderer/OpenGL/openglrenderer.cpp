@@ -76,7 +76,7 @@ namespace FlexEngine
   }
   
   // TODO: cache the vao and vbo
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera* cam)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
   {
     // unit square
     static const float vertices[] = {
@@ -226,6 +226,8 @@ namespace FlexEngine
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
+    const Camera* cam = CameraManager::GetCameraRef(camID);
+    std::cout << cam->m_data.position;
     asset_shader.SetUniform_mat4("u_projection_view", cam != nullptr? cam->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
     // draw
@@ -245,7 +247,7 @@ namespace FlexEngine
     FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const Camera* cam)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
       static GLuint vao = 0, vbo = 0;
 
@@ -294,6 +296,7 @@ namespace FlexEngine
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
+      const Camera* cam = CameraManager::GetCameraRef(camID);
       asset_shader.SetUniform_mat4("projection", cam != nullptr ? cam->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);

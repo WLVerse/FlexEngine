@@ -1,5 +1,6 @@
 #include <FlexEngine.h>
 #include "FlexEngine/Physics/physicssystem.h"
+#include "camerahandler.cpp"
 
 using namespace FlexEngine;
 
@@ -21,8 +22,13 @@ public:
 
   void Update() override
   {
-    // Camera (Unneccessary now)
-    // static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+    // Camera 
+      FlexECS::EntityID currGameCamID = 0;
+      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<ScriptComponent>())
+      {
+          if (FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name) == "CameraHandler")
+              currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript(FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name)))->GetMainGameCameraID();
+      }
     // Transform
     
     // Physics
@@ -61,7 +67,7 @@ public:
       props.window_size = Vector2(1600.0f, 900.0f);
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(props);
+      OpenGLRenderer::DrawTexture2D(props, currGameCamID);
     }
 
     // Audio
@@ -138,7 +144,7 @@ public:
     //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
     sample.m_maxwidthtextbox = 850.0f;
 
-    OpenGLRenderer::DrawTexture2D(sample);
+    OpenGLRenderer::DrawTexture2D(sample, currGameCamID);
   }
 
   void Stop() override

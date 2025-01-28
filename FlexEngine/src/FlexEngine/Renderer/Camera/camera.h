@@ -41,12 +41,12 @@ namespace FlexEngine
 
     class __FLX_API Camera
     {
+        FLX_REFL_SERIALIZABLE
+
         Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
         Matrix4x4 m_perspective_matrix = FlexEngine::Matrix4x4::Identity;
         Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
         Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
-
-        FLX_REFL_SERIALIZABLE
     public:
         bool is_active = true;
         CameraData m_data;

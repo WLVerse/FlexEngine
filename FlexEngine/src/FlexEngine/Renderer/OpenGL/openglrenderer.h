@@ -95,12 +95,12 @@ namespace FlexEngine
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(const Renderer2DProps& props = {}, const Camera* cam = nullptr);
+    static void DrawTexture2D(const Renderer2DProps& props = {}, const FlexECS::EntityID camID = 0);
 
     // Overloaded function to draw text as a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(const Renderer2DText& text = {}, const Camera* cam = nullptr);
+    static void DrawTexture2D(const Renderer2DText& text = {}, const FlexECS::EntityID camID = 0);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.
