@@ -13,26 +13,56 @@
 
 namespace FlexEngine
 {
-    #pragma region Reflection
-    FLX_REFL_REGISTER_START(Camera::CamData)
-        FLX_REFL_REGISTER_PROPERTY(position)
-        FLX_REFL_REGISTER_PROPERTY(target)
-        FLX_REFL_REGISTER_PROPERTY(up)
-        FLX_REFL_REGISTER_PROPERTY(right)
-        FLX_REFL_REGISTER_PROPERTY(fieldOfView)
-        FLX_REFL_REGISTER_PROPERTY(aspectRatio)
-        FLX_REFL_REGISTER_PROPERTY(nearClip)
-        FLX_REFL_REGISTER_PROPERTY(farClip)
-        FLX_REFL_REGISTER_PROPERTY(m_isOrthographic)
-        FLX_REFL_REGISTER_PROPERTY(m_OrthoWidth)
-        FLX_REFL_REGISTER_PROPERTY(m_OrthoHeight)
-        FLX_REFL_REGISTER_END;
-
-    #pragma endregion
-
-    Camera::Camera(float left, float right, float bottom, float top, float near, float far)
+    Camera::Camera() : m_data(), is_active(false) { UpdateCameraMatrix(); }
+    
+    Camera::Camera(const Vector3& t_pos,
+        float t_orthoWidth,
+        float t_orthoHeight,
+        float t_nearClip,
+        float t_farClip,
+        bool t_isActive) : is_active(t_isActive)
     {
-        SetOrthographic(left, right, bottom, top, near, far);
+        m_data.position = t_pos;
+        m_data.m_OrthoWidth = t_orthoWidth;
+        m_data.m_OrthoHeight = t_orthoHeight;
+        m_data.nearClip = t_nearClip;
+        m_data.farClip = t_farClip;
+        m_data.m_isOrthographic = true;
+        m_data.aspectRatio = t_orthoWidth / t_orthoHeight;
+        SetOrthographic(m_data.position.x - m_data.m_OrthoWidth/2, 
+            m_data.position.x + m_data.m_OrthoWidth / 2, 
+            m_data.position.y + m_data.m_OrthoHeight / 2,
+            m_data.position.y - m_data.m_OrthoHeight / 2, 
+            m_data.nearClip,
+            m_data.farClip);
+        UpdateCameraMatrix();
+    }
+
+
+    Camera::Camera(const Vector3& t_pos,
+        const Vector3& t_target,
+        const Vector3& t_up,
+        float t_fieldOfView,
+        float t_aspectRatio,
+        float t_nearClip,
+        float t_farClip,
+        bool t_isActive) : is_active(t_isActive) 
+    {
+        m_data.position = t_pos;
+        m_data.target = t_target;
+        m_data.up = t_up;
+        m_data.fieldOfView = t_fieldOfView;
+        m_data.aspectRatio = t_aspectRatio;
+        m_data.nearClip = t_nearClip;
+        m_data.farClip = t_farClip;
+        m_data.m_isOrthographic = false;
+        UpdateCameraMatrix();
+    }
+
+
+    Camera::Camera(const CameraData& t_data, bool t_isActive) : m_data(t_data), is_active(t_isActive)
+    {
+        //
         UpdateCameraMatrix();
     }
 
@@ -101,6 +131,6 @@ namespace FlexEngine
 
     bool Camera::getIsActive()
     {
-        return m_data.is_active;
+        return is_active;
     }
 }

@@ -45,6 +45,13 @@ namespace FlexEngine
         void Update() override
         {
             ValidateCamera(1);
+            //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+            //{
+            //    if (!element.GetComponent<Transform>()->is_active)
+            //        continue;
+
+            //    RegisterCamera(element.Get(), *element.GetComponent<Camera>());
+            //}
         }
 
         void Stop() override

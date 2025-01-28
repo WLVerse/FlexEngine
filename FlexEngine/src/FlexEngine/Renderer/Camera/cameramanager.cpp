@@ -50,7 +50,7 @@ namespace FlexEngine
     void CameraManager::Initialize()
     {
         // Create the default editor camera
-        Camera editorCamera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+        Camera editorCamera({ 800.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
         // Initialize editorCamera as needed
         m_editorCameraID = 0; // Assign a unique ID for the editor camera
         m_cameraEntities[m_editorCameraID] = std::make_unique<Camera>(editorCamera);

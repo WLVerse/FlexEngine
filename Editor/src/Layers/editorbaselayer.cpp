@@ -47,6 +47,13 @@ namespace Editor
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
       }
+      FlexECS::Entity cam = scene->CreateEntity("Test Cam");
+      cam.AddComponent<Position>({});
+      cam.AddComponent<Rotation>({});
+      cam.AddComponent<Scale>({});
+      cam.AddComponent<Transform>({});
+      //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
+      
       //scene->DumpArchetypeIndex();
     }
     #endif

@@ -14,7 +14,7 @@ public:
 
   void Update() override
   {
-    // Camera
+    // Camera (Unneccessary now)
     // static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
     // Transform
     
