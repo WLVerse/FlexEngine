@@ -190,7 +190,7 @@ namespace Editor
 		{
 			std::string new_file_path(data);
 			path = new_file_path;
-			std::cout << "ID and path: " << m_id << ", " << path << "\n\n\n\n\n";
+			current_texture = path;
 			EndPayloadReceiver();
 		}
 
@@ -198,8 +198,13 @@ namespace Editor
 		{
 			std::string asset_key = current_texture.string();
       
-			Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
-			ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
+			//Should find a way to be able to display both sprite and spritesheet,
+			//Since animator hijacks the sprite
+			if (current_texture.extension() != ".flxspritesheet")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
+				ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
+			}
 		}
 
 		PopID();
