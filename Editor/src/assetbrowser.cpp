@@ -12,6 +12,18 @@ namespace Editor
 
 	void AssetBrowser::Update()
 	{
+		RenderDeleteConfirmationPopup();
+
+		if (m_should_delete_file)
+		{
+			if (std::filesystem::exists(m_file_to_delete))
+			{
+				std::filesystem::remove(m_file_to_delete);
+				m_should_delete_file = false;
+				m_file_to_delete.clear();
+				LoadAllDirectories();
+			}
+		}
 	}
 	void AssetBrowser::Shutdown()
 	{
@@ -21,13 +33,17 @@ namespace Editor
 
 	void AssetBrowser::LoadAllDirectories()
 	{
-		m_directories.clear();
+		m_root_folder.files.clear(); 
+		m_root_folder.subfolders.clear();
 		m_font_paths.clear();
+		m_directories.clear();
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_root_directory))
 		{
 			AddToDirectoryStructure(entry);
 		}
+
+		//Populate root folder with directories
 		for (auto& [folder_path, folder] : m_directories)
 		{
 			if (folder_path.parent_path() == "")
@@ -86,6 +102,86 @@ namespace Editor
 				// Add file to folder normally
 				m_directories[parent_path].files.push_back(relative_path);
 			}
+		}
+	}
+
+	void AssetBrowser::RenderFolderDropdown(Folder& folder)
+	{
+		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+		// Highlight the selected folder
+		if (m_selected_folder == &folder)
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+
+		// Render folder node
+		if (ImGui::TreeNodeEx((folder.name + "##" + folder.path.string()).c_str(), node_flags))
+		{
+			// Check if the folder is clicked
+			if (ImGui::IsItemClicked())
+			{
+				m_selected_folder = &folder; // Set the selected folder
+			}
+
+			// Render subfolders recursively
+			for (auto& [subfolder_path, subfolder] : folder.subfolders)
+			{
+				RenderFolderDropdown(*subfolder);
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+	void AssetBrowser::DeleteFilePopup(std::filesystem::path& file)
+	{
+		//Deleting files
+		if (ImGui::BeginPopupContextItem(file.filename().string().c_str()))
+		{
+			if (ImGui::MenuItem("Delete"))
+			{
+				if (std::filesystem::exists(m_root_directory / file))
+				{
+					m_file_to_delete = m_root_directory / file;
+					m_show_delete_confirmation = true;
+				}
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	void AssetBrowser::RenderDeleteConfirmationPopup()
+	{
+		if (m_show_delete_confirmation)
+		{
+			ImGui::OpenPopup("Confirm Delete");
+		}
+
+		if (ImGui::BeginPopupModal("Confirm Delete", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Are you sure you want to delete this file?\nThis action cannot be undone.");
+			ImGui::Separator();
+
+			ImGui::Text("File: %s", m_file_to_delete.filename().string().c_str());
+
+			if (ImGui::Button("Yes"))
+			{
+				if (std::filesystem::exists(m_file_to_delete))
+				{
+					m_should_delete_file = true;
+				}
+				m_show_delete_confirmation = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("No"))
+			{
+				m_show_delete_confirmation = false; // Cancel deletion
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 
@@ -153,6 +249,8 @@ namespace Editor
 						EditorGUI::EndPayload();
 					}
 				}
+
+				DeleteFilePopup(file);
 			}
 			ImGui::TreePop();
 		}
@@ -169,14 +267,59 @@ namespace Editor
 			LoadAllDirectories();
 		}
 
+		ImGui::SameLine();
+
+		if (ImGui::Button("Add File"))
+		{
+			ImGui::OpenPopup("AddFilePopup");
+			memset(m_text_input, 0, sizeof(m_text_input));
+			m_selected_folder = &m_root_folder;
+		}
+
+		if (ImGui::BeginPopup("AddFilePopup"))
+		{
+			ImGui::Text(("Selecting Folder: " + m_selected_folder->name).c_str());
+
+			for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
+			{
+				ImVec2 dropdown_size(470.0f, 250.0f);
+				if (ImGui::BeginChild("FolderDropdown", dropdown_size, true, ImGuiWindowFlags_HorizontalScrollbar))
+				{
+					RenderFolderDropdown(*subfolder);
+					ImGui::EndChild();
+				}
+			}
+
+			ImGui::Separator();
+			ImGui::InputText("File Name", m_text_input, IM_ARRAYSIZE(m_text_input));
+
+			if (ImGui::Button("Create"))
+			{
+				if (std::strlen(m_text_input) > 0)
+				{
+					if (m_selected_folder == nullptr) m_selected_folder = &m_root_folder;
+					std::filesystem::path new_file_path = m_root_directory / m_selected_folder->path /m_text_input;
+					std::ofstream new_file(new_file_path);
+					new_file.close();
+
+					//AssetManager::Unload();
+					//AssetManager::Load();
+					LoadAllDirectories();
+				}
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
 		for (auto& [path, folder] : m_root_folder.subfolders)
 		{
 			RenderFolder(*folder);
 		}
 
-		for (const auto& file : m_root_folder.files)
+		for (auto& file : m_root_folder.files)
 		{
 			ImGui::Selectable(file.filename().string().c_str());
+			DeleteFilePopup(file);
 		}
 		ImGui::End();
 	}

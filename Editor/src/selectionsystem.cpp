@@ -1,11 +1,19 @@
 #include "selectionsystem.h"
 
+using namespace FlexEngine;
+
 void Editor::SelectionSystem::Init()
 {
 }
 
 void Editor::SelectionSystem::Update()
 {
+	if (!m_entities_to_delete.empty())
+	{
+		HandleEntityDelete();
+		m_entities_to_delete.clear();
+		ClearSelection();
+	}
 }
 
 void Editor::SelectionSystem::Shutdown()
@@ -45,6 +53,44 @@ void Editor::SelectionSystem::ClearSelection()
 	m_selected_entities.clear();
 }
 
+void Editor::SelectionSystem::DeleteEntity(FlexEngine::FlexECS::EntityID id)
+{
+	m_entities_to_delete.insert(id);
+}
+
 void Editor::SelectionSystem::DeleteSelectedEntities()
 {
+	for (auto entity : m_entities_to_delete)
+	{
+		m_entities_to_delete.insert(entity);
+	}
+}
+
+void Editor::SelectionSystem::HandleEntityDelete()
+{
+	for (auto entity : m_entities_to_delete)
+	{
+		FindChildrenToDelete(entity);
+	}
+
+	auto scene = FlexECS::Scene::GetActiveScene();
+	for (auto entity : m_entities_to_delete)
+	{
+		scene->DestroyEntity(entity);
+	}
+}
+
+void Editor::SelectionSystem::FindChildrenToDelete(FlexEngine::FlexECS::EntityID id)
+{
+	FlexECS::Entity parent = id;
+	auto scene = FlexECS::Scene::GetActiveScene();
+	for (auto& entity : scene->CachedQuery<Parent>())
+	{
+		auto pid = entity.GetComponent<Parent>()->parent;
+		if (pid == parent)
+		{
+			m_entities_to_delete.insert(entity);
+			FindChildrenToDelete(entity);
+		}
+	}
 }

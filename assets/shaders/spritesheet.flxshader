@@ -1,0 +1,2 @@
+vertex: assets/shaders/spritesheet.vert
+fragment: assets/shaders/spritesheet.frag

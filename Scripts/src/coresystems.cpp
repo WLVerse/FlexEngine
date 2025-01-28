@@ -1,4 +1,6 @@
 #include <FlexEngine.h>
+#include "FlexEngine/Physics/physicssystem.h"
+
 using namespace FlexEngine;
 
 class CoreSystemsScript : public Script
@@ -6,7 +8,12 @@ class CoreSystemsScript : public Script
 public:
   CoreSystemsScript() { ScriptRegistry::RegisterScript(this); }
   std::string GetName() const override { return "GameplayLoops"; }
-  
+
+  void Awake() override
+  {
+
+  }
+
   void Start() override
   {
 
@@ -19,6 +26,7 @@ public:
     // Transform
     
     // Physics
+    FlexEngine::PhysicsSystem::UpdatePhysicsSystem();
     
     // Graphics
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
@@ -85,7 +93,19 @@ public:
       }
     }
 
-    //Text TODO
+    // Scripting update loop, other calls are managed separatedly
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<ScriptComponent>())
+    {
+      if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
+
+      Script* script = ScriptRegistry::GetScript(
+        FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name));
+      if (script)
+      {
+        script->Update();
+      }
+    }
+
     static std::string extra = "";
     if (Input::GetKey(GLFW_KEY_J))
       extra += "j";

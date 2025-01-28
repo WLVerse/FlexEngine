@@ -54,9 +54,7 @@ namespace Editor
     hmodule_scripting = LoadLibraryA(dll_path);
     if (!hmodule_scripting)
     {
-      std::stringstream ss;
-      ss << "Failed to load DLL. Error code: " << std::to_string(GetLastError());
-      Log::Error(ss);
+      Log::Error("Failed to load DLL. Error code: " + std::to_string(GetLastError()));
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }
@@ -164,8 +162,12 @@ namespace Editor
 
     Internal_DebugWithImGui();
 
-    auto script = ScriptRegistry::GetScript("GameplayLoops");
-    if (script) script->Update();
+
+    if (is_scripting_dll_loaded)
+    {
+      auto script = ScriptRegistry::GetScript("GameplayLoops");
+      if (script) script->Update();
+    }
   }
 
 }

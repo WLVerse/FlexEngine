@@ -146,4 +146,36 @@ namespace FlexEngine
       // border color, border size, underline, etc
       std::pair<int, int> alignment = std::make_pair(1, 1); // Default value: centered (all bits set)
   };
+
+
+  /**************
+  * Physics
+  **************/
+
+  class __FLX_API BoundingBox2D
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector2 size = Vector2::One;
+    Vector2 min;
+    Vector2 max;
+    bool is_colliding;
+  };
+
+  class __FLX_API AABB
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector2 min;
+    Vector2 max;
+  };
+
+  class __FLX_API Rigidbody
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    Vector2 velocity;
+    bool is_static;
+  };
+
 }

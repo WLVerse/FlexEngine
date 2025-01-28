@@ -28,7 +28,11 @@ namespace FlexEngine
       // guard: index out of bounds
       if (index >= string_storage.size())
       {
-        Log::Warning("Attempted to access string storage with an out-of-bounds index.");
+        Log::Warning(
+          "Attempted to access string storage with an out-of-bounds index "
+          "(" + std::to_string(index) + "). "
+          "Make sure FLX_STRING_GET is called on a valid StringIndex."
+        );
         return string_storage[FLX_STRING_NULL];
       }
 
@@ -65,14 +69,21 @@ namespace FlexEngine
       // guard: cannot delete null string
       if (index == FLX_STRING_NULL)
       {
-        Log::Warning("Attempted to delete the null string. Make sure FLX_STRING_DELETE is called on a valid StringIndex.");
+        Log::Warning(
+          "Attempted to delete the null string. "
+          "Make sure FLX_STRING_DELETE is called on a valid StringIndex."
+        );
         return;
       }
 
       // guard: index out of bounds
       if (index >= string_storage.size())
       {
-        Log::Warning("Attempted to delete string storage with an out-of-bounds index. Make sure FLX_STRING_DELETE is called on a valid StringIndex.");
+        Log::Warning(
+          "Attempted to delete string storage with an out-of-bounds index "
+          "(" + std::to_string(index) + "). "
+          "Make sure FLX_STRING_DELETE is called on a valid StringIndex."
+        );
         return;
       }
 
@@ -129,7 +140,7 @@ namespace FlexEngine
       // guard
       if (scene == nullptr)
       {
-        Log::Warning("Use the Scene::Null to set the scene to null instead.");
+        Log::Warning("Setting the scene to nullptr. Prefer using Scene::Null to set the scene to null instead.");
         SetActiveScene(Scene::Null);
         return;
       }
@@ -196,7 +207,7 @@ namespace FlexEngine
       // guard: entity does not exist
       if (ENTITY_INDEX.count(entity) == 0)
       {
-        Log::Warning("Attempted to destroy entity that does not exist.");
+        Log::Warning("Attempted to destroy an entity that does not exist. Entity ID: " + std::to_string(entity));
         return;
       }
 
@@ -393,7 +404,7 @@ namespace FlexEngine
       document.Parse(flxfmtfile.data.c_str());
       if (document.HasParseError())
       {
-        Log::Error("Failed to parse scene data.");
+        Log::Error("The scene file could not be parsed. RapidJson Parse Error: " + std::string(GetParseErrorString(document.GetParseError())));
         return std::make_shared<Scene>(Scene::Null);
       }
 
@@ -527,7 +538,10 @@ namespace FlexEngine
         }
         else
         {
-          Log::Error("Entity archetype not found in archetype index.");
+          Log::Error(
+            "Entity archetype not found in archetype index while relinking entity archetype pointers. "
+            "Entity ID: " + std::to_string(uuid) + ", Archetype ID: " + std::to_string(entity_record.archetype_id)
+          );
         }
       }
     }

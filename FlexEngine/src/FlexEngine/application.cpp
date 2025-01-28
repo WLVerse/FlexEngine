@@ -363,7 +363,6 @@ namespace FlexEngine
 
   void Application::Run()
   {
-
     // This is the main loop of the application
     while (m_is_running)
     {

@@ -54,7 +54,7 @@ T* FlexEngine::FlexECS::Entity::GetComponent()
   // this also prevents component_index[component] from creating a new entry
   if (COMPONENT_INDEX.count(component) == 0)
   {
-    Log::Error("Component not found in the index");
+    Log::Error("GetComponent did not find the component at the specified index. The component may not exist. " + component);
     return nullptr;
   }
 
@@ -66,7 +66,7 @@ T* FlexEngine::FlexECS::Entity::GetComponent()
   ArchetypeMap& archetype_map = COMPONENT_INDEX[component];
   if (archetype_map.count(archetype.id) == 0)
   {
-    Log::Error("Component not found in the archetype");
+    Log::Error("GetComponent did not find the component in the archetype. The component may not exist in the archetype. " + component);
     return nullptr;
   }
 

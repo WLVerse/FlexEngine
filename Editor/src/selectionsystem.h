@@ -18,12 +18,17 @@ namespace Editor
 		void DeselectEntity(FlexEngine::FlexECS::EntityID);
 		void ClearSelection();
 
+		void DeleteEntity(FlexEngine::FlexECS::EntityID);
 		void DeleteSelectedEntities();
 
-
 	private:
+		void HandleEntityDelete();
+		void FindChildrenToDelete(FlexEngine::FlexECS::EntityID);
+
 		FlexEngine::FlexECS::Entity m_selected_entity = FlexEngine::FlexECS::Entity::Null;	//Which entity is focused on.
 		
 		std::unordered_set<FlexEngine::FlexECS::EntityID> m_selected_entities;
+		std::unordered_set<FlexEngine::FlexECS::EntityID> m_entities_to_delete;
+
 	};
 }
