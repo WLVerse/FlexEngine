@@ -159,15 +159,6 @@ namespace Editor
 						if (ImGui::MenuItem("Remove Component"))
 						{
 							Log::Debug("Removing the component: " + component_name);
-							//if (component_name == "Camera")
-							//	Editor::GetInstance().GetCamManager().RemoveCameraEntity(entity.Get());
-							//if (component_name == "Button")
-							//{
-							//	if(entity.HasComponent<OnHover>())
-							//	ComponentViewRegistry::RemoveComponent("OnHover", entity);
-							//	if (entity.HasComponent<OnClick>())
-							//	ComponentViewRegistry::RemoveComponent("OnClick", entity);
-							//}
 							ComponentViewRegistry::RemoveComponent(component_name, entity);
 						}
 						if (!can_remove) ImGui::EndDisabled();

@@ -31,7 +31,7 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({ {200, 200, 0}});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<Sprite>({});
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Sprite2 Test");
@@ -39,7 +39,7 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({ {250, 250, 0} });
         entity.AddComponent<Transform>({});
-        entity.AddComponent<Sprite>({});
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW("")});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 1");

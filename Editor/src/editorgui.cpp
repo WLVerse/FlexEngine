@@ -190,6 +190,7 @@ namespace Editor
 		{
 			std::string new_file_path(data);
 			path = new_file_path;
+			std::cout << "ID and path: " << m_id << ", " << path << "\n\n\n\n\n";
 			EndPayloadReceiver();
 		}
 
@@ -215,21 +216,17 @@ namespace Editor
 		ImGui::Text("Sprite");
 		ImGui::SameLine();
 		ImGui::Button(filename.c_str());
+		
+		//TODO: Drag drop a spritesheet into inspector
 
-		//if (const char* data = StartPayloadReceiver<const char>(PayloadTags::IMAGE))
+
+		//if (filename != "(no spritesheet texture)")
 		//{
-			//std::string new_file_path(data);
-			//path = new_file_path;
-			//EndPayloadReceiver();
+		//	std::string asset_key = current_texture.string();
+
+		//	Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
+		//	//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
 		//}
-
-		if (filename != "(no spritesheet texture)")
-		{
-			std::string asset_key = current_texture.string();
-
-			Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
-			//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
-		}
 
 		PopID();
 	}

@@ -28,13 +28,37 @@ namespace Editor
     COMPONENT_VIEWER_ENTITY_REFERENCE(parent)
     COMPONENT_VIEWER_END(Parent)
 
-  COMPONENT_VIEWER_START(Audio)
+  void COMPONENT_ADDER_Audio(FlexEngine::FlexECS::Entity entity)
+  {
+    if (entity.HasComponent<Audio>()) return;
+
+    entity.AddComponent<Audio>({ false, false, false, FLX_STRING_NEW("") });
+  }
+  void COMPONENT_REMOVER_Audio(FlexEngine::FlexECS::Entity entity)
+  {
+    if (!entity.HasComponent<Audio>()) return;
+
+    entity.RemoveComponent<Audio>();
+  }
+  COMPONENT_VIEWER_START_MANUAL(Audio)
     COMPONENT_VIEWER_BOOL(should_play)
     COMPONENT_VIEWER_BOOL(is_looping);
     COMPONENT_VIEWER_AUDIO_PATH(audio_file);
     COMPONENT_VIEWER_END(Audio)
   
-  COMPONENT_VIEWER_START(Sprite)
+  void COMPONENT_ADDER_Sprite(FlexEngine::FlexECS::Entity entity)
+  {
+    if(entity.HasComponent<Sprite>()) return;
+        
+    entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
+  }
+  void COMPONENT_REMOVER_Sprite(FlexEngine::FlexECS::Entity entity)
+  {
+    if (!entity.HasComponent<Sprite>()) return;
+
+    entity.RemoveComponent<Sprite>();
+  }
+  COMPONENT_VIEWER_START_MANUAL(Sprite)
     COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
     COMPONENT_VIEWER_DRAG_INT(handle)
     COMPONENT_VIEWER_END(Sprite)
@@ -69,8 +93,10 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER_FUNCTIONS(Transform, COMPONENT_ENABLE_ADD, COMPONENT_DISABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER(ZIndex);
     REGISTER_COMPONENT_VIEWER(Parent);
-    REGISTER_COMPONENT_VIEWER(Audio);
-    REGISTER_COMPONENT_VIEWER(Sprite);
+    //REGISTER_COMPONENT_VIEWER(Audio);
+    //REGISTER_COMPONENT_VIEWER(Sprite);
+    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Audio, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
+    REGISTER_COMPONENT_VIEWER_FUNCTIONS(Sprite, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER(Animator);
 
     REGISTER_COMPONENT_VIEWER(BoundingBox2D);

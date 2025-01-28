@@ -41,8 +41,10 @@ public:
       transform->transform = translation_matrix * rotation_matrix * scale_matrix;
     }
 
-    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+
     // Graphics
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    OpenGLRenderer::ClearFrameBuffer();
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
     {
       Animator* animator = element.GetComponent<Animator>();
