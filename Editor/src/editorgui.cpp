@@ -130,7 +130,8 @@ namespace Editor
 		std::string entity_name{ "(no entity)" };
 		if (entity != FlexECS::Entity::Null)
 		{
-			entity_name = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
+			//entity_name = FLX_STRING_GET(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
+      entity_name = entity_name.substr(0, entity_name.find_first_of('\0'));
 		}
 
 		ImGui::BeginGroup();
@@ -198,6 +199,36 @@ namespace Editor
       
 			Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
 			ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
+		}
+
+		PopID();
+	}
+
+	void EditorGUI::SpritesheetPath(std::string& path, std::string title)
+	{
+		PushID();
+
+		std::filesystem::path current_texture = path;
+		std::string filename = current_texture.filename().string();
+		if (filename == "") filename = "(no sprite)";
+
+		ImGui::Text("Sprite");
+		ImGui::SameLine();
+		ImGui::Button(filename.c_str());
+
+		//if (const char* data = StartPayloadReceiver<const char>(PayloadTags::IMAGE))
+		//{
+			//std::string new_file_path(data);
+			//path = new_file_path;
+			//EndPayloadReceiver();
+		//}
+
+		if (filename != "(no spritesheet texture)")
+		{
+			std::string asset_key = current_texture.string();
+
+			Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
+			//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
 		}
 
 		PopID();

@@ -2,7 +2,7 @@
 
 #include "flx_api.h"
 
-#include "Utilities/path.h"
+#include "Utilities/file.h"
 #include "FlexMath/matrix4x4.h"
 
 namespace FlexEngine
@@ -10,20 +10,58 @@ namespace FlexEngine
   namespace Asset
   {
 
-    // Helper class for building and compiling shaders using glad
+    // Helper class for building and compiling shaders
+    // TODO: Rework to have a .flxshader file that stores the shader paths
+    // TODO: use the flxfmt formatter
+    // TODO: save any changes to file
+    // TODO: generate a new metadata file in editor
     class __FLX_API Shader
     {
+    public:
+      // Load the shader from a metadata file
+      Shader();
+
+      // Must be implemented to free the shader
+      // RAII
+      ~Shader();
+
+      #pragma region Validity
+
+      // Internal helper macro to check if the shader is valid
+      #define _FLX_SHADER_VALIDITY_CHECK \
+        if (!IsValid()) \
+        { \
+          Log::Error( \
+            "Tried to use a shader that isn't valid! " \
+            "Shader: " + m_path_to_vertex_shader.string() + " " + m_path_to_fragment_shader.string() \
+          ); \
+          return; \
+        }
+
+      // Returns true if the shader program is valid
+      // Simply checks if it is not 0 since it should be an actual number if it is valid
+      bool IsValid() const;
+
+      #pragma endregion
+
+    private:
       unsigned int m_shader_program = 0;
       unsigned int m_vertex_shader = 0;
       unsigned int m_fragment_shader = 0;
+      //unsigned int m_geometry_shader = 0;
+
+      Path m_path_to_metadata;
+
+      Path m_path_to_vertex_shader;
+      Path m_path_to_fragment_shader;
+      //Path m_path_to_geometry_shader;
 
     public:
-      Shader() = default;
-      Shader(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader);
-      ~Shader();
+
+      // Load the shader from the metadata file
+      void Load(Path metadata);
 
       // Links the vertex and fragment shaders into a shader program
-      void Create(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader);
       void Destroy();
 
       // Use the shader program with glUseProgram
@@ -46,8 +84,15 @@ namespace FlexEngine
       #pragma region Internal Functions
 
     private:
+      // INTERNAL FUNCTION
+      // Parse the metadata file.
+      // This function calls the other internal functions to
+      // create and link the shaders.
+      bool Internal_Parse();
+
       void Internal_CreateVertexShader(const Path& path_to_vertex_shader);
       void Internal_CreateFragmentShader(const Path& path_to_fragment_shader);
+      //void Internal_CreateGeometryShader(const Path& path_to_geometry_shader);
       void Internal_Link();
 
       #pragma endregion
@@ -59,15 +104,12 @@ namespace FlexEngine
       {
         Vertex = 0,
         Fragment,
-        Geometry
+        //Geometry
       };
 
       #pragma endregion
 
 #ifdef _DEBUG
-    private:
-      Path m_path_to_vertex_shader;
-      Path m_path_to_fragment_shader;
     public:
       void Dump() const;
 #endif

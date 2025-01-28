@@ -10,6 +10,7 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "datastructures.h"
+#include "enginecomponents.h"
 
 namespace FlexEngine
 {
@@ -24,6 +25,17 @@ namespace FlexEngine
 
     std::string& Scene::Internal_StringStorage_Get(StringIndex index)
     {
+      // guard: index out of bounds
+      if (index >= string_storage.size())
+      {
+        Log::Warning(
+          "Attempted to access string storage with an out-of-bounds index "
+          "(" + std::to_string(index) + "). "
+          "Make sure FLX_STRING_GET is called on a valid StringIndex."
+        );
+        return string_storage[FLX_STRING_NULL];
+      }
+
       return string_storage[index];
     }
 
@@ -54,6 +66,30 @@ namespace FlexEngine
 
     void Scene::Internal_StringStorage_Delete(StringIndex index)
     {
+      // guard: cannot delete null string
+      if (index == FLX_STRING_NULL)
+      {
+        Log::Warning(
+          "Attempted to delete the null string. "
+          "Make sure FLX_STRING_DELETE is called on a valid StringIndex."
+        );
+        return;
+      }
+
+      // guard: index out of bounds
+      if (index >= string_storage.size())
+      {
+        Log::Warning(
+          "Attempted to delete string storage with an out-of-bounds index "
+          "(" + std::to_string(index) + "). "
+          "Make sure FLX_STRING_DELETE is called on a valid StringIndex."
+        );
+        return;
+      }
+
+      // clear the string
+      string_storage[index].clear();
+
       // add the index to the free list
       string_storage_free_list.push_back(index);
     }
@@ -84,7 +120,10 @@ namespace FlexEngine
       // create a new scene if there isn't one
       if (s_active_scene == nullptr)
       {
-        Log::Warning("No active scene found. Creating a new scene.");
+        Log::Warning(
+          "No active scene found. Creating a new scene. "
+          "This is slightly dangerous if CreateScene is called later because it will overwrite the current scene."
+        );
         CreateScene();
       }
       return s_active_scene;
@@ -101,7 +140,7 @@ namespace FlexEngine
       // guard
       if (scene == nullptr)
       {
-        Log::Warning("Use the Scene::Null to set the scene to null instead.");
+        Log::Warning("Setting the scene to nullptr. Prefer using Scene::Null to set the scene to null instead.");
         SetActiveScene(Scene::Null);
         return;
       }
@@ -119,15 +158,17 @@ namespace FlexEngine
     {
       FLX_FLOW_FUNCTION();
 
-      using T = StringIndex;
+      using T = EntityName;
 
       // manually register a name component
       // this is to register the entity in the entity index and archetype
       ComponentID component = Reflection::TypeResolver<T>::Get()->name;
 
       // type erasure
-      T data_copy = Scene::GetActiveScene()->Internal_StringStorage_New(name);
+      T data_copy = FLX_STRING_NEW(name);
       void* data_copy_ptr = reinterpret_cast<void*>(&data_copy);
+
+      // Create the component data
       ComponentData<void> data_ptr = Internal_CreateComponentData(sizeof(T), data_copy_ptr);
 
       // Get the archetype for the entity
@@ -166,7 +207,7 @@ namespace FlexEngine
       // guard: entity does not exist
       if (ENTITY_INDEX.count(entity) == 0)
       {
-        Log::Warning("Attempted to destroy entity that does not exist.");
+        Log::Warning("Attempted to destroy an entity that does not exist. Entity ID: " + std::to_string(entity));
         return;
       }
 
@@ -363,7 +404,7 @@ namespace FlexEngine
       document.Parse(flxfmtfile.data.c_str());
       if (document.HasParseError())
       {
-        Log::Error("Failed to parse scene data.");
+        Log::Error("The scene file could not be parsed. RapidJson Parse Error: " + std::string(GetParseErrorString(document.GetParseError())));
         return std::make_shared<Scene>(Scene::Null);
       }
 
@@ -456,14 +497,13 @@ namespace FlexEngine
             Reflection::TypeDescriptor* type_desc = TYPE_DESCRIPTOR_LOOKUP[_archetype.type[i]];
 
             // Deserialize the component data
-            // TODO: How can I know the size of the data?
-            void* data = new char[type_desc->size];
+            void* data = ::operator new(type_desc->size);
             type_desc->Deserialize(data, document);
 
             // Create a new ComponentData<void>
             ComponentData<void> data_ptr = Internal_CreateComponentData(type_desc->size, data);
 
-            delete data;
+            ::operator delete(data);
 
             archetype.archetype_table[i].push_back(data_ptr);
           }
@@ -498,7 +538,10 @@ namespace FlexEngine
         }
         else
         {
-          Log::Error("Entity archetype not found in archetype index.");
+          Log::Error(
+            "Entity archetype not found in archetype index while relinking entity archetype pointers. "
+            "Entity ID: " + std::to_string(uuid) + ", Archetype ID: " + std::to_string(entity_record.archetype_id)
+          );
         }
       }
     }

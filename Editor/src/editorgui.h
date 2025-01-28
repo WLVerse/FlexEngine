@@ -75,6 +75,8 @@ namespace Editor
 
 		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
 
+		static void SpritesheetPath(std::string& path, std::string title = "Spritesheet");
+
 		static void Color3(FlexEngine::Vector3& data, std::string title = "color");
 
 		static void EditableTextField(std::string& data, std::string title = "");

@@ -133,16 +133,7 @@ namespace FlexEngine
       // guard
       if (entry.is_directory()) continue;
 
-      // catch unsafe extensions
-      try
-      {
-        files.push_back({ entry.path() });
-      }
-      catch (const std::exception& e)
-      {
-        Log::Warning(e.what());
-        continue;
-      }
+      files.push_back({ entry.path() });
     }
 
     return files;
@@ -164,16 +155,7 @@ namespace FlexEngine
       // guard
       if (entry.is_directory()) continue;
 
-      // catch unsafe extensions
-      try
-      {
-        files.push_back({ entry.path() });
-      }
-      catch (const std::exception& e)
-      {
-        Log::Warning(e.what());
-        continue;
-      }
+      files.push_back({ entry.path() });
     }
 
     return files;

@@ -82,7 +82,7 @@ namespace FlexEngine
     unsigned char* image_data = stbi_load(filename, out_width, out_height, NULL, 4);
     if (!image_data)
     {
-      Log::Warning(std::string("Could not load texture file: ") + filename);
+      Log::Warning("Could not load texture from file using stbi_load. File: " + std::string(filename));
       return false;
     }
 
@@ -91,7 +91,7 @@ namespace FlexEngine
     *out_texture_data = new unsigned char[texture_size];
     if (!(*out_texture_data))
     {
-      Log::Error(std::string("Could not allocate memory for texture data: ") + filename);
+      Log::Error("Could not allocate memory for texture data. File: " + std::string(filename));
       stbi_image_free(image_data);
       return false;
     }
@@ -105,6 +105,7 @@ namespace FlexEngine
     return true;
   }
 
+  #pragma warning(suppress: 4505) // unreferenced local function has been removed
   static bool Internal_LoadTextureFromMemory(const unsigned char* texture_data, int size, unsigned char** out_texture_data, unsigned int* out_texture, int* out_width, int* out_height)
   {
     // Decompress the texture

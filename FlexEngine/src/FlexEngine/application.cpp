@@ -121,6 +121,28 @@ namespace FlexEngine
 
   #pragma region Command Pattern
 
+  #pragma region Helper macros
+
+  // Every command either requires or doesn't need a parameter.
+  // This provides feedback to the user if they are using the command incorrectly.
+
+  // This asserts that the command has all the required data
+  // The condition must be true.
+  // Usage: _FLX_CMD_REQUIRE(cmd.layer, Application_AddLayer, "layer pointer");
+  #define _FLX_CMD_REQUIRE(condition, cmd, type) \
+    FLX_CORE_ASSERT(condition, "The " cmd " command requires a valid " type " as a parameter. Double check your FLX_COMMAND macros.");
+
+  // This warns the user if extra params are passed into the command.
+  // The condition will flag a warning if it's false.
+  // Usage: _FLX_CMD_WARN(!cmd.window_name.empty(), Application_AddLayer, "window name");
+  #define _FLX_CMD_WARN(condition, cmd, type) \
+    if (condition) \
+    { \
+      Log::Warning("The " cmd " does not require " type " as a parameter. Double check your FLX_COMMAND macros."); \
+    }
+
+  #pragma endregion
+
   void Application::ProcessCommands()
   {
     while (!m_command_queue.empty())
@@ -129,6 +151,13 @@ namespace FlexEngine
 
       switch (cmd.command_type)
       {
+      case Command::NullCommand:
+        FLX_CORE_ASSERT(false,
+          "Null command type processed in the application command queue. "
+          "Use the provided macros FLX_COMMAND_<COMMAND_NAME>(); for the command queue."
+        );
+        break;
+
         // Application
 
       case Command::QuitApplication:
@@ -138,63 +167,108 @@ namespace FlexEngine
         // Application LayerStack
 
       case Command::Application_AddLayer:
+        _FLX_CMD_REQUIRE(cmd.layer, "Application_AddLayer", "layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "Application_AddLayer", "a window name");
+        _FLX_CMD_WARN(cmd.window_props, "Application_AddLayer", "window properties");
         Application::GetLayerStack().AddLayer(cmd.layer);
         break;
 
       case Command::Application_AddOverlay:
+        _FLX_CMD_REQUIRE(cmd.layer, "Application_AddOverlay", "layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "Application_AddOverlay", "a window name");
+        _FLX_CMD_WARN(cmd.window_props, "Application_AddOverlay", "window properties");
         Application::GetLayerStack().AddOverlay(cmd.layer);
         break;
 
       case Command::Application_RemoveLayer:
+        _FLX_CMD_REQUIRE(cmd.layer, "Application_RemoveLayer", "layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "Application_RemoveLayer", "a window name");
+        _FLX_CMD_WARN(cmd.window_props, "Application_RemoveLayer", "window properties");
         Application::GetLayerStack().RemoveLayer(cmd.layer->GetName());
         break;
 
       case Command::Application_RemoveOverlay:
+        _FLX_CMD_REQUIRE(cmd.layer, "Application_RemoveOverlay", "layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "Application_RemoveOverlay", "a window name");
+        _FLX_CMD_WARN(cmd.window_props, "Application_RemoveOverlay", "window properties");
         Application::GetLayerStack().RemoveOverlay(cmd.layer->GetName());
         break;
 
       case Command::Application_ClearLayerStack:
+        _FLX_CMD_WARN(cmd.layer, "Application_ClearLayerStack", "a layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "Application_ClearLayerStack", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Application_ClearLayerStack", "window properties");
         Application::GetLayerStack().Clear();
         break;
 
         // Window
 
       case Command::OpenWindow:
+        _FLX_CMD_WARN(cmd.layer, "OpenWindow", "a layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "OpenWindow", "window name");
+        _FLX_CMD_REQUIRE(cmd.window_props, "OpenWindow", "window properties");
         Application::OpenWindow(cmd.window_name, cmd.window_props);
         break;
 
       case Command::CloseWindow:
+        _FLX_CMD_WARN(cmd.layer, "CloseWindow", "a layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "CloseWindow", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "CloseWindow", "window properties");
         Application::CloseWindow(cmd.window_name);
         break;
 
       case Command::CloseAllWindows:
+        _FLX_CMD_WARN(cmd.layer, "CloseAllWindows", "a layer pointer");
+        _FLX_CMD_WARN(!cmd.window_name.empty(), "CloseAllWindows", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "CloseAllWindows", "window properties");
         Application::CloseAllWindows();
         break;
 
         // Window LayerStack
 
       case Command::Window_AddLayer:
+        _FLX_CMD_REQUIRE(cmd.layer, "Window_AddLayer", "layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "Window_AddLayer", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Window_AddLayer", "window properties");
         Application::Window_AddLayer(cmd.window_name, cmd.layer);
         break;
 
       case Command::Window_AddOverlay:
+        _FLX_CMD_REQUIRE(cmd.layer, "Window_AddOverlay", "layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "Window_AddOverlay", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Window_AddOverlay", "window properties");
         Application::Window_AddOverlay(cmd.window_name, cmd.layer);
         break;
 
       case Command::Window_RemoveLayer:
+        _FLX_CMD_REQUIRE(cmd.layer, "Window_RemoveLayer", "layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "Window_RemoveLayer", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Window_RemoveLayer", "window properties");
         Application::Window_RemoveLayer(cmd.window_name, cmd.layer->GetName());
         break;
 
       case Command::Window_RemoveOverlay:
+        _FLX_CMD_REQUIRE(cmd.layer, "Window_RemoveOverlay", "layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "Window_RemoveOverlay", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Window_RemoveOverlay", "window properties");
         Application::Window_RemoveOverlay(cmd.window_name, cmd.layer->GetName());
         break;
 
       case Command::Window_ClearLayerStack:
+        _FLX_CMD_WARN(cmd.layer, "Window_ClearLayerStack", "a layer pointer");
+        _FLX_CMD_REQUIRE(!cmd.window_name.empty(), "Window_ClearLayerStack", "window name");
+        _FLX_CMD_WARN(cmd.window_props, "Window_ClearLayerStack", "window properties");
         Application::Window_ClearLayerStack(cmd.window_name);
         break;
 
       default:
-        Log::Warning("Invalid command type processed in the application command queue." + std::to_string(static_cast<int>(cmd.command_type)));
+        Log::Warning(
+          "Invalid command type (" +
+          std::to_string(static_cast<int>(cmd.command_type)) +
+          ") in the application command queue. "
+          "Use the provided macros FLX_COMMAND_<COMMAND_NAME>(); for the command queue. "
+          "Check valid command types in the Command enum in application.h."
+        );
         break;
       }
 
@@ -288,7 +362,6 @@ namespace FlexEngine
 
   void Application::Run()
   {
-
     // This is the main loop of the application
     while (m_is_running)
     {

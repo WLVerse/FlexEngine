@@ -9,9 +9,8 @@ namespace FlexEngine
   namespace Asset
   {
 
-    Shader::Shader(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader)
+    Shader::Shader()
     {
-      Create(path_to_vertex_shader, path_to_fragment_shader);
     }
 
     Shader::~Shader()
@@ -19,19 +18,20 @@ namespace FlexEngine
       Destroy();
     }
 
-    void Shader::Create(const Path& path_to_vertex_shader, const Path& path_to_fragment_shader)
+    bool Shader::IsValid() const
     {
-      FLX_FLOW_FUNCTION();
+      return m_shader_program != 0;
+    }
 
-      Internal_CreateVertexShader(path_to_vertex_shader);
-      Internal_CreateFragmentShader(path_to_fragment_shader);
-      Internal_Link();
+    void Shader::Load(Path metadata)
+    {
+      m_path_to_metadata = metadata;
 
-#ifdef _DEBUG
-      // store paths for debugging
-      m_path_to_vertex_shader = path_to_vertex_shader;
-      m_path_to_fragment_shader = path_to_fragment_shader;
-#endif
+      // parse the file
+      if (!Internal_Parse())
+      {
+        Log::Error("Shader file could not be parsed! Shader: " + m_path_to_metadata.string());
+      }
     }
 
     void Shader::Destroy()
@@ -40,20 +40,14 @@ namespace FlexEngine
       if (m_fragment_shader != 0) glDeleteShader(m_fragment_shader);
       if (m_shader_program != 0) glDeleteProgram(m_shader_program);
 
-#ifdef _DEBUG
+      m_path_to_metadata = Path();
       m_path_to_vertex_shader = Path();
       m_path_to_fragment_shader = Path();
-#endif
     }
 
     void Shader::Use() const
     {
-      // guard
-      if (m_shader_program == 0)
-      {
-        FLX_ASSERT(false, "Shader program has not been created yet!");
-        return;
-      }
+      _FLX_SHADER_VALIDITY_CHECK;
 
       glUseProgram(m_shader_program);
     }
@@ -103,12 +97,94 @@ namespace FlexEngine
       // guard
       if (m_shader_program == 0)
       {
-        Log::Warning("Shader program has not been created yet!");
+        Log::Warning(
+          "Cannot get the shader program because it is not valid or hasn't been created yet! "
+          "Shader: " + m_path_to_metadata.string()
+        );
       }
       return m_shader_program;
     }
 
     #pragma region Internal Functions
+
+    bool Shader::Internal_Parse()
+    {
+      // parse the file
+      // the file is just a text file with the type and path of the shader
+      File& file = File::Open(m_path_to_metadata);
+      std::stringstream ss(file.Read());
+
+      // parse format
+      // <shader_type>: <path>
+      // vertex: path/to/vertex.shader
+      // fragment: path/to/fragment.shader
+      std::string line;
+      std::size_t line_number = 0; // for debugging
+      while (std::getline(ss, line))
+      {
+        line_number++;
+
+        // skip empty lines
+        if (line.empty()) return false;
+
+        // skip comments
+        if (
+          line[0] == '/' && line[1] == '/' ||
+          line[0] == '#'
+        ) return false;
+
+        // remove all whitespace
+        line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end());
+
+        // split the line into shader type and path
+        std::size_t colon = line.find(':');
+        std::string shader_type = line.substr(0, colon);
+        std::string path = line.substr(colon + 1);
+        Path path_to_shader;
+
+        // warn for missing colon
+        if (colon == std::string::npos)
+        {
+          Log::Error("The shader file has a missing colon. Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // warn for bad shader type
+        if (shader_type != "vertex" && shader_type != "fragment")
+        {
+          Log::Error("The shader file has an invalid shader type. Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // error for invalid paths
+        try
+        {
+          path_to_shader = Path(path);
+        }
+        catch (const std::invalid_argument& e)
+        {
+          Log::Error(std::string(e.what()) + " Shader: " + m_path_to_metadata.string() + " Line: " + std::to_string(line_number));
+          return false;
+        }
+
+        // create the shader
+        if (shader_type == "vertex")
+        {
+          m_path_to_vertex_shader = path_to_shader;
+          Internal_CreateVertexShader(m_path_to_vertex_shader);
+        }
+        else if (shader_type == "fragment")
+        {
+          m_path_to_fragment_shader = path_to_shader;
+          Internal_CreateFragmentShader(m_path_to_fragment_shader);
+        }
+      }
+
+      // link the shaders
+      Internal_Link();
+
+      return true;
+    }
 
     void Shader::Internal_CreateVertexShader(const Path& path_to_vertex_shader)
     {
@@ -118,7 +194,8 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_vertex_shader != 0)
       {
-        Log::Warning("Vertex shader already exists, overriding it!");
+        Log::Warning("Vertex shader already exists, overriding it! Shader: " + m_path_to_metadata.string());
+        glDeleteShader(m_vertex_shader);
       }
 
       // read vertex shader file
@@ -138,8 +215,14 @@ namespace FlexEngine
       if (!success)
       {
         glGetShaderInfoLog(m_vertex_shader, 512, NULL, infoLog);
-        Log::Error(std::string("Vertex shader did not compile!\n") + infoLog + '\n');
+        Log::Error(
+          "Vertex shader did not compile. "
+          "Shader: " + m_path_to_metadata.string() + " Vertex shader: " + path_to_vertex_shader.string() + '\n' +
+          infoLog + '\n'
+        );
       }
+
+      Log::Debug("Created vertex shader with id: " + std::to_string(m_vertex_shader));
     }
 
     void Shader::Internal_CreateFragmentShader(const Path& path_to_fragment_shader)
@@ -150,7 +233,8 @@ namespace FlexEngine
       // handled by overriding the old shader
       if (m_fragment_shader != 0)
       {
-        Log::Warning("Fragment shader already exists, overriding it!");
+        Log::Warning("Fragment shader already exists, overriding it! Shader: " + m_path_to_metadata.string());
+        glDeleteShader(m_fragment_shader);
       }
 
       // read fragment shader file
@@ -170,8 +254,14 @@ namespace FlexEngine
       if (!success)
       {
         glGetShaderInfoLog(m_fragment_shader, 512, NULL, infoLog);
-        Log::Error(std::string("Fragment shader did not compile!\n") + infoLog + '\n');
+        Log::Error(
+          "Fragment shader did not compile. "
+          "Shader: " + m_path_to_metadata.string() + " Fragment shader: " + path_to_fragment_shader.string() + '\n' +
+          infoLog + '\n'
+        );
       }
+
+      Log::Debug("Created fragment shader with id: " + std::to_string(m_fragment_shader));
     }
 
     void Shader::Internal_Link()
@@ -181,12 +271,14 @@ namespace FlexEngine
       // guard: check if shaders are compiled
       if (m_vertex_shader == 0 || m_fragment_shader == 0)
       {
-        FLX_ASSERT(false, "Shader could not be linked because one of the shaders is missing!");
+        Log::Error("Shader could not be linked because one of the shaders is missing! Shader: " + m_path_to_metadata.string());
         return;
       }
 
       // create shader program
       m_shader_program = glCreateProgram();
+
+      Log::Debug("Created shader program with id: " + std::to_string(m_shader_program));
 
       glAttachShader(m_shader_program, m_vertex_shader);
       glAttachShader(m_shader_program, m_fragment_shader);
@@ -201,7 +293,12 @@ namespace FlexEngine
         glDetachShader(m_shader_program, m_vertex_shader);
         glDetachShader(m_shader_program, m_fragment_shader);
         glGetProgramInfoLog(m_shader_program, 512, NULL, infoLog);
-        FLX_ASSERT(false, std::string("Shader linker error! ") + infoLog);
+        Log::Error(
+          "Shader linker error! "
+          "Shader: " + m_path_to_metadata.string() + '\n' +
+          infoLog + '\n'
+        );
+        return;
       }
 
       // delete shaders

@@ -70,7 +70,7 @@ namespace FlexEngine
       // get size
       if (!CryptBinaryToStringA(data.data(), data_size, flags, nullptr, &size))
       {
-        Log::Error("Base64 encoding: Failed to get the size of the encoded data." + Internal_GetErrorMessage());
+        Log::Error("Base64 encoding: Failed to get the size of the encoded data. " + Internal_GetErrorMessage());
         return "";
       }
 
@@ -80,7 +80,7 @@ namespace FlexEngine
       // encode
       if (!CryptBinaryToStringA(data.data(), data_size, flags, &result[0], &size))
       {
-        Log::Error("Base64 encoding: Failed to encode the data." + Internal_GetErrorMessage());
+        Log::Error("Base64 encoding: Failed to encode the data. " + Internal_GetErrorMessage());
         return "";
       }
 

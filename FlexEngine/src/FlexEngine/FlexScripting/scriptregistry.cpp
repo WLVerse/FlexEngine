@@ -44,7 +44,7 @@ namespace FlexEngine
     auto& scripts = GetScripts();
     if (scripts.count(name) == 0)
     {
-      Log::Error("Script not found: " + name);
+      Log::Error("The script " + name + " does not exist in the script registry.");
       return nullptr;
     }
     return scripts[name];
