@@ -14,6 +14,7 @@
 namespace FlexEngine
 {
   Camera::Camera(float left, float right, float bottom, float top, float near, float far)
+    : left{left}, right{ right }, bottom{ bottom }, top{ top }, near{ near }, far{ far }
   {
     this->SetProjection(left, right, bottom, top, near, far);
     UpdateCameraMatrix();

@@ -24,6 +24,8 @@ namespace FlexEngine
     Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
     Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
 
+    float left, right, bottom, top, near, far;
+
   public:
     // The camera is automatically initalized upon construction
     Camera(float left, float right, float bottom, float top, float near, float far);
@@ -35,6 +37,9 @@ namespace FlexEngine
     const Matrix4x4& GetProjViewMatrix() const { return m_proj_view_matrix; }
     
     void MoveCamera(Vector3 translation) { translation.x *= -1; m_view_matrix.Translate(translation); } // Negative 1 as camera move left = world moves right
+
+    float GetOrthoWidth() const { return right - left; }
+    float GetOrthoHeight() const { return bottom - top; }
 
     /*
       \brief Updates matrices, specifically, the projection view matrix.
