@@ -6,7 +6,8 @@
 namespace Editor
 {
 	//Temporary hardcoding (for testing) that follows the hardcoded camera dimensions in rendercall script
-	static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+	//static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+	static Camera editor_camera(0.0f, 1280.0f, 720.0f, 0.0f, -2.0f, 2.0f);
 
 	constexpr float TOP_PADDING = 10.0f;
 
@@ -54,7 +55,6 @@ namespace Editor
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
 	}
 
-	#if 1
 	FlexEngine::Vector4 SceneView::GetWorldClickPosition()
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
@@ -174,9 +174,7 @@ namespace Editor
 		
 		return clicked_entity;
 	}
-	#endif
 
-	#if 1
 	void SceneView::HandleMouseAndKeyboardEvents()
 	{
 		if (ImGui::IsWindowFocused())
@@ -222,9 +220,6 @@ namespace Editor
 		}
 	}
 
-	#endif
-
-	#if 1
 	void SceneView::DrawGizmos()
 	{
 		//only supports 1 selected entity right now.
@@ -322,7 +317,6 @@ namespace Editor
 			}
 		}
 	}
-	#endif
 
 	void SceneView::EditorUI()
 	{
