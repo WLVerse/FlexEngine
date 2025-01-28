@@ -99,10 +99,41 @@ namespace Editor
 				}
 			}
 		}
-		
-		// Delete Prefab Fields
-		if (ImGui::Button("Delete field(s)")) {
+		ImGui::SameLine(350);
+		// Delete Prefab
+		if (ImGui::Button("Delete Prefab")) {
+			if (!prefab_keys.empty()) ImGui::OpenPopup("Delete Prefab");
+			else Log::Error("No prefab selected");
+		}
 
+		if (ImGui::BeginPopupModal("Delete Prefab", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+			if (ImGui::Button("Confirm")) {
+				if (file_name.first.empty()) {
+					prefab_keys.clear();
+					file_name.second.clear();
+				}
+				else {
+					try {
+						std::filesystem::remove(Path::current(file_name.first[0].filename().string()));
+						Log::Info("Prefab deleted successfully.");
+						prefab_keys.clear();
+						file_name.first.clear();
+						file_name.second.clear();
+						ImGui::CloseCurrentPopup();
+					}
+					catch (const std::filesystem::filesystem_error& e) {
+						// Handle rename error (optional error logging)
+						Log::Error("Unable to delete prefab");
+					}
+				}
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel")) {
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 		
 		// Prefab Editor Imgui editable fields
@@ -185,30 +216,32 @@ namespace Editor
 				Log::Error("No file selected or created");
 			}
 			else {
-				File& file = File::Open(file_name.first[0]);
-
-				// Check whether file name is to be changed
-				if (file.path.filename().stem().string() != file_name.second) {
-					// Check whether new file name is valid or not
-					if (std::all_of(file_name.second.begin(), file_name.second.end(), [](char ch) {
-						return std::isalnum(static_cast<unsigned char>(ch)); // Check if the character is alphanumeric
-					})) {
-						std::filesystem::rename(Path::current(file.path.filename().string()).c_str(),
-						Path::current(file_name.second + file.path.extension().string()).c_str());
-						Log::Info("Renaming file success.");
-					}
-					else {
-						Log::Error("File name is not valid!");
-						is_renamed_file_valid = false;
+				if (!file_name.first.empty()) {
+					File& file = File::Open(file_name.first[0]);
+					// Check whether file name is to be changed
+					if (file.path.filename().stem().string() != file_name.second) {
+						// Check whether new file name is valid or not
+						if (std::all_of(file_name.second.begin(), file_name.second.end(), [](char ch) {
+							return std::isalnum(static_cast<unsigned char>(ch)); // Check if the character is alphanumeric
+						})) {
+							std::filesystem::rename(Path::current(file.path.filename().string()).c_str(),
+							Path::current(file_name.second + file.path.extension().string()).c_str());
+							Log::Info("Renaming file success.");
+						}
+						else {
+							Log::Error("File name is not valid!");
+							is_renamed_file_valid = false;
+						}
 					}
 				}
+				else file_name.second = "assets/data/" + file_name.second;
 
 				if (!is_renamed_file_valid) {
 					ImGui::End();
 					return;
 				}
 					
-				Asset::FlxData prefab_to_save(file_name.second + file.path.extension().string());
+				Asset::FlxData prefab_to_save(file_name.second + ".flxdata");
 				for (int i = 0; i < prefab_keys.size(); i++) {
 					// If key name is changed, delete old key and create new key
 					if (std::get<1>(prefab_keys[i]) != std::get<0>(prefab_keys[i])) {
@@ -225,6 +258,12 @@ namespace Editor
 					}
 				}
 				prefab_to_save.Save();
+
+				if (file_name.first.empty()) {
+					file_name.first.push_back(Path::current(file_name.second + ".flxdata"));
+					file_name.second = file_name.first[0].filename().stem().string();
+				}
+
 				for (auto& p : FlexECS::Scene::GetActiveScene()->CachedQuery<Prefab>()) {
 					if (p.GetComponent<Prefab>()->prefab_name == file_name.second) {
 						// Update the values of the entity based on the new prefab values
