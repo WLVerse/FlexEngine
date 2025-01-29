@@ -6,8 +6,8 @@
 namespace Editor
 {
 	//Temporary hardcoding (for testing) that follows the hardcoded camera dimensions in rendercall script
-	//static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
-	static Camera editor_camera(0.0f, 1280.0f, 720.0f, 0.0f, -2.0f, 2.0f);
+	static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+	//static Camera editor_camera(0.0f, 1280.0f, 720.0f, 0.0f, -2.0f, 2.0f);
 
 	constexpr float TOP_PADDING = 10.0f;
 
@@ -59,8 +59,9 @@ namespace Editor
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
-		float app_width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()); 
-		float app_height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+		float app_width = editor_camera.GetOrthoWidth();
+		float app_height = editor_camera.GetOrthoHeight();
+		//std::cout << "App width and height: " << app_width << ", " << app_height;
 
 		// Get Mouse position relative to the viewport
 		ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - m_viewport_position.x,
@@ -79,14 +80,13 @@ namespace Editor
 										 1.0f,
 										 1 };
 		Vector4 world_pos = inverse * clip;
-		world_pos.x = -world_pos.x;
 
 		return world_pos;
 	}
 
 	ImVec2 SceneView::WorldToScreen(const FlexEngine::Vector2& position)
 	{
-		Vector4 world_pos = { -position.x, position.y, 0.0f, 1.0f };
+		Vector4 world_pos = { position.x, position.y, 0.0f, 1.0f };
 		Vector4 clip = editor_camera.GetProjViewMatrix() * world_pos;
 		if (clip.w != 0.0f)
 		{
@@ -111,39 +111,43 @@ namespace Editor
 	{
 		FlexECS::Entity clicked_entity = FlexECS::Entity::Null;
 		Vector4 mouse_world_pos = GetWorldClickPosition();
+		std::cout << "ImGUI mpos: " << ImGui::GetMousePos().x << ", " << ImGui::GetMousePos().y << 
+			"     world_pos: " << mouse_world_pos.x << ", " << mouse_world_pos.y << "\n";
+
 		
-		auto z_index_sort = [](const std::pair<FlexECS::EntityID, int>& a, const std::pair<FlexECS::EntityID, int>& b) 
+		auto z_index_sort = [](const std::pair<FlexECS::EntityID, float>& a, const std::pair<FlexECS::EntityID, float>& b) 
 		{
 			if (a.second == b.second)
 					return a.first < b.first; 
 			return a.second >= b.second;
 		};
-		std::set<std::pair<FlexECS::EntityID, int>, decltype(z_index_sort)> clicked_entities(z_index_sort);
+		
+		std::set<std::pair<FlexECS::EntityID, float>, decltype(z_index_sort)> clicked_entities(z_index_sort);
 		
 		//Gets all entities under the mouse (including entities overlapping each other)
 		//Sorts them based on z-index (or should it be Position.z???)
 		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Sprite, ZIndex>()) //you probably only wanna click on things that are rendered
+		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Sprite>()) //you probably only wanna click on things that are rendered
 		{
 			auto& active = entity.GetComponent<Transform>()->is_active;
 			if (!active) continue;
 
 			auto& pos = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
-
+			std::cout << "object pos: " << pos << '\n';
 			if (mouse_world_pos.x >= (pos.x - (scale.x / 2)) &&
 					mouse_world_pos.x <= (pos.x + (scale.x / 2)) &&
 					mouse_world_pos.y >= (pos.y - (scale.y / 2)) &&
 					mouse_world_pos.y <= (pos.y + (scale.y / 2)))
 			{
-				clicked_entities.insert(std::make_pair(entity, entity.GetComponent<ZIndex>()->z));
+				std::cout << "Adding entity because correct\n";
+				clicked_entities.insert(std::make_pair(entity, entity.GetComponent<Position>()->position.z));
 			}
 		}
 
 		//Cycles to the next z-index entity, so we can select the entity even when covered by another.
 		if (!clicked_entities.empty())
 		{
-			//FlexECS::Entity current_selected = Editor::GetInstance().GetSelectedEntity();
 			FlexECS::Entity current_selected = FlexECS::Entity::Null;
 			auto& selected_list = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
 			if (selected_list.size() == 1)
@@ -151,11 +155,11 @@ namespace Editor
 				current_selected = *selected_list.begin();
 			}
 
-			if (current_selected != FlexECS::Entity::Null && !current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
+			//if (current_selected != FlexECS::Entity::Null && !current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
 
 			if (current_selected != FlexECS::Entity::Null)
 			{
-				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<ZIndex>()->z });
+				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<Position>()->position.z });
 				
 				if (current == clicked_entities.end() || ++current == clicked_entities.end())
 				{
@@ -245,7 +249,8 @@ namespace Editor
 		auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 
 		//Global pos for accuracy (esp for entities with parent)
-		Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
+		//Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
+		Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
 		Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
 
 		//Find out where on the screen to draw the gizmos

@@ -122,7 +122,8 @@ namespace Editor
 
     // Add custom framebuffers
     //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
-    Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
+    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
+    Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1600, 900));
 
   }
 

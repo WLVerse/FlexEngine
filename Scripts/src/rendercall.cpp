@@ -84,12 +84,10 @@ public:
       //props.scale = Vector2(384.0f / 8.f, 96.0f);
       //props.scale = Vector2(384.0f / asset_spritesheet.columns, 96.0f);
       //props.window_size = Vector2(1600.0f, 900.0f);
-      props.alignment = Renderer2DProps::Alignment_TopLeft;
+      props.alignment = Renderer2DProps::Alignment_Center;
 
       OpenGLRenderer::DrawTexture2D(camera, props);
     }
-
-
     OpenGLFrameBuffer::Unbind();
   }
 
