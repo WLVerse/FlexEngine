@@ -41,6 +41,9 @@ namespace Editor
 	class EditorGUI
 	{
 	public:
+		static void Float1(float& data, std::string label1 = "",
+			float width = 65.0f);
+
 		static void DragFloat1(float& data, std::string label1 = "",
 			float width = 65.0f, float drag_speed = 0.1f);
 
@@ -51,6 +54,9 @@ namespace Editor
 		static void DragFloat3(FlexEngine::Vector3& data, std::string title = "", 
 			//std::string label1 = "X", std::string label2 = "Y", std::string label3 = "Z",
 			float width = 65.0f, float drag_speed = 0.1f);
+
+		static void Int1(int& data, std::string label1 = "",
+			float width = 65.0f);
 
 		static void DragInt(int& data, std::string label1 = "",
 			float width = 65.0f, float drag_speed = 0.1f);

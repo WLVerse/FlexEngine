@@ -82,12 +82,32 @@ namespace Editor
 		PopID();
 	}
 
+	void EditorGUI::Float1(float& data, std::string title, float width)
+	{
+		PushID();
+		ImGui::PushItemWidth(width);
+		ImGui::Text(title.c_str()); ImGui::SameLine();
+		ImGui::InputFloat("", &data, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		PopID();
+	}
+
 	void EditorGUI::DragFloat1(float& data, std::string title, float width, float drag_speed)
 	{
 		PushID();
 		ImGui::PushItemWidth(width);
 		ImGui::Text(title.c_str()); ImGui::SameLine();
 		ImGui::DragFloat("", &data, drag_speed);
+		ImGui::PopItemWidth();
+		PopID();
+	}
+
+	void EditorGUI::Int1(int& data, std::string title, float width)
+	{
+		PushID();
+		ImGui::PushItemWidth(width);
+		ImGui::Text(title.c_str()); ImGui::SameLine();
+		ImGui::InputInt("", &data, 0.0f, 0.0f, ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		PopID();
 	}

@@ -144,8 +144,14 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	#define COMPONENT_VIEWER_DRAG_INT(name) \
   EditorGUI::DragInt(entity.GetComponent<T>()->name, #name);
 
+	#define COMPONENT_VIEWER_INT1(name) \
+  EditorGUI::Int1(entity.GetComponent<T>()->name, #name);
+
 	#define COMPONENT_VIEWER_DRAG_GLUINT(name) \
   EditorGUI::DragGLuint(entity.GetComponent<T>()->name, #name); 
+
+	#define COMPONENT_VIEWER_FLOAT1(name) \
+  EditorGUI::Float1(entity.GetComponent<T>()->name, #name);
 
 	#define COMPONENT_VIEWER_DRAG_FLOAT(name) \
   EditorGUI::DragFloat1(entity.GetComponent<T>()->name, #name);

@@ -233,7 +233,8 @@ namespace Editor
 		if (selected_entity == FlexECS::Entity::Null) 
 			return;
 
-		if (!selected_entity.HasComponent<Transform>()) {
+		if (!selected_entity.HasComponent<Transform>() || !selected_entity.HasComponent<Position>()
+			 || !selected_entity.HasComponent<Scale>() || !selected_entity.HasComponent<Rotation>()) {
 			return;
 		}
 		else {
@@ -341,22 +342,20 @@ namespace Editor
 			//Create new entity when dragging an image from assets to scene
 			if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 			{
-				//auto scene = FlexECS::Scene::GetActiveScene();
+				auto scene = FlexECS::Scene::GetActiveScene();
 
-				//std::string image_key(image);
-				//std::filesystem::path path = image_key;
-				//Vector4 mouse_world_pos = GetWorldClickPosition();
-				//Vector2 position{ mouse_world_pos.x, mouse_world_pos.y };
-				//FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
-				//new_entity.AddComponent<IsActive>({ true });
-				//new_entity.AddComponent<Position>({ position });
-				//new_entity.AddComponent<Rotation>({});
-				//new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
-				//new_entity.AddComponent<Transform>({});
-				//new_entity.AddComponent<ZIndex>({});
-				//new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
-				//new_entity.AddComponent<Shader>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\shaders\texture)") });
-				//EditorGUI::EndPayloadReceiver();
+				std::string image_key(image);
+				std::filesystem::path path = image_key;
+				Vector4 mouse_world_pos = GetWorldClickPosition();
+				Vector2 position{ mouse_world_pos.x, mouse_world_pos.y };
+				FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
+				new_entity.AddComponent<Position>({ position });
+				new_entity.AddComponent<Rotation>({});
+				new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
+				new_entity.AddComponent<Transform>({});
+				new_entity.AddComponent<ZIndex>({});
+				new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
+				EditorGUI::EndPayloadReceiver();
 			}
 
 		ImGui::End();
