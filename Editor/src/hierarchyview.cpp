@@ -173,7 +173,6 @@ namespace Editor
 		//Deselect focused entity when clicking on empty space
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !item_hovered)
 		{
-			std::cout << "Clearing selection from empty space\n";
 			selection_system->ClearSelection();
 		}
 		ImGui::End();
