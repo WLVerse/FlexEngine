@@ -221,194 +221,51 @@ namespace Editor
 
 	void SceneView::DrawGizmos()
 	{
-		//only supports 1 selected entity right now.
 		m_gizmo_hovered = false;
-		FlexECS::Entity selected_entity = FlexECS::Entity::Null;
 		auto& selected_list = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
+		//Single entity gizmos and multiple gizmos settled differently
 		if (selected_list.size() == 1)
 		{
+			FlexECS::Entity selected_entity = FlexECS::Entity::Null;
 			selected_entity = *selected_list.begin();
-		}
 
-		if (selected_entity == FlexECS::Entity::Null) 
-			return;
-
-		if (!selected_entity.HasComponent<Transform>() || !selected_entity.HasComponent<Position>()
-			 || !selected_entity.HasComponent<Scale>() || !selected_entity.HasComponent<Rotation>()) {
-			return;
-		}
-		else {
-			selected_entity.GetComponent<Transform>()->is_dirty = true;
-		}
-		auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
-		auto& entity_position = selected_entity.GetComponent<Position>()->position;
-		auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
-
-		//Global pos for accuracy (esp for entities with parent)
-		//Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
-		Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
-		Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
-
-		//Find out where on the screen to draw the gizmos
-		//Take entity position and convert it back to screen position
-		ImVec2 gizmo_origin_pos = WorldToScreen(global_pos);
-		//Display an imgui rect around the sprite so we know where we are clicking, at least
-		Vector2 half_scale = global_scale; half_scale /= 2;
-		ImVec2 entity_min = WorldToScreen(global_pos - half_scale);
-		ImVec2 entity_max = WorldToScreen(global_pos + half_scale);
-
-		ImRect bounding_box (entity_min, entity_max);
-		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
-
-		//Draw Translate Gizmo
-		if (m_current_gizmo_type == GizmoType::TRANSLATE)
-		{
-			Vector2 pos_change{};
-			bool right, up, xy;
-			bool recording_ended = false;
-			switch (EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				m_recorded_position.position = entity_position;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				recording_ended = true;
-				break;
-			default:
-				break;
+			if (!selected_entity.HasComponent<Transform>() || !selected_entity.HasComponent<Position>()
+				 || !selected_entity.HasComponent<Scale>() || !selected_entity.HasComponent<Rotation>()) {
+				return;
 			}
+			else {
+				selected_entity.GetComponent<Transform>()->is_dirty = true;
+			}
+			auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
+			auto& entity_position = selected_entity.GetComponent<Position>()->position;
+			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 
-			switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				m_recorded_position.position = entity_position;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				recording_ended = true;
-				break;
-			default:
-				break;
-			}
+			//Global pos for accuracy (esp for entities with parent)
+			//Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
+			Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
+			Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
 
-			switch (EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				//start recording old position
-				m_recorded_position.position = entity_position;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				//End recording, new position
-				recording_ended = true;
-				break;
-			default:
-				break;
-			}
+			//Find out where on the screen to draw the gizmos
+			//Take entity position and convert it back to screen position
+			ImVec2 gizmo_origin_pos = WorldToScreen(global_pos);
+			Vector2 half_scale = global_scale; half_scale /= 2;
+			ImVec2 entity_min = WorldToScreen(global_pos - half_scale);
+			ImVec2 entity_max = WorldToScreen(global_pos + half_scale);
 
-			m_gizmo_hovered = right || up || xy;
+			//Display an imgui rect around the sprite so we know where we are clicking, at least
+			ImRect bounding_box (entity_min, entity_max);
+			ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 
-			//Scale the change in position with relation to screen size
-			//pos_change represents how much the gizmo moved in absolute screen coordinates.
-			//Need to convert screen space to world space
-			pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			entity_position += Vector3(pos_change.x, pos_change.y, 0.0f);
-
-			if (recording_ended)
+			//Draw Translate Gizmo
+			if (m_current_gizmo_type == GizmoType::TRANSLATE)
 			{
-				if (m_recorded_position.position != entity_position)
-				{
-					//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
-					//cmd->UpdateComponent(selected_entity, "Position", &m_recorded_position, selected_entity.GetComponent<Position>(), sizeof(Position));
-				}
-			}
-		}
-		else if (m_current_gizmo_type == GizmoType::SCALE)
-		{
-			Vector2 scale_change{};
-			float value{};
-			bool right, up, xy;
-			bool recording_ended = false;
-			switch (EditorGUI::Gizmo_Scale_X(&scale_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				m_recorded_scale.scale = entity_scale;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				recording_ended = true;
-				break;
-			default:
-				break;
-			}
-			switch (EditorGUI::Gizmo_Scale_Y(&scale_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				m_recorded_scale.scale = entity_scale;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				recording_ended = true;
-				break;
-			default:
-				break;
-			}
-			switch (EditorGUI::Gizmo_Scale_XY(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
-			{
-			case EditorGUI::GizmoStatus::START_DRAG:
-				m_recorded_scale.scale = entity_scale;
-				break;
-			case EditorGUI::GizmoStatus::DRAGGING:
-				break;
-			case EditorGUI::GizmoStatus::END_DRAG:
-				recording_ended = true;
-				break;
-			default:
-				break;
-			}
-			m_gizmo_hovered = right || up || xy;
-			if (value != 0)	//if using xy scale
-			{
-				scale_change.x = value;
-				scale_change.y = value;
-			}
-			else
-			{
-				scale_change.y = -scale_change.y;
-			}
-
-			scale_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-			scale_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-			entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);
-
-			if (recording_ended)
-			{
-				if (m_recorded_scale.scale != entity_scale)
-				{
-					//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
-					//cmd->UpdateComponent(selected_entity, "Scale", &m_recorded_scale, selected_entity.GetComponent<Scale>(), sizeof(Scale));
-				}
-			}
-		}
-		else if (m_current_gizmo_type == GizmoType::ROTATE)
-		{
-			if (selected_entity.HasComponent<Rotation>())
-			{
-				auto& entity_rotation = selected_entity.GetComponent<Rotation>()->rotation;
-				float value{};
-				bool hovered;
+				Vector2 pos_change{};
+				bool right, up, xy;
 				bool recording_ended = false;
-				switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
+				switch (EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
 				{
 				case EditorGUI::GizmoStatus::START_DRAG:
-					m_recorded_rotation.rotation = entity_rotation;
+					m_recorded_position.position = entity_position;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
 					break;
@@ -418,21 +275,246 @@ namespace Editor
 				default:
 					break;
 				}
-				m_gizmo_hovered = hovered;
-				entity_rotation.z += value * (180 / IM_PI);
 
-				//Clamp to -360 and 360
-				if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
-				if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
+				switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					m_recorded_position.position = entity_position;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+
+				switch (EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					//start recording old position
+					m_recorded_position.position = entity_position;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					//End recording, new position
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+
+				m_gizmo_hovered = right || up || xy;
+
+				//Scale the change in position with relation to screen size
+				//pos_change represents how much the gizmo moved in absolute screen coordinates.
+				//Need to convert screen space to world space
+				pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				entity_position += Vector3(pos_change.x, pos_change.y, 0.0f);
 
 				if (recording_ended)
 				{
-					if (m_recorded_rotation.rotation != entity_rotation)
+					if (m_recorded_position.position != entity_position)
 					{
 						//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
-						//cmd->UpdateComponent(selected_entity, "Rotation", &m_recorded_rotation, selected_entity.GetComponent<Rotation>(), sizeof(Rotation));
+						//cmd->UpdateComponent(selected_entity, "Position", &m_recorded_position, selected_entity.GetComponent<Position>(), sizeof(Position));
 					}
 				}
+			}
+			else if (m_current_gizmo_type == GizmoType::SCALE)
+			{
+				Vector2 scale_change{};
+				float value{};
+				bool right, up, xy;
+				bool recording_ended = false;
+				switch (EditorGUI::Gizmo_Scale_X(&scale_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					m_recorded_scale.scale = entity_scale;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				switch (EditorGUI::Gizmo_Scale_Y(&scale_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					m_recorded_scale.scale = entity_scale;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				switch (EditorGUI::Gizmo_Scale_XY(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					m_recorded_scale.scale = entity_scale;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				m_gizmo_hovered = right || up || xy;
+				if (value != 0)	//if using xy scale
+				{
+					scale_change.x = value;
+					scale_change.y = value;
+				}
+				else
+				{
+					scale_change.y = -scale_change.y;
+				}
+
+				scale_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				scale_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);
+
+				if (recording_ended)
+				{
+					if (m_recorded_scale.scale != entity_scale)
+					{
+						//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+						//cmd->UpdateComponent(selected_entity, "Scale", &m_recorded_scale, selected_entity.GetComponent<Scale>(), sizeof(Scale));
+					}
+				}
+			}
+			else if (m_current_gizmo_type == GizmoType::ROTATE)
+			{
+				if (selected_entity.HasComponent<Rotation>())
+				{
+					auto& entity_rotation = selected_entity.GetComponent<Rotation>()->rotation;
+					float value{};
+					bool hovered;
+					bool recording_ended = false;
+					switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
+					{
+					case EditorGUI::GizmoStatus::START_DRAG:
+						m_recorded_rotation.rotation = entity_rotation;
+						break;
+					case EditorGUI::GizmoStatus::DRAGGING:
+						break;
+					case EditorGUI::GizmoStatus::END_DRAG:
+						recording_ended = true;
+						break;
+					default:
+						break;
+					}
+					m_gizmo_hovered = hovered;
+					entity_rotation.z += value * (180 / IM_PI);
+
+					//Clamp to -360 and 360
+					if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
+					if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
+
+					if (recording_ended)
+					{
+						if (m_recorded_rotation.rotation != entity_rotation)
+						{
+							//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+							//cmd->UpdateComponent(selected_entity, "Rotation", &m_recorded_rotation, selected_entity.GetComponent<Rotation>(), sizeof(Rotation));
+						}
+					}
+				}
+			}
+		}
+		else if (selected_list.size() > 1)
+		{
+			//Get average of positions of the entities.
+			//That is where we'll place the gizmo
+			Vector3 average_pos;
+			for (FlexECS::Entity entity : selected_list)
+			{
+				if (!entity.HasComponent<Transform>() || !entity.HasComponent<Position>() ||
+					  !entity.HasComponent<Scale>() || !entity.HasComponent<Rotation>())
+				{
+					return;
+				}
+				auto& entity_transform = entity.GetComponent<Transform>()->transform;
+				average_pos += { entity_transform.m30, entity_transform.m31, entity_transform.m32};
+				
+				Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
+				Vector2 half_scale = global_scale; half_scale /= 2;
+				ImVec2 entity_min = WorldToScreen(Vector2(entity_transform.m30, entity_transform.m31) - half_scale);
+				ImVec2 entity_max = WorldToScreen(Vector2(entity_transform.m30, entity_transform.m31) + half_scale);
+				ImRect bounding_box(entity_min, entity_max);
+				ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
+			}
+			
+			average_pos /= selected_list.size();
+			ImVec2 gizmo_origin_pos = WorldToScreen({average_pos.x, average_pos.y});
+
+			//Draw Translate Gizmo
+			if (m_current_gizmo_type == GizmoType::TRANSLATE)
+			{
+				Vector2 pos_change{};
+				bool right, up, xy;
+				bool recording_ended = false;
+				switch (EditorGUI::GizmoTranslateRight(&pos_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+
+				switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+
+				switch (EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					//start recording old position
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					//End recording, new position
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+
+				m_gizmo_hovered = right || up || xy;
+
+				pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+
+				for (FlexECS::Entity entity : selected_list)
+				{
+					entity.GetComponent<Position>()->position += Vector3(pos_change.x, pos_change.y, 0.0f);
+				}
+
 			}
 		}
 	}
