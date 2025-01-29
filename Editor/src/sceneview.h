@@ -39,7 +39,7 @@ namespace Editor
 		FlexEngine::Vector4 GetWorldClickPosition();
 		ImVec2 WorldToScreen(const FlexEngine::Vector2& position);
 		void DrawGizmos();
-		//void MoveEditorCam();
+		void MoveEditorCam();
 
 		bool m_gizmo_hovered;
 		bool m_dragging;
