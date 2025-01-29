@@ -52,6 +52,10 @@ namespace Editor
 		ImVec2 m_viewport_position;
 		ImVec2 m_viewport_screen_position;
 
+		FlexEngine::Position m_recorded_position;
+		FlexEngine::Scale		 m_recorded_scale;
+		FlexEngine::Rotation m_recorded_rotation;
+
 		//std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
 		#endif
 	};

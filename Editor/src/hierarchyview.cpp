@@ -81,7 +81,7 @@ namespace Editor
 				//new_entity.AddComponent<IsActive>({});
 				new_entity.AddComponent<Position>({});
 				new_entity.AddComponent<Rotation>({});
-				//new_entity.AddComponent<Scale>({});
+				new_entity.AddComponent<Scale>({});
 				new_entity.AddComponent<Transform>({});
 				//new_entity.AddComponent<ZIndex>({});
 			}
