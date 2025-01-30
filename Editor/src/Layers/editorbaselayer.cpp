@@ -220,6 +220,7 @@ namespace Editor
                 if (Input::GetKey('D'))
                     entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move right
             
+                entity.GetComponent<Transform>()->is_dirty = true;
             }
         }
     }
