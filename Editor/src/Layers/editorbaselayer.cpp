@@ -45,21 +45,58 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
+        //entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
         entity.AddComponent<Audio>({ true, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
         entity.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
       }
-      FlexECS::Entity cam = scene->CreateEntity("Test Cam");
-      cam.AddComponent<Position>({});
-      cam.AddComponent<Rotation>({});
-      cam.AddComponent<Scale>({});
-      cam.AddComponent<Transform>({});
-      //There are two ways to initialize, 1st is to write directly which i do not recommend like so -> need to write each exact variable
-      //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
-      // Second way is to create a camera outside and then copy constructor it -> Easier
-      Camera gameTestCamera({ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
-      cam.AddComponent<Camera>(gameTestCamera);
+      //Camera Test
+      {
+          FlexECS::Entity cam = scene->CreateEntity("Test Cam");
+          cam.AddComponent<Position>({});
+          cam.AddComponent<Rotation>({});
+          cam.AddComponent<Scale>({});
+          cam.AddComponent<Transform>({});
+          //There are two ways to initialize, 1st is to write directly which i do not recommend like so -> need to write each exact variable
+          //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
+          // Second way is to create a camera outside and then copy constructor it -> Easier
+          Camera gameTestCamera({ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+          cam.AddComponent<Camera>(gameTestCamera);
+      }
+      //Text test
+      {
+          static std::string extra = "";
+          if (Input::GetKey(GLFW_KEY_J))
+              extra += "j";
+          Renderer2DText sample;
+          static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+          static std::string displayedText = ""; // Start with an empty string
+          static float elapsedTime = 0.0f;       // To track time
+          elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
+          if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
+              displayedText += fullText[displayedText.size()]; // Append the next character
+              elapsedTime = 0.0f; // Reset the timer
+          }
+          sample.m_words = displayedText;
+          //sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
+          sample.m_color = Vector3::Zero;
+          sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+          sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
+              0.00, 1.00, 0.00, 0.00,
+              0.00, 0.00, 1.00, 0.00,
+               822.00, 248.00, 0.00, 1.00);
+          sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
+          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
+          sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
+          sample.m_maxwidthtextbox = 850.0f;
+      }
       //scene->DumpArchetypeIndex();
     }
     #endif

@@ -169,6 +169,9 @@ namespace Editor
 
       script = ScriptRegistry::GetScript("GameplayLoops");
       if (script) script->Update();
+
+      script = ScriptRegistry::GetScript("CameraHandler");
+      if (script) script->Update();
     }
   }
 
