@@ -145,6 +145,7 @@ namespace FlexEngine
       Vector3 color = Vector3::One;
       // border color, border size, underline, etc
       std::pair<int, int> alignment = std::make_pair(1, 1); // Default value: centered (all bits set)
+      Vector2 textboxDimensions = Vector2(850.0f, 300.0f);
   };
 
 

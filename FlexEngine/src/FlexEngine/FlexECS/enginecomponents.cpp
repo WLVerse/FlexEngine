@@ -87,6 +87,7 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(text)
       FLX_REFL_REGISTER_PROPERTY(color)
       FLX_REFL_REGISTER_PROPERTY(alignment)
+      FLX_REFL_REGISTER_PROPERTY(textboxDimensions)
    FLX_REFL_REGISTER_END;
 
   //physics

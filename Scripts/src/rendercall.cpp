@@ -79,42 +79,24 @@ public:
     {
         if (!element.GetComponent<Transform>()->is_active) continue;
 
-        //OpenGLRenderer::DrawTexture2D(sample, currGameCamID);
-    }
+        const auto const textComponent = element.GetComponent<Text>();
 
-    static std::string extra = "";
-    if (Input::GetKey(GLFW_KEY_J))
-        extra += "j";
-    Renderer2DText sample;
-    static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
-    static std::string displayedText = ""; // Start with an empty string
-    static float elapsedTime = 0.0f;       // To track time
-    elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
-    if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
-        displayedText += fullText[displayedText.size()]; // Append the next character
-        elapsedTime = 0.0f; // Reset the timer
-    }
-    sample.m_words = displayedText;
-    //sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
-    sample.m_color = Vector3::Zero;
-    sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
-    sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
-        0.00, 1.00, 0.00, 0.00,
-        0.00, 0.00, 1.00, 0.00,
-         822.00, 248.00, 0.00, 1.00);
-    sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
-    //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
-    //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
-    //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
-    //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
-    sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
-    //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
-    //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
-    //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
-    //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
-    sample.m_maxwidthtextbox = 850.0f;
+        Renderer2DText sample;
+        sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+        sample.m_words = FLX_STRING_GET(textComponent->text);
+        sample.m_color = textComponent->color;
+        sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+        //TODO: Need to convert text to similar to camera class
+        //Temp
+        sample.m_transform = Matrix4x4(element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00,
+                                       0.00, element.GetComponent<Scale>()->scale.y, 0.00, 0.00,
+                                       0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00,
+                                       element.GetComponent<Position>()->position.x, element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00);
+        sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first), static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second)};
+        sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-    OpenGLRenderer::DrawTexture2D(sample, currGameCamID);
+        OpenGLRenderer::DrawTexture2D(sample, currGameCamID);
+    }
   }
 
   void Stop() override

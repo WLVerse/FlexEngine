@@ -352,7 +352,7 @@ namespace FlexEngine
               maxLineHeight = std::max(maxLineHeight, glyph.size.y);
 
               // Check if the current line exceeds the max width of the text box
-              if (currentLineWidth > text.m_maxwidthtextbox)
+              if (currentLineWidth > text.m_textboxDimensions.x)
               {
                   maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
                   totalHeight += maxLineHeight;
@@ -360,7 +360,7 @@ namespace FlexEngine
                   maxLineHeight = glyph.size.y; // Reset line height for the new line
 
                   // Check if total height exceeds the maximum allowed height
-                  if (totalHeight + maxLineHeight > text.m_maxheighttextbox)
+                  if (totalHeight + maxLineHeight > text.m_textboxDimensions.y)
                   {
                       totalHeight -= maxLineHeight; // Remove the extra line's height
                       break;
@@ -376,7 +376,7 @@ namespace FlexEngine
           }
 
           // Ensure dimensions do not exceed the max text box constraints
-          return { std::min(maxWidth, text.m_maxwidthtextbox), std::min(totalHeight, text.m_maxheighttextbox) };
+          return { std::min(maxWidth, text.m_textboxDimensions.x), std::min(totalHeight, text.m_textboxDimensions.y) };
       };
 
       // Function to set alignment
@@ -558,7 +558,7 @@ namespace FlexEngine
               }
 
               // Check if the word fits in the current line
-              if (lineWidth + wordWidth > text.m_maxwidthtextbox) 
+              if (lineWidth + wordWidth > text.m_textboxDimensions.x)
               {
                   renderLine(currentLine);
 
@@ -569,7 +569,7 @@ namespace FlexEngine
                   maxLineHeight = 0.0f;
 
                   // Stop rendering if vertical overflow occurs
-                  if (totalHeight + wordHeight > text.m_maxheighttextbox) 
+                  if (totalHeight + wordHeight > text.m_textboxDimensions.y)
                   {
                       currentLine.clear();
                       break;

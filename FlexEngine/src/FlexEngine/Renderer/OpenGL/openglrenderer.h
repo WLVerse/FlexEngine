@@ -11,6 +11,7 @@
 
 namespace FlexEngine
 {
+  //Can remind me what to rename this to again
   struct __FLX_API Renderer2DProps
   {
     enum __FLX_API Alignment
@@ -39,6 +40,7 @@ namespace FlexEngine
   * 2D text, including shader paths, font types, color settings, transformation
   * matrices, and alignment options for both X and Y axes.
   ***************************************************************************/
+  //Can remind me what to rename this to again
   struct __FLX_API Renderer2DText
   {
       enum __FLX_API AlignmentX
@@ -64,8 +66,7 @@ namespace FlexEngine
       std::pair<AlignmentX, AlignmentY> m_alignment;      /*!< Pair indicating X and Y alignment settings */
       float m_linespacing = 2.0f;
       float m_letterspacing = 2.0f;
-      float m_maxwidthtextbox = 500.0f;                   /*!< Dimension width of text box */
-      float m_maxheighttextbox = 500.0f;                  /*!< Dimension height of text box */
+      Vector2 m_textboxDimensions = { 500.0f ,500.0f };   /*!< Dimensions of text box */
   };
 
   class __FLX_API OpenGLRenderer

@@ -65,6 +65,17 @@ namespace Editor
       }
       //Text test
       {
+          FlexECS::Entity txt = scene->CreateEntity("Test Text");
+          txt.AddComponent<Position>({ Vector3(822.0f, 248.0f, 0.0f) });
+          txt.AddComponent<Rotation>({});
+          txt.AddComponent<Scale>({});
+          txt.AddComponent<Transform>({});
+          txt.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Bangers/Bangers-Regular.ttf)"),
+                                   FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class))"),
+                                   Vector3(1.0f,0.0,0.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle}});
+          
+          #if 0 //Test case
           static std::string extra = "";
           if (Input::GetKey(GLFW_KEY_J))
               extra += "j";
@@ -96,6 +107,7 @@ namespace Editor
           //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
           //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
           sample.m_maxwidthtextbox = 850.0f;
+          #endif
       }
       //scene->DumpArchetypeIndex();
     }
