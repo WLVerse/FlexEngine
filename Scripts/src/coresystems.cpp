@@ -3,7 +3,7 @@
 
 using namespace FlexEngine;
 
-class CoreSystemsScript : public Script
+class CoreSystemsScript : public IScript
 {
 public:
   CoreSystemsScript() { ScriptRegistry::RegisterScript(this); }
@@ -16,7 +16,7 @@ public:
 
   void Start() override
   {
-   
+    
   }
 
   void Update() override
@@ -51,19 +51,6 @@ public:
         }
 
         element.GetComponent<Audio>()->should_play = false;
-      }
-    }
-
-    // Scripting update loop, other calls are managed separatedly
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<ScriptComponent>())
-    {
-      if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
-
-      Script* script = ScriptRegistry::GetScript(
-        FLX_STRING_GET(element.GetComponent<ScriptComponent>()->script_name));
-      if (script)
-      {
-        script->Update();
       }
     }
 

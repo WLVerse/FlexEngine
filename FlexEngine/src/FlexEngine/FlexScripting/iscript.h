@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include "FlexECS/datastructures.h"
+
 #include <string>
 
 #pragma region Macros
@@ -24,10 +26,35 @@
 namespace FlexEngine
 {
 
-  class Script
+  class IScript
   {
+    #pragma region Script Context
+
+    // The context that the script is running in.
+    // This is the entity that the script is attached to,
+    // and it is used to access the components of the entity.
+
+  private:
+    FlexECS::Entity context = FlexECS::Entity::Null;
+
   public:
-    virtual ~Script() = default;
+    // INTERNAL FUNCTION
+    // This is set by the scripting system, do not call this function manually.
+    void Internal_SetContext(const FlexECS::Entity& id = FlexECS::Entity::Null) { context = id; }
+
+    // INTERNAL FUNCTION
+    // This is used to get the entity index of the script.
+    FlexECS::Entity Internal_GetContext() const { return context; }
+
+    #ifdef self
+    #error "Conflicting macro name: self"
+    #endif
+    #define self Internal_GetContext()
+
+    #pragma endregion
+
+  public:
+    virtual ~IScript() = default;
     virtual void Awake() = 0;
     virtual void Start() = 0;
     virtual void Update() = 0;

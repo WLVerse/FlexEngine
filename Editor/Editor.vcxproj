@@ -163,6 +163,8 @@
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
+    <ClCompile Include="src\Layers\physicslayer.cpp" />
+    <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
     <ClCompile Include="src\selectionsystem.cpp" />
@@ -183,6 +185,8 @@
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
+    <ClInclude Include="src\Layers\physicslayer.h" />
+    <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
     <ClInclude Include="src\selectionsystem.h" />

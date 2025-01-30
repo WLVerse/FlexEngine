@@ -77,4 +77,9 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(is_static)
     FLX_REFL_REGISTER_END;
 
+  //scripting
+  FLX_REFL_REGISTER_START(Script)
+    FLX_REFL_REGISTER_PROPERTY(script_name)
+    FLX_REFL_REGISTER_END;
+
 }

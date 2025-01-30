@@ -35,7 +35,6 @@ namespace Editor
         entity.AddComponent<Vector2>({ 35, 42 });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({true, Matrix4x4::Identity, true});
-        entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW("ComponentTest") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2222222222222222222222222222222222");
@@ -48,6 +47,7 @@ namespace Editor
         entity.AddComponent<Audio>({ true, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
+        entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }
       //scene->DumpArchetypeIndex();
     }
@@ -112,6 +112,18 @@ namespace Editor
     // Add custom framebuffers
     Window::FrameBufferManager.AddFrameBuffer("custom1", Vector2(1080, 640));                                             
     Window::FrameBufferManager.AddFrameBuffer("custom2", Vector2(1280, 720));
+
+    // add physics layer
+    FLX_COMMAND_ADD_WINDOW_LAYER(
+      "Editor",
+      std::make_shared<PhysicsLayer>()
+    );
+
+    // add rendering layer
+    FLX_COMMAND_ADD_WINDOW_LAYER(
+      "Editor",
+      std::make_shared<RenderingLayer>()
+    );
 
   }
 

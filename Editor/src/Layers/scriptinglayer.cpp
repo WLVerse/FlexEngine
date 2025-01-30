@@ -25,7 +25,7 @@ namespace Editor
 
     // Create the hotload directory if it does not exist
     if (!std::filesystem::exists(Path::current("hotload"))) std::filesystem::create_directory(Path::current("hotload"));
-    
+
     // Get the path of the DLL
     std::string from = Path::current("Scripts.dll");
     std::string to = Path::current("hotload/Scripts.dll");
@@ -48,7 +48,7 @@ namespace Editor
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }
-    
+
     // Load the scripting DLL
     LPCSTR dll_path = to.c_str();
     hmodule_scripting = LoadLibraryA(dll_path);
@@ -58,9 +58,27 @@ namespace Editor
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }
+
     Log::Info("Loaded DLL: " + to);
-    
     is_scripting_dll_loaded = true;
+
+    // call start for all scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    {
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+
+      // guard
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // always remember to set the context before calling functions
+      script->Internal_SetContext(entity);
+      script->Start();
+    }
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -68,6 +86,25 @@ namespace Editor
     // guard
     if (!is_scripting_dll_loaded) return;
 
+    // call stop for all scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    {
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+
+      // guard
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // always remember to set the context before calling functions
+      script->Internal_SetContext(entity);
+      script->Stop();
+    }
+
+    // unload the scripting DLL
     if (hmodule_scripting) FreeLibrary(hmodule_scripting);
     hmodule_scripting = nullptr;
     ScriptRegistry::ClearScripts();
@@ -124,16 +161,17 @@ namespace Editor
       }
     }
 
-    if (ImGui::Button("ComponentTest Start()"))
-    {
-      function_queue.Insert({
-        []()
-        {
-          auto script = ScriptRegistry::GetScript("ComponentTest");
-          if (script) script->Start();
-        }
-      });
-    }
+    // hardcoded test
+    //if (ImGui::Button("ComponentTest Start()"))
+    //{
+    //  function_queue.Insert({
+    //    []()
+    //    {
+    //      auto script = ScriptRegistry::GetScript("ComponentTest");
+    //      if (script) script->Start();
+    //    }
+    //  });
+    //}
 
     ImGui::End();
 
@@ -162,14 +200,45 @@ namespace Editor
 
     Internal_DebugWithImGui();
 
-    if (is_scripting_dll_loaded)
-    {
-      auto script = ScriptRegistry::GetScript("RenderLoop");
-      if (script) script->Update();
+    // for debugging
+    ScriptRegistry::Internal_Debug_Clear();
 
-      script = ScriptRegistry::GetScript("GameplayLoops");
-      if (script) script->Update();
+    // guard
+    if (!is_scripting_dll_loaded) return;
+
+    // old hardcoded update
+    //if (is_scripting_dll_loaded)
+    //{
+    //  auto script = ScriptRegistry::GetScript("RenderLoop");
+    //  if (script) script->Update();
+    //
+    //  script = ScriptRegistry::GetScript("GameplayLoops");
+    //  if (script) script->Update();
+    //}
+
+    // process all scripts, multiple of the same script can exist
+    // order is not guaranteed and should never be
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    {
+      if (!entity.GetComponent<Transform>()->is_active) continue; // skip non active entities
+
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+    
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // always remember to set the context before calling functions
+      script->Internal_SetContext(entity);
+      script->Update();
+
+      // for debugging
+      ScriptRegistry::Internal_Debug_LogScript(FLX_STRING_GET(*entity.GetComponent<EntityName>()), script->GetName());
     }
+
   }
 
 }
