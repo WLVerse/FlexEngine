@@ -9,7 +9,7 @@ namespace FlexEngine
     * \brief Monitors entities with camera components and communicates with
     * the CameraManager to manage their lifetimes.
     *************************************************************************/
-    class CameraHandler : public Script
+    class CameraHandler : public IScript
     {
         FlexECS::EntityID m_mainGameCameraID = INVALID_ENTITY_ID;
 

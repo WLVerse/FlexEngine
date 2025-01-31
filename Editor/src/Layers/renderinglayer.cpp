@@ -32,6 +32,24 @@ namespace Editor
   {
     static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
 
+    #pragma region Camera
+
+    // Camera 
+    //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+    //{
+    //  auto entity = element.GetComponent<Camera>();
+    //
+    //  if (!element.GetComponent<Transform>()->is_active ||
+    //      !element.GetComponent<Transform>()->is_dirty ||
+    //      !entity->getIsActive())
+    //    continue;
+    //
+    //  entity->Update();
+    //}
+    //FlexECS::EntityID currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript("CameraHandler"))->GetMainGameCameraID();
+
+    #pragma endregion
+
     #pragma region Animator System
 
     // animator system processes the more complex data into usable data for the sprite renderer
@@ -83,7 +101,35 @@ namespace Editor
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(camera, props);
+      OpenGLRenderer::DrawTexture2D(props);
+    }
+
+    #pragma endregion
+
+    #pragma region Text Renderer System
+
+    //Text
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+      if (!element.GetComponent<Transform>()->is_active) continue;
+
+      const auto const textComponent = element.GetComponent<Text>();
+
+      Renderer2DText sample;
+      sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+      sample.m_words = FLX_STRING_GET(textComponent->text);
+      sample.m_color = textComponent->color;
+      sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+      //TODO: Need to convert text to similar to camera class
+      //Temp
+      sample.m_transform = Matrix4x4(element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00,
+                                     0.00, element.GetComponent<Scale>()->scale.y, 0.00, 0.00,
+                                     0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00,
+                                     element.GetComponent<Position>()->position.x, element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00);
+      sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first), static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+      sample.m_textboxDimensions = textComponent->textboxDimensions;
+
+      OpenGLRenderer::DrawTexture2D(sample);
     }
 
     #pragma endregion
