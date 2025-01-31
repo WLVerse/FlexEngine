@@ -1,6 +1,7 @@
 #include "cameramanager.h"
 #include <stdexcept>
 
+
 namespace FlexEngine
 {
     #pragma region Static Member Initialization
@@ -126,6 +127,17 @@ namespace FlexEngine
         catch (const std::exception& e)
         {
             Log::Debug("Exception in CameraManager::Clear: " + std::string(e.what()));
+        }
+    }
+
+    void CameraManager::DeregisterECSCams()
+    {
+        for (auto it = m_cameraEntities.begin(); it != m_cameraEntities.end();)
+        {
+            if (it->first != 0) // Remove cameras that are NOT entityID = 0
+                it = m_cameraEntities.erase(it); // Erase and update iterator
+            else
+                ++it;
         }
     }
 

@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "FlexECS/datastructures.h"
 #include <unordered_map>
+#include <algorithm>
 #include <limits>
 
 namespace FlexEngine
@@ -52,6 +53,11 @@ namespace FlexEngine
          * \brief Clears all registered cameras.
          *************************************************************************/
         static void Clear();
+
+        /*!************************************************************************
+        * \brief Removes all ECS registered cameras
+        *************************************************************************/
+        static void DeregisterECSCams();
 
         /*!************************************************************************
          * \brief Gets the default editor camera.
