@@ -38,11 +38,9 @@ namespace Editor
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 2222222222222222222222222222222222");
-        entity.AddComponent<Vector2>({ 1, 2 });
-        entity.AddComponent<Vector3>({ 1, 2, 3 });
-        entity.AddComponent<Position>({});
-        entity.AddComponent<Rotation>({});
-        entity.AddComponent<Scale>({});
+        entity.AddComponent<Position>({ Vector3{0,0,0} });
+        entity.AddComponent<Rotation>({ Vector3{0,0,0} });
+        entity.AddComponent<Scale>({ {100,100,100} });
         entity.AddComponent<Transform>({});
         //entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
         entity.AddComponent<Audio>({ true, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });

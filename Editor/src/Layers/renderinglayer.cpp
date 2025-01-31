@@ -84,17 +84,19 @@ namespace Editor
     #pragma region Sprite Renderer System
 
     // render all sprites
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite>())
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
     {
       Sprite& sprite = *element.GetComponent<Sprite>();
+      Position& pos = *element.GetComponent<Position>();
+      Rotation& rotation = *element.GetComponent<Rotation>();
+      Scale& scale = *element.GetComponent<Scale>();
 
       Renderer2DProps props;
 
       props.asset = FLX_STRING_GET(sprite.sprite_handle);
       props.texture_index = sprite.handle;
-      props.position = Vector2(0.0f, 0.0f);
-      props.scale = Vector2(384.0f / 8.f, 96.0f);
-      //props.scale = Vector2(384.0f / asset_spritesheet.columns, 96.0f);
+      props.position = Vector2(pos.position.x, pos.position.y);
+      props.scale = Vector2(scale.scale.x, scale.scale.y);
 
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
