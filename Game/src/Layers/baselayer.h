@@ -16,6 +16,7 @@ namespace Game
     HMODULE hmodule_scripting{};
 
     void LoadDLL();
+    void UnloadDLL();
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;

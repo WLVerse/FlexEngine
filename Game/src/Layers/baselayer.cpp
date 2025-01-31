@@ -48,6 +48,18 @@ namespace Game
     is_scripting_dll_loaded = true;
   }
 
+  void BaseLayer::UnloadDLL()
+  {
+    // guard
+    if (!is_scripting_dll_loaded) return;
+
+    if (hmodule_scripting) FreeLibrary(hmodule_scripting);
+    hmodule_scripting = nullptr;
+    ScriptRegistry::ClearScripts();
+
+    is_scripting_dll_loaded = false;
+  }
+
   void BaseLayer::OnAttach()
   {
     // First, create a window
@@ -72,14 +84,7 @@ namespace Game
 
   void BaseLayer::OnDetach()
   {
-    // guard
-    if (!is_scripting_dll_loaded) return;
-
-    if (hmodule_scripting) FreeLibrary(hmodule_scripting);
-    hmodule_scripting = nullptr;
-    ScriptRegistry::ClearScripts();
-
-    is_scripting_dll_loaded = false;
+    UnloadDLL();
 
     FLX_COMMAND_CLOSE_WINDOW("Game");
   }
