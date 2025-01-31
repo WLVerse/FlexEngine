@@ -59,6 +59,13 @@ namespace Editor
     COMPONENT_VIEWER_BOOL(is_static)
     COMPONENT_VIEWER_END(Rigidbody)
 
+
+  /**************
+  * Scripting
+  **************/
+  COMPONENT_VIEWER_START(Script)
+    COMPONENT_VIEWER_EDITABLE_STRING(script_name)
+    COMPONENT_VIEWER_END(Script)
     
     
   void RegisterComponents()
@@ -75,5 +82,7 @@ namespace Editor
 
     REGISTER_COMPONENT_VIEWER(BoundingBox2D);
     REGISTER_COMPONENT_VIEWER(Rigidbody);
+
+    REGISTER_COMPONENT_VIEWER(Script);
   }
 }

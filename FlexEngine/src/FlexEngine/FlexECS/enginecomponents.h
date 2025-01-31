@@ -179,4 +179,17 @@ namespace FlexEngine
     bool is_static;
   };
 
+  /**************
+  * Scripting
+  **************/
+
+  class __FLX_API Script
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Scene::StringIndex script_name;
+    bool is_awake = false;
+    bool is_start = false;
+  };
+
 }

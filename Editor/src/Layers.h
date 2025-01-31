@@ -15,5 +15,7 @@
 #include "Layers/baselayer.h"
 #include "Layers/editorbaselayer.h"
 #include "Layers/editorwindowlayer.h"
+#include "Layers/physicslayer.h"
+#include "Layers/renderinglayer.h"
 #include "Layers/scriptinglayer.h"
 #include "Layers/statisticspanellayer.h"

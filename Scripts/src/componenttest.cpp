@@ -1,7 +1,7 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-class ComponentTestScript : public Script
+class ComponentTestScript : public IScript
 {
 public:
   ComponentTestScript() { ScriptRegistry::RegisterScript(this); }
@@ -29,7 +29,7 @@ public:
 
   void Update() override
   {
-    Log::Debug("ComponentTest: Update");
+    //Log::Debug("ComponentTest: Update");
   }
 
   void Stop() override
