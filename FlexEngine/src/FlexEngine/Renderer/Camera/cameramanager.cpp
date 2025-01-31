@@ -115,11 +115,12 @@ namespace FlexEngine
         try
         {
             Log::Debug("Clearing all cameras from CameraManager...");
-            // Manually delete all camera objects
-            for (auto& pair : m_cameraEntities)
-            {
-                delete pair.second;
-            }
+            //// Manually delete all camera objects
+            //for (auto& pair : m_cameraEntities)
+            //{
+            //    delete pair.second;
+            //}
+            delete m_cameraEntities.find(0)->second;
             m_cameraEntities.clear();
             m_editorCameraID = INVALID_ENTITY_ID;
             Log::Debug("All cameras cleared.");
