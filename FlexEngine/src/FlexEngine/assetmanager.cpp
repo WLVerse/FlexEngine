@@ -104,7 +104,7 @@ namespace FlexEngine
         {
           // create an asset key
           AssetKey key = file.path.string().substr(default_directory_length);
-          
+
           // load texture
           assets.emplace(key, Asset::Texture());
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);

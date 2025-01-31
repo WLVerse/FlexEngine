@@ -6,7 +6,7 @@
 #include "opengltexture.h"
 
 #include <glad/glad.h>
-
+#include "assetmanager.h" // FLX_ASSET_GET
 #include "Renderer/Camera/CameraManager.h"
 
 namespace FlexEngine
@@ -75,6 +75,9 @@ namespace FlexEngine
     static uint32_t m_draw_calls_last_frame;
     static bool m_depth_test;
     static bool m_blending;
+
+    static Asset::Mesh test;
+    //static std::unordered_map<std::string, std::shared_ptr<Asset::Mesh>> m_primitiveMeshes;
   public:
 
     static uint32_t GetDrawCalls();
@@ -92,6 +95,8 @@ namespace FlexEngine
     static void ClearColor(const Vector4& color);
 
     static void Draw(GLsizei size);
+
+    static void Initialize();
 
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.

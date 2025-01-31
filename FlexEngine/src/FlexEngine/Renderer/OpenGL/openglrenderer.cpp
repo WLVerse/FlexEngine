@@ -1,8 +1,6 @@
 #include "openglrenderer.h"
-
-#include "assetmanager.h" // FLX_ASSET_GET
 #include "DataStructures/freequeue.h"
-
+#include "assetmanager.h" // FLX_ASSET_GET
 namespace FlexEngine
 {
 
@@ -11,6 +9,8 @@ namespace FlexEngine
   uint32_t OpenGLRenderer::m_draw_calls_last_frame = 0;
   bool OpenGLRenderer::m_depth_test = false;
   bool OpenGLRenderer::m_blending = false;
+  //std::unordered_map<std::string, std::shared_ptr<Asset::Mesh>> m_primitiveMeshes;
+  Asset::Mesh test = Asset::Mesh();
 
   uint32_t OpenGLRenderer::GetDrawCalls()
   {
@@ -69,6 +69,29 @@ namespace FlexEngine
     m_draw_calls = 0;
   }
 
+  void OpenGLRenderer::Initialize()
+  {
+      /////////////////////////////////////////////////////////////////////////////////////
+      // Create Primitive Meshes
+      //std::vector<Vertex> vert = {
+      //    Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector2(0.0f, 1.0f)), // Bottom-left
+      //    Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector2(1.0f, 1.0f)), // Bottom-right
+      //    Vertex(Vector3(0.5f,  0.5f, 0.0f), Vector2(1.0f, 0.0f)), // Top-right
+      //    Vertex(Vector3(0.5f,  0.5f, 0.0f), Vector2(1.0f, 0.0f)), // Top-right
+      //    Vertex(Vector3(-0.5f,  0.5f, 0.0f), Vector2(0.0f, 0.0f)), // Top-left
+      //    Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector2(0.0f, 1.0f)) // Bottom-left
+      //};
+      //std::vector<unsigned int> ind = { 0,1,2,2,3,0 };
+      //static Asset::Mesh quadPrim = Asset::Mesh(vert, ind);
+      //m_primitiveMeshes["Primitive_Quad"] = std::make_shared<Asset::Mesh>(vert, ind);
+      //m_primitiveMeshes["Primitive_Quad"]->name = "Primitive_Quad";
+
+      /////////////////////////////////////////////////////////////////////////////////////
+      // Create SSBOs
+
+      Log::Info("OpenGLRenderer has been initialized.");
+  }
+
   void OpenGLRenderer::Draw(GLsizei size)
   {
     glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
@@ -118,6 +141,7 @@ namespace FlexEngine
       );
     }
 
+
     // guard
     if (vao == 0 || props.scale == Vector2::Zero) return;
 
@@ -132,6 +156,8 @@ namespace FlexEngine
       0.0f, 0.0f, // Top-left
       0.0f, 1.0f  // Bottom-left
     };
+
+
 
     if (is_spritesheet)
     {
@@ -173,7 +199,19 @@ namespace FlexEngine
       "Free UV buffer"
     );
 
-
+    std::vector<Vertex> vert = {
+        Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector2(0.0f, 1.0f)), // Bottom-left
+        Vertex(Vector3(0.5f, -0.5f, 0.0f), Vector2(1.0f, 1.0f)), // Bottom-right
+        Vertex(Vector3(0.5f,  0.5f, 0.0f), Vector2(1.0f, 0.0f)), // Top-right
+        Vertex(Vector3(0.5f,  0.5f, 0.0f), Vector2(1.0f, 0.0f)), // Top-right
+        Vertex(Vector3(-0.5f,  0.5f, 0.0f), Vector2(0.0f, 0.0f)), // Top-left
+        Vertex(Vector3(-0.5f, -0.5f, 0.0f), Vector2(0.0f, 1.0f)) // Bottom-left
+    };
+    std::vector<unsigned int> ind = { 0,1,2,2,3,0 };
+    static Asset::Mesh quadPrim = Asset::Mesh(vert, ind);
+    //m_primitiveMeshes["Primitive_Quad"] = std::make_shared<Asset::Mesh>(vert, ind);
+    //m_primitiveMeshes["Primitive_Quad"]->name = "Primitive_Quad";
+     
     // bind all
     glBindVertexArray(vao);
 
@@ -608,49 +646,50 @@ namespace FlexEngine
   )
   {
     // unit square
-    static const float vertices[] = {
-      // Position           // TexCoords
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
-    };
+    //static const float vertices[] = {
+    //  // Position           // TexCoords
+    //  -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+    //   0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+    //   0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+    //   0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+    //  -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+    //  -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+    //};
 
-    static GLuint vao = 0, vbo = 0;
+    //static GLuint vao = 0, vbo = 0;
 
-    if (vao == 0)
-    {
-      glGenVertexArrays(1, &vao);
-      glGenBuffers(1, &vbo);
-
-      glBindVertexArray(vao);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-      glBindVertexArray(0);
-
-      // free in freequeue
-      FreeQueue::Push(
-        [=]()
-        {
-          glDeleteBuffers(1, &vbo);
-          glDeleteVertexArrays(1, &vao);
-        }
-      );
-    }
+    //if (vao == 0)
+    //{
+    //  glGenVertexArrays(1, &vao);
+    //  glGenBuffers(1, &vbo);
+    //
+    //  glBindVertexArray(vao);
+    //  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    //  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    //
+    //  glEnableVertexAttribArray(0);
+    //  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    //  glEnableVertexAttribArray(1);
+    //  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    //
+    //  glBindVertexArray(0);
+    //
+    //  // free in freequeue
+    //  FreeQueue::Push(
+    //    [=]()
+    //    {
+    //      glDeleteBuffers(1, &vbo);
+    //      glDeleteVertexArrays(1, &vao);
+    //    }
+    //  );
+    //}
+    //Asset::Mesh tempQuad = m_primitiveMeshes["Primitive_Quad"];
 
     // guard
-    if (vao == 0 || scale == Vector2::Zero) return;
+    //if (tempQuad.VAO.get() == 0 || scale == Vector2::Zero) return;
 
     // bind all
-    glBindVertexArray(vao);
+    //glBindVertexArray(tempQuad.VAO.get());
 
     // jank optimization to run once
     static Asset::Shader texture_shader;

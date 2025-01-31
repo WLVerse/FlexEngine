@@ -11,12 +11,12 @@ public:
 
   void Awake() override
   {
-
+      OpenGLRenderer::Initialize();
   }
 
   void Start() override
   {
-   
+      
   }
 
   void Update() override

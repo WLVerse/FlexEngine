@@ -22,11 +22,11 @@ namespace FlexEngine
 
     Vertex(
       Vector3 _position = Vector3::Zero,
-      Vector3 _color = Vector3::Zero,
       Vector2 _tex_coords = Vector2::Zero,
       Vector3 _normal = Vector3::Zero,
       Vector3 _tangent = Vector3::Zero,
-      Vector3 _bitangent = Vector3::Zero
+      Vector3 _bitangent = Vector3::Zero,
+      Vector3 _color = Vector3::Zero
     );
 
     static void SetLayout();

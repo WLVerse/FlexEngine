@@ -131,6 +131,8 @@ namespace FlexEngine
 
     void Scene::SetActiveScene(const Scene& scene)
     {
+      //De-register -> direct call to manager, clear all cameras in ecs (TODO)
+
       SetActiveScene(std::make_shared<Scene>(scene));
     }
     void Scene::SetActiveScene(std::shared_ptr<Scene> scene)
