@@ -39,7 +39,6 @@ namespace Editor
     {
       // always prefer reference when it's in the query itself,
       // or if it's a component that is guaranteed to exist
-      // TODO: pls adopt and enforce
       Animator& animator = *element.GetComponent<Animator>();
       auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_file));
 
@@ -52,11 +51,12 @@ namespace Editor
       int index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
 
       // Override sprite component
-      Sprite* sprite = element.GetComponent<Sprite>();
-      if (sprite != nullptr)
+      if (element.HasComponent<Sprite>())
       {
-        sprite->sprite_handle = animator.spritesheet_file;
-        sprite->handle = index;
+        // update sprite component
+        Sprite& sprite = *element.GetComponent<Sprite>();
+        sprite.sprite_handle = animator.spritesheet_file;
+        sprite.handle = index;
       }
       else Log::Fatal("Somehow, a animator exists without a sprite component attached to it. This should be impossible with editor creation.");
     }
@@ -68,12 +68,12 @@ namespace Editor
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite>())
     {
-      Sprite* sprite = element.GetComponent<Sprite>();
+      Sprite& sprite = *element.GetComponent<Sprite>();
 
       Renderer2DProps props;
 
-      props.asset = FLX_STRING_GET(sprite->sprite_handle);
-      props.texture_index = sprite->handle;
+      props.asset = FLX_STRING_GET(sprite.sprite_handle);
+      props.texture_index = sprite.handle;
       props.position = Vector2(0.0f, 0.0f);
       props.scale = Vector2(384.0f / 8.f, 96.0f);
       //props.scale = Vector2(384.0f / asset_spritesheet.columns, 96.0f);

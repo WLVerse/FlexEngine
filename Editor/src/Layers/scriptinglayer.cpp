@@ -61,24 +61,6 @@ namespace Editor
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
-
-    // call start for all scripts
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
-    {
-      auto& script_component = *entity.GetComponent<Script>();
-      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
-
-      // guard
-      if (!script)
-      {
-        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
-        continue;
-      }
-
-      // always remember to set the context before calling functions
-      script->Internal_SetContext(entity);
-      script->Start();
-    }
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -206,37 +188,70 @@ namespace Editor
     // guard
     if (!is_scripting_dll_loaded) return;
 
-    // old hardcoded update
-    //if (is_scripting_dll_loaded)
-    //{
-    //  auto script = ScriptRegistry::GetScript("RenderLoop");
-    //  if (script) script->Update();
-    //
-    //  script = ScriptRegistry::GetScript("GameplayLoops");
-    //  if (script) script->Update();
-    //}
-
     // process all scripts, multiple of the same script can exist
     // order is not guaranteed and should never be
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    // call awake, start, update, and stop
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script>())
     {
-      if (!entity.GetComponent<Transform>()->is_active) continue; // skip non active entities
+      Transform& transform = *entity.GetComponent<Transform>();
+      if (!transform.is_active) continue; // skip non active entities
 
       auto& script_component = *entity.GetComponent<Script>();
       auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
-    
+
+      // guard
       if (!script)
       {
         Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
         continue;
       }
 
-      // always remember to set the context before calling functions
-      script->Internal_SetContext(entity);
-      script->Update();
+      // awake is called once when the script is created
+      if (!script_component.is_awake)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Awake();
+        script_component.is_awake = true;
+      }
 
-      // for debugging
-      ScriptRegistry::Internal_Debug_LogScript(FLX_STRING_GET(*entity.GetComponent<EntityName>()), script->GetName());
+      // start is called once when the object is enabled for the first time
+      if (
+        transform.is_active &&
+        !script_component.is_start &&
+        script_component.is_awake
+      )
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Start();
+        script_component.is_start = true;
+      }
+
+      // update is called every frame for awake and start objects
+      if (
+        script_component.is_start &&
+        script_component.is_awake
+      )
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Update();
+
+        // for debugging
+        ScriptRegistry::Internal_Debug_LogScript(
+          FLX_STRING_GET(*entity.GetComponent<EntityName>()),
+          script->GetName()
+        );
+      }
+
+      if (!transform.is_active && script_component.is_start)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Stop();
+        script_component.is_start = false;
+      }
     }
 
   }
