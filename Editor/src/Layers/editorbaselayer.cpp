@@ -212,13 +212,13 @@ namespace Editor
                 
                 // Check for WASD input
                 if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
-                    entity.GetComponent<Camera>()->m_data.position.y += speed;  // Move forward
+                    entity.GetComponent<Camera>()->m_data.position.y -= speed;  // Move forward
                 if (Input::GetKey('S'))
-                    entity.GetComponent<Camera>()->m_data.position.y -= speed;  // Move backward
+                    entity.GetComponent<Camera>()->m_data.position.y += speed;  // Move backward
                 if (Input::GetKey('A'))
-                    entity.GetComponent<Camera>()->m_data.position.x += speed;  // Move left
+                    entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move left
                 if (Input::GetKey('D'))
-                    entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move right
+                    entity.GetComponent<Camera>()->m_data.position.x += speed;  // Move right
             
                 entity.GetComponent<Transform>()->is_dirty = true;
             }
