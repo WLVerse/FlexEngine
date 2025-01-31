@@ -45,9 +45,69 @@ namespace Editor
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Scale>({});
         entity.AddComponent<Transform>({});
+        //entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
         entity.AddComponent<Audio>({ true, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
+        entity.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
+      }
+      //Camera Test
+      {
+          FlexECS::Entity cam = scene->CreateEntity("Test Cam");
+          cam.AddComponent<Position>({});
+          cam.AddComponent<Rotation>({});
+          cam.AddComponent<Scale>({});
+          cam.AddComponent<Transform>({});
+          //There are two ways to initialize, 1st is to write directly which i do not recommend like so -> need to write each exact variable
+          //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
+          // Second way is to create a camera outside and then copy constructor it -> Easier
+          Camera gameTestCamera({ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+          cam.AddComponent<Camera>(gameTestCamera);
+      }
+      //Text test
+      {
+          FlexECS::Entity txt = scene->CreateEntity("Test Text");
+          txt.AddComponent<Position>({ Vector3(822.0f, 248.0f, 0.0f) });
+          txt.AddComponent<Rotation>({});
+          txt.AddComponent<Scale>({});
+          txt.AddComponent<Transform>({});
+          txt.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Bangers/Bangers-Regular.ttf)"),
+                                   FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class))"),
+                                   Vector3(1.0f,0.0,0.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle}});
+          
+          #if 0 //Test case
+          static std::string extra = "";
+          if (Input::GetKey(GLFW_KEY_J))
+              extra += "j";
+          Renderer2DText sample;
+          static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+          static std::string displayedText = ""; // Start with an empty string
+          static float elapsedTime = 0.0f;       // To track time
+          elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
+          if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
+              displayedText += fullText[displayedText.size()]; // Append the next character
+              elapsedTime = 0.0f; // Reset the timer
+          }
+          sample.m_words = displayedText;
+          //sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
+          sample.m_color = Vector3::Zero;
+          sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+          sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
+              0.00, 1.00, 0.00, 0.00,
+              0.00, 0.00, 1.00, 0.00,
+               822.00, 248.00, 0.00, 1.00);
+          sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
+          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
+          sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
+          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
+          sample.m_maxwidthtextbox = 850.0f;
+          #endif
       }
       //scene->DumpArchetypeIndex();
     }
@@ -134,6 +194,36 @@ namespace Editor
     dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
     Editor::GetInstance().Update();
+
+    //Test for cam
+    {
+        auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
+
+        for (auto& entity : cameraEntities)
+        {
+
+            auto camera = entity.GetComponent<Camera>();
+            if (camera)
+            {
+                auto& position = camera->m_data.position;
+
+                // Adjust movement speed as needed
+                float speed = 5.0f;
+                
+                // Check for WASD input
+                if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
+                    entity.GetComponent<Camera>()->m_data.position.y += speed;  // Move forward
+                if (Input::GetKey('S'))
+                    entity.GetComponent<Camera>()->m_data.position.y -= speed;  // Move backward
+                if (Input::GetKey('A'))
+                    entity.GetComponent<Camera>()->m_data.position.x += speed;  // Move left
+                if (Input::GetKey('D'))
+                    entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move right
+            
+                entity.GetComponent<Transform>()->is_dirty = true;
+            }
+        }
+    }
 
     // good practise
     OpenGLFrameBuffer::Unbind();

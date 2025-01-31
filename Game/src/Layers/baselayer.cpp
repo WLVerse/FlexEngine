@@ -94,5 +94,6 @@ namespace Game
     // Runs the main gameplay loop, this should not be removed
     ScriptRegistry::GetScript("RenderLoop")->Update();
     ScriptRegistry::GetScript("GameplayLoops")->Update();
+    ScriptRegistry::GetScript("CameraHandler")->Update();
   }
 }

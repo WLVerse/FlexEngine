@@ -7,10 +7,11 @@
 
 #include <glad/glad.h>
 
-#include "Renderer/Camera/camera.h" // For rendering, need to include camera
+#include "Renderer/Camera/CameraManager.h"
 
 namespace FlexEngine
 {
+  //Can remind me what to rename this to again
   struct __FLX_API Renderer2DProps
   {
     enum __FLX_API Alignment
@@ -39,6 +40,7 @@ namespace FlexEngine
   * 2D text, including shader paths, font types, color settings, transformation
   * matrices, and alignment options for both X and Y axes.
   ***************************************************************************/
+  //Can remind me what to rename this to again
   struct __FLX_API Renderer2DText
   {
       enum __FLX_API AlignmentX
@@ -64,8 +66,7 @@ namespace FlexEngine
       std::pair<AlignmentX, AlignmentY> m_alignment;      /*!< Pair indicating X and Y alignment settings */
       float m_linespacing = 2.0f;
       float m_letterspacing = 2.0f;
-      float m_maxwidthtextbox = 500.0f;                   /*!< Dimension width of text box */
-      float m_maxheighttextbox = 500.0f;                  /*!< Dimension height of text box */
+      Vector2 m_textboxDimensions = { 500.0f ,500.0f };   /*!< Dimensions of text box */
   };
 
   class __FLX_API OpenGLRenderer
@@ -95,12 +96,12 @@ namespace FlexEngine
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
+    static void DrawTexture2D(const Renderer2DProps& props = {}, const FlexECS::EntityID camID = 0);
 
     // Overloaded function to draw text as a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(Camera const& cam, const Renderer2DText& text = {});
+    static void DrawTexture2D(const Renderer2DText& text = {}, const FlexECS::EntityID camID = 0);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

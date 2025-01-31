@@ -12,6 +12,7 @@
 #include "datastructures.h"
 #include "enginecomponents.h"
 
+#include "../FlexEngine/Renderer/Camera/cameramanager.h"
 namespace FlexEngine
 {
   namespace FlexECS
@@ -131,6 +132,7 @@ namespace FlexEngine
 
     void Scene::SetActiveScene(const Scene& scene)
     {
+      CameraManager::DeregisterECSCams();
       SetActiveScene(std::make_shared<Scene>(scene));
     }
     void Scene::SetActiveScene(std::shared_ptr<Scene> scene)

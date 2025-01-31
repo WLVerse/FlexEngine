@@ -76,7 +76,7 @@ namespace FlexEngine
   }
   
   // TODO: cache the vao and vbo
-  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
   {
     // unit square
     static const float vertices[] = {
@@ -226,7 +226,8 @@ namespace FlexEngine
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
+    auto cam = CameraManager::GetCamera(camID);
+    asset_shader.SetUniform_mat4("u_projection_view", cam != nullptr? cam->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -245,7 +246,7 @@ namespace FlexEngine
     FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
-  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DText& text)
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
       static GLuint vao = 0, vbo = 0;
 
@@ -294,7 +295,8 @@ namespace FlexEngine
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
-      asset_shader.SetUniform_mat4("projection", cam.GetProjViewMatrix());
+      auto cam = CameraManager::GetCamera(camID);
+      asset_shader.SetUniform_mat4("projection", cam != nullptr ? cam->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);
       glBindVertexArray(vao);
@@ -350,7 +352,7 @@ namespace FlexEngine
               maxLineHeight = std::max(maxLineHeight, glyph.size.y);
 
               // Check if the current line exceeds the max width of the text box
-              if (currentLineWidth > text.m_maxwidthtextbox)
+              if (currentLineWidth > text.m_textboxDimensions.x)
               {
                   maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
                   totalHeight += maxLineHeight;
@@ -358,7 +360,7 @@ namespace FlexEngine
                   maxLineHeight = glyph.size.y; // Reset line height for the new line
 
                   // Check if total height exceeds the maximum allowed height
-                  if (totalHeight + maxLineHeight > text.m_maxheighttextbox)
+                  if (totalHeight + maxLineHeight > text.m_textboxDimensions.y)
                   {
                       totalHeight -= maxLineHeight; // Remove the extra line's height
                       break;
@@ -374,7 +376,7 @@ namespace FlexEngine
           }
 
           // Ensure dimensions do not exceed the max text box constraints
-          return { std::min(maxWidth, text.m_maxwidthtextbox), std::min(totalHeight, text.m_maxheighttextbox) };
+          return { std::min(maxWidth, text.m_textboxDimensions.x), std::min(totalHeight, text.m_textboxDimensions.y) };
       };
 
       // Function to set alignment
@@ -556,7 +558,7 @@ namespace FlexEngine
               }
 
               // Check if the word fits in the current line
-              if (lineWidth + wordWidth > text.m_maxwidthtextbox) 
+              if (lineWidth + wordWidth > text.m_textboxDimensions.x)
               {
                   renderLine(currentLine);
 
@@ -567,7 +569,7 @@ namespace FlexEngine
                   maxLineHeight = 0.0f;
 
                   // Stop rendering if vertical overflow occurs
-                  if (totalHeight + wordHeight > text.m_maxheighttextbox) 
+                  if (totalHeight + wordHeight > text.m_textboxDimensions.y)
                   {
                       currentLine.clear();
                       break;
@@ -684,7 +686,7 @@ namespace FlexEngine
     Matrix4x4 model = Matrix4x4::Identity;
     texture_shader.SetUniform_mat4("u_model", model.Translate(Vector3(m_position.x, m_position.y, 0.0f)).Scale(Vector3(scale.x, scale.y, 1.0f)));
 
-    // proj view matrix
+    // proj view matrix TODO
     Matrix4x4 proj_view = Matrix4x4::Orthographic(0.0f, window_size.x, 0.0f, window_size.y, -1.0f, 1.0f);
     texture_shader.SetUniform_mat4("u_projection_view", proj_view);
 

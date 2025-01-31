@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\componenttest.cpp" />
     <ClCompile Include="src\coresystems.cpp" />
+    <ClCompile Include="src\camerahandler.cpp" />
     <ClCompile Include="src\rendercall.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
