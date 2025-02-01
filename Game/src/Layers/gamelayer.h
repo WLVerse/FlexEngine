@@ -5,15 +5,11 @@ using namespace FlexEngine;
 
 namespace Game
 {
-
-  class BaseLayer : public FlexEngine::Layer
+  class GameLayer : public FlexEngine::Layer
   {
   public:
-    BaseLayer() : Layer("Base Layer") {}
-    ~BaseLayer() = default;
-
-    bool is_scripting_dll_loaded = false;
-    HMODULE hmodule_scripting{};
+    GameLayer() : Layer("Game Layer") {}
+    ~GameLayer() = default;
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;
