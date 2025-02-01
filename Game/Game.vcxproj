@@ -144,13 +144,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h" />
+    <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
+    <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\loadlayer.h" />
+    <ClInclude Include="src\Layers\physicslayer.h" />
+    <ClInclude Include="src\Layers\renderinglayer.h" />
+    <ClInclude Include="src\Layers\scriptinglayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp" />
+    <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
+    <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\loadlayer.cpp" />
+    <ClCompile Include="src\Layers\physicslayer.cpp" />
+    <ClCompile Include="src\Layers\renderinglayer.cpp" />
+    <ClCompile Include="src\Layers\scriptinglayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
