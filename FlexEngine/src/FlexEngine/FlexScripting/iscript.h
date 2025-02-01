@@ -55,11 +55,29 @@ namespace FlexEngine
 
   public:
     virtual ~IScript() = default;
-    virtual void Awake() = 0;
-    virtual void Start() = 0;
-    virtual void Update() = 0;
-    //virtual void FixedUpdate() = 0;
-    virtual void Stop() = 0;
+
+    virtual void Awake() {};
+    virtual void Start() {};
+    virtual void Update() {};
+    //virtual void FixedUpdate() {};
+    virtual void Stop() {};
+
+    #pragma region UI Callbacks
+
+    // TODO: replace with proper ui system
+    virtual void OnHover() {};
+    virtual void OnClick() {};
+
+    #pragma endregion
+
+    #pragma region Physics Callbacks
+
+    //virtual void OnCollisionEnter() {};
+    //virtual void OnCollisionExit() {};
+    //virtual void OnCollisionStay() {};
+
+    #pragma endregion
+
     virtual std::string GetName() const = 0;
   };
 
