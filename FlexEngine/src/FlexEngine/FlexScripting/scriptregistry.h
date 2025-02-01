@@ -28,6 +28,16 @@ namespace FlexEngine
   // A global registry to store all scripts
   class __FLX_API ScriptRegistry
   {
+    #pragma region Running State
+
+  public:
+
+    // Check if the registry is running
+    // This is set by the scripting manager (in the scripting layer)
+    static bool is_running;
+
+    #pragma endregion
+
   public:
 
     // Register a script to the registry

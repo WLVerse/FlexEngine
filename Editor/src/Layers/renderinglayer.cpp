@@ -101,7 +101,7 @@ namespace Editor
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
 
-      props.alignment = Renderer2DProps::Alignment_TopLeft;
+      props.alignment = sprite.center_aligned ? Renderer2DProps::Alignment_Center : Renderer2DProps::Alignment_TopLeft;
 
       OpenGLRenderer::DrawTexture2D(props);
     }

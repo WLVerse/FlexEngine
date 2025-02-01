@@ -5,8 +5,10 @@
 // Simple AABB Physics system
 //
 // AUTHORS
-// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+// [90%] Rocky Sutarius (rocky.sutarius@digipen.edu)
 //   - Main Author
+// [10%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Added some code for mouse over detection
 //
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
@@ -73,27 +75,58 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::UpdateBounds()
 	{
-		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
+		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, BoundingBox2D>())
 		{
-			auto& position = entity.GetComponent<Position>()->position;
-			auto& scale = entity.GetComponent<Scale>()->scale;
-			auto& size = entity.GetComponent<BoundingBox2D>()->size;
-			entity.GetComponent<BoundingBox2D>()->max.x = position.x + scale.x / 2 * size.x;
-			entity.GetComponent<BoundingBox2D>()->max.y = position.y + scale.y / 2 * size.y;
-			entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x;
-			entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
+      RecomputeBounds(entity);
 		}
 	}
 
 	/*!***************************************************************************
 	* @brief
 	* Finds all collisions between rigidbodies.
+  * Checks if the mouse is over the entity. (Wen Loong)
 	* If Rigidbody is static, skips the check.
 	******************************************************************************/
 	void PhysicsSystem::FindCollisions()
 	{
+    // mouse over detection
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, BoundingBox2D>())
+    {
+      auto& bb = *entity.GetComponent<BoundingBox2D>();
+
+      bb.is_mouse_over_cached = bb.is_mouse_over;
+
+      auto& max = bb.max;
+      auto& min = bb.min;
+      auto mouse = Input::GetMousePosition();
+      bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
+
+      // callback for scripts
+      if (ScriptRegistry::is_running && entity.HasComponent<Script>())
+      {
+        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
+        auto script = ScriptRegistry::GetScript(script_name);
+        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
+
+        script->Internal_SetContext(entity);
+
+        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
+        {
+          script->OnMouseEnter();
+        }
+        else if (bb.is_mouse_over)
+        {
+          script->OnMouseStay();
+        }
+        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
+        {
+          script->OnMouseExit();
+        }
+      }
+    }
+
 		collisions.clear();
-		
+    
 		for (auto& entity_a : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
 		{
 			if(entity_a.GetComponent<Rigidbody>()->is_static) continue;

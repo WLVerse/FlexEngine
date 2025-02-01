@@ -52,6 +52,7 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(Sprite)
     FLX_REFL_REGISTER_PROPERTY(sprite_handle)
     FLX_REFL_REGISTER_PROPERTY(handle)
+    FLX_REFL_REGISTER_PROPERTY(center_aligned)
     FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(Animator)
@@ -97,6 +98,7 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(min)
     FLX_REFL_REGISTER_PROPERTY(max)
     FLX_REFL_REGISTER_PROPERTY(is_colliding)
+    FLX_REFL_REGISTER_PROPERTY(is_mouse_over)
     FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(AABB)
@@ -112,6 +114,10 @@ namespace FlexEngine
   //scripting
   FLX_REFL_REGISTER_START(Script)
     FLX_REFL_REGISTER_PROPERTY(script_name)
+    FLX_REFL_REGISTER_END;
+
+  // button
+  FLX_REFL_REGISTER_START(Button)
     FLX_REFL_REGISTER_END;
 
 }

@@ -18,5 +18,8 @@
     <ClCompile Include="src\playanimation.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\testbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -126,6 +126,7 @@ namespace FlexEngine
   public:
     FlexECS::Scene::StringIndex sprite_handle;
     int handle = -1; // Indicates it is not a spritesheet by default
+    bool center_aligned = false;
   };
 
   class __FLX_API Animator
@@ -162,8 +163,11 @@ namespace FlexEngine
     Vector2 min;
     Vector2 max;
     bool is_colliding;
+    bool is_mouse_over;
+    bool is_mouse_over_cached;
   };
 
+  // unused
   class __FLX_API AABB
   {
     FLX_REFL_SERIALIZABLE
@@ -191,6 +195,21 @@ namespace FlexEngine
     FlexECS::Scene::StringIndex script_name;
     bool is_awake = false;
     bool is_start = false;
+  };
+
+  /**************
+  * UI
+  **************/
+
+  // display text with Text component
+  // display image with Sprite component
+  // click detection uses BoundingBox2D component and scripting callbacks
+  // TODO: replace with proper ui system
+  class __FLX_API Button
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+
   };
 
 }

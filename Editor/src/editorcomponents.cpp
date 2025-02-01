@@ -37,6 +37,7 @@ namespace Editor
   COMPONENT_VIEWER_START(Sprite)
     COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
     COMPONENT_VIEWER_DRAG_INT(handle)
+    COMPONENT_VIEWER_CHECKBOX(center_aligned)
     COMPONENT_VIEWER_END(Sprite)
 
   COMPONENT_VIEWER_START(Animator)
@@ -52,6 +53,8 @@ namespace Editor
     COMPONENT_VIEWER_DRAG_VECTOR2(min)
     COMPONENT_VIEWER_DRAG_VECTOR2(max)
     COMPONENT_VIEWER_BOOL(is_colliding)
+    COMPONENT_VIEWER_BOOL(is_mouse_over)
+    //COMPONENT_VIEWER_BOOL(is_mouse_over_cached) // no need to show this
     COMPONENT_VIEWER_END(BoundingBox2D)
 
   COMPONENT_VIEWER_START(Rigidbody)
@@ -66,6 +69,13 @@ namespace Editor
   COMPONENT_VIEWER_START(Script)
     COMPONENT_VIEWER_EDITABLE_STRING(script_name)
     COMPONENT_VIEWER_END(Script)
+
+
+  /**************
+  * UI
+  **************/
+  COMPONENT_VIEWER_START(Button)
+    COMPONENT_VIEWER_END(Button)
     
     
   void RegisterComponents()
@@ -84,5 +94,7 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(Rigidbody);
 
     REGISTER_COMPONENT_VIEWER(Script);
+
+    REGISTER_COMPONENT_VIEWER(Button);
   }
 }

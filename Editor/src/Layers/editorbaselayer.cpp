@@ -107,6 +107,19 @@ namespace Editor
           sample.m_maxwidthtextbox = 850.0f;
           #endif
       }
+      //button
+      {
+        FlexECS::Entity button = scene->CreateEntity("Test Button");
+        button.AddComponent<Position>({ Vector3(200.0f, 200.0f, 0.0f) });
+        button.AddComponent<Rotation>({});
+        button.AddComponent<Scale>({ Vector3(300.0f, 100.0f, 0.0f) });
+        button.AddComponent<Transform>({});
+        button.AddComponent<Button>({});
+        button.AddComponent<BoundingBox2D>({});
+        button.AddComponent<Sprite>({});
+        button.GetComponent<Sprite>()->center_aligned = true;
+        button.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+      }
       //scene->DumpArchetypeIndex();
     }
     #endif

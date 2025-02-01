@@ -13,8 +13,6 @@
 
 #include "Layers.h"
 
-#include <thread>
-
 namespace Editor
 {
 
@@ -61,6 +59,7 @@ namespace Editor
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
+    ScriptRegistry::is_running = true;
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -92,6 +91,7 @@ namespace Editor
     ScriptRegistry::ClearScripts();
 
     is_scripting_dll_loaded = false;
+    ScriptRegistry::is_running = false;
   }
 
   void ScriptingLayer::Internal_DebugWithImGui()

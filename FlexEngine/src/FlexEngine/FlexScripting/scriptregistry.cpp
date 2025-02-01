@@ -15,6 +15,7 @@
 namespace FlexEngine
 {
   // static member initialization
+  bool ScriptRegistry::is_running = false;
   #ifdef _DEBUG
   std::vector<std::pair<std::string, std::string>> ScriptRegistry::scripts_run_names{};
   #endif
@@ -37,6 +38,9 @@ namespace FlexEngine
 
   IScript* ScriptRegistry::GetScript(const std::string& name)
   {
+    // guard
+    if (!is_running) return nullptr;
+
     auto& scripts = GetScripts();
     if (scripts.count(name) == 0)
     {

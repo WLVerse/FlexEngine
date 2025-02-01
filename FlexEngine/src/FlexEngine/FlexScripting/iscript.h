@@ -62,15 +62,11 @@ namespace FlexEngine
     //virtual void FixedUpdate() {};
     virtual void Stop() {};
 
-    #pragma region UI Callbacks
-
-    // TODO: replace with proper ui system
-    virtual void OnHover() {};
-    virtual void OnClick() {};
-
-    #pragma endregion
-
     #pragma region Physics Callbacks
+
+    virtual void OnMouseEnter() {};
+    virtual void OnMouseExit() {};
+    virtual void OnMouseStay() {};
 
     //virtual void OnCollisionEnter() {};
     //virtual void OnCollisionExit() {};
