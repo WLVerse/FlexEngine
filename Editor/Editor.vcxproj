@@ -160,6 +160,7 @@
     <ClCompile Include="src\hierarchyview.cpp" />
     <ClCompile Include="src\inspector.cpp" />
     <ClCompile Include="src\launch.cpp" />
+    <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="src\imguipayloads.h" />
     <ClInclude Include="src\inspector.h" />
     <ClInclude Include="src\Layers.h" />
+    <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />

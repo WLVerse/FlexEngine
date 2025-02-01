@@ -19,3 +19,4 @@
 #include "Layers/renderinglayer.h"
 #include "Layers/scriptinglayer.h"
 #include "Layers/statisticspanellayer.h"
+#include "Layers/audiolayer.h"

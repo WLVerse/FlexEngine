@@ -103,7 +103,12 @@ void FMODWrapper::Core::PlayLoopingSound(std::string const& identifier, Asset::S
     FMOD::Channel* channel;
     FMOD_ASSERT(fmod_system->playSound(asset.sound, nullptr, false, &channel));
     channel->setMode(FMOD_LOOP_NORMAL); 
-    //channel->setLoopCount(-1);
+
+    // Set it to automatically remove from list when done
+    std::string* id = new std::string(identifier);
+    channel->setCallback(channelCallback);
+    channel->setUserData(reinterpret_cast<void*>(id));
+
     channels[identifier] = channel;
   }
   else Log::Warning("Channel already exists for identifier: " + identifier);
@@ -165,6 +170,15 @@ void FMODWrapper::Core::WindowFocusCallback([[maybe_unused]] GLFWwindow* window,
   {
     ResumeAll();
   }
+}
+
+void FMODWrapper::Core::ChangeLoopProperty(std::string const& identifier, bool is_looping)
+{
+  // Proper way to stop but this kills the sound
+  channels[identifier]->setMode(is_looping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+  
+  // Slightly hacky but should always work
+  //channels[identifier]->setLoopCount(0);
 }
 
 }// namespace FlexEngine

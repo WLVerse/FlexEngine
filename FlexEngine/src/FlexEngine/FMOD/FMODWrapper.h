@@ -81,6 +81,8 @@ public:
 
     static void ForceStop();
 
+    static void ChangeLoopProperty(std::string const&, bool);
+
   private:
     // The below 2 functions are used for manually silencing FMOD. This is meant for things like alt tabbing.
     static void StopAll();

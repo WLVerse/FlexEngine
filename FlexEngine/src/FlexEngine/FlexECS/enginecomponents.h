@@ -116,6 +116,7 @@ namespace FlexEngine
     bool should_play;
     bool should_stop;
     bool is_looping;
+    bool change_mode = false; // For tagging to flip
     FlexECS::Scene::StringIndex audio_file;
   };
   
