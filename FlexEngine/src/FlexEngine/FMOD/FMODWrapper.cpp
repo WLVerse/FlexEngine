@@ -66,6 +66,7 @@ void FMODWrapper::Load()
 */
 void FMODWrapper::Unload()
 {
+  Core::ForceStop();
   FMOD_ASSERT(fmod_studio_system->release()); // Unloads core as well...
 }
 
