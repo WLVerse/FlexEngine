@@ -61,6 +61,7 @@ namespace Game
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
+    ScriptRegistry::is_running = true; // absolutely crazy that this has to be has to true even because this isnt a flag, this is a trigger
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -92,11 +93,12 @@ namespace Game
     ScriptRegistry::ClearScripts();
 
     is_scripting_dll_loaded = false;
+    ScriptRegistry::is_running = false;
   }
 
   void ScriptingLayer::OnAttach()
   {
-
+    Internal_LoadScriptingDLL();
   }
 
   void ScriptingLayer::OnDetach()

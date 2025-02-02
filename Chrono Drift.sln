@@ -27,6 +27,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Scripts", "Scripts\Scripts.
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Game\Game.vcxproj", "{E97624F2-E551-4650-BCD3-38731006060C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0FA70FD0-8958-40BC-AF9D-EA23717F3533} = {0FA70FD0-8958-40BC-AF9D-EA23717F3533}
+		{3E5799F5-C88A-446F-929F-98F4F73BE2F5} = {3E5799F5-C88A-446F-929F-98F4F73BE2F5}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
