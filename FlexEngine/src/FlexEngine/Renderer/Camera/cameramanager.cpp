@@ -147,14 +147,11 @@ namespace FlexEngine
     {
         try
         {
-            Log::Debug("Getting editor camera...");
             auto it = m_cameraEntities.find(m_editorCameraID);
             if (it == m_cameraEntities.end())
             {
                 throw std::out_of_range("Editor camera not found.");
             }
-
-            Log::Debug("Editor camera found.");
             return it->second;
         }
         catch (const std::exception& e)
@@ -189,21 +186,9 @@ namespace FlexEngine
 
     void CameraManager::SetMainGameCameraID(FlexECS::EntityID id)
     {
-        try
-        {
-            Log::Debug("Setting main game camera with Entity ID: " + std::to_string(id));
-            if (!HasCamera(id))
-            {
-                throw std::invalid_argument("Camera has not been registered into camera manager.");
-            }
-            m_mainGameCameraID = id;
-            Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
-
-        }
-        catch (const std::exception& e)
-        {
-            Log::Debug("Exception in CameraManager::SetMainGameCameraID (EntityID: " + std::to_string(id) + "): " + std::string(e.what()));
-        }
+        Log::Debug("Setting main game camera with Entity ID: " + std::to_string(id));
+        m_mainGameCameraID = id;
+        Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
     }
     #pragma endregion
 }

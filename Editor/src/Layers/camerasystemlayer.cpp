@@ -55,6 +55,10 @@ namespace Editor //In future will seperate this into GameCameraServiceLayer, Edi
         try
         {
             bool foundActiveCamera = false;
+            bool mainGameCamStillExists = false;
+            FlexECS::EntityID mainGameCamID = CameraManager::GetMainGameCameraID();
+            FlexECS::EntityID newMainCamID = INVALID_ENTITY_ID;
+
             for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
             {
                 if (elem.GetComponent<Transform>()->is_active)
@@ -62,22 +66,26 @@ namespace Editor //In future will seperate this into GameCameraServiceLayer, Edi
                     if (!CameraManager::HasCamera(elem.Get()))
                         CameraManager::SetCamera(elem.Get(), elem.GetComponent<Camera>());
 
-                    if (CameraManager::GetMainGameCameraID() == INVALID_ENTITY_ID)
-                        CameraManager::SetMainGameCameraID(elem.Get());
+                    if (newMainCamID == INVALID_ENTITY_ID)
+                        newMainCamID = elem.Get();
+
+                    if (mainGameCamID == elem.Get())
+                        mainGameCamStillExists = true;
 
                     foundActiveCamera = true;
                 }
-                else if (CameraManager::GetMainGameCameraID() == elem.Get())
-                {
-                    CameraManager::SetMainGameCameraID(INVALID_ENTITY_ID);
-                    Log::Info("Main game camera set to INVALID due to inactivity.");
-                }
             }
 
-            if (!foundActiveCamera)
+            if (!mainGameCamStillExists && CameraManager::GetMainGameCameraID() != INVALID_ENTITY_ID)
             {
                 CameraManager::SetMainGameCameraID(INVALID_ENTITY_ID);
-                Log::Info("No active camera found, main game camera set to INVALID.");
+                Log::Info("Main game camera set to INVALID as it was deleted.");
+            }
+
+            if (CameraManager::GetMainGameCameraID() == INVALID_ENTITY_ID && newMainCamID != INVALID_ENTITY_ID)
+            {
+                CameraManager::SetMainGameCameraID(newMainCamID);
+                Log::Info("New main game camera set: " + std::to_string(newMainCamID));
             }
         }
         catch (const std::exception& e)
