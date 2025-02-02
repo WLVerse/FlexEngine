@@ -30,26 +30,6 @@ namespace Editor
 
   void RenderingLayer::Update()
   {
-    static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
-
-    #pragma region Camera
-
-    // Camera 
-    //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-    //{
-    //  auto entity = element.GetComponent<Camera>();
-    //
-    //  if (!element.GetComponent<Transform>()->is_active ||
-    //      !element.GetComponent<Transform>()->is_dirty ||
-    //      !entity->getIsActive())
-    //    continue;
-    //
-    //  entity->Update();
-    //}
-    //FlexECS::EntityID currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript("CameraHandler"))->GetMainGameCameraID();
-
-    #pragma endregion
-
     #pragma region Animator System
 
     // animator system processes the more complex data into usable data for the sprite renderer
@@ -103,7 +83,7 @@ namespace Editor
 
       props.alignment = sprite.center_aligned ? Renderer2DProps::Alignment_Center : Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(props);
+      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
     }
 
     #pragma endregion
@@ -131,7 +111,7 @@ namespace Editor
       sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first), static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      OpenGLRenderer::DrawTexture2D(sample);
+      OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
     }
 
     #pragma endregion

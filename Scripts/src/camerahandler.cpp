@@ -6,83 +6,18 @@ namespace FlexEngine
 {
     /*!************************************************************************
     * \class CameraHandler
-    * \brief Monitors entities with camera components and communicates with
-    * the CameraManager to manage their lifetimes.
+    * \brief This script is intended to handle additional camera functionalities
+    * such as camera shake, lerping, and smooth transitions between cameras.
+    *
+    * \note Camera registration and main camera management have been moved to
+    * CameraSystemLayer.
+    *
+    * \usage Implement this script where camera effects like shake or transitions
+    * are needed. This could be used in conjunction with CameraManager to modify
+    * camera properties dynamically.
     *************************************************************************/
     class CameraHandler : public IScript
     {
-        FlexECS::EntityID m_mainGameCameraID = INVALID_ENTITY_ID;
-
-        /*!************************************************************************
-        * \brief Registers a camera entity with the CameraManager.
-        * \param entityID The entity ID of the camera component.
-        * \param cameraData Initial camera data.
-        *************************************************************************/
-        void RegisterCamera(FlexECS::EntityID entityID, Camera* cam)
-        {
-            try {
-                if (!ValidateCamera(entityID))
-                {
-                    CameraManager::SetCamera(entityID, cam);
-                    std::stringstream text;
-                    text << "Camera with entityID {" << entityID << "} successfully registered.";
-                    Log::Info(text.str());
-                }
-                else
-                {
-                    std::stringstream text;
-                    text << "Camera with entityID {" << entityID << "} is already registered.";
-                    Log::Debug(text.str());
-                }
-            }
-            catch (const std::exception& e)
-            {
-                std::stringstream text;
-                text << "Failed to register camera with entityID {" << entityID << "} : " << e.what();
-                Log::Error(text.str());
-            }
-        }
-
-        /*!************************************************************************
-         * \brief Unregisters a camera entity from the CameraManager.
-         * \param entityID The entity ID of the camera component.
-         *************************************************************************/
-        void UnregisterCamera(FlexECS::EntityID entityID)
-        {
-            try
-            {
-                if (ValidateCamera(entityID))
-                {
-                    CameraManager::RemoveCamera(entityID);
-                    std::stringstream text;
-                    text << "Camera with entityID {" << entityID << "} successfully unregistered.";
-                    Log::Info(text.str());
-                }
-                else
-                {
-                    std::stringstream text;
-                    text << "Camera with entityID {" << entityID << "} is not registered.";
-                    Log::Debug(text.str());
-                }
-            }
-            catch (const std::exception& e)
-            {
-                std::stringstream text;
-                text << "Failed to unregister camera with entityID {" << entityID << "} : " << e.what();
-                Log::Error(text.str());
-            }
-        }
-
-        /*!************************************************************************
-         * \brief Validates the presence of a camera in the CameraManager.
-         * \param entityID The entity ID to validate.
-         * \return True if the camera is valid, false otherwise.
-         *************************************************************************/
-        bool ValidateCamera(FlexECS::EntityID entityID) const
-        {
-            return CameraManager::HasCamera(entityID);
-        }
-
     public:
         CameraHandler()
         {
@@ -95,111 +30,26 @@ namespace FlexEngine
 
         void Start() override
         {
-            try
-            {
-                for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-                {
-                    if (elem.GetComponent<Transform>()->is_active && !ValidateCamera(elem.Get()))
-                    {
-                        RegisterCamera(elem.Get(), elem.GetComponent<Camera>());
-                    }
-                }
-            }
-            catch (const std::exception& e)
-            {
-                std::stringstream text;
-                text << "Error during CameraHandler::Start: {" << e.what() << "}";
-                Log::Error(text.str());
-            }
+            // Pseudo-code:
+            // - Initialize camera effect parameters (shake intensity, lerp speed, etc.)
+            // - Ensure dependencies like CameraManager are available
         }
 
         void Update() override
         {
-            try
-            {
-                bool foundActiveCamera = false;
-
-                // Iterate through cameras in the active scene
-                for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-                {
-                    // Check if the camera is active
-                    if (elem.GetComponent<Transform>()->is_active)
-                    {
-                        if (!ValidateCamera(elem.Get()))
-                            RegisterCamera(elem.Get(), elem.GetComponent<Camera>());
-
-                        // Set the first valid camera as the main game camera if not already set
-                        if (m_mainGameCameraID == INVALID_ENTITY_ID)
-                            m_mainGameCameraID = elem.Get();
-
-                        foundActiveCamera = true;
-                    }
-                    else
-                    {
-                        // If camera is inactive, mark as invalid
-                        if (m_mainGameCameraID == elem.Get())
-                        {
-                            m_mainGameCameraID = INVALID_ENTITY_ID;
-                            Log::Info("Main game camera is now invalid due to inactivity.");
-                        }
-                    }
-                }
-
-                // If no active camera found, reset main camera ID to INVALID_ENTITY_ID
-                if (!foundActiveCamera)
-                {
-                    m_mainGameCameraID = INVALID_ENTITY_ID;
-                    Log::Info("No active camera found, main game camera set to INVALID.");
-                }
-            }
-            catch (const std::exception& e)
-            {
-                std::stringstream text;
-                text << "Error during CameraHandler::Update: {" << e.what() << "}";
-                Log::Error(text.str());
-            }
+            // Pseudo-code:
+            // - If camera shake is active:
+            //     - Apply random offset to camera position within intensity range
+            // - If transitioning between cameras:
+            //     - Interpolate position and rotation from current to target camera
+            // - Apply any other effects such as zoom or dynamic FOV changes
         }
 
         void Stop() override
         {
-            try
-            {
-                Log::Info("Stopping and unregistering cameras...");
-                for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-                    UnregisterCamera(elem.Get());
-            }
-            catch (const std::exception& e)
-            {
-                std::stringstream text;
-                text << "Error during CameraHandler::Stop: {" << e.what() << "}";
-                Log::Error(text.str());
-            }
-        }
-
-        // Will send editor cam ID if camID is invalid
-        FlexECS::EntityID GetMainGameCameraID() const {
-            if (m_mainGameCameraID == INVALID_ENTITY_ID) {
-                Log::Debug("Main game camera ID is invalid, using default editor camera.");
-                return 0;  // Return 0 (or editor camera ID) if invalid
-            }
-            return m_mainGameCameraID;
-        }
-
-        void SetMainGameCameraID(FlexECS::EntityID id)
-        {
-            if (ValidateCamera(id))
-            {
-                m_mainGameCameraID = id;
-                std::stringstream text;
-                text << "Main game camera ID has been set to {" << id << "}.";
-                Log::Info(text.str());
-            }
-            else
-            {
-                std::stringstream text;
-                text << "Failed to set main game camera ID to {" << id << "}. Camera not found.";
-                Log::Warning(text.str());
-            }
+            // Pseudo-code:
+            // - Clean up camera effects
+            // - Reset any modified camera properties to their default states
         }
     };
 

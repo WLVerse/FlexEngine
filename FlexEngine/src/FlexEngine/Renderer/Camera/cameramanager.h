@@ -17,6 +17,8 @@ namespace FlexEngine
 
         // Reserved editor camera ID
         static FlexECS::EntityID m_editorCameraID;
+        // Reserved main game camera ID
+        static FlexECS::EntityID m_mainGameCameraID;
 
     public:
         // Initializes the CameraManager and sets up the default editor camera
@@ -64,5 +66,18 @@ namespace FlexEngine
          * \return A pointer to the editor camera.
          *************************************************************************/
         static Camera* GetEditorCamera();
+
+        /*!************************************************************************
+        * \brief Gets the Main Game camera if available.
+        * \return A pointer to the Main Game camera.
+        *************************************************************************/
+        static Camera* GetMainGameCamera();
+        static FlexECS::EntityID GetMainGameCameraID();
+
+        /*!************************************************************************
+        * \brief Sets the main game camera id.
+        * \return void.
+        *************************************************************************/
+        static void SetMainGameCameraID(FlexECS::EntityID id);
     };
 }

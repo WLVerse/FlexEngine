@@ -226,8 +226,7 @@ namespace FlexEngine
     asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    auto cam = CameraManager::GetCamera(camID);
-    asset_shader.SetUniform_mat4("u_projection_view", cam != nullptr? cam->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
+    asset_shader.SetUniform_mat4("u_projection_view", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
     // draw
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -295,8 +294,7 @@ namespace FlexEngine
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
-      auto cam = CameraManager::GetCamera(camID);
-      asset_shader.SetUniform_mat4("projection", cam != nullptr ? cam->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
+      asset_shader.SetUniform_mat4("projection", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);
       glBindVertexArray(vao);
