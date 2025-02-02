@@ -32,11 +32,8 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<ScriptingLayer>());
 
     // Start with the menu layer
-    //menuLayer = std::make_shared<MenuLayer>();
-    //FLX_COMMAND_ADD_APPLICATION_LAYER(menuLayer);
-
-    gameLayer = std::make_shared<GameLayer>();
-    FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
+    menuLayer = std::make_shared<MenuLayer>();
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
 
     // Camera system goes last to capture the loaded scene
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<CameraSystemLayer>());
@@ -52,7 +49,7 @@ namespace Game
     Application::GetCurrentWindow()->Update();
 
     // Test to switch to game layer
-    if (Input::GetKeyDown(GLFW_KEY_3))
+    if (Input::GetKeyDown(GLFW_KEY_3) && menuLayer.get() != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
 
@@ -61,9 +58,9 @@ namespace Game
     }
 
     // Game to menu layer
-    if (Input::GetKeyDown(GLFW_KEY_4))
+    if (Input::GetKeyDown(GLFW_KEY_4) && gameLayer.get() != nullptr)
     {
-      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game Layer", gameLayer);
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
 
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);

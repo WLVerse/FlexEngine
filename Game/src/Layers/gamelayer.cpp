@@ -8,6 +8,8 @@ namespace Game
     #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
+      FlexECS::Scene::SetActiveScene(scene);
+
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 0");
         entity.AddComponent<Vector2>({ 2, 4 });
