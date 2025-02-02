@@ -60,6 +60,17 @@ namespace Editor
           // Second way is to create a camera outside and then copy constructor it -> Easier
           Camera gameTestCamera({ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
           cam.AddComponent<Camera>(gameTestCamera);
+
+          FlexECS::Entity cam2 = scene->CreateEntity("Test Cam2");
+          cam2.AddComponent<Position>({});
+          cam2.AddComponent<Rotation>({});
+          cam2.AddComponent<Scale>({});
+          cam2.AddComponent<Transform>({});
+          //There are two ways to initialize, 1st is to write directly which i do not recommend like so -> need to write each exact variable
+          //cam.AddComponent<Camera>({ {{ 850.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f},false});
+          // Second way is to create a camera outside and then copy constructor it -> Easier
+          Camera gameTestCamera2({ 650.0f,450.0f,0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+          cam2.AddComponent<Camera>(gameTestCamera2);
       }
       //Text test
       {
@@ -214,6 +225,12 @@ namespace Editor
       "Editor",
       std::make_shared<AudioLayer>()
     );
+
+    // add camera service layer
+    FLX_COMMAND_ADD_WINDOW_LAYER(
+      "Editor",
+      std::make_shared<CameraSystemLayer>()
+    );
   }
 
   void EditorBaseLayer::OnDetach()
@@ -249,17 +266,17 @@ namespace Editor
                 auto& position = camera->m_data.position;
 
                 // Adjust movement speed as needed
-                float speed = 5.0f;
+                float speed = 300.0f;
                 
                 // Check for WASD input
                 if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
-                    entity.GetComponent<Camera>()->m_data.position.y -= speed;  // Move forward
+                    entity.GetComponent<Camera>()->m_data.position.y -= speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move forward
                 if (Input::GetKey('S'))
-                    entity.GetComponent<Camera>()->m_data.position.y += speed;  // Move backward
+                    entity.GetComponent<Camera>()->m_data.position.y += speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move backward
                 if (Input::GetKey('A'))
-                    entity.GetComponent<Camera>()->m_data.position.x -= speed;  // Move left
+                    entity.GetComponent<Camera>()->m_data.position.x -= speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move left
                 if (Input::GetKey('D'))
-                    entity.GetComponent<Camera>()->m_data.position.x += speed;  // Move right
+                    entity.GetComponent<Camera>()->m_data.position.x += speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move right
             
                 entity.GetComponent<Transform>()->is_dirty = true;
             }

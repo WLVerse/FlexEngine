@@ -132,6 +132,7 @@ namespace FlexEngine
 
     void Scene::SetActiveScene(const Scene& scene)
     {
+      //Depreciated -> pls check if still need after testing
       CameraManager::DeregisterECSCams();
       SetActiveScene(std::make_shared<Scene>(scene));
     }

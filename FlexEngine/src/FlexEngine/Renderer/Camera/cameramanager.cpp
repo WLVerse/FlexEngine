@@ -8,7 +8,7 @@ namespace FlexEngine
 
     std::unordered_map<FlexECS::EntityID, Camera*> CameraManager::m_cameraEntities;
     FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
-
+    FlexECS::EntityID CameraManager::m_mainGameCameraID = INVALID_ENTITY_ID;
     #pragma endregion
 
     #pragma region Camera Lifetime Management
@@ -64,8 +64,6 @@ namespace FlexEngine
                 throw std::out_of_range("Camera with EntityID " + std::to_string(entityID) + " not found.");
             }
 
-            // Manually delete the camera to avoid memory leaks
-            delete it->second;
             m_cameraEntities.erase(entityID);
             Log::Debug("Camera removed for Entity ID: " + std::to_string(entityID));
         }
@@ -115,6 +113,7 @@ namespace FlexEngine
         try
         {
             Log::Debug("Clearing all cameras from CameraManager...");
+            // Manager now only handles clearing out references to these cameras
             //// Manually delete all camera objects
             //for (auto& pair : m_cameraEntities)
             //{
@@ -146,14 +145,11 @@ namespace FlexEngine
     {
         try
         {
-            Log::Debug("Getting editor camera...");
             auto it = m_cameraEntities.find(m_editorCameraID);
             if (it == m_cameraEntities.end())
             {
                 throw std::out_of_range("Editor camera not found.");
             }
-
-            Log::Debug("Editor camera found.");
             return it->second;
         }
         catch (const std::exception& e)
@@ -163,5 +159,34 @@ namespace FlexEngine
         }
     }
 
+    Camera* CameraManager::GetMainGameCamera()
+    {
+        try
+        {
+            Log::Debug("Getting main game camera...");
+            auto it = m_cameraEntities.find(m_mainGameCameraID);
+            if (it == m_cameraEntities.end())
+            {
+                throw std::out_of_range("Main Game camera not found.");
+            }
+
+            Log::Debug("Main Game camera found.");
+            return it->second;
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::GetMainGameCamera: " + std::string(e.what()));
+            return nullptr;  // Return null if the main game camera is not found
+        }
+    }
+
+    FlexECS::EntityID CameraManager::GetMainGameCameraID() { return m_mainGameCameraID; }
+
+    void CameraManager::SetMainGameCameraID(FlexECS::EntityID id)
+    {
+        Log::Debug("Setting main game camera with Entity ID: " + std::to_string(id));
+        m_mainGameCameraID = id;
+        Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
+    }
     #pragma endregion
 }
