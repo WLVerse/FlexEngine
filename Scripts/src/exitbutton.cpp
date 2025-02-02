@@ -9,6 +9,7 @@ public:
 
   void OnMouseEnter() override
   {
+    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
   }
 
   void OnMouseStay() override
@@ -21,6 +22,7 @@ public:
 
   void OnMouseExit() override
   {
+    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)");
   }
 };
 
