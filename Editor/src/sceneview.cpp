@@ -6,24 +6,34 @@
 namespace Editor
 {
 	//Temporary hardcoding (for testing) that follows the hardcoded camera dimensions in rendercall script
-	static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
-	//static Camera editor_camera(0.0f, 1280.0f, 720.0f, 0.0f, -2.0f, 2.0f);
+	//static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+	
 
 	constexpr float TOP_PADDING = 10.0f;
 
 	void SceneView::Init()
 	{
+		auto scene = FlexECS::Scene::GetActiveScene();
+		m_editor_camera = scene->CreateEntity("Editor Cam :3");
+		m_editor_camera.AddComponent<Position>({});
+		m_editor_camera.AddComponent<Rotation>({});
+		m_editor_camera.AddComponent<Scale>({});
+		m_editor_camera.AddComponent<Transform>({});
+		Camera cam({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+		m_editor_camera.AddComponent<Camera>(cam);
 
+		CameraManager::SetEditorCameraID(m_editor_camera);
+		CameraManager::SetCamera(m_editor_camera, m_editor_camera.GetComponent<Camera>());
 	}
 
 	void SceneView::Update()
 	{
-		editor_camera.Update();
+		CameraManager::GetEditorCamera()->Update();
 	}
 
 	void SceneView::Shutdown()
 	{
-		//editor_camera.reset();
+		//CameraManager::GetEditorCamera()->reset();
 	}
 	void SceneView::CalculateViewportPosition()
 	{
@@ -60,8 +70,8 @@ namespace Editor
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
-		float app_width = editor_camera.GetOrthoWidth();
-		float app_height = editor_camera.GetOrthoHeight();
+		float app_width = CameraManager::GetEditorCamera()->m_data.m_OrthoWidth;
+		float app_height = CameraManager::GetEditorCamera()->m_data.m_OrthoHeight;
 
 		// Get Mouse position relative to the viewport
 		ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - m_viewport_position.x,
@@ -74,7 +84,7 @@ namespace Editor
 
 
 		Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
-		Matrix4x4 inverse = (editor_camera.GetProjectionMatrix()).Inverse();
+		Matrix4x4 inverse = (CameraManager::GetEditorCamera()->GetProjectionMatrix()).Inverse();
 		Vector4 clip = { ndc_click_pos.x,
 										 ndc_click_pos.y,
 										 1.0f,
@@ -87,7 +97,7 @@ namespace Editor
 	ImVec2 SceneView::WorldToScreen(const FlexEngine::Vector2& position)
 	{
 		Vector4 world_pos = { position.x, position.y, 0.0f, 1.0f };
-		Vector4 clip = editor_camera.GetProjViewMatrix() * world_pos;
+		Vector4 clip = CameraManager::GetEditorCamera()->GetProjViewMatrix() * world_pos;
 		if (clip.w != 0.0f)
 		{
 			clip.x /= clip.w;
@@ -236,6 +246,7 @@ namespace Editor
 			else {
 				selected_entity.GetComponent<Transform>()->is_dirty = true;
 			}
+			
 			auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
 			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
@@ -311,9 +322,9 @@ namespace Editor
 				//Scale the change in position with relation to screen size
 				//pos_change represents how much the gizmo moved in absolute screen coordinates.
 				//Need to convert screen space to world space
-				pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				entity_position += Vector3(pos_change.x, pos_change.y, 0.0f);
+				pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				entity_position += Vector3(pos_change.x, -pos_change.y, 0.0f);
 
 				if (recording_ended)
 				{
@@ -380,9 +391,9 @@ namespace Editor
 					scale_change.y = -scale_change.y;
 				}
 
-				scale_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				scale_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);
+				scale_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				scale_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				entity_scale += Vector3(scale_change.x, -scale_change.y, 0.0f);
 
 				if (recording_ended)
 				{
@@ -415,7 +426,7 @@ namespace Editor
 						break;
 					}
 					m_gizmo_hovered = hovered;
-					entity_rotation.z += value * (180 / IM_PI);
+					entity_rotation.z -= value * (180 / IM_PI);
 
 					//Clamp to -360 and 360
 					if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
@@ -507,8 +518,8 @@ namespace Editor
 
 				m_gizmo_hovered = right || up || xy;
 
-				pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth/ ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 
 				for (FlexECS::Entity entity : selected_list)
 				{
@@ -529,34 +540,38 @@ namespace Editor
 			//Display Scene texture
 			ImGui::SetCursorPos(m_viewport_position);
 
-			Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
-			GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
-
-			ImGui::Image((ImTextureID)static_cast<uintptr_t>(texture),
-				m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
-
-			HandleMouseAndKeyboardEvents();
-			DrawGizmos();
-			MoveEditorCam();
-
-			//Create new entity when dragging an image from assets to scene
-			if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
+			if (CameraManager::HasCamera(CameraManager::GetMainGameCameraID()))
 			{
-				auto scene = FlexECS::Scene::GetActiveScene();
+				Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+				GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
-				std::string image_key(image);
-				std::filesystem::path path = image_key;
-				Vector4 mouse_world_pos = GetWorldClickPosition();
-				Vector2 position{ mouse_world_pos.x, mouse_world_pos.y };
-				FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
-				new_entity.AddComponent<Position>({ position });
-				new_entity.AddComponent<Rotation>({});
-				new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
-				new_entity.AddComponent<Transform>({});
-				new_entity.AddComponent<ZIndex>({});
-				new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
-				EditorGUI::EndPayloadReceiver();
+				ImGui::Image((ImTextureID)static_cast<uintptr_t>(texture),
+					m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
+
+				HandleMouseAndKeyboardEvents();
+				DrawGizmos();
+				MoveEditorCam();
+
+				//Create new entity when dragging an image from assets to scene
+				if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
+				{
+					auto scene = FlexECS::Scene::GetActiveScene();
+
+					std::string image_key(image);
+					std::filesystem::path path = image_key;
+					Vector4 mouse_world_pos = GetWorldClickPosition();
+					Vector2 position{ mouse_world_pos.x, mouse_world_pos.y };
+					FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
+					new_entity.AddComponent<Position>({ position });
+					new_entity.AddComponent<Rotation>({});
+					new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
+					new_entity.AddComponent<Transform>({});
+					new_entity.AddComponent<ZIndex>({});
+					new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
+					EditorGUI::EndPayloadReceiver();
+				}
 			}
+
 
 		ImGui::End();
 	}
@@ -573,9 +588,10 @@ namespace Editor
 				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
 				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-				camera_pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				camera_pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				editor_camera.MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
+				camera_pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				CameraManager::GetEditorCamera()->m_data.position += Vector3(camera_pos_change.x, -camera_pos_change.y, 0.0f);
+				//CameraManager::GetEditorCamera()->MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
 			}
 			else if (ImGui::IsMouseReleased(2))
 			{
@@ -589,9 +605,10 @@ namespace Editor
 				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
 				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-				camera_pos_change.x *= editor_camera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				camera_pos_change.y *= editor_camera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				editor_camera.MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
+				camera_pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				CameraManager::GetEditorCamera()->m_data.position += Vector3(camera_pos_change.x, -camera_pos_change.y, 0.0f);
+				//CameraManager::GetEditorCamera()->MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
 			}
 			else if (ImGui::IsMouseReleased(1))
 			{
@@ -600,8 +617,7 @@ namespace Editor
 
 
 			//Camera zooming
-			//float baseAspectRatio = editor_camera->m_OrthoWidth / editor_camera->m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
-			float baseAspectRatio = editor_camera.GetOrthoWidth() / editor_camera.GetOrthoHeight();  // Base aspect ratio (can be easily adjusted)
+			float baseAspectRatio = CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / CameraManager::GetEditorCamera()->m_data.m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
 			float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
 			float minZoom = 100.0f;       // Minimum orthographic width
 			float maxZoom = 5000.0f;      // Maximum orthographic width
@@ -610,8 +626,8 @@ namespace Editor
 			if (io.MouseWheel != 0.0f)
 			{
 				float zoomDelta = io.MouseWheel * zoomSpeed;
-				float new_right = std::clamp(editor_camera.GetOrthoWidth() - zoomDelta, minZoom, maxZoom);
-				editor_camera.SetProjection(0.0f, new_right, new_right / baseAspectRatio, 0.0f, -2.0f, 2.0f);
+				float new_right = std::clamp(CameraManager::GetEditorCamera()->m_data.m_OrthoWidth - zoomDelta, minZoom, maxZoom);
+				CameraManager::GetEditorCamera()->SetOrthographic(0.0f, new_right, new_right / baseAspectRatio, 0.0f, -2.0f, 2.0f);
 			}
 		}
 	}

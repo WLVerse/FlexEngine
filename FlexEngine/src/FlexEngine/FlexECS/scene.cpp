@@ -12,6 +12,7 @@
 #include "datastructures.h"
 #include "enginecomponents.h"
 
+#include "../FlexEngine/Renderer/Camera/cameramanager.h"
 namespace FlexEngine
 {
   namespace FlexECS
@@ -131,6 +132,8 @@ namespace FlexEngine
 
     void Scene::SetActiveScene(const Scene& scene)
     {
+      //Depreciated -> pls check if still need after testing
+      CameraManager::DeregisterECSCams();
       SetActiveScene(std::make_shared<Scene>(scene));
     }
     void Scene::SetActiveScene(std::shared_ptr<Scene> scene)
@@ -260,6 +263,34 @@ namespace FlexEngine
 
       // Destroy the entity id
       ID::Destroy(entity, Scene::GetActiveScene()->_flx_id_unused);
+    }
+
+    Entity Scene::GetEntityByName(const std::string& name)
+    {
+      // guard: name is empty
+      if (name.empty())
+      {
+        Log::Warning("Attempted to get an entity with an empty name.");
+        return Entity::Null;
+      }
+
+      // find the entity with the name
+      for (const auto& [entity_id, entity_record] : ENTITY_INDEX)
+      {
+        Entity entity = entity_id;
+        if (entity.HasComponent<EntityName>())
+        {
+          std::string& entity_name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
+          if (entity_name == name)
+          {
+            return entity;
+          }
+        }
+      }
+
+      // entity not found
+      Log::Warning("Entity with name " + name + " not found.");
+      return Entity::Null;
     }
 
     void Scene::SetEntityFlags(EntityID& entity, const uint8_t flags)

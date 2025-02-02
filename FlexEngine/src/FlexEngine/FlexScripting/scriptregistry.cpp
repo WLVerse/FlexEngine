@@ -14,16 +14,13 @@
 
 namespace FlexEngine
 {
+  // static member initialization
+  bool ScriptRegistry::is_running = false;
+  #ifdef _DEBUG
+  std::vector<std::pair<std::string, std::string>> ScriptRegistry::scripts_run_names{};
+  #endif
 
-  #pragma region Reflection
-
-  FLX_REFL_REGISTER_START(ScriptComponent)
-    FLX_REFL_REGISTER_PROPERTY(script_name)
-  FLX_REFL_REGISTER_END;
-
-  #pragma endregion
-
-  void ScriptRegistry::RegisterScript(Script* script)
+  void ScriptRegistry::RegisterScript(IScript* script)
   {
     GetScripts().insert({ script->GetName(), script});
   }
@@ -39,8 +36,11 @@ namespace FlexEngine
     return scripts;
   }
 
-  Script* ScriptRegistry::GetScript(const std::string& name)
+  IScript* ScriptRegistry::GetScript(const std::string& name)
   {
+    // guard
+    if (!is_running) return nullptr;
+
     auto& scripts = GetScripts();
     if (scripts.count(name) == 0)
     {

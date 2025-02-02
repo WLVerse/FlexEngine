@@ -121,6 +121,11 @@
       <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGuid.lib;fmodL_vc.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
+xcopy "$(SolutionDir)third_party\lib\fmod\core\fmodL.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -141,16 +146,31 @@
       <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGui.lib;fmod_vc.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
+xcopy "$(SolutionDir)third_party\lib\fmod\core\fmod.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h" />
+    <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
+    <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\loadlayer.h" />
+    <ClInclude Include="src\Layers\physicslayer.h" />
+    <ClInclude Include="src\Layers\renderinglayer.h" />
+    <ClInclude Include="src\Layers\scriptinglayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp" />
+    <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
+    <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\loadlayer.cpp" />
+    <ClCompile Include="src\Layers\physicslayer.cpp" />
+    <ClCompile Include="src\Layers\renderinglayer.cpp" />
+    <ClCompile Include="src\Layers\scriptinglayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

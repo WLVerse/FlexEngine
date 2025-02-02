@@ -1,7 +1,7 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-class ComponentTestScript : public Script
+class ComponentTestScript : public IScript
 {
 public:
   ComponentTestScript() { ScriptRegistry::RegisterScript(this); }

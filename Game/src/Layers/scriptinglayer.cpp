@@ -13,7 +13,9 @@
 
 #include "Layers.h"
 
-namespace Editor
+#include <thread>
+
+namespace Game
 {
 
   void ScriptingLayer::Internal_LoadScriptingDLL()
@@ -59,7 +61,6 @@ namespace Editor
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
-    ScriptRegistry::is_running = true;
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -91,73 +92,6 @@ namespace Editor
     ScriptRegistry::ClearScripts();
 
     is_scripting_dll_loaded = false;
-    ScriptRegistry::is_running = false;
-  }
-
-  void ScriptingLayer::Internal_DebugWithImGui()
-  {
-    FunctionQueue function_queue{};
-    static bool is_playing = false;
-
-    ImGui::Begin("Scripting Layer");
-
-    ImGui::BeginDisabled(is_playing);
-
-    // Loads the scripting DLL and starts the scripts
-    if (ImGui::Button("Play") && !is_playing)
-    {
-      function_queue.Insert({
-        [this]()
-        {
-          is_playing = true;
-          Internal_LoadScriptingDLL();
-        }
-      });
-    }
-
-    ImGui::EndDisabled();
-
-    ImGui::SameLine();
-
-    ImGui::BeginDisabled(!is_playing);
-
-    // Stops the scripts and unloads the scripting DLL
-    if (ImGui::Button("Stop") && is_playing)
-    {
-      function_queue.Insert({
-        [this]()
-        {
-          Internal_UnloadScriptingDLL();
-          is_playing = false;
-        }
-      });
-    }
-
-    ImGui::EndDisabled();
-
-    if (ImGui::CollapsingHeader("Scripts", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-      for (auto& [name, script] : ScriptRegistry::GetScripts())
-      {
-        ImGui::Text(script->GetName().c_str());
-      }
-    }
-
-    // hardcoded test
-    //if (ImGui::Button("ComponentTest Start()"))
-    //{
-    //  function_queue.Insert({
-    //    []()
-    //    {
-    //      auto script = ScriptRegistry::GetScript("ComponentTest");
-    //      if (script) script->Start();
-    //    }
-    //  });
-    //}
-
-    ImGui::End();
-
-    function_queue.Flush();
   }
 
   void ScriptingLayer::OnAttach()
@@ -176,15 +110,6 @@ namespace Editor
 
   void ScriptingLayer::Update()
   {
-    // Always remember to set the context before using ImGui
-    //FLX_GLFW_ALIGNCONTEXT();
-    FLX_IMGUI_ALIGNCONTEXT();
-
-    Internal_DebugWithImGui();
-
-    // for debugging
-    ScriptRegistry::Internal_Debug_Clear();
-
     // guard
     if (!is_scripting_dll_loaded) return;
 
@@ -237,12 +162,6 @@ namespace Editor
         // always remember to set the context before calling functions
         script->Internal_SetContext(entity);
         script->Update();
-
-        // for debugging
-        ScriptRegistry::Internal_Debug_LogScript(
-          FLX_STRING_GET(*entity.GetComponent<EntityName>()),
-          script->GetName()
-        );
       }
 
       if (!transform.is_active && script_component.is_start)
@@ -253,6 +172,7 @@ namespace Editor
         script_component.is_start = false;
       }
     }
+
   }
 
 }

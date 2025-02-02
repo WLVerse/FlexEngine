@@ -12,7 +12,13 @@
     <ClCompile Include="src\coresystems.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\rendercall.cpp">
+    <ClCompile Include="src\camerahandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\playanimation.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\testbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

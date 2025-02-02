@@ -4,35 +4,35 @@
 namespace Editor
 {
   COMPONENT_VIEWER_START(Position)
-    COMPONENT_VIEWER_DRAG_VECTOR3(position)
-    COMPONENT_VIEWER_END(Position)
+  COMPONENT_VIEWER_DRAG_VECTOR3(position)
+  COMPONENT_VIEWER_END(Position)
 
   COMPONENT_VIEWER_START(Rotation)
-    COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
-    COMPONENT_VIEWER_END(Rotation)
+  COMPONENT_VIEWER_DRAG_VECTOR3(rotation)
+  COMPONENT_VIEWER_END(Rotation)
 
   COMPONENT_VIEWER_START(Scale)
-    COMPONENT_VIEWER_DRAG_VECTOR3(scale)
-    COMPONENT_VIEWER_END(Scale)
+  COMPONENT_VIEWER_DRAG_VECTOR3(scale)
+  COMPONENT_VIEWER_END(Scale)
 
   COMPONENT_VIEWER_START(Transform)
-    COMPONENT_VIEWER_BOOL(is_dirty)
-    COMPONENT_VIEWER_MAT44(transform)
-    COMPONENT_VIEWER_END(Transform)
+  COMPONENT_VIEWER_BOOL(is_dirty)
+  COMPONENT_VIEWER_MAT44(transform)
+  COMPONENT_VIEWER_END(Transform)
 
   COMPONENT_VIEWER_START(ZIndex)
-    COMPONENT_VIEWER_DRAG_INT(z)
-    COMPONENT_VIEWER_END(ZIndex)
-  
+  COMPONENT_VIEWER_DRAG_INT(z)
+  COMPONENT_VIEWER_END(ZIndex)
+
   COMPONENT_VIEWER_START(Parent)
-    COMPONENT_VIEWER_ENTITY_REFERENCE(parent)
-    COMPONENT_VIEWER_END(Parent)
+  COMPONENT_VIEWER_ENTITY_REFERENCE(parent)
+  COMPONENT_VIEWER_END(Parent)
 
   void COMPONENT_ADDER_Audio(FlexEngine::FlexECS::Entity entity)
   {
     if (entity.HasComponent<Audio>()) return;
 
-    entity.AddComponent<Audio>({ false, false, false, FLX_STRING_NEW("") });
+    entity.AddComponent<Audio>({ false, false, false, false, FLX_STRING_NEW("") });
   }
   void COMPONENT_REMOVER_Audio(FlexEngine::FlexECS::Entity entity)
   {
@@ -41,10 +41,10 @@ namespace Editor
     entity.RemoveComponent<Audio>();
   }
   COMPONENT_VIEWER_START_MANUAL(Audio)
-    COMPONENT_VIEWER_BOOL(should_play)
-    COMPONENT_VIEWER_BOOL(is_looping);
-    COMPONENT_VIEWER_AUDIO_PATH(audio_file);
-    COMPONENT_VIEWER_END(Audio)
+  COMPONENT_VIEWER_BOOL(should_play)
+  COMPONENT_VIEWER_BOOL(is_looping);
+  COMPONENT_VIEWER_AUDIO_PATH(audio_file);
+  COMPONENT_VIEWER_END(Audio)
   
   void COMPONENT_ADDER_Sprite(FlexEngine::FlexECS::Entity entity)
   {
@@ -59,32 +59,48 @@ namespace Editor
     entity.RemoveComponent<Sprite>();
   }
   COMPONENT_VIEWER_START_MANUAL(Sprite)
-    COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
-    COMPONENT_VIEWER_INT1(handle)
-    COMPONENT_VIEWER_END(Sprite)
+  COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
+  COMPONENT_VIEWER_DRAG_VECTOR2(scale)
+  COMPONENT_VIEWER_CHECKBOX(center_aligned)
+  COMPONENT_VIEWER_END(Sprite)
 
   COMPONENT_VIEWER_START(Animator)
-    COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_file)   //This may be wrong. Might need to need to make filepath to spritesheet
-    COMPONENT_VIEWER_BOOL(should_play)
-    COMPONENT_VIEWER_DRAG_FLOAT(time)
-    COMPONENT_VIEWER_END(Animator)
+  COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_handle)
+  COMPONENT_VIEWER_BOOL(should_play)
+  COMPONENT_VIEWER_DRAG_FLOAT(time)
+  COMPONENT_VIEWER_END(Animator)
 
   /**************
-  * Physics
-  **************/
+   * Physics
+   **************/
   COMPONENT_VIEWER_START(BoundingBox2D)
-    COMPONENT_VIEWER_DRAG_VECTOR2(min)
-    COMPONENT_VIEWER_DRAG_VECTOR2(max)
-    COMPONENT_VIEWER_BOOL(is_colliding)
-    COMPONENT_VIEWER_END(BoundingBox2D)
+  COMPONENT_VIEWER_DRAG_VECTOR2(min)
+  COMPONENT_VIEWER_DRAG_VECTOR2(max)
+  COMPONENT_VIEWER_BOOL(is_colliding)
+  COMPONENT_VIEWER_BOOL(is_mouse_over)
+  // COMPONENT_VIEWER_BOOL(is_mouse_over_cached) // no need to show this
+  COMPONENT_VIEWER_END(BoundingBox2D)
 
   COMPONENT_VIEWER_START(Rigidbody)
-    COMPONENT_VIEWER_DRAG_VECTOR2(velocity)
-    COMPONENT_VIEWER_BOOL(is_static)
-    COMPONENT_VIEWER_END(Rigidbody)
+  COMPONENT_VIEWER_DRAG_VECTOR2(velocity)
+  COMPONENT_VIEWER_BOOL(is_static)
+  COMPONENT_VIEWER_END(Rigidbody)
 
-    
-    
+
+  /**************
+   * Scripting
+   **************/
+  COMPONENT_VIEWER_START(Script)
+  COMPONENT_VIEWER_EDITABLE_STRING(script_name)
+  COMPONENT_VIEWER_END(Script)
+
+
+  /**************
+   * UI
+   **************/
+  COMPONENT_VIEWER_START(Button)
+  COMPONENT_VIEWER_END(Button)
+
   void RegisterComponents()
   {
     REGISTER_COMPONENT_VIEWER(Position);
@@ -101,5 +117,9 @@ namespace Editor
 
     REGISTER_COMPONENT_VIEWER(BoundingBox2D);
     REGISTER_COMPONENT_VIEWER(Rigidbody);
+
+    REGISTER_COMPONENT_VIEWER(Script);
+
+    REGISTER_COMPONENT_VIEWER(Button);
   }
-}
+} // namespace Editor
