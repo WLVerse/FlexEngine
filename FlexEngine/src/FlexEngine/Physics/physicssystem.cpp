@@ -100,29 +100,6 @@ namespace FlexEngine
       auto& min = bb.min;
       auto mouse = Input::GetMousePosition();
       bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
-
-      // callback for scripts
-      if (ScriptRegistry::is_running && entity.HasComponent<Script>())
-      {
-        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
-        auto script = ScriptRegistry::GetScript(script_name);
-        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
-
-        script->Internal_SetContext(entity);
-
-        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
-        {
-          script->OnMouseEnter();
-        }
-        else if (bb.is_mouse_over)
-        {
-          script->OnMouseStay();
-        }
-        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
-        {
-          script->OnMouseExit();
-        }
-      }
     }
 
 		collisions.clear();

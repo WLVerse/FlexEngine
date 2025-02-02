@@ -34,6 +34,12 @@
     <ClInclude Include="src\Layers\gamelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\menulayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\camerasystemlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\baselayer.cpp">
@@ -58,6 +64,12 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\gamelayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\menulayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\camerasystemlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>

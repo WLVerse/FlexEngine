@@ -1,14 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // scriptinglayer.cpp
-// 
+//
 // Scripting layer for the editor.
-// 
+//
 // Very rough implementation of hotloading a scripting DLL.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
+//
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
@@ -106,13 +106,11 @@ namespace Editor
     // Loads the scripting DLL and starts the scripts
     if (ImGui::Button("Play") && !is_playing)
     {
-      function_queue.Insert({
-        [this]()
-        {
-          is_playing = true;
-          Internal_LoadScriptingDLL();
-        }
-      });
+      function_queue.Insert({ [this]()
+                              {
+                                is_playing = true;
+                                Internal_LoadScriptingDLL();
+                              } });
     }
 
     ImGui::EndDisabled();
@@ -124,27 +122,20 @@ namespace Editor
     // Stops the scripts and unloads the scripting DLL
     if (ImGui::Button("Stop") && is_playing)
     {
-      function_queue.Insert({
-        [this]()
-        {
-          Internal_UnloadScriptingDLL();
-          is_playing = false;
-        }
-      });
+      function_queue.Insert({ [this]()
+                              {
+                                Internal_UnloadScriptingDLL();
+                                is_playing = false;
+                              } });
     }
 
     ImGui::EndDisabled();
 
     if (ImGui::CollapsingHeader("Scripts", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-      for (auto& [name, script] : ScriptRegistry::GetScripts())
-      {
-        ImGui::Text(script->GetName().c_str());
-      }
-    }
+      for (auto& [name, script] : ScriptRegistry::GetScripts()) ImGui::Text(script->GetName().c_str());
 
     // hardcoded test
-    //if (ImGui::Button("ComponentTest Start()"))
+    // if (ImGui::Button("ComponentTest Start()"))
     //{
     //  function_queue.Insert({
     //    []()
@@ -162,22 +153,18 @@ namespace Editor
 
   void ScriptingLayer::OnAttach()
   {
-
   }
 
   void ScriptingLayer::OnDetach()
   {
     // auto cleanup in case the user forgot to stop the scripts
-    if (is_scripting_dll_loaded)
-    {
-      Internal_UnloadScriptingDLL();
-    }
+    if (is_scripting_dll_loaded) Internal_UnloadScriptingDLL();
   }
 
   void ScriptingLayer::Update()
   {
     // Always remember to set the context before using ImGui
-    //FLX_GLFW_ALIGNCONTEXT();
+    // FLX_GLFW_ALIGNCONTEXT();
     FLX_IMGUI_ALIGNCONTEXT();
 
     Internal_DebugWithImGui();
@@ -216,11 +203,7 @@ namespace Editor
       }
 
       // start is called once when the object is enabled for the first time
-      if (
-        transform.is_active &&
-        !script_component.is_start &&
-        script_component.is_awake
-      )
+      if (transform.is_active && !script_component.is_start && script_component.is_awake)
       {
         // always remember to set the context before calling functions
         script->Internal_SetContext(entity);
@@ -229,20 +212,14 @@ namespace Editor
       }
 
       // update is called every frame for awake and start objects
-      if (
-        script_component.is_start &&
-        script_component.is_awake
-      )
+      if (script_component.is_start && script_component.is_awake)
       {
         // always remember to set the context before calling functions
         script->Internal_SetContext(entity);
         script->Update();
 
         // for debugging
-        ScriptRegistry::Internal_Debug_LogScript(
-          FLX_STRING_GET(*entity.GetComponent<EntityName>()),
-          script->GetName()
-        );
+        ScriptRegistry::Internal_Debug_LogScript(FLX_STRING_GET(*entity.GetComponent<EntityName>()), script->GetName());
       }
 
       if (!transform.is_active && script_component.is_start)
@@ -253,6 +230,28 @@ namespace Editor
         script_component.is_start = false;
       }
     }
+
+    // process callback for scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script, BoundingBox2D>())
+    {
+      auto& bb = *entity.GetComponent<BoundingBox2D>();
+
+      if (bb.is_mouse_over || bb.is_mouse_over_cached)
+      {
+        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
+        auto script = ScriptRegistry::GetScript(script_name);
+        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
+
+        script->Internal_SetContext(entity);
+
+        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
+          script->OnMouseEnter();
+        else if (bb.is_mouse_over)
+          script->OnMouseStay();
+        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
+          script->OnMouseExit();
+      }
+    }
   }
 
-}
+} // namespace Editor

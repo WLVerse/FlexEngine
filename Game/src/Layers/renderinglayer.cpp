@@ -17,43 +17,52 @@
 
 namespace Game
 {
-
   void RenderingLayer::OnAttach()
   {
-
+    OpenGLRenderer::EnableBlending();
   }
 
   void RenderingLayer::OnDetach()
   {
-
+    OpenGLRenderer::DisableBlending();
   }
 
   void RenderingLayer::Update()
   {
-    static Camera camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
+    #pragma region Sprite Renderer System
 
-    #pragma region Camera
+    // render all sprites
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
+    {
+      if (element.HasComponent<Animator>() || !element.GetComponent<Transform>()->is_active) continue;
 
-    // Camera 
-    //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-    //{
-    //  auto entity = element.GetComponent<Camera>();
-    //
-    //  if (!element.GetComponent<Transform>()->is_active ||
-    //      !element.GetComponent<Transform>()->is_dirty ||
-    //      !entity->getIsActive())
-    //    continue;
-    //
-    //  entity->Update();
-    //}
-    //FlexECS::EntityID currGameCamID = dynamic_cast<CameraHandler*>(ScriptRegistry::GetScript("CameraHandler"))->GetMainGameCameraID();
+      Sprite& sprite = *element.GetComponent<Sprite>();
+      Position& pos = *element.GetComponent<Position>();
+      Rotation& rotation = *element.GetComponent<Rotation>();
+      Scale& scale = *element.GetComponent<Scale>();
+
+      Renderer2DProps props;
+
+      props.asset = FLX_STRING_GET(sprite.sprite_handle);
+      props.texture_index = sprite.handle;
+      props.position = Vector2(pos.position.x, pos.position.y);
+      props.scale = Vector2(scale.scale.x, scale.scale.y);
+      props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
+
+      const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
+      props.window_size = Vector2((float)_wp.width, (float)_wp.height);
+
+      props.alignment = sprite.center_aligned ? Renderer2DProps::Alignment_Center : Renderer2DProps::Alignment_TopLeft;
+
+      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
+    }
 
     #pragma endregion
 
     #pragma region Animator System
 
     // animator system processes the more complex data into usable data for the sprite renderer
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Animator>())
     {
       // always prefer reference when it's in the query itself,
       // or if it's a component that is guaranteed to exist
@@ -69,41 +78,35 @@ namespace Game
       int index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
 
       // Override sprite component
-      if (element.HasComponent<Sprite>())
-      {
-        // update sprite component
-        Sprite& sprite = *element.GetComponent<Sprite>();
-        sprite.sprite_handle = animator.spritesheet_file;
-        sprite.handle = index;
-      }
-      else Log::Fatal("Somehow, a animator exists without a sprite component attached to it. This should be impossible with editor creation.");
-    }
-
-    #pragma endregion
-
-    #pragma region Sprite Renderer System
-
-    // render all sprites
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
-    {
+      //if (element.HasComponent<Sprite>())
+      //{
+      //  // update sprite component
+      //  Sprite& sprite = *element.GetComponent<Sprite>();
+      //  sprite.sprite_handle = animator.spritesheet_file;
+      //  sprite.handle = index;
+      //}
+      //else Log::Fatal("Somehow, a animator exists without a sprite component attached to it. This should be impossible with editor creation.");
+      //
+      
+      // No override sprite component
       Sprite& sprite = *element.GetComponent<Sprite>();
       Position& pos = *element.GetComponent<Position>();
       Rotation& rotation = *element.GetComponent<Rotation>();
       Scale& scale = *element.GetComponent<Scale>();
-
       Renderer2DProps props;
 
-      props.asset = FLX_STRING_GET(sprite.sprite_handle);
-      props.texture_index = sprite.handle;
+      props.asset = FLX_STRING_GET(animator.spritesheet_file);
+      props.texture_index = index;
       props.position = Vector2(pos.position.x, pos.position.y);
       props.scale = Vector2(scale.scale.x, scale.scale.y);
+      props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
 
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
 
-      props.alignment = Renderer2DProps::Alignment_TopLeft;
+      props.alignment = sprite.center_aligned ? Renderer2DProps::Alignment_Center : Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(props);
+      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
     }
 
     #pragma endregion
@@ -131,11 +134,9 @@ namespace Game
       sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first), static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      OpenGLRenderer::DrawTexture2D(sample);
+      OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
     }
 
     #pragma endregion
-
   }
-
 }
