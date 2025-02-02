@@ -17,7 +17,6 @@
 
 namespace Game
 {
-
   void RenderingLayer::OnAttach()
   {
     OpenGLRenderer::EnableBlending();
@@ -60,7 +59,7 @@ namespace Game
 
     #pragma endregion
 
-     #pragma region Animator System
+    #pragma region Animator System
 
     // animator system processes the more complex data into usable data for the sprite renderer
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Animator>())

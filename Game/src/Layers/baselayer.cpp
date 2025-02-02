@@ -49,18 +49,20 @@ namespace Game
     Application::GetCurrentWindow()->Update();
 
     // Test to switch to game layer
-    if (Input::GetKeyDown(GLFW_KEY_3) && menuLayer.get() != nullptr)
+    if (Input::GetKeyDown(GLFW_KEY_3) && menuLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
+      menuLayer = nullptr;
 
       gameLayer = std::make_shared<GameLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
     }
 
     // Game to menu layer
-    if (Input::GetKeyDown(GLFW_KEY_4) && gameLayer.get() != nullptr)
+    if (Input::GetKeyDown(GLFW_KEY_4) && gameLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
+      gameLayer = nullptr;
 
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
