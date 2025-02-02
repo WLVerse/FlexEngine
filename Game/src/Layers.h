@@ -9,4 +9,6 @@
 #include "Layers/physicslayer.h"
 #include "Layers/renderinglayer.h"
 #include "Layers/scriptinglayer.h"
+#include "Layers/menulayer.h"
 #include "Layers/gamelayer.h"
+#include "Layers/camerasystemlayer.h"

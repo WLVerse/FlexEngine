@@ -18,3 +18,4 @@ Debug
 Release
 x64
 GameInstaller/GAMEDIRECTORY
+.clang-format

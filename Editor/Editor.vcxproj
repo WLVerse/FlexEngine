@@ -123,8 +123,11 @@
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
+xcopy "$(SolutionDir)third_party\lib\fmod\core\fmodL.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q</Command>
+      <Command>rmdir /S /Q "$(OutDir)assets
+xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,8 +150,11 @@
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
+xcopy "$(SolutionDir)third_party\lib\fmod\core\fmod.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q</Command>
+      <Command>rmdir /S /Q "$(OutDir)assets
+xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

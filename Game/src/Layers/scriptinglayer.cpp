@@ -61,6 +61,7 @@ namespace Game
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
+    ScriptRegistry::is_running = true; // absolutely crazy that this has to be has to true even because this isnt a flag, this is a trigger
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -92,11 +93,12 @@ namespace Game
     ScriptRegistry::ClearScripts();
 
     is_scripting_dll_loaded = false;
+    ScriptRegistry::is_running = false;
   }
 
   void ScriptingLayer::OnAttach()
   {
-
+    Internal_LoadScriptingDLL();
   }
 
   void ScriptingLayer::OnDetach()
@@ -141,11 +143,7 @@ namespace Game
       }
 
       // start is called once when the object is enabled for the first time
-      if (
-        transform.is_active &&
-        !script_component.is_start &&
-        script_component.is_awake
-      )
+      if (transform.is_active && !script_component.is_start && script_component.is_awake)
       {
         // always remember to set the context before calling functions
         script->Internal_SetContext(entity);
@@ -154,14 +152,14 @@ namespace Game
       }
 
       // update is called every frame for awake and start objects
-      if (
-        script_component.is_start &&
-        script_component.is_awake
-      )
+      if (script_component.is_start && script_component.is_awake)
       {
         // always remember to set the context before calling functions
         script->Internal_SetContext(entity);
         script->Update();
+
+        // for debugging
+        ScriptRegistry::Internal_Debug_LogScript(FLX_STRING_GET(*entity.GetComponent<EntityName>()), script->GetName());
       }
 
       if (!transform.is_active && script_component.is_start)
@@ -173,6 +171,27 @@ namespace Game
       }
     }
 
+    // process callback for scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script, BoundingBox2D>())
+    {
+      auto& bb = *entity.GetComponent<BoundingBox2D>();
+
+      if (bb.is_mouse_over || bb.is_mouse_over_cached)
+      {
+        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
+        auto script = ScriptRegistry::GetScript(script_name);
+        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
+
+        script->Internal_SetContext(entity);
+
+        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
+          script->OnMouseEnter();
+        else if (bb.is_mouse_over)
+          script->OnMouseStay();
+        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
+          script->OnMouseExit();
+      }
+    }
   }
 
 }

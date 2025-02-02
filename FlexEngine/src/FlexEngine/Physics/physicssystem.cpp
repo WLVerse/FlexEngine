@@ -51,7 +51,7 @@ namespace FlexEngine
 	void PhysicsSystem::UpdatePositions()
 	{
 		
-		float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+		float dt = Application::GetCurrentWindow()->GetFramerateController().GetFixedDeltaTime();
 		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody>())
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
@@ -100,29 +100,6 @@ namespace FlexEngine
       auto& min = bb.min;
       auto mouse = Input::GetMousePosition();
       bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
-
-      // callback for scripts
-      if (ScriptRegistry::is_running && entity.HasComponent<Script>())
-      {
-        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
-        auto script = ScriptRegistry::GetScript(script_name);
-        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
-
-        script->Internal_SetContext(entity);
-
-        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
-        {
-          script->OnMouseEnter();
-        }
-        else if (bb.is_mouse_over)
-        {
-          script->OnMouseStay();
-        }
-        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
-        {
-          script->OnMouseExit();
-        }
-      }
     }
 
 		collisions.clear();
@@ -155,7 +132,7 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::ResolveCollisions()
 	{
-		//float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+		//float dt = FlexEngine::Application::GetCurrentWindow()->GetFixedDeltaTime();
 		for (auto collision : collisions)
 		{
 			//update status of collision
@@ -235,9 +212,13 @@ namespace FlexEngine
 
 	void PhysicsSystem::UpdatePhysicsSystem()
 	{
-		UpdatePositions();
-		UpdateBounds();
-		FindCollisions();
-		ResolveCollisions();
+    // Update physics system based on the number of steps
+    for (unsigned int step = 0; step < Application::GetCurrentWindow()->GetFramerateController().GetNumberOfSteps(); ++step)
+    {
+      UpdatePositions();
+      UpdateBounds();
+      FindCollisions();
+      ResolveCollisions();
+    }
 	}
 }
