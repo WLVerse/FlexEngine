@@ -131,6 +131,19 @@ namespace Editor
         button.GetComponent<Sprite>()->center_aligned = true;
         button.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
       }
+      // test find
+      {
+        scene->CreateEntity("Waldo!");
+        auto entity = scene->GetEntityByName("Waldo!");
+        if (entity)
+        {
+          Log::Info("Found " + FLX_STRING_GET(*entity.GetComponent<EntityName>()));
+        }
+        else
+        {
+          Log::Error("Entity not found");
+        }
+      }
       //scene->DumpArchetypeIndex();
     }
     #endif

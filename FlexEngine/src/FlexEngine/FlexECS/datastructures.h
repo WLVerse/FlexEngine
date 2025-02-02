@@ -369,12 +369,18 @@ namespace FlexEngine
       #pragma region Entity management functions
 
     public:
+
       // Creates a new entity and gives it the default archetype which is for storing the entity's name.
       // Entities are registered this way. They are not stored in the scene, but in the actual ECS.
       static Entity CreateEntity(const std::string& name = "New Entity");
 
       // Removes an entity from the ECS
       static void DestroyEntity(EntityID entity);
+
+      // Find an entity by its name.
+      // Similar to how Unity's GameObject.Find works, which also
+      // means that it suffers from the same performance issues.
+      static Entity GetEntityByName(const std::string& name);
 
       // Passthrough functions to edit the entity's flags.
       // They only work on the current active scene.
