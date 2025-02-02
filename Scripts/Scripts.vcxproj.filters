@@ -6,9 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\componenttest.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\camerahandler.cpp">
       <Filter>src</Filter>
     </ClCompile>

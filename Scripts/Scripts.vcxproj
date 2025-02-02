@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\componenttest.cpp" />
     <ClCompile Include="src\camerahandler.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\menubutton.cpp" />

@@ -27,7 +27,7 @@ namespace Game
         button.AddComponent<Transform>({});
         button.AddComponent<Button>({});
         button.AddComponent<BoundingBox2D>({});
-        button.AddComponent<Sprite>({});
+        button.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)"), -1 });
         button.GetComponent<Sprite>()->center_aligned = true;
         button.AddComponent<Script>({ FLX_STRING_NEW("MenuButton") });
 
