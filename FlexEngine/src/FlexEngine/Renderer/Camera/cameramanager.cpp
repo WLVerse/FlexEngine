@@ -188,5 +188,12 @@ namespace FlexEngine
         m_mainGameCameraID = id;
         Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
     }
+
+    void CameraManager::SetEditorCameraID(FlexECS::EntityID id)
+    {
+      Log::Debug("Setting editor camera with Entity ID: " + std::to_string(id));
+      m_editorCameraID = id;
+      Log::Debug("Editor camera set for Entity ID: " + std::to_string(id));
+    }
     #pragma endregion
 }

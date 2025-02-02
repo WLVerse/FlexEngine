@@ -79,5 +79,7 @@ namespace FlexEngine
         * \return void.
         *************************************************************************/
         static void SetMainGameCameraID(FlexECS::EntityID id);
+
+        static void SetEditorCameraID(FlexECS::EntityID id);
     };
 }

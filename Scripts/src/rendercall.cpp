@@ -38,6 +38,26 @@ public:
     // Physics
     FlexEngine::PhysicsSystem::UpdatePhysicsSystem();
 
+    // Update Transform component
+    // for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Rotation, Scale, Transform>())
+    // {
+    //   auto position = element.GetComponent<Position>()->position;
+    //   auto rotation = element.GetComponent<Rotation>()->rotation;
+    //   auto scale = element.GetComponent<Scale>()->scale;
+    //   auto transform = element.GetComponent<Transform>();
+
+    //   Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+    //   Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+    //   Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+    //   transform->transform = translation_matrix * rotation_matrix * scale_matrix;
+    // }
+
+
+    // Graphics
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    OpenGLRenderer::ClearFrameBuffer();
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
     // Individual Rendering
     {
         // Graphics
@@ -109,6 +129,7 @@ public:
     {
         //TODO
     }
+    OpenGLFrameBuffer::Unbind();
   }
 
   void Stop() override
