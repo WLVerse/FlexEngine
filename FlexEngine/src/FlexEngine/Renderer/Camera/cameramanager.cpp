@@ -8,7 +8,7 @@ namespace FlexEngine
 
     std::unordered_map<FlexECS::EntityID, Camera*> CameraManager::m_cameraEntities;
     FlexECS::EntityID CameraManager::m_editorCameraID = INVALID_ENTITY_ID;
-
+    FlexECS::EntityID CameraManager::m_mainGameCameraID = INVALID_ENTITY_ID;
     #pragma endregion
 
     #pragma region Camera Lifetime Management
@@ -115,6 +115,7 @@ namespace FlexEngine
         try
         {
             Log::Debug("Clearing all cameras from CameraManager...");
+            // Manager now only handles clearing out references to these cameras
             //// Manually delete all camera objects
             //for (auto& pair : m_cameraEntities)
             //{
@@ -163,5 +164,46 @@ namespace FlexEngine
         }
     }
 
+    Camera* CameraManager::GetMainGameCamera()
+    {
+        try
+        {
+            Log::Debug("Getting main game camera...");
+            auto it = m_cameraEntities.find(m_mainGameCameraID);
+            if (it == m_cameraEntities.end())
+            {
+                throw std::out_of_range("Main Game camera not found.");
+            }
+
+            Log::Debug("Main Game camera found.");
+            return it->second;
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::GetMainGameCamera: " + std::string(e.what()));
+            return nullptr;  // Return null if the main game camera is not found
+        }
+    }
+
+    FlexECS::EntityID CameraManager::GetMainGameCameraID() { return m_mainGameCameraID; }
+
+    void CameraManager::SetMainGameCameraID(FlexECS::EntityID id)
+    {
+        try
+        {
+            Log::Debug("Setting main game camera with Entity ID: " + std::to_string(id));
+            if (!HasCamera(id))
+            {
+                throw std::invalid_argument("Camera has not been registered into camera manager.");
+            }
+            m_mainGameCameraID = id;
+            Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
+
+        }
+        catch (const std::exception& e)
+        {
+            Log::Debug("Exception in CameraManager::SetMainGameCameraID (EntityID: " + std::to_string(id) + "): " + std::string(e.what()));
+        }
+    }
     #pragma endregion
 }

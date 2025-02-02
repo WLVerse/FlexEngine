@@ -162,6 +162,7 @@
     <ClCompile Include="src\launch.cpp" />
     <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
+    <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
+    <ClInclude Include="src\Layers\camerasystemlayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />

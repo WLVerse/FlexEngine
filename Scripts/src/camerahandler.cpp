@@ -11,8 +11,6 @@ namespace FlexEngine
     *************************************************************************/
     class CameraHandler : public IScript
     {
-        FlexECS::EntityID m_mainGameCameraID = INVALID_ENTITY_ID;
-
         /*!************************************************************************
         * \brief Registers a camera entity with the CameraManager.
         * \param entityID The entity ID of the camera component.
@@ -129,17 +127,17 @@ namespace FlexEngine
                             RegisterCamera(elem.Get(), elem.GetComponent<Camera>());
 
                         // Set the first valid camera as the main game camera if not already set
-                        if (m_mainGameCameraID == INVALID_ENTITY_ID)
-                            m_mainGameCameraID = elem.Get();
+                        if (CameraManager::GetMainGameCameraID() == INVALID_ENTITY_ID)
+                            CameraManager::SetMainGameCameraID(elem.Get());
 
                         foundActiveCamera = true;
                     }
                     else
                     {
                         // If camera is inactive, mark as invalid
-                        if (m_mainGameCameraID == elem.Get())
+                        if (CameraManager::GetMainGameCameraID() == elem.Get())
                         {
-                            m_mainGameCameraID = INVALID_ENTITY_ID;
+                            CameraManager::SetMainGameCameraID(INVALID_ENTITY_ID);
                             Log::Info("Main game camera is now invalid due to inactivity.");
                         }
                     }
@@ -148,7 +146,7 @@ namespace FlexEngine
                 // If no active camera found, reset main camera ID to INVALID_ENTITY_ID
                 if (!foundActiveCamera)
                 {
-                    m_mainGameCameraID = INVALID_ENTITY_ID;
+                    CameraManager::SetMainGameCameraID(INVALID_ENTITY_ID);
                     Log::Info("No active camera found, main game camera set to INVALID.");
                 }
             }
@@ -173,32 +171,6 @@ namespace FlexEngine
                 std::stringstream text;
                 text << "Error during CameraHandler::Stop: {" << e.what() << "}";
                 Log::Error(text.str());
-            }
-        }
-
-        // Will send editor cam ID if camID is invalid
-        FlexECS::EntityID GetMainGameCameraID() const {
-            if (m_mainGameCameraID == INVALID_ENTITY_ID) {
-                Log::Debug("Main game camera ID is invalid, using default editor camera.");
-                return 0;  // Return 0 (or editor camera ID) if invalid
-            }
-            return m_mainGameCameraID;
-        }
-
-        void SetMainGameCameraID(FlexECS::EntityID id)
-        {
-            if (ValidateCamera(id))
-            {
-                m_mainGameCameraID = id;
-                std::stringstream text;
-                text << "Main game camera ID has been set to {" << id << "}.";
-                Log::Info(text.str());
-            }
-            else
-            {
-                std::stringstream text;
-                text << "Failed to set main game camera ID to {" << id << "}. Camera not found.";
-                Log::Warning(text.str());
             }
         }
     };

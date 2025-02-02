@@ -201,6 +201,12 @@ namespace Editor
       "Editor",
       std::make_shared<AudioLayer>()
     );
+
+    // add camera service layer
+    FLX_COMMAND_ADD_WINDOW_LAYER(
+      "Editor",
+      std::make_shared<CameraSystemLayer>()
+    );
   }
 
   void EditorBaseLayer::OnDetach()
