@@ -27,12 +27,13 @@ namespace FlexEngine
 
     // Calculate FPS
     m_frame_time_accumulator += m_delta_time;
+    calc_fps_time += m_delta_time;
     m_frame_counter++;
     if (m_frame_time_accumulator >= 1.0f)
     {
       m_fps = m_frame_counter;
       m_frame_counter = 0;
-      m_frame_time_accumulator -= 1.0f;
+      calc_fps_time -= 1.0f;
     }
   }
 
