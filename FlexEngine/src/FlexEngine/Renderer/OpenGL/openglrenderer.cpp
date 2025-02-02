@@ -223,7 +223,8 @@ namespace FlexEngine
     
     // "Model scale" in this case refers to the scale of the object itself.
     Matrix4x4 model = Matrix4x4::Identity;
-    asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f)).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
+    asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f))
+      .RotateX(props.rotation.x).RotateY(props.rotation.y).RotateZ(props.rotation.z).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
     asset_shader.SetUniform_mat4("u_projection_view", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());

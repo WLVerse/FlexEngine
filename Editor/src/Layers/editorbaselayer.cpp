@@ -43,7 +43,7 @@ namespace Editor
         entity.AddComponent<Scale>({ {100,100,100} });
         entity.AddComponent<Transform>({});
         //entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
-        entity.AddComponent<Audio>({ true, false, true, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
+        entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
         entity.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f});
         entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });

@@ -77,6 +77,7 @@ namespace Editor
       props.texture_index = sprite.handle;
       props.position = Vector2(pos.position.x, pos.position.y);
       props.scale = Vector2(scale.scale.x, scale.scale.y);
+      props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
 
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
