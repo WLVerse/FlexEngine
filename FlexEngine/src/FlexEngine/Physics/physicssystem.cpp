@@ -51,7 +51,7 @@ namespace FlexEngine
 	void PhysicsSystem::UpdatePositions()
 	{
 		
-		float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+		float dt = Application::GetCurrentWindow()->GetFramerateController().GetFixedDeltaTime();
 		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody>())
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
@@ -155,7 +155,7 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::ResolveCollisions()
 	{
-		//float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+		//float dt = FlexEngine::Application::GetCurrentWindow()->GetFixedDeltaTime();
 		for (auto collision : collisions)
 		{
 			//update status of collision
@@ -235,9 +235,13 @@ namespace FlexEngine
 
 	void PhysicsSystem::UpdatePhysicsSystem()
 	{
-		UpdatePositions();
-		UpdateBounds();
-		FindCollisions();
-		ResolveCollisions();
+    // Update physics system based on the number of steps
+    for (unsigned int step = 0; step < Application::GetCurrentWindow()->GetFramerateController().GetNumberOfSteps(); ++step)
+    {
+      UpdatePositions();
+      UpdateBounds();
+      FindCollisions();
+      ResolveCollisions();
+    }
 	}
 }
