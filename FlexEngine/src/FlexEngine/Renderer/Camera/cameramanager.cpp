@@ -64,8 +64,6 @@ namespace FlexEngine
                 throw std::out_of_range("Camera with EntityID " + std::to_string(entityID) + " not found.");
             }
 
-            // Manually delete the camera to avoid memory leaks
-            delete it->second;
             m_cameraEntities.erase(entityID);
             Log::Debug("Camera removed for Entity ID: " + std::to_string(entityID));
         }
