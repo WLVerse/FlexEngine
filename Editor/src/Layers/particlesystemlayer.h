@@ -10,7 +10,8 @@ namespace Editor
   {
       // Container for active particle entities
       std::vector<FlexECS::Entity> m_ParticleEntities;
-      //Particles should contain a sprite, a rigidbody set for collision checks & velocity, and particle component
+      //Particles should contain a sprite, and particle System component,
+      //can have rigidbody and collision component attached if 
   public:
     ParticleSystemLayer() : Layer("Particle System Layer") {}
     ~ParticleSystemLayer() = default;

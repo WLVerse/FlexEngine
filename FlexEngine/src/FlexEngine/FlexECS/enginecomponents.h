@@ -143,8 +143,8 @@ namespace FlexEngine
       FLX_REFL_SERIALIZABLE
       struct ParticleEmitRate
       {
-          float rate_over_time;
-          float rate_over_distance;
+          float rate_over_time = 1.0f;
+          float rate_over_distance = 1.0f;
       };
       enum ParticleEmitShape
       {
@@ -155,28 +155,27 @@ namespace FlexEngine
           //Sprite-shape
       };
   public:
-      unsigned int max_particles;
+      unsigned int max_particles = 1000;
       FlexECS::Scene::StringIndex particlesprite_handle; //Set what sprites to give to particles
       //FlexECS::Scene::StringIndex particlespritesheet_handle; //NOT TO BE DONE YET
-      bool is_looping;
-      float duration;    //How long the particle system will be active
-      float start_delay;
-      float start_lifetime;
-      float end_lifetime;
-      float start_speed;
-      float end_speed;
-      float start_size;
-      float end_size;
-      Vector3 start_color;
-      Vector3 end_color;
-      float simulation_speed;
+      bool is_looping = true;
+      float duration = 5.0f;    //How long the particle system will be active
+      float start_delay = 0.0f;
+      float lifetime = 5.0f;
+      float start_speed = 1.0f;
+      float end_speed = 1.0f;
+      float start_size = 1.0f;
+      float end_size = 1.0f;
+      Vector3 start_color = Vector3::One;
+      Vector3 end_color = Vector3::One;
+      float simulation_speed = 1.0f;
 
       ParticleEmitRate particleEmissionRate;
-      ParticleEmitShape particleEmissionShape;
+      ParticleEmitShape particleEmissionShape = ParticleEmitShape::Sphere;
 
       // Below is settings to give to particles upon creation with other components
-      bool is_collidable; // Particles have AABB Collision (isStatic = true)
-      bool is_static; // Particles will inherit Velocity (isStatic = false)
+      bool is_collidable = false; // Particles have AABB Collision (isStatic = true)
+      bool is_static = false; // Particles will inherit Velocity (isStatic = false)
   };
 
 

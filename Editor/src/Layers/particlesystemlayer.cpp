@@ -19,19 +19,29 @@ namespace Editor
       float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
       // Emit new particles
-      EmitParticles(deltaTime);
+      for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<ParticleSystem>())
+      {
+          if (!elem.GetComponent<Transform>()->is_active) continue;
+
+          auto ParticleSys = elem.GetComponent<ParticleSystem>();
+          ParticleSys->duration -= deltaTime;
+          if (!ParticleSys->is_looping)
+          {
+              elem.GetComponent<Transform>()->is_active = false;
+              continue;
+          }
+
+          EmitParticles(deltaTime);
+      }
 
       // Update existing particles
-      // Use an iterator to allow removal during iteration.
       for (auto it = m_ParticleEntities.begin(); it != m_ParticleEntities.end(); )
       {
           FlexECS::Entity entity = *it;
-          auto& particle = entity.GetComponent<Particle>();
+          auto& particle = entity.GetComponent<ParticleSystem>();
 
           // Update lifetime
           particle.Lifetime -= deltaTime;
-
-          // If the particle's lifetime has expired, remove it
           if (particle.Lifetime <= 0.0f)
           {
               // Remove the particle from the scene (and thus from ECS)
@@ -66,8 +76,6 @@ namespace Editor
 
   void ParticleSystemLayer::EmitParticles(float deltaTime)
   {
-      // For demonstration, emit one particle per frame.
-      // You could accumulate time and check against an emission rate.
       Particle particle{};
       particle.Position = glm::vec2(0.0f, 0.0f); // Emitter's position
       particle.Velocity = glm::vec2(RandomRange(-1.0f, 1.0f), RandomRange(0.5f, 2.0f));
