@@ -16,38 +16,13 @@ namespace Game //In future will seperate this into GameCameraServiceLayer, Edito
     void CameraSystemLayer::OnAttach()
     {
         Log::Info("CameraSystemLayer attached.");
-        try
-        {
-            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-            {
-                if (elem.GetComponent<Transform>()->is_active && !CameraManager::HasCamera(elem.Get()))
-                {
-                    CameraManager::SetCamera(elem.Get(), elem.GetComponent<Camera>());
-                    Log::Info("Registered camera entity: " + std::to_string(elem.Get()));
-                }
-            }
-        }
-        catch (const std::exception& e)
-        {
-            Log::Error("Error in CameraSystemLayer::OnAttach: " + std::string(e.what()));
-        }
+        RegisterCams();
     }
 
     void CameraSystemLayer::OnDetach()
     {
         Log::Info("CameraSystemLayer detached.");
-        try
-        {
-            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
-            {
-                CameraManager::RemoveCamera(elem.Get());
-                Log::Info("Unregistered camera entity: " + std::to_string(elem.Get()));
-            }
-        }
-        catch (const std::exception& e)
-        {
-            Log::Error("Error in CameraSystemLayer::OnDetach: " + std::string(e.what()));
-        }
+        UnregisterCams();
     }
 
     void CameraSystemLayer::Update()
@@ -107,4 +82,38 @@ namespace Game //In future will seperate this into GameCameraServiceLayer, Edito
         }
     }
 
+    void CameraSystemLayer::RegisterCams()
+    {
+        try
+        {
+            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+            {
+                if (elem.GetComponent<Transform>()->is_active && !CameraManager::HasCamera(elem.Get()))
+                {
+                    CameraManager::SetCamera(elem.Get(), elem.GetComponent<Camera>());
+                    Log::Info("Registered camera entity: " + std::to_string(elem.Get()));
+                }
+            }
+        }
+        catch (const std::exception& e)
+        {
+            Log::Error("Error in CameraSystemLayer::OnAttach: " + std::string(e.what()));
+        }
+    }
+    void CameraSystemLayer::UnregisterCams()
+    {
+        try
+        {
+            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+            {
+                CameraManager::RemoveCamera(elem.Get());
+                Log::Info("Unregistered camera entity: " + std::to_string(elem.Get()));
+            }
+            CameraManager::DeregisterECSCams(); //Special case, had to nuke it
+        }
+        catch (const std::exception& e)
+        {
+            Log::Error("Error in CameraSystemLayer::OnDetach: " + std::string(e.what()));
+        }
+    }
 }
