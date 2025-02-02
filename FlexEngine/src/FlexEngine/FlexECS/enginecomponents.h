@@ -138,6 +138,48 @@ namespace FlexEngine
     float time = 0.f;
   };
 
+  class __FLX_API ParticleSystem
+  {
+      FLX_REFL_SERIALIZABLE
+      struct ParticleEmitRate
+      {
+          float rate_over_time;
+          float rate_over_distance;
+      };
+      enum ParticleEmitShape
+      {
+          Sphere,
+          Hemisphere,
+          Cone,
+          Box,
+          //Sprite-shape
+      };
+  public:
+      unsigned int max_particles;
+      FlexECS::Scene::StringIndex particlesprite_handle; //Set what sprites to give to particles
+      //FlexECS::Scene::StringIndex particlespritesheet_handle; //NOT TO BE DONE YET
+      bool is_looping;
+      float duration;    //How long the particle system will be active
+      float start_delay;
+      float start_lifetime;
+      float end_lifetime;
+      float start_speed;
+      float end_speed;
+      float start_size;
+      float end_size;
+      Vector3 start_color;
+      Vector3 end_color;
+      float simulation_speed;
+
+      ParticleEmitRate particleEmissionRate;
+      ParticleEmitShape particleEmissionShape;
+
+      // Below is settings to give to particles upon creation with other components
+      bool is_collidable; // Particles have AABB Collision (isStatic = true)
+      bool is_static; // Particles will inherit Velocity (isStatic = false)
+  };
+
+
   class __FLX_API Text
   {
       FLX_REFL_SERIALIZABLE

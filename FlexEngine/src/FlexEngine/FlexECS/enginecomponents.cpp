@@ -61,6 +61,27 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(time)
     FLX_REFL_REGISTER_END;
 
+  FLX_REFL_REGISTER_START(ParticleSystem)
+      FLX_REFL_REGISTER_PROPERTY(max_particles)
+      FLX_REFL_REGISTER_PROPERTY(particlesprite_handle)
+      FLX_REFL_REGISTER_PROPERTY(duration)
+      FLX_REFL_REGISTER_PROPERTY(is_looping)
+      FLX_REFL_REGISTER_PROPERTY(start_delay)
+      FLX_REFL_REGISTER_PROPERTY(start_lifetime)
+      FLX_REFL_REGISTER_PROPERTY(end_lifetime)
+      FLX_REFL_REGISTER_PROPERTY(start_speed)
+      FLX_REFL_REGISTER_PROPERTY(end_speed)
+      FLX_REFL_REGISTER_PROPERTY(start_size)
+      FLX_REFL_REGISTER_PROPERTY(end_size)
+      FLX_REFL_REGISTER_PROPERTY(start_color)
+      FLX_REFL_REGISTER_PROPERTY(end_color)
+      FLX_REFL_REGISTER_PROPERTY(simulation_speed)
+      FLX_REFL_REGISTER_PROPERTY(particleEmissionRate)
+      FLX_REFL_REGISTER_PROPERTY(particleEmissionShape)
+      FLX_REFL_REGISTER_PROPERTY(is_collidable)
+      FLX_REFL_REGISTER_PROPERTY(is_static)
+  FLX_REFL_REGISTER_END;
+
   FLX_REFL_REGISTER_START(Camera)
       FLX_REFL_REGISTER_PROPERTY(m_data)
       FLX_REFL_REGISTER_PROPERTY(is_active)
