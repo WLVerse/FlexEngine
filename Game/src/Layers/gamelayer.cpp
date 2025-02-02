@@ -27,8 +27,7 @@ namespace Game
         entity.AddComponent<Rotation>({ Vector3{0,0,0} });
         entity.AddComponent<Scale>({ {100,100,100} });
         entity.AddComponent<Transform>({});
-        //entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
-        entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
+        entity.AddComponent<Audio>({ true, false, true, false, FLX_STRING_NEW(R"(/audio/temp bgm.mp3)") });
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1 });
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f });
         entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
@@ -68,19 +67,6 @@ namespace Game
                                  FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class))"),
                                  Vector3(1.0f,0.0,0.0f),
                                  {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
-        //button
-        {
-          FlexECS::Entity button = scene->CreateEntity("Test Button");
-          button.AddComponent<Position>({ Vector3(200.0f, 200.0f, 0.0f) });
-          button.AddComponent<Rotation>({});
-          button.AddComponent<Scale>({ Vector3(300.0f, 100.0f, 0.0f) });
-          button.AddComponent<Transform>({});
-          button.AddComponent<Button>({});
-          button.AddComponent<BoundingBox2D>({});
-          button.AddComponent<Sprite>({});
-          button.GetComponent<Sprite>()->center_aligned = true;
-          button.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
-        }
         // test find
         {
           scene->CreateEntity("Waldo!");
@@ -102,6 +88,8 @@ namespace Game
 
   void GameLayer::OnDetach()
   {
+    // unfortunately fmod does not stop itself because a command is not sent to stop it on scene switch, so this is it
+    FMODWrapper::Core::ForceStop();
   }
 
   void GameLayer::Update()

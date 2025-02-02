@@ -9,9 +9,6 @@
     <ClCompile Include="src\componenttest.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\coresystems.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\camerahandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -19,6 +16,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\testbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menubutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exitbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

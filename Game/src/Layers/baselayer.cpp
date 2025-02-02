@@ -52,7 +52,7 @@ namespace Game
     Application::GetCurrentWindow()->Update();
 
     // Test to switch to game layer
-    if (Input::GetKeyDown(GLFW_KEY_3) && menuLayer != nullptr)
+    if (Application::MessagingSystem::Receive<bool>("Start Game") && menuLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
       camSystemLayer->UnregisterCams();
@@ -64,7 +64,7 @@ namespace Game
     }
 
     // Game to menu layer
-    if (Input::GetKeyDown(GLFW_KEY_4) && gameLayer != nullptr)
+    if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && gameLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
       camSystemLayer->UnregisterCams();
