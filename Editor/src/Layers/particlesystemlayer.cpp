@@ -18,87 +18,162 @@ namespace Editor
   {
       float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
-      // Emit new particles
-      for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<ParticleSystem>())
+      // --- EMITTER UPDATE: Process all ParticleSystem (emitter) components ---
+      for (auto& emitterEntity : FlexECS::Scene::GetActiveScene()->CachedQuery<ParticleSystem>())
       {
-          if (!elem.GetComponent<Transform>()->is_active) continue;
+          // Only process active emitters (for example, check the associated Transform)
+          auto transform = emitterEntity.GetComponent<Transform>();
+          if (!transform || !transform->is_active)
+              continue;
 
-          auto ParticleSys = elem.GetComponent<ParticleSystem>();
-          ParticleSys->duration -= deltaTime;
-          if (!ParticleSys->is_looping)
+          // Access the ParticleSystem (emitter) component
+          auto emitter = emitterEntity.GetComponent<ParticleSystem>();
+
+          // Update the emitter’s duration timer
+          emitter->duration -= deltaTime;
+          if (!emitter->is_looping && emitter->duration <= 0.0f)
           {
-              elem.GetComponent<Transform>()->is_active = false;
+              transform->is_active = false;
               continue;
           }
 
-          EmitParticles(deltaTime);
+          // --- Emission Rate Handling ---
+          // Increase the accumulator based on rate_over_time.
+          emitter->emissionAccumulator += deltaTime * emitter->particleEmissionRate.rate_over_time;
+          int particlesToEmit = static_cast<int>(emitter->emissionAccumulator);
+          // Subtract the integer count from the accumulator.
+          emitter->emissionAccumulator -= particlesToEmit;
+
+          // Emit the required number of particles.
+          for (int i = 0; i < particlesToEmit; ++i)
+          {
+              EmitParticles(emitterEntity);
+          }
       }
 
-      // Update existing particles
-      for (auto it = m_ParticleEntities.begin(); it != m_ParticleEntities.end(); )
+      // --- PARTICLE UPDATE: Process all Particle components (individual particles) ---
+      // Note: We iterate over particle entities, and if a particle’s lifetime expires,
+      // we remove it from the scene.
+      std::vector<FlexECS::EntityID> m_entities_to_delete;
+      for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<ParticleSystem::Particle>())
       {
-          FlexECS::Entity entity = *it;
-          auto& particle = entity.GetComponent<ParticleSystem>();
+          auto particle = elem.GetComponent<ParticleSystem::Particle>();
 
           // Update lifetime
-          particle.Lifetime -= deltaTime;
-          if (particle.Lifetime <= 0.0f)
+          particle->currentLifetime -= deltaTime;
+          if (particle->currentLifetime <= 0.0f)
           {
-              // Remove the particle from the scene (and thus from ECS)
-              entity.GetScene()->DestroyEntity(entity);
-              it = m_ParticleEntities.erase(it);
+              // Remove expired particle from the scene
+              m_entities_to_delete.push_back(elem.Get());
               continue;
           }
 
           // Update particle position based on its velocity
-          particle.Position += particle.Velocity * deltaTime;
+          elem.GetComponent<Position>()->position += static_cast<Vector3>(elem.GetComponent<Rigidbody>()->velocity) * deltaTime;
 
-          // Calculate normalized lifetime (0 = expired, 1 = just spawned)
-          float normalizedLifetime = particle.Lifetime / particle.StartLifetime;
-          float progress = 1.0f - normalizedLifetime; // 0 at spawn, 1 at death
+          // Calculate normalized lifetime (0 = expired, 1 = just spawned) -> meant for interpolation of other values
+          float normalizedTime = 1.0f - (particle->currentLifetime / particle->totalLifetime);
+          //float progress = 1.0f - normalizedTime; // 0 at spawn, 1 at death
 
-          // Interpolate color and size
-          glm::vec4 interpolatedColor = Lerp(particle.StartColor, particle.EndColor, progress);
-          float interpolatedSize = Lerp(particle.StartSize, particle.EndSize, progress);
+          // Interpolate particle properties based on its lifetime.
+          particle->currentSpeed = FlexMath::Lerp(particle->start_speed, particle->end_speed, normalizedTime);
+          particle->currentSize = FlexMath::Lerp(particle->start_size, particle->end_size, normalizedTime);
+          particle->currentColor = Lerp(particle->start_color, particle->end_color, normalizedTime);
 
           // Update the corresponding sprite component for rendering
-          auto& sprite = entity.GetComponent<Sprite>();
-          sprite.position = particle.Position;
-          sprite.color = interpolatedColor;
-          sprite.size = interpolatedSize;
+          //auto sprite = elem.GetComponent<Sprite>();
+          //sprite.color = interpolatedColor;
+          elem.GetComponent<Scale>()->scale = Vector3(particle->currentSize, particle->currentSize, particle->currentSize);
 
           // Optionally: add gravity or drag
           // particle.Velocity += gravity * deltaTime;
+      }
 
-          ++it;
+      // Destroy All expired particles
+      auto scene = FlexECS::Scene::GetActiveScene();
+      for (auto entity : m_entities_to_delete)
+      {
+          scene->DestroyEntity(entity);
       }
   }
 
-  void ParticleSystemLayer::EmitParticles(float deltaTime)
+  void ParticleSystemLayer::EmitParticles(FlexECS::Entity& emitterEntity)
   {
-      Particle particle{};
-      particle.Position = glm::vec2(0.0f, 0.0f); // Emitter's position
-      particle.Velocity = glm::vec2(RandomRange(-1.0f, 1.0f), RandomRange(0.5f, 2.0f));
-      particle.StartLifetime = particle.Lifetime = 2.0f; // Lifetime of 2 seconds
-      particle.StartColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-      particle.EndColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f); // Fade out to transparent
-      particle.StartSize = 1.0f;
-      particle.EndSize = 0.5f;
+      auto emitter = emitterEntity.GetComponent<ParticleSystem>();
 
-      // Create a new entity for the particle in the scene
-      FlexECS::Entity entity = GetScene()->CreateEntity();
-      entity.AddComponent<ParticleProperties>(particle);
+      // Create a new particle entity in the active scene.
+      auto activeScene = FlexECS::Scene::GetActiveScene();
 
-      // Create and set up the sprite component
-      Sprite sprite;
-      sprite.sprite_handle = "particle_texture"; // Reference to a texture identifier
-      sprite.center_aligned = true;
-      sprite.position = particle.Position;
-      sprite.color = particle.StartColor;
-      sprite.size = particle.StartSize;
-      entity.AddComponent<Sprite>(sprite);
+      FlexECS::Entity particleEntity = activeScene->CreateEntity();
+      particleEntity.AddComponent<Position>({ emitterEntity.GetComponent<Position>()->position });
+      particleEntity.AddComponent<Rotation>({ Vector3{0,0,0} });
+      particleEntity.AddComponent<Scale>({ {emitter->start_size,emitter->start_size,emitter->start_size} });
+      particleEntity.AddComponent<Transform>({});
+      particleEntity.AddComponent<Sprite>({ emitter->particlesprite_handle, -1 });
 
-      // Keep track of this particle for updating
-      m_ParticleEntities.push_back(entity);
+      // --- Calculate the initial velocity ---
+      Vector3 direction = CalculateInitialVelocity(emitter->particleEmissionShapeIndex);
+      if (auto rotationComp = emitterEntity.GetComponent<Rotation>())
+      {
+          direction = RotateVector(direction, rotationComp->rotation);
+      }
+      Vector3 velocity = direction * emitter->start_speed;
+      particleEntity.AddComponent<Rigidbody>({ velocity, emitter->is_static });
+
+      if (emitter->is_collidable) //PENDING ON PROPER COLLISION COMPONENTS
+      {
+          particleEntity.AddComponent<BoundingBox2D>({});
+          particleEntity.AddComponent<AABB>({});
+      }
+
+      // --- Initialize the Particle (runtime state) component ---
+      ParticleSystem::Particle particle;
+      particle.totalLifetime = emitter->lifetime;
+      particle.currentLifetime = emitter->lifetime;
+      particle.start_speed = emitter->start_speed;
+      particle.end_speed = emitter->end_speed;
+      particle.start_size = emitter->start_size;
+      particle.end_size = emitter->end_size;
+      particle.start_color = emitter->start_color;
+      particle.end_color = emitter->end_color;
+      // Set initial rendering properties matching the starting state.
+      particle.currentSpeed = particle.start_speed;
+      particle.currentSize = particle.start_size;
+      particle.currentColor = particle.start_color;
+      // Add the Particle component to the new entity.
+      particleEntity.AddComponent<ParticleSystem::Particle>(particle);
   }
+
+  Vector3  ParticleSystemLayer::CalculateInitialVelocity(const int shape)
+  {
+      switch (shape)
+      {
+      case ParticleEmitShape::Sphere:
+          // Random direction in any direction.
+          return RandomUnitVector();
+
+      case ParticleEmitShape::Hemisphere:
+      {
+          // Use the sphere generator then restrict to one hemisphere.
+          Vector3 v = RandomUnitVector();
+          // For example, assume the hemisphere is in the positive Y direction:
+          if (v.y < 0.0f)
+              v.y = -v.y;
+          return v.Normalize();
+      }
+
+      case ParticleEmitShape::Cone:
+          // For cone shape, assume a fixed cone half-angle (e.g., 30 degrees).
+          return RandomUnitVectorCone(30.0f);
+
+      case ParticleEmitShape::Box:
+          // For a box, generate a random direction from the cube.
+          return RandomUnitVectorCube();
+
+      default:
+          // Fallback: default upward direction.
+          return Vector3(0.0f, 1.0f, 0.0f);
+      }
+  }
+
 }

@@ -61,6 +61,7 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(time)
     FLX_REFL_REGISTER_END;
 
+
   FLX_REFL_REGISTER_START(ParticleSystem)
       FLX_REFL_REGISTER_PROPERTY(max_particles)
       FLX_REFL_REGISTER_PROPERTY(particlesprite_handle)
@@ -76,10 +77,28 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(end_color)
       FLX_REFL_REGISTER_PROPERTY(simulation_speed)
       FLX_REFL_REGISTER_PROPERTY(particleEmissionRate)
-      FLX_REFL_REGISTER_PROPERTY(particleEmissionShape)
+      FLX_REFL_REGISTER_PROPERTY(particleEmissionShapeIndex)
       FLX_REFL_REGISTER_PROPERTY(is_collidable)
       FLX_REFL_REGISTER_PROPERTY(is_static)
-  FLX_REFL_REGISTER_END;
+      FLX_REFL_REGISTER_PROPERTY(emissionAccumulator)
+      FLX_REFL_REGISTER_END;
+  FLX_REFL_REGISTER_START(ParticleSystem::ParticleEmitRate)
+      FLX_REFL_REGISTER_PROPERTY(rate_over_time)
+      FLX_REFL_REGISTER_PROPERTY(rate_over_distance)
+      FLX_REFL_REGISTER_END;
+  FLX_REFL_REGISTER_START(ParticleSystem::Particle)
+      FLX_REFL_REGISTER_PROPERTY(currentLifetime)
+      FLX_REFL_REGISTER_PROPERTY(totalLifetime)
+      FLX_REFL_REGISTER_PROPERTY(currentSpeed)
+      FLX_REFL_REGISTER_PROPERTY(currentSize)
+      FLX_REFL_REGISTER_PROPERTY(currentColor)
+      FLX_REFL_REGISTER_PROPERTY(start_speed)
+      FLX_REFL_REGISTER_PROPERTY(end_speed)
+      FLX_REFL_REGISTER_PROPERTY(start_size)
+      FLX_REFL_REGISTER_PROPERTY(end_size)
+      FLX_REFL_REGISTER_PROPERTY(start_color)
+      FLX_REFL_REGISTER_PROPERTY(end_color)
+      FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(Camera)
       FLX_REFL_REGISTER_PROPERTY(m_data)

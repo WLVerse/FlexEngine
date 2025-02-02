@@ -20,7 +20,8 @@ namespace Editor
     virtual void OnDetach() override;
     virtual void Update() override;
 
-    void EmitParticles(float deltaTime);
+    void EmitParticles(FlexECS::Entity& emitterEntity);
+    Vector3 CalculateInitialVelocity(const int shape);
   };
 
 }

@@ -634,6 +634,17 @@ namespace FlexEngine
     return value * matrix;
   }
 
+  Vector4 operator*(const Matrix4x4& matrix, const Vector4& vector)
+  {
+      // Note: Adjust the indices if your matrix layout is different.
+      Vector4 result;
+      result.x = matrix.m00 * vector.x + matrix.m01 * vector.y + matrix.m02 * vector.z + matrix.m03 * vector.w;
+      result.y = matrix.m10 * vector.x + matrix.m11 * vector.y + matrix.m12 * vector.z + matrix.m13 * vector.w;
+      result.z = matrix.m20 * vector.x + matrix.m21 * vector.y + matrix.m22 * vector.z + matrix.m23 * vector.w;
+      result.w = matrix.m30 * vector.x + matrix.m31 * vector.y + matrix.m32 * vector.z + matrix.m33 * vector.w;
+      return result;
+  }
+
   //Matrix4x4 operator/(const Matrix4x4& matrix_a, const Matrix4x4& matrix_b);
   
   //Matrix4x4 operator/(Matrix4x4::const_value_type value, const Matrix4x4& matrix);
