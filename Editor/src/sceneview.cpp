@@ -33,7 +33,7 @@ namespace Editor
 
 	void SceneView::Shutdown()
 	{
-		//CameraManager::GetEditorCamera()->reset();
+
 	}
 	void SceneView::CalculateViewportPosition()
 	{
@@ -571,8 +571,6 @@ namespace Editor
 					EditorGUI::EndPayloadReceiver();
 				}
 			}
-
-
 		ImGui::End();
 	}
 

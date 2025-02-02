@@ -56,7 +56,6 @@ namespace Editor
 		FlexEngine::Scale		 m_recorded_scale;
 		FlexEngine::Rotation m_recorded_rotation;
 
-		//std::unique_ptr<FlexEngine::CameraData> m_EditorCam;
 		FlexEngine::FlexECS::Entity m_editor_camera;
 		#endif
 	};
