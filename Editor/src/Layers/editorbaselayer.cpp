@@ -149,6 +149,7 @@ namespace Editor
         button.AddComponent<Sprite>({});
         button.GetComponent<Sprite>()->center_aligned = true;
         button.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+        button.AddComponent<UI>({});
       }
       // test find
       {

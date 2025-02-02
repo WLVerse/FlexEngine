@@ -88,6 +88,10 @@ namespace FlexEngine
 
         bool getIsActive();
 
+        // Convert screen point to world point
+        Vector2 ScreenToWorldPoint(const Vector2& screenPoint);
+        Vector2 WorldToScreenPoint(const Vector2& worldPoint);
+
     private:
         void UpdateCameraMatrix();
     };

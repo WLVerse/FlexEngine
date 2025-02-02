@@ -55,6 +55,9 @@ namespace Editor
 
       Renderer2DProps props;
 
+      props.asset = FLX_STRING_GET(sprite.sprite_handle);
+      props.texture_index = -1;
+
       // overload for animator
       if (element.HasComponent<Animator>())
       {
@@ -64,15 +67,21 @@ namespace Editor
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
         props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
       }
-      else
-      {
-        props.asset = FLX_STRING_GET(sprite.sprite_handle);
-        props.texture_index = -1;
-      }
 
       props.position = Vector2(pos.position.x, pos.position.y);
       props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
       props.scale = Vector2(scale.scale.x, scale.scale.y);
+
+      // overload for ui
+      // convert the position to screen space
+      // TODO: have a special camera for UI
+      if (element.HasComponent<UI>())
+      {
+        Camera* camera = CameraManager::GetCamera(CameraManager::GetMainGameCameraID());
+        if (!camera) continue;
+
+        props.position = camera->ScreenToWorldPoint(props.position);
+      }
 
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
@@ -116,6 +125,8 @@ namespace Editor
     }
 
 #pragma endregion
+
+
   }
 
 } // namespace Editor

@@ -10,6 +10,7 @@
 // Copyright (c) 2024 DigiPen, All rights reserved
 
 #include "Renderer/Camera/camera.h"
+#include "FlexEngine/application.h"
 
 namespace FlexEngine
 {
@@ -144,5 +145,19 @@ namespace FlexEngine
     bool Camera::getIsActive()
     {
         return is_active;
+    }
+
+    Vector2 Camera::ScreenToWorldPoint(const Vector2& screen_point)
+    {
+      const auto& props = Application::GetCurrentWindow()->GetProps();
+      return { (screen_point.x + m_data.position.x) - props.width / 2,
+               (screen_point.y + m_data.position.y) - props.height / 2 };
+    }
+
+    Vector2 Camera::WorldToScreenPoint(const Vector2& worldPoint)
+    {
+      const auto& props = Application::GetCurrentWindow()->GetProps();
+      return { worldPoint.x + props.width / 2 - m_data.position.x,
+               worldPoint.y + props.height / 2 - m_data.position.y };
     }
 }

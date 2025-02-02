@@ -215,6 +215,14 @@ namespace FlexEngine
    * UI
    **************/
 
+  // UI tag for rendering stuff in screen space
+  class __FLX_API UI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
   // display text with Text component
   // display image with Sprite component
   // click detection uses BoundingBox2D component and scripting callbacks
