@@ -26,7 +26,7 @@ namespace FlexEngine
     m_last_time = current_time;
 
     // Calculate FPS
-    m_frame_time_accumulator += m_delta_time;
+    static float calc_fps_time = 0.0f;
     calc_fps_time += m_delta_time;
     m_frame_counter++;
     if (m_frame_time_accumulator >= 1.0f)
