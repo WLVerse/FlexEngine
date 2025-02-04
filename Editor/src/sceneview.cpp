@@ -295,7 +295,7 @@ namespace Editor
 				selected_entity.GetComponent<Transform>()->is_dirty = true;
 			}
 			
-			auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
+			//auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
 			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 			auto& entity_rotation	= selected_entity.GetComponent<Rotation>()->rotation;
@@ -529,7 +529,7 @@ namespace Editor
 				ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 			}
 			
-			average_pos /= selected_list.size();
+			average_pos /= static_cast<float>(selected_list.size());
 			ImVec2 gizmo_origin_pos = WorldToScreen({average_pos.x, average_pos.y});
 
 			//Draw Translate Gizmo

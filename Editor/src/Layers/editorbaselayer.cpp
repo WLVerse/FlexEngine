@@ -259,7 +259,7 @@ namespace Editor
     // Add custom framebuffers
     //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
     //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
-    Vector2 window_size = Vector2(Application::GetCurrentWindow()->GetWidth(), Application::GetCurrentWindow()->GetHeight());
+    Vector2 window_size = Vector2(static_cast<float>(Application::GetCurrentWindow()->GetWidth()), static_cast<float>(Application::GetCurrentWindow()->GetHeight()));
     Window::FrameBufferManager.AddFrameBuffer("Scene", window_size);
     Window::FrameBufferManager.AddFrameBuffer("Game", window_size);
 

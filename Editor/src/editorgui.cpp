@@ -251,11 +251,12 @@ namespace Editor
 			EndPayloadReceiver();
 		}
 
-		if (filename != "(no spritesheet)")
-		{
-			std::string asset_key = current_texture.string();
-			Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
-		}
+		//TODO: display image of spritesheet
+		//if (filename != "(no spritesheet)")
+		//{
+		//	std::string asset_key = current_texture.string();
+		//	Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
+		//}
 
 		PopID();
 	}
