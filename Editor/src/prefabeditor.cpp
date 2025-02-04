@@ -33,9 +33,9 @@ namespace Editor
 		prefab_keys.clear();
 		file_name.first.clear();
 		file_name.second = "flxer";
-		prefab_keys.push_back(std::make_tuple("test", "test", true));
-		prefab_keys.push_back(std::make_tuple("tester", "tester", std::string("Hello2 World!")));
-		prefab_keys.push_back(std::make_tuple("testint", "testint", 1243));
+		prefab_keys.push_back(std::make_tuple("test", "test", true, true));
+		prefab_keys.push_back(std::make_tuple("tester", "tester", std::string("Hello2 World!"), true));
+		prefab_keys.push_back(std::make_tuple("testint", "testint", 1243, true));
 	}
 
 	void PrefabEditor::LoadPrefab() {
@@ -82,7 +82,7 @@ namespace Editor
 
 			// String Data Type
 			if (temp.find('\"', end_pos + 1) != std::string::npos) {
-				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetString(key_name, "")));
+				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetString(key_name, ""), true));
 				continue;
 			}
 			
@@ -90,11 +90,11 @@ namespace Editor
 
 			// Boolean Data Type
 			if (temp.substr(colon_pos + 2, 4) == "true" || temp.substr(colon_pos + 2, 5) == "false") {
-				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetBool(key_name, false)));
+				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetBool(key_name, false), true));
 			}
 			else {
 				// Integer Data Type
-				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetInt(key_name, 0)));
+				prefab_keys.push_back(std::make_tuple(key_name, key_name, prefab.GetInt(key_name, 0), true));
 			}
 		}
 	}
@@ -124,6 +124,12 @@ namespace Editor
 		Asset::FlxData prefab_to_save(file_name.second + ".flxdata");
 
 		for (int i = 0; i < prefab_keys.size(); i++) {
+			// If field is to be deleted
+			if (std::get<3>(prefab_keys[i]) == false) {
+				prefab_to_save.DeleteKey(std::get<0>(prefab_keys[i]));
+				continue;
+			}
+
 			// If key name is changed, delete old key and create new key
 			if (!file_name.first.empty() && std::get<1>(prefab_keys[i]) != std::get<0>(prefab_keys[i])) {
 				prefab_to_save.DeleteKey(std::get<0>(prefab_keys[i]));
@@ -192,6 +198,9 @@ namespace Editor
 			}
 
 			for (int i = 0; i < prefab_keys.size(); i++) {
+				// Do not display fields to delete
+				if (std::get<3>(prefab_keys[i]) == false) continue;
+				
 				char field_name[128];
 				strncpy_s(field_name, std::get<1>(prefab_keys[i]).c_str(), sizeof(field_name) - 1);
 				field_name[sizeof(field_name) - 1] = '\0';
@@ -240,11 +249,7 @@ namespace Editor
 				// Create a right-click context menu for each field
 				if (ImGui::BeginPopupContextItem("FieldContextMenu")) {
 					if (ImGui::Selectable("Delete field")) {
-						prefab_keys.erase(prefab_keys.begin() + i); // Remove the field
-						--i; // Adjust index after removal
-						ImGui::EndPopup();
-						ImGui::PopID();
-						continue; // Skip the rest of this loop iteration
+						std::get<3>(prefab_keys[i]) = false; // To not save this field
 					}
 					ImGui::EndPopup();
 				}
@@ -257,13 +262,13 @@ namespace Editor
 
 			if (ImGui::BeginPopup("OptionsPopup")) {
 				if (ImGui::MenuItem("String")) {
-					prefab_keys.push_back(std::make_tuple("tester", "tester", std::string("Hello2 World!")));
+					prefab_keys.push_back(std::make_tuple("tester", "tester", std::string("Hello2 World!"), true));
 				}
 				if (ImGui::MenuItem("Integer")) {
-					prefab_keys.push_back(std::make_tuple("testint", "testint", 1243));
+					prefab_keys.push_back(std::make_tuple("testint", "testint", 1243, true));
 				}
 				if (ImGui::MenuItem("Boolean")) {
-					prefab_keys.push_back(std::make_tuple("test", "test", true));
+					prefab_keys.push_back(std::make_tuple("test", "test", true, true));
 				}
 				ImGui::EndPopup();
 			}
