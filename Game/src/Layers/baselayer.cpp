@@ -3,50 +3,10 @@
 
 namespace Game
 {
-  void BaseLayer::LoadDLL()
-  {
-    // guard
-    if (is_scripting_dll_loaded) return;
+  std::shared_ptr<GameLayer> gameLayer = nullptr;
+  std::shared_ptr<MenuLayer> menuLayer = nullptr;
 
-    // Create the hotload directory if it does not exist
-    if (!std::filesystem::exists(Path::current("hotload"))) std::filesystem::create_directory(Path::current("hotload"));
-
-    // Get the path of the DLL
-    std::string from = Path::current("Scripts.dll");
-    std::string to = Path::current("hotload/Scripts.dll");
-
-    auto& layerstack = Application::GetCurrentWindow()->GetLayerStack();
-
-    // guard: DLL does not exist
-    if (!std::filesystem::exists(from))
-    {
-      Log::Error("DLL for hotloading does not exist. Remember to build the scripting sln first.");
-      layerstack.RemoveLayer(this->GetName()); // Remove self
-      return;
-    }
-
-    // Copy the DLL to the hot loading directory
-    bool success = std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-    if (!success)
-    {
-      Log::Error("Failed to copy DLL for hotloading.");
-      layerstack.RemoveLayer(this->GetName()); // Remove self
-      return;
-    }
-
-    // Load the scripting DLL
-    LPCSTR dll_path = to.c_str();
-    hmodule_scripting = LoadLibraryA(dll_path);
-    if (!hmodule_scripting)
-    {
-      Log::Error("Failed to load DLL. Error code: " + std::to_string(GetLastError()));
-      layerstack.RemoveLayer(this->GetName()); // Remove self
-      return;
-    }
-    Log::Info("Loaded DLL: " + to);
-
-    is_scripting_dll_loaded = true;
-  }
+  std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
 
   void BaseLayer::OnAttach()
   {
@@ -55,7 +15,7 @@ namespace Game
       "Game",
       WindowProps(
         "Chrono Drift",
-        1600, 900,
+        1900, 1080,
         {
           FLX_DEFAULT_WINDOW_HINTS,
           { GLFW_DECORATED, true },
@@ -66,29 +26,53 @@ namespace Game
 
     // Second, load assets
     FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<LoadLayer>());
+    
+    // Third, add the engine behavior layers
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<PhysicsLayer>());
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<RenderingLayer>());
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<AudioLayer>());
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<ScriptingLayer>());
 
-    LoadDLL();
+    // Start with the menu layer
+    menuLayer = std::make_shared<MenuLayer>();
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+
+    // Camera system goes last to capture the loaded scene
+    camSystemLayer = std::make_shared<CameraSystemLayer>();
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game", camSystemLayer);
   }
 
   void BaseLayer::OnDetach()
   {
-    // guard
-    if (!is_scripting_dll_loaded) return;
-
-    if (hmodule_scripting) FreeLibrary(hmodule_scripting);
-    hmodule_scripting = nullptr;
-    ScriptRegistry::ClearScripts();
-
-    is_scripting_dll_loaded = false;
-
     FLX_COMMAND_CLOSE_WINDOW("Game");
   }
 
   void BaseLayer::Update()
   {
-    // Runs the main gameplay loop, this should not be removed
-    ScriptRegistry::GetScript("RenderLoop")->Update();
-    ScriptRegistry::GetScript("GameplayLoops")->Update();
-    ScriptRegistry::GetScript("CameraHandler")->Update();
+    Application::GetCurrentWindow()->Update();
+
+    // Test to switch to game layer
+    if (Application::MessagingSystem::Receive<bool>("Start Game") && menuLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
+      camSystemLayer->UnregisterCams();
+      menuLayer = nullptr;
+
+      gameLayer = std::make_shared<GameLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
+      camSystemLayer->RegisterCams();
+    }
+
+    // Game to menu layer
+    if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && gameLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
+      camSystemLayer->UnregisterCams();
+      gameLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+      camSystemLayer->RegisterCams();
+    }
   }
 }

@@ -28,6 +28,7 @@ namespace FlexEngine
     Vector3 color_to_multiply = Vector3(1.0f, 1.0f, 1.0f);
     Vector2 position = Vector2(0.0f, 0.0f);
     Vector2 scale = Vector2(1.0f, 1.0f);
+    Vector3 rotation = Vector3(0.f, 0.f, 0.f);
     Vector2 window_size = Vector2(800.0f, 600.0f);
     Alignment alignment = Alignment_Center;
   };

@@ -12,6 +12,7 @@
 #include "vector3.h"
 
 #include <algorithm> // std::min
+#include "matrix4x4.h"
 
 namespace FlexEngine
 {
@@ -381,5 +382,84 @@ namespace FlexEngine
   }
 
 #pragma endregion
+
+  #pragma region mathshapevector Helper Fns
+
+  inline float RandomFloat(float min, float max)
+  {
+      return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+  }
+
+
+  __FLX_API Vector3 RandomUnitVector()
+  {
+      // Using spherical coordinates:
+      float theta = RandomFloat(0.0f, 2.0f * PI);
+      float phi = acos(1.0f - 2.0f * RandomFloat(0.0f, 1.0f));
+      float x = sin(phi) * cos(theta);
+      float y = sin(phi) * sin(theta);
+      float z = cos(phi);
+      return Vector3(x, y, z);
+  }
+  __FLX_API Vector3 RandomUnitVectorCube()
+  {
+      float x = RandomFloat(-1.0f, 1.0f);
+      float y = RandomFloat(-1.0f, 1.0f);
+      float z = RandomFloat(-1.0f, 1.0f);
+      Vector3 v(x, y, z);
+      return v.Normalize();  // Assume you have a Normalize() function.
+  }
+
+  __FLX_API Vector3 RandomUnitVectorCone(float coneHalfAngleDegrees)
+  {
+      float coneHalfAngleRadians = coneHalfAngleDegrees * PI / 180.0f;
+
+      // Random z value in the cone:
+      float cosAngle = cos(coneHalfAngleRadians);
+      float z = RandomFloat(cosAngle, 1.0f);
+      
+      // Random azimuthal angle:
+      float theta = RandomFloat(0.0f, 2.0f * PI);
+
+      // Compute radius at z:
+      float sinTheta = sqrt(1.0f - z * z);
+
+      float x = sinTheta * cos(theta);
+      float y = sinTheta * sin(theta);
+
+      return Vector3(x, y, z);
+  }
+
+  Vector3 RotateVector(const Vector3& vector, const Vector3& eulerRotation)
+  {
+      // Assume eulerRotation components are in radians.
+      float radX = eulerRotation.x;
+      float radY = eulerRotation.y;
+      float radZ = eulerRotation.z;
+
+      // Create rotation matrices about each axis.
+      Matrix4x4 rotX = Matrix4x4::Identity;
+      rotX.RotateX(radX);  // rotates in place around the X-axis
+
+      Matrix4x4 rotY = Matrix4x4::Identity;
+      rotY.RotateY(radY);  // rotates in place around the Y-axis
+
+      Matrix4x4 rotZ = Matrix4x4::Identity;
+      rotZ.RotateZ(radZ);  // rotates in place around the Z-axis
+
+      // Combine rotations.
+      // Order matters: here we apply X first, then Y, then Z.
+      Matrix4x4 rotationMatrix = rotZ * rotY * rotX;
+
+      // Convert the Vector3 to homogeneous coordinates (w = 1)
+      Vector4 vec4(vector.x, vector.y, vector.z, 1.0f);
+
+      // Multiply the rotation matrix by the vector.
+      Vector4 result4 = rotationMatrix * vec4; // Make sure you have an overload for this multiplication.
+
+      // Convert back to Vector3 (ignoring the homogeneous coordinate w).
+      return Vector3(result4.x, result4.y, result4.z);
+  }
+  #pragma endregion
 
 }

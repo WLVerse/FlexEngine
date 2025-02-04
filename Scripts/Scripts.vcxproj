@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\componenttest.cpp" />
-    <ClCompile Include="src\coresystems.cpp" />
     <ClCompile Include="src\camerahandler.cpp" />
-    <ClCompile Include="src\rendercall.cpp" />
+    <ClCompile Include="src\exitbutton.cpp" />
+    <ClCompile Include="src\menubutton.cpp" />
+    <ClCompile Include="src\playanimation.cpp" />
+    <ClCompile Include="src\testbutton.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
