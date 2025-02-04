@@ -7,6 +7,31 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
+//Note to self - thoughts:
+// About global_pos / position
+// >global_pos is calculated with Transform component.
+//  this is required when an object is parented, so the values inside the pos/rot/scale components don't match.
+//
+// >right now, we don't got parents, so its irrelevant right now, but just hope you remember, future me!
+//  obb is calculated with local scale, but like, the scale within the transform mat4x4 is NOT the actual scale
+//	since it's affected by rotation as well.
+//	this is the main reason why i switched back to just calculating with local pos. but eventually,
+//	if we ever have mothers and fathers again, you gotta think of something
+//
+
+std::array<Vector2, 4> ComputeOBBCorners(const Vector2& pos, const Vector2& scale, const Vector2& rotation)
+{
+	Vector2 half_scale = { scale.x / 2, scale.y / 2 };
+	return 			
+	{
+		Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+		Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+		Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+		Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+	};
+}
+
 namespace Editor
 {
 	constexpr float TOP_PADDING = 10.0f;
@@ -147,13 +172,7 @@ namespace Editor
 			Vector2 half_scale = { scale.x / 2, scale.y / 2 };
 
 			//compute AABB max and min points
-			Vector2 obb_corners[4] =
-			{
-				Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-				Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-				Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-				Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-			};
+			auto obb_corners = ComputeOBBCorners(pos, scale, rotation);
 			Vector2 max_point = obb_corners[0];
 			Vector2 min_point = obb_corners[0];
 
@@ -281,24 +300,13 @@ namespace Editor
 			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 			auto& entity_rotation	= selected_entity.GetComponent<Rotation>()->rotation;
 
-			//Global pos for accuracy (esp for entities with parent)
-			Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
 
 			//Find out where on the screen to draw the gizmos
 			//Take entity position and convert it back to screen position
-			ImVec2 gizmo_origin_pos = WorldToScreen(global_pos);
-
+			ImVec2 gizmo_origin_pos = WorldToScreen(entity_position);
 
 			//compute AABB max and min points for display
-			float rotation = entity_rotation.z;
-			Vector2 half_scale = { entity_scale.x / 2, entity_scale.y / 2 };
-			Vector2 obb_corners[4] =
-			{
-				Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-				Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-				Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-				Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-			};
+			auto obb_corners = ComputeOBBCorners(entity_position, entity_scale, entity_rotation.z);
 
 			Vector2 max_point = obb_corners[0];
 			Vector2 min_point = obb_corners[0];
@@ -501,19 +509,12 @@ namespace Editor
 				auto& entity_transform = entity.GetComponent<Transform>()->transform;
 				average_pos += { entity_transform.m30, entity_transform.m31, entity_transform.m32};
 
-				Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
+				auto& entity_position = entity.GetComponent<Position>()->position;
 				auto& entity_scale = entity.GetComponent<Scale>()->scale;
 				auto& entity_rotation = entity.GetComponent<Rotation>()->rotation;
 
-				float rotation = entity_rotation.z;
-				Vector2 half_scale = { entity_scale.x / 2, entity_scale.y / 2 };
-				Vector2 obb_corners[4] =
-				{
-					Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-					Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-					Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-					Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
-				};
+				auto obb_corners = ComputeOBBCorners(entity_position, entity_scale, entity_rotation.z);
+
 				Vector2 max_point = obb_corners[0];
 				Vector2 min_point = obb_corners[0];
 				for (int i = 1; i < 4; i++)
