@@ -140,6 +140,7 @@ namespace Editor
 		m_panels[std::type_index(typeid(Inspector))] = &m_inspector;
 		m_panels[std::type_index(typeid(PrefabEditor))] = &m_prefabeditor;
 		//m_panels["SceneView"] = &m_sceneview;
+		m_panels[std::type_index(typeid(SceneView))] = &m_sceneview;
 		//m_panels["GameView"] = &m_gameview;
 
 		//m_systems["Selection"] = &m_selection;

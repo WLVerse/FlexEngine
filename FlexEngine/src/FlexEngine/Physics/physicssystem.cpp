@@ -5,8 +5,10 @@
 // Simple AABB Physics system
 //
 // AUTHORS
-// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+// [90%] Rocky Sutarius (rocky.sutarius@digipen.edu)
 //   - Main Author
+// [10%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Added some code for mouse over detection
 //
 // Copyright (c) 2024 DigiPen, All rights reserved.
 **************************************************************************/
@@ -49,7 +51,7 @@ namespace FlexEngine
 	void PhysicsSystem::UpdatePositions()
 	{
 		
-		float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+		float dt = Application::GetCurrentWindow()->GetFramerateController().GetFixedDeltaTime();
 		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody>())
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
@@ -73,27 +75,35 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::UpdateBounds()
 	{
-		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
+		for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, BoundingBox2D>())
 		{
-			auto& position = entity.GetComponent<Position>()->position;
-			auto& scale = entity.GetComponent<Scale>()->scale;
-			auto& size = entity.GetComponent<BoundingBox2D>()->size;
-			entity.GetComponent<BoundingBox2D>()->max.x = position.x + scale.x / 2 * size.x;
-			entity.GetComponent<BoundingBox2D>()->max.y = position.y + scale.y / 2 * size.y;
-			entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x;
-			entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
+      RecomputeBounds(entity);
 		}
 	}
 
 	/*!***************************************************************************
 	* @brief
 	* Finds all collisions between rigidbodies.
+  * Checks if the mouse is over the entity. (Wen Loong)
 	* If Rigidbody is static, skips the check.
 	******************************************************************************/
 	void PhysicsSystem::FindCollisions()
 	{
+    // mouse over detection
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, BoundingBox2D>())
+    {
+      auto& bb = *entity.GetComponent<BoundingBox2D>();
+
+      bb.is_mouse_over_cached = bb.is_mouse_over;
+
+      auto& max = bb.max;
+      auto& min = bb.min;
+      auto mouse = Input::GetMousePosition();
+      bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
+    }
+
 		collisions.clear();
-		
+    
 		for (auto& entity_a : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Rigidbody, BoundingBox2D>())
 		{
 			if(entity_a.GetComponent<Rigidbody>()->is_static) continue;
@@ -122,7 +132,7 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::ResolveCollisions()
 	{
-		//float dt = FlexEngine::Application::GetCurrentWindow()->GetDeltaTime();
+		//float dt = FlexEngine::Application::GetCurrentWindow()->GetFixedDeltaTime();
 		for (auto collision : collisions)
 		{
 			//update status of collision
@@ -202,9 +212,13 @@ namespace FlexEngine
 
 	void PhysicsSystem::UpdatePhysicsSystem()
 	{
-		UpdatePositions();
-		UpdateBounds();
-		FindCollisions();
-		ResolveCollisions();
+    // Update physics system based on the number of steps
+    for (unsigned int step = 0; step < Application::GetCurrentWindow()->GetFramerateController().GetNumberOfSteps(); ++step)
+    {
+      UpdatePositions();
+      UpdateBounds();
+      FindCollisions();
+      ResolveCollisions();
+    }
 	}
 }

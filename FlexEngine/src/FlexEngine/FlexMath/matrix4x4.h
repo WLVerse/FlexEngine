@@ -229,6 +229,7 @@ namespace FlexEngine
   __FLX_API Matrix4x4 operator*(const Matrix4x4& matrix_a, const Matrix4x4& matrix_b);
   __FLX_API Matrix4x4 operator*(Matrix4x4::const_value_type value, const Matrix4x4& matrix);
   __FLX_API Matrix4x4 operator*(const Matrix4x4& matrix, Matrix4x4::const_value_type value);
+  __FLX_API Vector4 operator*(const Matrix4x4& matrix, const Vector4& vector);
 
   //__FLX_API Matrix4x4 operator/(const Matrix4x4& matrix_a, const Matrix4x4& matrix_b);
   //__FLX_API Matrix4x4 operator/(Matrix4x4::const_value_type value, const Matrix4x4& matrix);

@@ -13,6 +13,7 @@
 
 #pragma once
 #include "FlexEngine.h"
+using namespace FlexEngine;
 
 namespace FlexEngine
 {

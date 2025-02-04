@@ -18,3 +18,8 @@ Debug
 Release
 x64
 GameInstaller/GAMEDIRECTORY
+.clang-format
+
+# Special case for Header Commenter tool
+!HeaderCommenter_v*.exe
+headercommenter-config.txt

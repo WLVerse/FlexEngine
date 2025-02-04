@@ -130,6 +130,23 @@ namespace Editor
 
     #pragma endregion
 
+    #pragma region Scripting
+
+    if (ImGui::CollapsingHeader("Scripting", tree_node_flags))
+    {
+      ImGui::Text("Scripts Run: %d", ScriptRegistry::GetScriptsRunCount());
+      if (ImGui::TreeNode("Scripts"))
+      {
+        for (auto& [entity_name, script_name] : ScriptRegistry::GetScriptsRunNames())
+        {
+          ImGui::Text("Entity: %s, Script: %s", entity_name.c_str(), script_name.c_str());
+        }
+        ImGui::TreePop();
+      }
+    }
+
+    #pragma endregion
+
     ImGui::End();
 
     #pragma endregion

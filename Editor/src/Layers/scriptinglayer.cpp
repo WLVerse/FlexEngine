@@ -1,19 +1,17 @@
 // WLVERSE [https://wlverse.web.app]
 // scriptinglayer.cpp
-// 
+//
 // Scripting layer for the editor.
-// 
+//
 // Very rough implementation of hotloading a scripting DLL.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
+//
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
-
-#include <thread>
 
 namespace Editor
 {
@@ -25,7 +23,7 @@ namespace Editor
 
     // Create the hotload directory if it does not exist
     if (!std::filesystem::exists(Path::current("hotload"))) std::filesystem::create_directory(Path::current("hotload"));
-    
+
     // Get the path of the DLL
     std::string from = Path::current("Scripts.dll");
     std::string to = Path::current("hotload/Scripts.dll");
@@ -48,7 +46,7 @@ namespace Editor
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }
-    
+
     // Load the scripting DLL
     LPCSTR dll_path = to.c_str();
     hmodule_scripting = LoadLibraryA(dll_path);
@@ -58,9 +56,10 @@ namespace Editor
       layerstack.RemoveLayer(this->GetName()); // Remove self
       return;
     }
+
     Log::Info("Loaded DLL: " + to);
-    
     is_scripting_dll_loaded = true;
+    ScriptRegistry::is_running = true;
   }
 
   void ScriptingLayer::Internal_UnloadScriptingDLL()
@@ -68,11 +67,31 @@ namespace Editor
     // guard
     if (!is_scripting_dll_loaded) return;
 
+    // call stop for all scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    {
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+
+      // guard
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // always remember to set the context before calling functions
+      script->Internal_SetContext(entity);
+      script->Stop();
+    }
+
+    // unload the scripting DLL
     if (hmodule_scripting) FreeLibrary(hmodule_scripting);
     hmodule_scripting = nullptr;
     ScriptRegistry::ClearScripts();
 
     is_scripting_dll_loaded = false;
+    ScriptRegistry::is_running = false;
   }
 
   void ScriptingLayer::Internal_DebugWithImGui()
@@ -87,13 +106,11 @@ namespace Editor
     // Loads the scripting DLL and starts the scripts
     if (ImGui::Button("Play") && !is_playing)
     {
-      function_queue.Insert({
-        [this]()
-        {
-          is_playing = true;
-          Internal_LoadScriptingDLL();
-        }
-      });
+      function_queue.Insert({ [this]()
+                              {
+                                is_playing = true;
+                                Internal_LoadScriptingDLL();
+                              } });
     }
 
     ImGui::EndDisabled();
@@ -105,35 +122,29 @@ namespace Editor
     // Stops the scripts and unloads the scripting DLL
     if (ImGui::Button("Stop") && is_playing)
     {
-      function_queue.Insert({
-        [this]()
-        {
-          Internal_UnloadScriptingDLL();
-          is_playing = false;
-        }
-      });
+      function_queue.Insert({ [this]()
+                              {
+                                Internal_UnloadScriptingDLL();
+                                is_playing = false;
+                              } });
     }
 
     ImGui::EndDisabled();
 
     if (ImGui::CollapsingHeader("Scripts", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-      for (auto& [name, script] : ScriptRegistry::GetScripts())
-      {
-        ImGui::Text(script->GetName().c_str());
-      }
-    }
+      for (auto& [name, script] : ScriptRegistry::GetScripts()) ImGui::Text(script->GetName().c_str());
 
-    if (ImGui::Button("ComponentTest Start()"))
-    {
-      function_queue.Insert({
-        []()
-        {
-          auto script = ScriptRegistry::GetScript("ComponentTest");
-          if (script) script->Start();
-        }
-      });
-    }
+    // hardcoded test
+    // if (ImGui::Button("ComponentTest Start()"))
+    //{
+    //  function_queue.Insert({
+    //    []()
+    //    {
+    //      auto script = ScriptRegistry::GetScript("ComponentTest");
+    //      if (script) script->Start();
+    //    }
+    //  });
+    //}
 
     ImGui::End();
 
@@ -142,32 +153,105 @@ namespace Editor
 
   void ScriptingLayer::OnAttach()
   {
-
   }
 
   void ScriptingLayer::OnDetach()
   {
     // auto cleanup in case the user forgot to stop the scripts
-    if (is_scripting_dll_loaded)
-    {
-      Internal_UnloadScriptingDLL();
-    }
+    if (is_scripting_dll_loaded) Internal_UnloadScriptingDLL();
   }
 
   void ScriptingLayer::Update()
   {
     // Always remember to set the context before using ImGui
-    //FLX_GLFW_ALIGNCONTEXT();
+    // FLX_GLFW_ALIGNCONTEXT();
     FLX_IMGUI_ALIGNCONTEXT();
 
     Internal_DebugWithImGui();
 
+    // for debugging
+    ScriptRegistry::Internal_Debug_Clear();
 
-    if (is_scripting_dll_loaded)
+    // guard
+    if (!is_scripting_dll_loaded) return;
+
+    // process all scripts, multiple of the same script can exist
+    // order is not guaranteed and should never be
+    // call awake, start, update, and stop
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script>())
     {
-      auto script = ScriptRegistry::GetScript("GameplayLoops");
-      if (script) script->Update();
+      Transform& transform = *entity.GetComponent<Transform>();
+      if (!transform.is_active) continue; // skip non active entities
+
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+
+      // guard
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // awake is called once when the script is created
+      if (!script_component.is_awake)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Awake();
+        script_component.is_awake = true;
+      }
+
+      // start is called once when the object is enabled for the first time
+      if (transform.is_active && !script_component.is_start && script_component.is_awake)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Start();
+        script_component.is_start = true;
+      }
+
+      // update is called every frame for awake and start objects
+      if (script_component.is_start && script_component.is_awake)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Update();
+
+        // for debugging
+        ScriptRegistry::Internal_Debug_LogScript(FLX_STRING_GET(*entity.GetComponent<EntityName>()), script->GetName());
+      }
+
+      if (!transform.is_active && script_component.is_start)
+      {
+        // always remember to set the context before calling functions
+        script->Internal_SetContext(entity);
+        script->Stop();
+        script_component.is_start = false;
+      }
+    }
+
+    // process callback for scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script, BoundingBox2D>())
+    {
+      auto& bb = *entity.GetComponent<BoundingBox2D>();
+
+      if (bb.is_mouse_over || bb.is_mouse_over_cached)
+      {
+        auto& script_name = FLX_STRING_GET(entity.GetComponent<Script>()->script_name);
+        auto script = ScriptRegistry::GetScript(script_name);
+        FLX_NULLPTR_ASSERT(script, "An expected script is missing from the script registry: " + script_name);
+
+        script->Internal_SetContext(entity);
+
+        if (bb.is_mouse_over && !bb.is_mouse_over_cached)
+          script->OnMouseEnter();
+        else if (bb.is_mouse_over)
+          script->OnMouseStay();
+        else if (!bb.is_mouse_over && bb.is_mouse_over_cached)
+          script->OnMouseExit();
+      }
     }
   }
 
-}
+} // namespace Editor
