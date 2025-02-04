@@ -737,7 +737,7 @@ namespace Editor
 
 				camera_pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 				camera_pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				CameraManager::GetEditorCamera()->m_data.position += Vector3(camera_pos_change.x, -camera_pos_change.y, 0.0f);
+				CameraManager::GetEditorCamera()->m_data.position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
 				//CameraManager::GetEditorCamera()->MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
 			}
 			else if (ImGui::IsMouseReleased(2))
@@ -754,8 +754,7 @@ namespace Editor
 
 				camera_pos_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 				camera_pos_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				CameraManager::GetEditorCamera()->m_data.position += Vector3(camera_pos_change.x, -camera_pos_change.y, 0.0f);
-				//CameraManager::GetEditorCamera()->MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
+				CameraManager::GetEditorCamera()->m_data.position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
 			}
 			else if (ImGui::IsMouseReleased(1))
 			{
@@ -774,7 +773,8 @@ namespace Editor
 			{
 				float zoomDelta = io.MouseWheel * zoomSpeed;
 				float new_right = std::clamp(CameraManager::GetEditorCamera()->m_data.m_OrthoWidth - zoomDelta, minZoom, maxZoom);
-				CameraManager::GetEditorCamera()->SetOrthographic(0.0f, new_right, new_right / baseAspectRatio, 0.0f, -2.0f, 2.0f);
+				CameraManager::GetEditorCamera()->SetOrthographic(0.0f, new_right, 0.0f, new_right / baseAspectRatio, -2.0f, 2.0f);
+				CameraManager::GetEditorCamera()->Update();
 			}
 		}
 	}
