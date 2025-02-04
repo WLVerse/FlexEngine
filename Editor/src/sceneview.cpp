@@ -11,6 +11,11 @@ namespace Editor
 	{
 		auto scene = FlexECS::Scene::GetActiveScene();
 		m_editor_camera = scene->CreateEntity("Editor Cam :3");
+		m_editor_camera.AddComponent<Position>({});
+		m_editor_camera.AddComponent<Rotation>({});
+		m_editor_camera.AddComponent<Scale>({});
+		m_editor_camera.AddComponent<Transform>({});
+
 		Camera cam({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
 		m_editor_camera.AddComponent<Camera>(cam);
 
@@ -471,10 +476,6 @@ namespace Editor
 			//Draw Translate Gizmo
 			if (m_current_gizmo_type == GizmoType::TRANSLATE)
 			{
-				for (FlexECS::Entity entity : selected_list)
-				{
-					if (!entity.HasComponent<Rotation>()) return;
-				}
 				Vector2 pos_change{};
 				bool right, up, xy;
 				bool recording_ended = false;
@@ -531,10 +532,6 @@ namespace Editor
 			}
 			else if (m_current_gizmo_type == GizmoType::SCALE)
 			{
-				for (FlexECS::Entity entity : selected_list)
-				{
-					if (!entity.HasComponent<Rotation>()) return;
-				}
 				Vector2 scale_change{};
 				float value{};
 				bool right, up, xy;
@@ -596,10 +593,6 @@ namespace Editor
 			}
 			else if (m_current_gizmo_type == GizmoType::ROTATE)
 			{
-				for (FlexECS::Entity entity : selected_list)
-				{
-					if (!entity.HasComponent<Rotation>()) return;
-				}
 				float value{};
 				bool hovered;
 				bool recording_ended = false;
