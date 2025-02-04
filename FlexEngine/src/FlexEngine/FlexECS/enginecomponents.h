@@ -127,6 +127,18 @@ namespace FlexEngine
     FlexECS::Scene::StringIndex audio_file;
   };
 
+  /*!***************************************************************************
+  * \class Prefab
+  * \brief
+  * This class represents the prefab component of an entity
+  ******************************************************************************/
+  class __FLX_API Prefab
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    std::string prefab_name;
+  };
+  
   class __FLX_API Sprite
   {
     FLX_REFL_SERIALIZABLE
