@@ -39,7 +39,7 @@ namespace FlexEngine
     template __FLX_API float Clamp<float>(float value, float min, float max);
     template __FLX_API double Clamp<double>(double value, double min, double max);
 
-    template __FLX_API int Lerp<int>(const int& a, const int& b, float t);
+    //template __FLX_API int Lerp<int>(const int& a, const int& b, float t);
     template __FLX_API float Lerp<float>(const float& a, const float& b, float t);
     template __FLX_API double Lerp<double>(const double& a, const double& b, float t);
     #pragma endregion

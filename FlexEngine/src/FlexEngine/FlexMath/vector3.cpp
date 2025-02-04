@@ -394,7 +394,7 @@ namespace FlexEngine
   __FLX_API Vector3 RandomUnitVector()
   {
       // Using spherical coordinates:
-      float theta = RandomFloat(0.0f, 2.0f * PI);
+      float theta = RandomFloat(0.0f, 2.0f * static_cast<float>(PI));
       float phi = acos(1.0f - 2.0f * RandomFloat(0.0f, 1.0f));
       float x = sin(phi) * cos(theta);
       float y = sin(phi) * sin(theta);
@@ -412,14 +412,14 @@ namespace FlexEngine
 
   __FLX_API Vector3 RandomUnitVectorCone(float coneHalfAngleDegrees)
   {
-      float coneHalfAngleRadians = coneHalfAngleDegrees * PI / 180.0f;
+      float coneHalfAngleRadians = coneHalfAngleDegrees * static_cast<float>(PI) / 180.0f;
 
       // Random z value in the cone:
       float cosAngle = cos(coneHalfAngleRadians);
       float z = RandomFloat(cosAngle, 1.0f);
       
       // Random azimuthal angle:
-      float theta = RandomFloat(0.0f, 2.0f * PI);
+      float theta = RandomFloat(0.0f, 2.0f * static_cast<float>(PI));
 
       // Compute radius at z:
       float sinTheta = sqrt(1.0f - z * z);
