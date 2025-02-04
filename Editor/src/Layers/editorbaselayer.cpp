@@ -96,6 +96,981 @@ namespace Editor
         Camera gameTestCamera2({ 650.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
         cam2.AddComponent<Camera>(gameTestCamera2);
       }
+
+      // BG
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Background");
+          entity.AddComponent<Position>({
+            Vector3{ -1450, -1000, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 3104, 2432, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M3_Blocking_04_WithOverlay.png)"), -1 });
+          // 
+          //entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_01.png)"), -1 });
+          // 
+           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+         // true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // BG
+      /* {
+          FlexECS::Entity entity = scene->CreateEntity("BG");
+          entity.AddComponent<Position>({
+            Vector3{ 850,450,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 1920, 1080, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Background_Final.jpg)"), -1 });
+      }*/
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Name");
+          entity.AddComponent<Position>({
+            Vector3{ 636, 525, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Renko)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S1 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 660, 420, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S1 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 700, 435, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 1)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S2 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 660, 450, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S2 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 700, 465, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 2)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S3 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 660, 480, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko S3 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 700, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 3)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko HP Bar");
+          entity.AddComponent<Position>({
+            Vector3{ 625, 525, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 35, 2, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_HealthBar_Green.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko HP Text");
+          entity.AddComponent<Position>({
+            Vector3{ 645, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.05f, 0.05f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(HP: 10/10 | bSPD: 5)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Attack Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 615, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_+1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Attack Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 625, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_-1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Invuln Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 635, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Def.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Stun Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 645, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Heal_-2.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Name");
+          entity.AddComponent<Position>({
+            Vector3{ 775, 490, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+                                   FLX_STRING_NEW(R"(Grace)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S1 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 810, 390, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S1 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 850, 405, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 1)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S2 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 810, 420, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S2 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 850, 435, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 2)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S3 Button");
+          entity.AddComponent<Position>({
+            Vector3{ 810, 450, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 81, 26, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuButton_MouseOn.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace S3 Text");
+          entity.AddComponent<Position>({
+            Vector3{ 850, 465, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.1f, 0.1f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Move 3)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace HP Bar");
+          entity.AddComponent<Position>({
+            Vector3{ 765, 490, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 35, 2, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_HealthBar_Green.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace HP Text");
+          entity.AddComponent<Position>({
+            Vector3{ 785, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.05f, 0.05f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(HP: 10/10 | bSPD: 5)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Attack Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 755, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_+1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Attack Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 765, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_-1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Invuln Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 775, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Def.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Stun Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 785, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Heal_-2.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Skill Border");
+          entity.AddComponent<Position>({
+            Vector3{ 745, 450, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 129, 69, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuBox.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Renko UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Skill Text");
+          entity.AddComponent<Position>({
+            Vector3{ 810, 485, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Skill Border");
+          entity.AddComponent<Position>({
+            Vector3{ 895, 420, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 129, 69, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuBox.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Skill Text");
+          entity.AddComponent<Position>({
+            Vector3{ 960, 455, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Name");
+          entity.AddComponent<Position>({
+            Vector3{ 1145, 525, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+                                   FLX_STRING_NEW(R"(Jack The Ripper)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Skill Button");
+          entity.AddComponent<Position>({
+            Vector3{ 1115, 525, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 7, 7, 1 }
+          });
+          entity.AddComponent<Transform>({});
+
+          entity.AddComponent<Button>({});
+          entity.AddComponent<BoundingBox2D>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW("TestButton") });
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Question Mark.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Skill Border");
+          entity.AddComponent<Position>({
+            Vector3{ 980, 495, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 129, 69, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_MenuBox.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Skill Text");
+          entity.AddComponent<Position>({
+            Vector3{ 1045, 535, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.15f, 0.15f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(Manually update the string by adding letters to it each loop for type writing kind of animation or let the gpu handle the animation(not done, need to make Text class like camera class)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack HP Bar");
+          entity.AddComponent<Position>({
+            Vector3{ 1125, 525, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 35, 2, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_HealthBar_Green.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack HP Text");
+          entity.AddComponent<Position>({
+            Vector3{ 1145 , 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 0.05f, 0.05f, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"(HP: 10/10 | bSPD: 5)"),
+                                   Vector3(1.0f,1.0,1.0f),
+                                   {Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle} });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Attack Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 1115, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_+1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Attack Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 1125, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Attack_-1.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Invuln Buff");
+          entity.AddComponent<Position>({
+            Vector3{ 1135, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Def.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Stun Debuff");
+          entity.AddComponent<Position>({
+            Vector3{ 1145, 530, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 24, 14, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Heal_-2.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko");
+          entity.AddComponent<Position>({
+            Vector3{ 620, 420, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 40, 93, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Grace
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace");
+          entity.AddComponent<Position>({
+            Vector3{ 740, 390, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 71, 90, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+        // true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      // Jack
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack");
+          entity.AddComponent<Position>({
+            Vector3{ 1100, 405, 0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 72, 108, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          //entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterInfo)") });
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_jack.png)"), -1 });
+          //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+          //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
+      }
+      //speed bar UI
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Speed Bar");
+          entity.AddComponent<Position>({
+            Vector3{ 420,450,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 270 }
+          });
+          entity.AddComponent<Scale>({
+            { 187, 4, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI_BattleScreen_Speed Bar_02.png)"), -1 });
+      }
+      //speed bar Renko icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,470,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Big_Ally.png)"), -1 });
+      }
+      //speed bar Renko icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Renko Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,470,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Renko.png)"), -1 });
+      }
+      //speed bar Jack icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,400,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Big_Enemy.png)"), -1 });
+      }
+      //speed bar Jack icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Jack Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,400,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Jack.png)"), -1 });
+      }
+      //speed bar Grace icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,330,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Big_Ally.png)"), -1 });
+      }
+      //speed bar Grace icon
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Grace Icon");
+          entity.AddComponent<Position>({
+            Vector3{ 483,330,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 60, 60, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_BattleScreen_Portrait_Grace.png)"), -1 });
+      }
+      //win screen
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Win Screen");
+          entity.AddComponent<Position>({
+            Vector3{ 850,450,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 1920, 1080, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          //entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_Win_Mock_Up.png)"), -1 });
+      }
+      //win screen
+      {
+          FlexECS::Entity entity = scene->CreateEntity("Lose Screen");
+          entity.AddComponent<Position>({
+            Vector3{ 850,450,0 }
+          });
+          entity.AddComponent<Rotation>({
+            Vector3{ 0, -180, 180 }
+          });
+          entity.AddComponent<Scale>({
+            { 1920, 1080, 1 }
+          });
+          entity.AddComponent<Transform>({});
+          //entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/UI/UI_Lose_Mock_Up.png)"), -1 });
+      }
+
       // Text test
       {
         FlexECS::Entity txt = scene->CreateEntity("Test Text");

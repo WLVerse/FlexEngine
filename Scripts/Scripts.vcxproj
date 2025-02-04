@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="battle.cpp" />
     <ClCompile Include="src\camerahandler.cpp" />
+    <ClCompile Include="src\character.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\menubutton.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
