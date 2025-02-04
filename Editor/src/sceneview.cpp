@@ -5,20 +5,12 @@
 
 namespace Editor
 {
-	//Temporary hardcoding (for testing) that follows the hardcoded camera dimensions in rendercall script
-	//static Camera editor_camera(0.0f, 1600.0f, 900.0f, 0.0f, -2.0f, 2.0f);
-	
-
 	constexpr float TOP_PADDING = 10.0f;
 
 	void SceneView::Init()
 	{
 		auto scene = FlexECS::Scene::GetActiveScene();
 		m_editor_camera = scene->CreateEntity("Editor Cam :3");
-		m_editor_camera.AddComponent<Position>({});
-		m_editor_camera.AddComponent<Rotation>({});
-		m_editor_camera.AddComponent<Scale>({});
-		m_editor_camera.AddComponent<Transform>({});
 		Camera cam({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
 		m_editor_camera.AddComponent<Camera>(cam);
 
@@ -198,7 +190,14 @@ namespace Editor
 					FlexECS::Entity entity = FindClickedEntity();
 					if (entity != FlexECS::Entity::Null && within_viewport)
 					{
-						Editor::GetInstance().GetSystem<SelectionSystem>()->SelectEntity(entity);
+						if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+						{
+							Editor::GetInstance().GetSystem<SelectionSystem>()->AddSelectedEntity(entity);
+						}
+						else
+						{
+							Editor::GetInstance().GetSystem<SelectionSystem>()->SelectEntity(entity);
+						}
 					}
 					else
 					{
@@ -443,7 +442,7 @@ namespace Editor
 				}
 			}
 		}
-		else if (selected_list.size() > 1)
+		else if (selected_list.size() > 1)	//code copied rn because of preparations for undo delete, but think about bringing it up
 		{
 			//Get average of positions of the entities.
 			//That is where we'll place the gizmo
@@ -472,6 +471,10 @@ namespace Editor
 			//Draw Translate Gizmo
 			if (m_current_gizmo_type == GizmoType::TRANSLATE)
 			{
+				for (FlexECS::Entity entity : selected_list)
+				{
+					if (!entity.HasComponent<Rotation>()) return;
+				}
 				Vector2 pos_change{};
 				bool right, up, xy;
 				bool recording_ended = false;
@@ -523,9 +526,104 @@ namespace Editor
 
 				for (FlexECS::Entity entity : selected_list)
 				{
-					entity.GetComponent<Position>()->position += Vector3(pos_change.x, pos_change.y, 0.0f);
+					entity.GetComponent<Position>()->position += Vector3(pos_change.x, -pos_change.y, 0.0f);
+				}
+			}
+			else if (m_current_gizmo_type == GizmoType::SCALE)
+			{
+				for (FlexECS::Entity entity : selected_list)
+				{
+					if (!entity.HasComponent<Rotation>()) return;
+				}
+				Vector2 scale_change{};
+				float value{};
+				bool right, up, xy;
+				bool recording_ended = false;
+				switch (EditorGUI::Gizmo_Scale_X(&scale_change.x, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &right))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				switch (EditorGUI::Gizmo_Scale_Y(&scale_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				switch (EditorGUI::Gizmo_Scale_XY(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				m_gizmo_hovered = right || up || xy;
+				if (value != 0)	//if using xy scale
+				{
+					scale_change.x = value;
+					scale_change.y = value;
+				}
+				else
+				{
+					scale_change.y = -scale_change.y;
 				}
 
+				scale_change.x *= CameraManager::GetEditorCamera()->m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				scale_change.y *= CameraManager::GetEditorCamera()->m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+
+				for (FlexECS::Entity entity : selected_list)
+				{
+					entity.GetComponent<Scale>()->scale += Vector3(scale_change.x, -scale_change.y, 0.0f);
+				}
+			}
+			else if (m_current_gizmo_type == GizmoType::ROTATE)
+			{
+				for (FlexECS::Entity entity : selected_list)
+				{
+					if (!entity.HasComponent<Rotation>()) return;
+				}
+				float value{};
+				bool hovered;
+				bool recording_ended = false;
+				switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
+				{
+				case EditorGUI::GizmoStatus::START_DRAG:
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				m_gizmo_hovered = hovered;
+
+				for (FlexECS::Entity entity : selected_list)
+				{
+					auto& entity_rotation = entity.GetComponent<Rotation>()->rotation;
+					entity_rotation.z -= value * (180 / IM_PI);
+					if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
+					if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
+				}
 			}
 		}
 	}
@@ -566,7 +664,6 @@ namespace Editor
 					new_entity.AddComponent<Rotation>({});
 					new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 					new_entity.AddComponent<Transform>({});
-					new_entity.AddComponent<ZIndex>({});
 					new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
 					EditorGUI::EndPayloadReceiver();
 				}
