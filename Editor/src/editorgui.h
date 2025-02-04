@@ -41,6 +41,9 @@ namespace Editor
 	class EditorGUI
 	{
 	public:
+		static void Float1(float& data, std::string label1 = "",
+			float width = 65.0f);
+
 		static void DragFloat1(float& data, std::string label1 = "",
 			float width = 65.0f, float drag_speed = 0.1f);
 
@@ -52,6 +55,9 @@ namespace Editor
 			//std::string label1 = "X", std::string label2 = "Y", std::string label3 = "Z",
 			float width = 65.0f, float drag_speed = 0.1f);
 
+		static void Int1(int& data, std::string label1 = "",
+			float width = 65.0f);
+
 		static void DragInt(int& data, std::string label1 = "",
 			float width = 65.0f, float drag_speed = 0.1f);
 
@@ -60,10 +66,20 @@ namespace Editor
 
 		static void CreateCheckbox(bool& value, std::string title = "");
 
+		static void Color3(FlexEngine::Vector3& data, std::string title = "color");
+
+		static void EditableTextField(std::string& data, std::string title = "");
+
+		static void TextField(const std::string& data);
+
+		static void Checkbox(bool& data, std::string title = "");
+
+		static void Mat44(FlexEngine::Matrix4x4& data, std::string title = "");
+
 		/*!***************************************************************************
-		* @brief
-		* Displays reference to an entity in the scene.
-		* Supports drag and drop of an entity from the hierarchy panel to the field.
+		* @brief PATH type vieweres
+		* Basically stores the key to the asset in the asset manager.
+		* Supports drag and drop of corresponding file type from from the content browser to the field.
 		******************************************************************************/
 		static void EntityReference(FlexEngine::FlexECS::Entity& data, std::string title = "Entity");
 	
@@ -76,18 +92,6 @@ namespace Editor
 		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
 
 		static void SpritesheetPath(std::string& path, std::string title = "Spritesheet");
-
-		static void Color3(FlexEngine::Vector3& data, std::string title = "color");
-
-		static void EditableTextField(std::string& data, std::string title = "");
-
-		static void TextField(const std::string& data);
-
-		static void Checkbox(bool& data, std::string title = "");
-
-		static void Mat44(FlexEngine::Matrix4x4& data, std::string title = "");
-
-
 
 		/*!***************************************************************************
 		* @brief payloads
@@ -119,15 +123,22 @@ namespace Editor
 		* @param value
 			* move two axises at once, at the same value
 		******************************************************************************/
-		static void GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering);
-		static void GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+		enum GizmoStatus
+		{
+			START_DRAG,
+			END_DRAG,
+			DRAGGING,
+			NO_INTERACTION
+		};
+		static GizmoStatus GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering);
 
-		static void Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void Gizmo_Scale_Y(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
-		static void Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_Y(float* p_x_axis_change, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering);
 
-		static void Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering);
+		static GizmoStatus Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering);
 
 
 		/*!***************************************************************************

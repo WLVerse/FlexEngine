@@ -29,7 +29,8 @@ namespace FlexEngine
         m_data.farClip = t_farClip;
         m_data.m_isOrthographic = true;
         m_data.aspectRatio = t_orthoWidth / t_orthoHeight;
-        SetOrthographic(m_data.position.x - m_data.m_OrthoWidth/2, 
+        SetOrthographic(
+            m_data.position.x - m_data.m_OrthoWidth/2, 
             m_data.position.x + m_data.m_OrthoWidth / 2, 
             m_data.position.y + m_data.m_OrthoHeight / 2,
             m_data.position.y - m_data.m_OrthoHeight / 2, 
