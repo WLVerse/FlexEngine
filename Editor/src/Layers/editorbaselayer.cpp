@@ -94,6 +94,7 @@ namespace Editor
         txt.AddComponent<Rotation>({});
         txt.AddComponent<Scale>({});
         txt.AddComponent<Transform>({});
+        txt.AddComponent<ZIndex>({1000});
         txt.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Bangers/Bangers-Regular.ttf)"),
           FLX_STRING_NEW(
