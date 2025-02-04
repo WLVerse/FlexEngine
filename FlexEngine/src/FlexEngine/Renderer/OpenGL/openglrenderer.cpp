@@ -3,6 +3,8 @@
 #include "assetmanager.h" // FLX_ASSET_GET
 #include "DataStructures/freequeue.h"
 
+#include "FlexEngine/FlexMath/quaternion.h"
+
 namespace FlexEngine
 {
 
@@ -223,8 +225,12 @@ namespace FlexEngine
     
     // "Model scale" in this case refers to the scale of the object itself.
     Matrix4x4 model = Matrix4x4::Identity;
-    asset_shader.SetUniform_mat4("u_model", model.Translate(Vector3(position.x, position.y, 0.0f))
-      .RotateXDeg(props.rotation.x).RotateYDeg(props.rotation.y).RotateZDeg(props.rotation.z).Scale(Vector3(props.scale.x, props.scale.y, 1.0f)));
+    
+    // Perform SRT 
+    Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, props.position);
+    Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(props.rotation).ToRotationMatrix();
+    Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, props.scale);
+    asset_shader.SetUniform_mat4("u_model",  translation_matrix * rotation_matrix * scale_matrix);
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
     asset_shader.SetUniform_mat4("u_projection_view", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
