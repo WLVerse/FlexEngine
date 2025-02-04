@@ -3,6 +3,10 @@
 #include "imguipayloads.h"
 #include <set>
 
+#include <glm/glm.hpp> // :3
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Editor
 {
 	constexpr float TOP_PADDING = 10.0f;
@@ -129,19 +133,42 @@ namespace Editor
 		std::set<std::pair<FlexECS::EntityID, float>, decltype(z_index_sort)> clicked_entities(z_index_sort);
 		
 		//Gets all entities under the mouse (including entities overlapping each other)
-		//Sorts them based on z-index (or should it be Position.z???)
+		//Sorts them based on position.z
 		auto scene = FlexECS::Scene::GetActiveScene();
-		for (auto entity : scene->CachedQuery<Position, Scale, Transform, Sprite>()) //you probably only wanna click on things that are rendered
+		for (auto entity : scene->CachedQuery<Position, Rotation, Scale, Transform, Sprite>()) //you probably only wanna click on things that are rendered
 		{
 			auto& active = entity.GetComponent<Transform>()->is_active;
 			if (!active) continue;
 
 			auto& pos = entity.GetComponent<Position>()->position;
 			auto& scale = entity.GetComponent<Scale>()->scale;
-			if (mouse_world_pos.x >= (pos.x - (scale.x / 2)) &&
-					mouse_world_pos.x <= (pos.x + (scale.x / 2)) &&
-					mouse_world_pos.y >= (pos.y - (scale.y / 2)) &&
-					mouse_world_pos.y <= (pos.y + (scale.y / 2)))
+			float rotation = entity.GetComponent<Rotation>()->rotation.z;
+
+			Vector2 half_scale = { scale.x / 2, scale.y / 2 };
+
+			//compute AABB max and min points
+			Vector2 obb_corners[4] =
+			{
+				Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+				Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+				Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+				Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+			};
+			Vector2 max_point = obb_corners[0];
+			Vector2 min_point = obb_corners[0];
+
+			for (int i = 1; i < 4; i++)
+			{
+				min_point.x = std::min(min_point.x, obb_corners[i].x);
+				min_point.y = std::min(min_point.y, obb_corners[i].y);
+				max_point.x = std::max(max_point.x, obb_corners[i].x);
+				max_point.y = std::max(max_point.y, obb_corners[i].y);
+			}
+
+			if (mouse_world_pos.x >= min_point.x &&
+					mouse_world_pos.x <= max_point.x &&
+					mouse_world_pos.y >= min_point.y &&
+					mouse_world_pos.y <= max_point.y)
 			{
 				clicked_entities.insert(std::make_pair(entity, entity.GetComponent<Position>()->position.z));
 			}
@@ -156,8 +183,6 @@ namespace Editor
 			{
 				current_selected = *selected_list.begin();
 			}
-
-			//if (current_selected != FlexECS::Entity::Null && !current_selected.HasComponent<ZIndex>()) current_selected = FlexECS::Entity::Null;
 
 			if (current_selected != FlexECS::Entity::Null)
 			{
@@ -254,21 +279,39 @@ namespace Editor
 			auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
 			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
+			auto& entity_rotation	= selected_entity.GetComponent<Rotation>()->rotation;
 
 			//Global pos for accuracy (esp for entities with parent)
-			//Vector2 global_pos = { -entity_transform.m30, entity_transform.m31 };
 			Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
-			Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
 
 			//Find out where on the screen to draw the gizmos
 			//Take entity position and convert it back to screen position
 			ImVec2 gizmo_origin_pos = WorldToScreen(global_pos);
-			Vector2 half_scale = global_scale; half_scale /= 2;
-			ImVec2 entity_min = WorldToScreen(global_pos - half_scale);
-			ImVec2 entity_max = WorldToScreen(global_pos + half_scale);
+
+
+			//compute AABB max and min points for display
+			float rotation = entity_rotation.z;
+			Vector2 half_scale = { entity_scale.x / 2, entity_scale.y / 2 };
+			Vector2 obb_corners[4] =
+			{
+				Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+				Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+				Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+				Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+			};
+
+			Vector2 max_point = obb_corners[0];
+			Vector2 min_point = obb_corners[0];
+			for (int i = 1; i < 4; i++)
+			{
+				min_point.x = std::min(min_point.x, obb_corners[i].x);
+				min_point.y = std::min(min_point.y, obb_corners[i].y);
+				max_point.x = std::max(max_point.x, obb_corners[i].x);
+				max_point.y = std::max(max_point.y, obb_corners[i].y);
+			}
 
 			//Display an imgui rect around the sprite so we know where we are clicking, at least
-			ImRect bounding_box (entity_min, entity_max);
+			ImRect bounding_box (WorldToScreen(min_point), WorldToScreen(max_point));
 			ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 
 			//Draw Translate Gizmo
@@ -410,39 +453,35 @@ namespace Editor
 			}
 			else if (m_current_gizmo_type == GizmoType::ROTATE)
 			{
-				if (selected_entity.HasComponent<Rotation>())
+				float value{};
+				bool hovered;
+				bool recording_ended = false;
+				switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
 				{
-					auto& entity_rotation = selected_entity.GetComponent<Rotation>()->rotation;
-					float value{};
-					bool hovered;
-					bool recording_ended = false;
-					switch (EditorGUI::Gizmo_Rotate_Z(&value, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &hovered))
-					{
-					case EditorGUI::GizmoStatus::START_DRAG:
-						m_recorded_rotation.rotation = entity_rotation;
-						break;
-					case EditorGUI::GizmoStatus::DRAGGING:
-						break;
-					case EditorGUI::GizmoStatus::END_DRAG:
-						recording_ended = true;
-						break;
-					default:
-						break;
-					}
-					m_gizmo_hovered = hovered;
-					entity_rotation.z -= value * (180 / IM_PI);
+				case EditorGUI::GizmoStatus::START_DRAG:
+					m_recorded_rotation.rotation = entity_rotation;
+					break;
+				case EditorGUI::GizmoStatus::DRAGGING:
+					break;
+				case EditorGUI::GizmoStatus::END_DRAG:
+					recording_ended = true;
+					break;
+				default:
+					break;
+				}
+				m_gizmo_hovered = hovered;
+				entity_rotation.z -= value * (180 / IM_PI);
 
-					//Clamp to -360 and 360
-					if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
-					if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
+				//Clamp to -360 and 360
+				if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;
+				if (entity_rotation.z < -360.0f) entity_rotation.z += 360.0f;
 
-					if (recording_ended)
+				if (recording_ended)
+				{
+					if (m_recorded_rotation.rotation != entity_rotation)
 					{
-						if (m_recorded_rotation.rotation != entity_rotation)
-						{
-							//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
-							//cmd->UpdateComponent(selected_entity, "Rotation", &m_recorded_rotation, selected_entity.GetComponent<Rotation>(), sizeof(Rotation));
-						}
+						//auto cmd = reinterpret_cast<EditorCommands*>(Editor::GetInstance().GetSystem("EditorCommands"));
+						//cmd->UpdateComponent(selected_entity, "Rotation", &m_recorded_rotation, selected_entity.GetComponent<Rotation>(), sizeof(Rotation));
 					}
 				}
 			}
@@ -461,12 +500,31 @@ namespace Editor
 				}
 				auto& entity_transform = entity.GetComponent<Transform>()->transform;
 				average_pos += { entity_transform.m30, entity_transform.m31, entity_transform.m32};
-				
-				Vector2 global_scale = { entity_transform.m00, entity_transform.m11 };
-				Vector2 half_scale = global_scale; half_scale /= 2;
-				ImVec2 entity_min = WorldToScreen(Vector2(entity_transform.m30, entity_transform.m31) - half_scale);
-				ImVec2 entity_max = WorldToScreen(Vector2(entity_transform.m30, entity_transform.m31) + half_scale);
-				ImRect bounding_box(entity_min, entity_max);
+
+				Vector2 global_pos = { entity_transform.m30, entity_transform.m31 };
+				auto& entity_scale = entity.GetComponent<Scale>()->scale;
+				auto& entity_rotation = entity.GetComponent<Rotation>()->rotation;
+
+				float rotation = entity_rotation.z;
+				Vector2 half_scale = { entity_scale.x / 2, entity_scale.y / 2 };
+				Vector2 obb_corners[4] =
+				{
+					Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+					Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+					Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+					Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(global_pos.x, global_pos.y),
+				};
+				Vector2 max_point = obb_corners[0];
+				Vector2 min_point = obb_corners[0];
+				for (int i = 1; i < 4; i++)
+				{
+					min_point.x = std::min(min_point.x, obb_corners[i].x);
+					min_point.y = std::min(min_point.y, obb_corners[i].y);
+					max_point.x = std::max(max_point.x, obb_corners[i].x);
+					max_point.y = std::max(max_point.y, obb_corners[i].y);
+				}
+				//Display an imgui rect around the sprite so we know where we are clicking, at least
+				ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 				ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 			}
 			
