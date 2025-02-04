@@ -28,6 +28,12 @@ namespace Editor
 		void Shutdown();
 
 	private:
+		void CreatePrefab();
+		void LoadPrefab();
+		void SavePrefab();
+		void DeletePrefab();
+		void PrefabDisplay();
+
 		// store prefab key names and values
 		// First variable: Original Key Name, Second Variable: New Key Name, Third Variable: Key Value
 		std::vector<std::tuple<std::string, std::string, std::variant<std::string, bool, int>>> prefab_keys;
