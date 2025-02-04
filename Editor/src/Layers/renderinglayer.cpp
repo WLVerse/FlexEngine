@@ -150,6 +150,8 @@ namespace Editor
     editor_queue.Flush();
     Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
     game_queue.Flush();
+
+    OpenGLFrameBuffer::Unbind();
 #pragma endregion
 
   }
