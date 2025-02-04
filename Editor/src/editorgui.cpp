@@ -236,22 +236,26 @@ namespace Editor
 
 		std::filesystem::path current_texture = path;
 		std::string filename = current_texture.filename().string();
-		if (filename == "") filename = "(no sprite)";
+		if (filename == "") filename = "(no spritesheet)";
 
-		ImGui::Text("Sprite");
+		ImGui::Text("Spritesheet");
 		ImGui::SameLine();
 		ImGui::Button(filename.c_str());
 		
-		//TODO: Drag drop a spritesheet into inspector
+		//Drag drop a spritesheet into inspector
+		if (const char* data = StartPayloadReceiver<const char>(PayloadTags::SPRITESHEET))
+		{
+			std::string new_file_path(data);
+			path = new_file_path;
+			current_texture = path;
+			EndPayloadReceiver();
+		}
 
-
-		//if (filename != "(no spritesheet texture)")
-		//{
-		//	std::string asset_key = current_texture.string();
-
-		//	Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
-		//	//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
-		//}
+		if (filename != "(no spritesheet)")
+		{
+			std::string asset_key = current_texture.string();
+			Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
+		}
 
 		PopID();
 	}

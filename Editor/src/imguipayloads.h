@@ -7,6 +7,7 @@ namespace Editor
 	{
 		UNKNOWN,
 		IMAGE,
+		SPRITESHEET,
 		PREFAB,
 		ENTITY,
 		SHADER,
@@ -22,6 +23,7 @@ namespace Editor
 		switch (tag)
 		{
 		case PayloadTags::IMAGE: return "IMAGE";
+		case PayloadTags::SPRITESHEET: return "SPRITESHEET";
 		case PayloadTags::PREFAB: return "PREFAB";
 		case PayloadTags::ENTITY: return "ENTITY";
 		case PayloadTags::SHADER: return "SHADER";
