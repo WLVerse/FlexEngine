@@ -221,6 +221,11 @@ namespace Editor
 						EditorGUI::StartPayload(PayloadTags::IMAGE, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
+					else if (extension == ".flxspritesheet")
+					{
+						EditorGUI::StartPayload(PayloadTags::SPRITESHEET, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+						EditorGUI::EndPayload();
+					}
 					else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
 					{
 						payload = payload.substr(0, payload.find_last_of('.')); //to fit the AssetKey::Shader format
