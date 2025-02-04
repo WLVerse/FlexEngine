@@ -258,7 +258,9 @@ namespace Editor
     // Add custom framebuffers
     //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
     //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
-    Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1600, 900));
+    Vector2 window_size = Vector2(Application::GetCurrentWindow()->GetWidth(), Application::GetCurrentWindow()->GetHeight());
+    Window::FrameBufferManager.AddFrameBuffer("Scene", window_size);
+    Window::FrameBufferManager.AddFrameBuffer("Game", window_size);
 
     // add physics layer
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<PhysicsLayer>());
@@ -335,7 +337,7 @@ namespace Editor
     #endif
 
     // good practise
-    OpenGLFrameBuffer::Unbind();
+    //OpenGLFrameBuffer::Unbind();
 
     // For IMGUI
     FunctionQueue function_queue;

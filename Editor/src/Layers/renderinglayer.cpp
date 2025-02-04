@@ -28,6 +28,8 @@ namespace Editor
   {
     Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
     OpenGLRenderer::ClearFrameBuffer();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+    OpenGLRenderer::ClearFrameBuffer();
 
     // Update Transform component
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Rotation, Scale, Transform>())
@@ -97,6 +99,9 @@ namespace Editor
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
+      Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetEditorCameraID());
+      Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
       OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
     }
 
