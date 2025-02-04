@@ -64,6 +64,7 @@ namespace Editor
 #pragma endregion
 
 #pragma region Sprite Renderer System
+    FunctionQueue editor_queue, game_queue;
 
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
@@ -90,6 +91,9 @@ namespace Editor
         props.texture_index = -1;
       }
 
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
       props.position = Vector2(pos.position.x, pos.position.y);
       props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
       props.scale = Vector2(scale.scale.x, scale.scale.y);
@@ -99,10 +103,8 @@ namespace Editor
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
-      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetEditorCameraID());
-      Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
-      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
+      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetEditorCameraID()); }, "", index });
     }
 
 #pragma endregion
@@ -121,6 +123,10 @@ namespace Editor
         static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
         static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
       );
+
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
       sample.m_words = FLX_STRING_GET(textComponent->text);
       sample.m_color = textComponent->color;
       sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
@@ -135,12 +141,52 @@ namespace Editor
                                       static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetEditorCameraID()); }, "", index });
     }
 
-#pragma endregion
-  
+    
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    editor_queue.Flush();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+    game_queue.Flush();
 
     OpenGLFrameBuffer::Unbind();
+#pragma endregion
+
+  }
+
+  //Will be needed for batch
+  std::vector<std::pair<std::string, FlexECS::Entity>> RenderingLayer::GetRenderQueue()
+  {
+      std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
+
+      //---!Add relevant entities to sort with z-index!---
+      
+      //Sprite
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
+              sortedEntities.emplace_back(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Sprite>()->sprite_handle),
+                                          entity);
+      }
+
+      //Sprite
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Text>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
+          sortedEntities.emplace_back(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->fonttype),
+                                      entity);
+      }
+
+      //SORT
+      std::sort(sortedEntities.begin(), sortedEntities.end(),
+          [](auto& a, auto& b) {
+          int zA = a.second.HasComponent<ZIndex>() ? a.second.GetComponent<ZIndex>()->z : 0;
+          int zB = b.second.HasComponent<ZIndex>() ? b.second.GetComponent<ZIndex>()->z : 0;
+          return zA < zB; // Compare z-index
+      });
+
+      return sortedEntities;
   }
 } // namespace Editor
