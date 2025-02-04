@@ -40,32 +40,26 @@ namespace Editor
 		auto selection_system = Editor::GetInstance().GetSystem<SelectionSystem>();
 
 		//Drag a sprite from assets to window to create entity with the sprite.
-		#if 0
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 		{
 			//calculate position to place, at center
-			CameraManager& cam_manager = Editor::GetInstance().GetCamManager();
-			Vector3 position = cam_manager.GetCameraData(cam_manager.GetEditorCamera())->position;
-			float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
-			float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
-			position.x += width / 2;
-			position.y += height / 2;
+			Vector3 position = CameraManager::GetEditorCamera()->m_data.position;
+			//float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+			//float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+			//position.x += width / 2;
+			//position.y += height / 2;
 
 			std::string image_key(image);
 			std::filesystem::path path = image_key;
 
 			FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
-			new_entity.AddComponent<IsActive>({true});
 			new_entity.AddComponent<Position>({ {position.x, position.y} });
 			new_entity.AddComponent<Rotation>({});
 			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 			new_entity.AddComponent<Transform>({});
-			new_entity.AddComponent<ZIndex>({});
 			new_entity.AddComponent<Sprite>({ FLX_STRING_NEW(image_key) });
-			new_entity.AddComponent<Shader>({ FLX_STRING_NEW(R"(\shaders\texture)") });
 			EditorGUI::EndPayloadReceiver();
 		}
-		#endif
 
 		//Right click menu (create entity)
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
@@ -78,12 +72,10 @@ namespace Editor
 			{
 				//Add default components
 				FlexECS::Entity new_entity = FlexECS::Scene::CreateEntity();
-				//new_entity.AddComponent<IsActive>({});
 				new_entity.AddComponent<Position>({});
 				new_entity.AddComponent<Rotation>({});
-				//new_entity.AddComponent<Scale>({});
+				new_entity.AddComponent<Scale>({});
 				new_entity.AddComponent<Transform>({});
-				//new_entity.AddComponent<ZIndex>({});
 			}
 			ImGui::EndPopup();
 		}
@@ -91,16 +83,21 @@ namespace Editor
 		//Display all entities
 		auto selected_entities = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
 		bool multiselect = selected_entities.size() > 1;
+		bool item_hovered = false;
 		for (auto& [id, record] : scene->entity_index)
 		{
 			EditorGUI::PushID();
 			FlexECS::Entity entity(id);
 
       std::string name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
-			ImGuiTreeNodeFlags node_flags =
+			ImGuiTreeNodeFlags node_flags = entity.HasComponent<Parent>() ? 
 				ImGuiTreeNodeFlags_DefaultOpen |
 				ImGuiTreeNodeFlags_FramePadding |
 				ImGuiTreeNodeFlags_OpenOnArrow |
+				ImGuiTreeNodeFlags_SpanAvailWidth
+				:
+				ImGuiTreeNodeFlags_Leaf |
+				ImGuiTreeNodeFlags_FramePadding |
 				ImGuiTreeNodeFlags_SpanAvailWidth;
 
 			bool is_selected = false;
@@ -111,10 +108,9 @@ namespace Editor
 				node_flags |= ImGuiTreeNodeFlags_Selected;
 			}
 
-			bool is_open = ImGui::TreeNodeEx(name.c_str(), node_flags, name.c_str());
-			if (is_open)
+			if (ImGui::TreeNodeEx(name.c_str(), node_flags, name.c_str()))
 			{
-				if (ImGui::BeginDragDropSource() && !multiselect)
+				if (!multiselect && ImGui::BeginDragDropSource())
 				{
 					EditorGUI::StartPayload(PayloadTags::ENTITY, &entity.Get(), sizeof(FlexECS::EntityID), name.c_str());
 					EditorGUI::EndPayload();
@@ -122,9 +118,21 @@ namespace Editor
 				ImGui::TreePop();
 			}
 
+			if (ImGui::IsItemHovered())
+			{
+				item_hovered = true;
+			}
+
 			if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left))
 			{
-				selection_system->SelectEntity(entity);
+				if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				{
+					selection_system->AddSelectedEntity(entity);
+				}
+				else 
+				{
+					selection_system->SelectEntity(entity);
+				}
 			}
 
 
@@ -155,11 +163,10 @@ namespace Editor
 		}
 
 		//Deselect focused entity when clicking on empty space
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0))
+		if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !item_hovered)
 		{
 			selection_system->ClearSelection();
 		}
-
 		ImGui::End();
 	}
 

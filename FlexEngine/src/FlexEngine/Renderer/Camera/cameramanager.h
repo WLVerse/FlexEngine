@@ -66,6 +66,7 @@ namespace FlexEngine
          * \return A pointer to the editor camera.
          *************************************************************************/
         static Camera* GetEditorCamera();
+        static FlexECS::EntityID GetEditorCameraID() { return m_editorCameraID; };
 
         /*!************************************************************************
         * \brief Gets the Main Game camera if available.
@@ -79,5 +80,7 @@ namespace FlexEngine
         * \return void.
         *************************************************************************/
         static void SetMainGameCameraID(FlexECS::EntityID id);
+
+        static void SetEditorCameraID(FlexECS::EntityID id);
     };
 }

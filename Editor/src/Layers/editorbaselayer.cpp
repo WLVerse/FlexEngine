@@ -30,6 +30,15 @@ namespace Editor
       {
         FlexECS::Entity entity = scene->CreateEntity("Save Test 00000000000000000000000000000000000000000");
         entity.AddComponent<Transform>({});
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Sprite2 Test");
+        entity.AddComponent<Position>({ {600, 600, 0} });
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Scale>({ {250, 250, 0} });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW("")});
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Sprite Test");
@@ -248,8 +257,11 @@ namespace Editor
 
 
     // Add custom framebuffers
-    Window::FrameBufferManager.AddFrameBuffer("custom1", Vector2(1080, 640));
-    Window::FrameBufferManager.AddFrameBuffer("custom2", Vector2(1280, 720));
+    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
+    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
+    Vector2 window_size = Vector2(Application::GetCurrentWindow()->GetWidth(), Application::GetCurrentWindow()->GetHeight());
+    Window::FrameBufferManager.AddFrameBuffer("Scene", window_size);
+    Window::FrameBufferManager.AddFrameBuffer("Game", window_size);
 
     // add physics layer
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<PhysicsLayer>());
@@ -276,8 +288,8 @@ namespace Editor
 
   void EditorBaseLayer::Update()
   {
-    Window::FrameBufferManager.SetCurrentFrameBuffer("custom1");
-    Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+    //Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    //Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
     // Always remember to set the context before using ImGui
     FLX_IMGUI_ALIGNCONTEXT();
@@ -292,41 +304,41 @@ namespace Editor
     Editor::GetInstance().Update();
 
     // Test for cam
+    #if 0
+    auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
+
+    for (auto& entity : cameraEntities)
     {
-      auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
 
-      for (auto& entity : cameraEntities)
+      auto camera = entity.GetComponent<Camera>();
+      if (camera)
       {
+        auto& position = camera->m_data.position;
 
-        auto camera = entity.GetComponent<Camera>();
-        if (camera)
-        {
-          auto& position = camera->m_data.position;
+        // Adjust movement speed as needed
+        float speed = 300.0f;
 
-          // Adjust movement speed as needed
-          float speed = 300.0f;
+        // Check for WASD input
+        if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
+          entity.GetComponent<Camera>()->m_data.position.y -=
+            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move forward
+        if (Input::GetKey('S'))
+          entity.GetComponent<Camera>()->m_data.position.y +=
+            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move backward
+        if (Input::GetKey('A'))
+          entity.GetComponent<Camera>()->m_data.position.x -=
+            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move left
+        if (Input::GetKey('D'))
+          entity.GetComponent<Camera>()->m_data.position.x +=
+            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move right
 
-          // Check for WASD input
-          if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
-            entity.GetComponent<Camera>()->m_data.position.y -=
-              speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move forward
-          if (Input::GetKey('S'))
-            entity.GetComponent<Camera>()->m_data.position.y +=
-              speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move backward
-          if (Input::GetKey('A'))
-            entity.GetComponent<Camera>()->m_data.position.x -=
-              speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move left
-          if (Input::GetKey('D'))
-            entity.GetComponent<Camera>()->m_data.position.x +=
-              speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move right
-
-          entity.GetComponent<Transform>()->is_dirty = true;
-        }
+        entity.GetComponent<Transform>()->is_dirty = true;
       }
     }
+    #endif
 
     // good practise
-    OpenGLFrameBuffer::Unbind();
+    //OpenGLFrameBuffer::Unbind();
 
     // For IMGUI
     FunctionQueue function_queue;

@@ -118,8 +118,19 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
   using T = TYPE;
 
 
-	
+// Using Manual means that Component add and remove functionality won't be
+// automatically generated. So you can write your own in the case that special functionality
+// is needed.
+	#define COMPONENT_VIEWER_START_MANUAL(TYPE) \
+void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
+{ \
+  using T = TYPE;
 
+
+	#define COMPONENT_VIEWER_END(name) \
+}
+
+	#pragma region Component View Functions
 	//////////////////////////////////////////////
 	//Viewers for each variable in the component//
 	//////////////////////////////////////////////
@@ -133,8 +144,14 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	#define COMPONENT_VIEWER_DRAG_INT(name) \
   EditorGUI::DragInt(entity.GetComponent<T>()->name, #name);
 
+	#define COMPONENT_VIEWER_INT1(name) \
+  EditorGUI::Int1(entity.GetComponent<T>()->name, #name);
+
 	#define COMPONENT_VIEWER_DRAG_GLUINT(name) \
   EditorGUI::DragGLuint(entity.GetComponent<T>()->name, #name); 
+
+	#define COMPONENT_VIEWER_FLOAT1(name) \
+  EditorGUI::Float1(entity.GetComponent<T>()->name, #name);
 
 	#define COMPONENT_VIEWER_DRAG_FLOAT(name) \
   EditorGUI::DragFloat1(entity.GetComponent<T>()->name, #name);
@@ -182,8 +199,8 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	#define COMPONENT_VIEWER_MAT44(name) \
 	EditorGUI::Mat44(entity.GetComponent<T>()->name, #name);
 
-	#define COMPONENT_VIEWER_END(name) \
-}
+#pragma endregion
+
 
 	#define REGISTER_COMPONENT_VIEWER(TYPE) \
 	ComponentViewRegistry::RegisterComponent(#TYPE, COMPONENT_VIEWER_##TYPE, COMPONENT_ADDER_##TYPE, COMPONENT_REMOVER_##TYPE);

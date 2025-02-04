@@ -26,6 +26,26 @@ namespace Editor
 
   void RenderingLayer::Update()
   {
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    OpenGLRenderer::ClearFrameBuffer();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+    OpenGLRenderer::ClearFrameBuffer();
+
+    // Update Transform component
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Rotation, Scale, Transform>())
+    {
+      auto position = element.GetComponent<Position>()->position;
+      auto rotation = element.GetComponent<Rotation>()->rotation;
+      auto scale = element.GetComponent<Scale>()->scale;
+      auto transform = element.GetComponent<Transform>();
+
+      Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+      Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+      Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+      transform->transform = translation_matrix * rotation_matrix * scale_matrix;
+    }
+
 #pragma region Animator System
 
     // animator system updates the time for all animators
@@ -44,7 +64,7 @@ namespace Editor
 #pragma endregion
 
 #pragma region Sprite Renderer System
-    FunctionQueue render_queue;
+    FunctionQueue editor_queue, game_queue;
 
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
@@ -83,7 +103,8 @@ namespace Editor
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      render_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetEditorCameraID()); }, "", index });
     }
 
 #pragma endregion
@@ -120,11 +141,17 @@ namespace Editor
                                       static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      render_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
+      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetEditorCameraID()); }, "", index });
     }
 
-    render_queue.Flush();
+    
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    editor_queue.Flush();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+    game_queue.Flush();
 #pragma endregion
+
   }
 
   //Will be needed for batch

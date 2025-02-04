@@ -54,6 +54,9 @@
     <ClCompile Include="src\editorcomponents.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\sceneview.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
     <ClCompile Include="src\Layers\renderinglayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
@@ -122,6 +125,9 @@
     </ClInclude>
     <ClInclude Include="src\editorcomponents.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sceneview.h">
+      <Filter>src\Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\renderinglayer.h">
       <Filter>src\Layers</Filter>

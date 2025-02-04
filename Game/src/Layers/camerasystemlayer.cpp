@@ -74,7 +74,6 @@ namespace Game //In future will seperate this into GameCameraServiceLayer, Edito
           auto entity = element.GetComponent<Camera>();
         
           if (!element.GetComponent<Transform>()->is_active ||
-              !element.GetComponent<Transform>()->is_dirty ||
               !entity->getIsActive())
             continue;
         

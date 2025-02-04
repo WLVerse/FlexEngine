@@ -60,7 +60,7 @@ void Editor::SelectionSystem::DeleteEntity(FlexEngine::FlexECS::EntityID id)
 
 void Editor::SelectionSystem::DeleteSelectedEntities()
 {
-	for (auto entity : m_entities_to_delete)
+	for (auto entity : m_selected_entities)
 	{
 		m_entities_to_delete.insert(entity);
 	}
