@@ -82,12 +82,32 @@ namespace Editor
 		PopID();
 	}
 
+	void EditorGUI::Float1(float& data, std::string title, float width)
+	{
+		PushID();
+		ImGui::PushItemWidth(width);
+		ImGui::Text(title.c_str()); ImGui::SameLine();
+		ImGui::InputFloat("", &data, 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopItemWidth();
+		PopID();
+	}
+
 	void EditorGUI::DragFloat1(float& data, std::string title, float width, float drag_speed)
 	{
 		PushID();
 		ImGui::PushItemWidth(width);
 		ImGui::Text(title.c_str()); ImGui::SameLine();
 		ImGui::DragFloat("", &data, drag_speed);
+		ImGui::PopItemWidth();
+		PopID();
+	}
+
+	void EditorGUI::Int1(int& data, std::string title, float width)
+	{
+		PushID();
+		ImGui::PushItemWidth(width);
+		ImGui::Text(title.c_str()); ImGui::SameLine();
+		ImGui::InputInt("", &data, 0, 0, ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopItemWidth();
 		PopID();
 	}
@@ -130,8 +150,7 @@ namespace Editor
 		std::string entity_name{ "(no entity)" };
 		if (entity != FlexECS::Entity::Null)
 		{
-			//entity_name = FLX_STRING_GET(*entity.GetComponent<FlexEngine::FlexECS::Scene::StringIndex>());
-      entity_name = entity_name.substr(0, entity_name.find_first_of('\0'));
+			entity_name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
 		}
 
 		ImGui::BeginGroup();
@@ -143,6 +162,7 @@ namespace Editor
 
 		if (auto payload = StartPayloadReceiver<FlexECS::EntityID>(PayloadTags::ENTITY))
 		{
+			//Warning: needs a way to check that the dropped entity is not itself.
 			FlexECS::Entity dropped_entity = *payload;
 			entity = dropped_entity;
 			EndPayloadReceiver();
@@ -190,6 +210,7 @@ namespace Editor
 		{
 			std::string new_file_path(data);
 			path = new_file_path;
+			current_texture = path;
 			EndPayloadReceiver();
 		}
 
@@ -197,8 +218,13 @@ namespace Editor
 		{
 			std::string asset_key = current_texture.string();
       
-			Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
-			ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
+			//Should find a way to be able to display both sprite and spritesheet,
+			//Since animator hijacks the sprite
+			if (current_texture.extension() != ".flxspritesheet")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(asset_key);
+				ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
+			}
 		}
 
 		PopID();
@@ -215,21 +241,17 @@ namespace Editor
 		ImGui::Text("Sprite");
 		ImGui::SameLine();
 		ImGui::Button(filename.c_str());
+		
+		//TODO: Drag drop a spritesheet into inspector
 
-		//if (const char* data = StartPayloadReceiver<const char>(PayloadTags::IMAGE))
+
+		//if (filename != "(no spritesheet texture)")
 		//{
-			//std::string new_file_path(data);
-			//path = new_file_path;
-			//EndPayloadReceiver();
+		//	std::string asset_key = current_texture.string();
+
+		//	Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
+		//	//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
 		//}
-
-		if (filename != "(no spritesheet texture)")
-		{
-			std::string asset_key = current_texture.string();
-
-			Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
-			//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
-		}
 
 		PopID();
 	}
@@ -413,8 +435,10 @@ namespace Editor
 	static constexpr ImU32 blue_gizmo_hovered_color = IM_COL32(255, 165, 0, 225);
 	//constexpr ImU32 blue_gizmo_hovered_color	= IM_COL32(0, 0, 191, 225);
 
-	void EditorGUI::GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateRight(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		// Origin refers to the center of the entity.
 		//We set imgui cursor pos to start from this place, then we adjust
 		//The gizmos position starting from that position.
@@ -439,7 +463,7 @@ namespace Editor
 
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_Translate_Right");
 		ImRect bb({ pos.x, pos.y }, { pos.x + length * length_scale, pos.y + thickness });
@@ -458,9 +482,19 @@ namespace Editor
 
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
+		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
 		}
 		if (released)
 		{
@@ -468,10 +502,13 @@ namespace Editor
 		}
 
 		draw_list->AddConvexPolyFilled(arrow_gizmo, arrow_gizmo_point_count, gizmo_color);
+		return status;
 	}
 	//Note: ImGui dragdelta.y is +ve when you move mouse downwards
-	void EditorGUI::GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateUp(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		pos.x -= half_thickness;
@@ -490,11 +527,11 @@ namespace Editor
 		};
 
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		
-		if (window->SkipItems) return;
+
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_Translate_Up");
-		ImRect bb({ pos.x, pos.y - length * length_scale } , { pos.x + thickness, pos.y } );
+		ImRect bb({ pos.x, pos.y - length * length_scale }, { pos.x + thickness, pos.y });
 
 		ImGui::ItemSize(bb);
 		ImGui::ItemAdd(bb, id);
@@ -505,36 +542,48 @@ namespace Editor
 		*hovering = hovered;
 
 		ImU32 gizmo_color = (hovered || held) ? green_gizmo_hovered_color_gizmo_color : green_gizmo_color;
-		
+
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(arrow_gizmo, arrow_gizmo_point_count, gizmo_color);
-
+		return status;
 	}
 
-	void EditorGUI::GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::GizmoTranslateXY(float* p_x_axis_change, float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		pos.x += 12.0f;
 		pos.y -= 12.0f;
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	
+
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_XY_Rect");
-		ImRect bb({ pos.x, pos.y - 18.0f}, { pos.x + 18.0f, pos.y });
+		ImRect bb({ pos.x, pos.y - 18.0f }, { pos.x + 18.0f, pos.y });
 
 		ImGui::ItemSize(bb);
 		ImGui::ItemAdd(bb, id);
@@ -550,10 +599,20 @@ namespace Editor
 
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 			*p_y_axis_change += drag_delta.y;
+		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
 		}
 		if (released)
 		{
@@ -561,11 +620,14 @@ namespace Editor
 		}
 
 		draw_list->AddRectFilled(bb.Min, bb.Max, gizmo_color);
+		return status;
 	}
 
 
-	void EditorGUI::Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_X(float* p_x_axis_change, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		pos.x += padding;
@@ -586,7 +648,7 @@ namespace Editor
 
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_Scale_Right");
 		ImRect bb({ pos.x, pos.y }, { pos.x + length * length_scale, pos.y + thickness });
@@ -603,21 +665,33 @@ namespace Editor
 
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_x_axis_change += drag_delta.x;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(box_gizmo, box_gizmo_point_count, gizmo_color);
+		return status;
 	}
 
-	void EditorGUI::Gizmo_Scale_Y(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_Y(float* p_y_axis_change, const ImVec2& origin, bool* hovering)
 	{
-
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		pos.x -= half_thickness;
@@ -638,7 +712,7 @@ namespace Editor
 
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_Scale_Up");
 		ImRect bb({ pos.x, pos.y - length * length_scale }, { pos.x + thickness, pos.y });
@@ -655,20 +729,33 @@ namespace Editor
 
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 			*p_y_axis_change += drag_delta.y;
 		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
+		}
 		if (released)
 		{
-
+			//Unforunately not consistent
 		}
 
 		draw_list->AddConvexPolyFilled(box_gizmo, box_gizmo_point_count, gizmo_color);
+		return status;
 	}
 
-	void EditorGUI::Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::Gizmo_Scale_XY(float* value, const ImVec2& origin, bool* hovering)
 	{
+		static bool manipulated = false;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		pos.x -= half_thickness;
@@ -677,10 +764,10 @@ namespace Editor
 
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		ImGuiID id = window->GetID("Gizmo_XY_Rect");
-		ImRect bb({ pos.x, pos.y}, { pos.x + thickness, pos.y + thickness });
+		ImRect bb({ pos.x, pos.y }, { pos.x + thickness, pos.y + thickness });
 
 		ImGui::ItemSize(bb);
 		ImGui::ItemAdd(bb, id);
@@ -694,27 +781,28 @@ namespace Editor
 
 		if (held)
 		{
+			manipulated = true;
+			status = (ImGui::IsMouseClicked(0)) ? GizmoStatus::START_DRAG : GizmoStatus::DRAGGING;
 			ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
 			if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
-			
-			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
 
-			//return to caller the axis with a higher value
-			//if (std::abs(drag_delta.x) > std::abs(drag_delta.y))
-			//{
-			//	*value = drag_delta.x;
-			//}
-			//else
-			//{
-			//	*value = -drag_delta.y;
-			//}
+			*value = drag_delta.x;	//personally it feels better this way, who even scales by moving the mouse upwards instead of right?
+		}
+		else if (!held)
+		{
+			if (manipulated)
+			{
+				manipulated = false;
+				status = GizmoStatus::END_DRAG;
+			}
 		}
 		if (released)
 		{
-
+			//Unforunately not consistent
 		}
 
 		draw_list->AddRectFilled(bb.Min, bb.Max, gizmo_color);
+		return status;
 	}
 
 
@@ -725,15 +813,16 @@ namespace Editor
 		float manipulated_angle{}; //track current angle as we are spinning around
 		bool is_manipulating{ false };
 	};
-	void EditorGUI::Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering)
+	EditorGUI::GizmoStatus EditorGUI::Gizmo_Rotate_Z(float* value, const ImVec2& origin, bool* hovering)
 	{
 		static RotationInfo rotation_info;
+		GizmoStatus status = GizmoStatus::NO_INTERACTION;
 		ImGui::SetCursorPos(origin);
 		ImVec2 pos = ImGui::GetCursorPos();
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-		
+
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
-		if (window->SkipItems) return;
+		if (window->SkipItems) return status;
 
 		//ImGuiID id = window->GetID("Gizmo_Rotate_Z");
 
@@ -746,16 +835,18 @@ namespace Editor
 			if (ImGui::IsMouseClicked(0) && !rotation_info.is_manipulating)
 			{
 				//start dragging
+				status = GizmoStatus::START_DRAG;
 				rotation_info.is_manipulating = true;
 				rotation_info.initial_click_pos = ImGui::GetMousePos();
 				rotation_info.initial_angle = atan2f(rotation_info.initial_click_pos.y - origin.y,
-																						 rotation_info.initial_click_pos.x - origin.x);
+					rotation_info.initial_click_pos.x - origin.x);
 				rotation_info.manipulated_angle = rotation_info.initial_angle;
 			}
 		}
 
 		if (ImGui::IsMouseReleased(0) && rotation_info.is_manipulating)
 		{
+			status = GizmoStatus::END_DRAG;
 			//Mouse was released
 			rotation_info.initial_angle = {};
 			rotation_info.initial_click_pos = {};
@@ -766,9 +857,10 @@ namespace Editor
 		//Now compute the amount to rotate
 		if (rotation_info.is_manipulating)
 		{
+			if (!ImGui::IsMouseClicked(0)) status = GizmoStatus::DRAGGING;
 			ImVec2 current_mouse_pos = ImGui::GetMousePos();
 			float current_angle = atan2f(current_mouse_pos.y - origin.y,
-																	 current_mouse_pos.x - origin.x);
+				current_mouse_pos.x - origin.x);
 			float angle_delta = rotation_info.manipulated_angle - current_angle;
 			rotation_info.manipulated_angle = current_angle;
 
@@ -787,6 +879,7 @@ namespace Editor
 		{
 			draw_list->AddCircleFilled(rotation_info.initial_click_pos, 10.0f, green_gizmo_color, circle_segments);
 		}
+		return status;
 	}
 
 	#pragma endregion

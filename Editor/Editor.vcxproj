@@ -176,6 +176,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
+    <ClCompile Include="src\sceneview.cpp" />
     <ClCompile Include="src\selectionsystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +202,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
+    <ClInclude Include="src\sceneview.h" />
     <ClInclude Include="src\selectionsystem.h" />
   </ItemGroup>
   <ItemGroup>
