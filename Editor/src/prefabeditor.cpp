@@ -40,7 +40,7 @@ namespace Editor
 
 	void PrefabEditor::LoadPrefab() {
 		// Open the file browser
-		file_name.first = FileList::Browse(
+		FileList fl = FileList::Browse(
 			"Open Prefab",
 			Path::current("assets/data"), "default.flxdata",
 			L"FlexData Files (*.flxdata)\0" L"*.flxdata\0",
@@ -50,11 +50,11 @@ namespace Editor
 		);
 
 		// cancel if no files were selected
-		if (file_name.first.empty()) {
+		if (fl.empty()) {
 			Log::Error("No file was selected");
 			return;
 		}
-
+		file_name.first = fl;
 		prefab_keys.clear();
 
 		// open the prefab
@@ -115,8 +115,8 @@ namespace Editor
 			File& file = File::Open(file_name.first[0]);
 			// Check whether file name is to be changed
 			if (file.path.filename().stem().string() != file_name.second) {
-				std::filesystem::rename(Path::current(file.path.filename().string()).c_str(),
-					Path::current(file_name.second + file.path.extension().string()).c_str());
+				std::filesystem::rename(Path::source("assets/data/" + file.path.filename().string()).c_str(),
+					Path::source("assets/data/" + file_name.second + file.path.extension().string()).c_str());
 				Log::Info("Renaming file success.");
 			}
 		}
@@ -143,7 +143,7 @@ namespace Editor
 
 		// This does not work
 		if (file_name.first.empty()) {
-			file_name.first.push_back(Path::current(file_name.second + ".flxdata"));
+			file_name.first.push_back(Path::source("assets/data/" + file_name.second + ".flxdata"));
 			file_name.second = file_name.first[0].filename().stem().string();
 		}
 
