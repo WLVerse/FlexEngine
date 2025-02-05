@@ -25,6 +25,8 @@ using namespace FlexEngine;
 #include "prefabeditor.h"
 #include "sceneview.h"
 
+#include "FlexEngine/Renderer/Camera/camera.h" // For an editor owned camera
+
 #include "selectionsystem.h"
 
 #include <memory>
@@ -63,7 +65,8 @@ namespace Editor
 		template <typename T> T* GetPanel();
 		template <typename T> T* GetSystem();
 
-
+    static Camera m_editorCamera; // Publicly assessed editorcamera for now
+			
 	private:
 		bool m_initialized = false;
 		

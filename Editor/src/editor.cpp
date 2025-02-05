@@ -118,6 +118,7 @@ void SetupImGuiStyle()
 namespace Editor
 {
 	static Editor instance;
+	Camera Editor::m_editorCamera;
 
 	Editor& Editor::GetInstance()
 	{
@@ -156,6 +157,9 @@ namespace Editor
 		}
 
 		SetupImGuiStyle();
+
+    m_editorCamera.m_data = { 800.0f, 450.0f, 0 };
+		m_editorCamera.SetOrthographic(800.0f, 450.0f, 1600.0f, 900.0f, -2.0f, 2.0f);
 	}
 
 	//ImGui startframe endframe already called in States::Window
@@ -163,6 +167,8 @@ namespace Editor
 	{
 		FLX_IMGUI_ALIGNCONTEXT();
 		EditorGUI::StartFrame();
+
+		m_editorCamera.Update();
 
 		//panels
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)

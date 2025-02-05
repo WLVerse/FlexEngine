@@ -8,6 +8,7 @@
 #include <glad/glad.h>
 
 #include "Renderer/Camera/CameraManager.h"
+#include "FlexEngine/Renderer/Camera/camera.h"
 
 namespace FlexEngine
 {
@@ -103,6 +104,9 @@ namespace FlexEngine
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
     static void DrawTexture2D(const Renderer2DText& text = {}, const FlexECS::EntityID camID = 0);
+
+    // Draw with no usage of a camera entity
+    static void DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.
