@@ -12,7 +12,7 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
-
+#include "editor.h"
 namespace Editor
 {
 
@@ -104,7 +104,7 @@ namespace Editor
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
       game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
-      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetEditorCameraID()); }, "", index });
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::m_editorCamera); }, "", index });
     }
 
 #pragma endregion
