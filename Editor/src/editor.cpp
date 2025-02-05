@@ -159,7 +159,7 @@ namespace Editor
 		SetupImGuiStyle();
 
     m_editorCamera.m_data = { 800.0f, 450.0f, 0 };
-		m_editorCamera.SetOrthographic(800.0f, 450.0f, 1600.0f, 900.0f, -2.0f, 2.0f);
+		m_editorCamera.SetOrthographic(0.f,1600.f, 0.f, 900.0f, -2.0f, 2.0f);
 	}
 
 	//ImGui startframe endframe already called in States::Window
