@@ -1,5 +1,5 @@
 #include "Layers.h"
-
+#include "editor.h"
 namespace Editor
 {
 
@@ -94,6 +94,7 @@ namespace Editor
       for (auto entity : m_entities_to_delete)
       {
           scene->DestroyEntity(entity);
+          Editor::GetInstance().GetSystem<SelectionSystem>()->DeselectEntity(entity);
       }
   }
 
