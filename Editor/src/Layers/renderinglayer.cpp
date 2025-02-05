@@ -104,7 +104,7 @@ namespace Editor
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
       game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
-      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::m_editorCamera); }, "", index });
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::GetInstance().m_editorCamera); }, "", index });
     }
 
 #pragma endregion
@@ -144,6 +144,7 @@ namespace Editor
       game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
       editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetEditorCameraID()); }, "", index });
     }
+#pragma endregion
 
     
     Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
@@ -152,7 +153,6 @@ namespace Editor
     game_queue.Flush();
 
     OpenGLFrameBuffer::Unbind();
-#pragma endregion
 
   }
 
