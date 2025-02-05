@@ -55,24 +55,24 @@ namespace Game
     if (Application::MessagingSystem::Receive<bool>("Start Game") && menuLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
-      camSystemLayer->UnregisterCams();
+      //camSystemLayer->UnregisterCams();
       menuLayer = nullptr;
 
       gameLayer = std::make_shared<GameLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
-      camSystemLayer->RegisterCams();
+      //camSystemLayer->RegisterCams();
     }
 
     // Game to menu layer
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && gameLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
-      camSystemLayer->UnregisterCams();
+      //camSystemLayer->UnregisterCams();
       gameLayer = nullptr;
 
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
-      camSystemLayer->RegisterCams();
+      //camSystemLayer->RegisterCams();
     }
   }
 }

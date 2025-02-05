@@ -694,7 +694,7 @@ namespace Editor
 		GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
 		ImGui::Image((ImTextureID)static_cast<uintptr_t>(texture),
-			m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
+			m_viewport_size, ImVec2(0, 0), ImVec2(1, 1));
 
 		HandleMouseAndKeyboardEvents();
 		DrawGizmos();
