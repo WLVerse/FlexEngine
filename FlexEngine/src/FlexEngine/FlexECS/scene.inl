@@ -1,16 +1,18 @@
 // WLVERSE [https://wlverse.web.app]
 // scene.inl
-// 
-// Implementation of inline functions for the scene class. These are for querying entities of a certain component list
-// YC : I could definitely optimize the vector to not be copied around so much. I'll look into it.
+//
+// Implementation of inline functions for the scene class. These are for querying
+// entities of a certain component list. 
+// YC : I could definitely optimize the vector to not be copied around so much.
+// I'll look into it. 
 //
 // AUTHORS
 // [50%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Query implementation
 // [50%] Kuan Yew Chong (yewchong.k\@digipen.edu)
 //   - Cached query implementation, and comments because someone hates green, or something, lmao.
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 /*!
   \brief Performs a query that returns a list of entities that have the requested components, but assumes that you don't want to cache it as it is volatile.

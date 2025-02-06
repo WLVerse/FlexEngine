@@ -1,21 +1,25 @@
 // WLVERSE [https://wlverse.web.app]
 // quaternion.cpp
+//
+// Quaternions are purely magic. 
+// If you're insane and want to understand them, here are some good places to
+// start: 
+// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles 
 // 
-// Quaternions are purely magic.
-// If you're insane and want to understand them, here are some good places to start:
-// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-// https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
-// https://stackoverflow.com/questions/62943083/interpolate-between-two-quaternions-the-long-way
+// https://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/ 
+// https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/ 
 // 
-// Note that the quaternion is stored in the xyzw format, which is the standard for most modern libraries.
-// The epsilon value is redefined in the cpp, as opposed to using EPSILONf.
+// https://stackoverflow.com/questions/62943083/interpolate-between-two-quaternions-the-long-way 
+// 
+// Note that the quaternion is stored in the xyzw format, which is the standard
+// for most modern libraries. 
+// The epsilon value is redefined in the cpp, as opposed to using EPSILONf. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "quaternion.h"
 

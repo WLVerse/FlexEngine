@@ -1,13 +1,13 @@
 // WLVERSE [https://wlverse.web.app]
 // flexbase64.cpp
-// 
-// Base64 encoding and decoding functions.
+//
+// Base64 encoding and decoding functions. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

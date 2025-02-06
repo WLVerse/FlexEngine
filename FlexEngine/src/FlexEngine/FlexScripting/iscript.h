@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // iscript.h
-// 
-// The interface for scripts.
-// Inherit from this class to create your own scripts,
-// making sure they're only created in the scripting sln.
+//
+// The interface for scripts. 
+// Inherit from this class to create your own scripts, making sure they're only
+// created in the scripting sln. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

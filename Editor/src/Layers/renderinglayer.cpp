@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.cpp
 //
-// Rendering layer for the editor.
-//
-// Very rough implementation of hotloading a rendering DLL.
+// Rendering layer for the editor. 
+// 
+// Implements the main renderers for the editor and game. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 #include "editor.h"

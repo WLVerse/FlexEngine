@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // ansi_color.h
-// 
-// Wrapper for ANSI color codes
-// Most of the codes are not supported by Windows console
-// https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+//
+// Wrapper for ANSI color codes. 
+// Most of the codes are not supported by Windows console. 
+// https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

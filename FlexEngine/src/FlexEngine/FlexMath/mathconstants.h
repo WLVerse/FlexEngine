@@ -1,16 +1,16 @@
 // WLVERSE [https://wlverse.web.app]
 // mathconstants.h
+//
+// Constants for mathematical operations. 
 // 
-// Constants for mathematical operations.
-// 
-// PI value taken from glm
-// EPSILON value taken from DBL_ESPILON and FLT_EPSILON in C++ standard library
+// PI value taken from glm 
+// EPSILON value taken from DBL_ESPILON and FLT_EPSILON in C++ standard library 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

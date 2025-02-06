@@ -1,13 +1,13 @@
 // WLVERSE [https://wlverse.web.app]
 // editorwindowlayer.h
-// 
-// Editor window management layer.
+//
+// Editor window management layer. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

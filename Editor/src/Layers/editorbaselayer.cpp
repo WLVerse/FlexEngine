@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
-// editorbaselayer.h
+// editorbaselayer.cpp
 //
-// Base layer for the editor.
+// Base layer for the editor. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
