@@ -38,18 +38,7 @@ namespace Editor
 
 	void SceneView::Init()
 	{
-		//auto scene = FlexECS::Scene::GetActiveScene();
-		//m_editor_camera = scene->CreateEntity("Editor Cam :3");
-		//m_editor_camera.AddComponent<Position>({});
-		//m_editor_camera.AddComponent<Rotation>({});
-		//m_editor_camera.AddComponent<Scale>({});
-		//m_editor_camera.AddComponent<Transform>({});
 
-		//Camera cam({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
-		//m_editor_camera.AddComponent<Camera>(cam);
-
-		//CameraManager::SetEditorCameraID(m_editor_camera);
-		//CameraManager::SetCamera(m_editor_camera, m_editor_camera.GetComponent<Camera>());
 	}
 
 	void SceneView::Update()
@@ -694,7 +683,7 @@ namespace Editor
 		GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
 		ImGui::Image((ImTextureID)static_cast<uintptr_t>(texture),
-			m_viewport_size, ImVec2(0, 0), ImVec2(1, 1));
+			m_viewport_size, ImVec2(0, 1), ImVec2(1, 0));
 
 		HandleMouseAndKeyboardEvents();
 		DrawGizmos();

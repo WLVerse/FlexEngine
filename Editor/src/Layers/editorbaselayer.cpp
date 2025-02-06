@@ -21,9 +21,7 @@ namespace Editor
   void EditorBaseLayer::OnAttach()
   {
 
-#pragma region Temporary Tests
-
-// test scene
+#pragma region Create the entities
 #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
@@ -112,41 +110,8 @@ namespace Editor
           Vector3(1.0f, 0.0, 0.0f),
           { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle }
         });
-
-  #if 0 // Test case
-          static std::string extra = "";
-          if (Input::GetKey(GLFW_KEY_J))
-              extra += "j";
-          Renderer2DText sample;
-          static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
-          static std::string displayedText = ""; // Start with an empty string
-          static float elapsedTime = 0.0f;       // To track time
-          elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
-          if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
-              displayedText += fullText[displayedText.size()]; // Append the next character
-              elapsedTime = 0.0f; // Reset the timer
-          }
-          sample.m_words = displayedText;
-          //sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
-          sample.m_color = Vector3::Zero;
-          sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
-          sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
-              0.00, 1.00, 0.00, 0.00,
-              0.00, 0.00, 1.00, 0.00,
-               822.00, 248.00, 0.00, 1.00);
-          sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
-          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
-          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
-          //sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
-          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
-          sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
-          //sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
-          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
-          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
-          //sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
-          sample.m_maxwidthtextbox = 850.0f;
-  #endif
       }
+
       // button
       {
         FlexECS::Entity button = scene->CreateEntity("Test Button");
@@ -163,25 +128,25 @@ namespace Editor
 
       //Particle System test
       {
-          FlexECS::Entity emitter = scene->CreateEntity("Test Spawner");
-          emitter.AddComponent<Position>({ Vector3(200.0f, -200.0f, 0.0f) });
-          emitter.AddComponent<Rotation>({Vector3(0,0,180)}); //In radians ah
-          emitter.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
-          emitter.AddComponent<Transform>({});
-          emitter.AddComponent<Sprite>({});
-          emitter.AddComponent<ParticleSystem>({});
-          //For particle systems no-choice easier to do this if manual -> too many variables
-          emitter.GetComponent<ParticleSystem>()->particlesprite_handle = FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)");
-          emitter.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Hemisphere;
+          //FlexECS::Entity emitter = scene->CreateEntity("Test Spawner");
+          //emitter.AddComponent<Position>({ Vector3(200.0f, -200.0f, 0.0f) });
+          //emitter.AddComponent<Rotation>({Vector3(0,0,180)}); //In radians ah
+          //emitter.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
+          //emitter.AddComponent<Transform>({});
+          //emitter.AddComponent<Sprite>({});
+          //emitter.AddComponent<ParticleSystem>({});
+          ////For particle systems no-choice easier to do this if manual -> too many variables
+          //emitter.GetComponent<ParticleSystem>()->particlesprite_handle = FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)");
+          //emitter.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Hemisphere;
 
-          FlexECS::Entity emitter2 = scene->CreateEntity("Test Spawner 2");
-          emitter2.AddComponent<Position>({ Vector3(600.0f, -200.0f, 0.0f) });
-          emitter2.AddComponent<Rotation>({ Vector3(0.0f,0.0f,90.0f)});
-          emitter2.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
-          emitter2.AddComponent<Transform>({});
-          emitter2.AddComponent<Sprite>({});
-          emitter2.AddComponent<ParticleSystem>({});
-          emitter2.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Box;
+          //FlexECS::Entity emitter2 = scene->CreateEntity("Test Spawner 2");
+          //emitter2.AddComponent<Position>({ Vector3(600.0f, -200.0f, 0.0f) });
+          //emitter2.AddComponent<Rotation>({ Vector3(0.0f,0.0f,90.0f)});
+          //emitter2.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
+          //emitter2.AddComponent<Transform>({});
+          //emitter2.AddComponent<Sprite>({});
+          //emitter2.AddComponent<ParticleSystem>({});
+          //emitter2.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Box;
 
       }
       //scene->DumpArchetypeIndex();
@@ -198,57 +163,6 @@ namespace Editor
     }
 #endif
 
-// preliminary test
-#if 0
-    {
-      for (auto& [type_list, archetype] : scene->archetype_index)
-      {
-        // test conversion
-        FlexECS::_Archetype _archetype_index = FlexECS::Internal_ConvertToSerializedArchetype(archetype);
-
-        // print the archetype
-        std::stringstream ss;
-        for (std::size_t i = 0; i < _archetype_index.type.size(); ++i)
-        {
-          ss << _archetype_index.type[i] << " ";
-        }
-        Log::Warning("Archetype: " + ss.str());
-
-        // print what was converted
-        for (std::size_t i = 0; i < _archetype_index.archetype_table.size(); ++i)
-        {
-          // print the type and data
-          Log::Info("Type: " + _archetype_index.type[i]);
-
-          // print per entity
-          for (std::size_t j = 0; j < _archetype_index.archetype_table[i].size(); ++j)
-          {
-            Log::Debug("Entity: " + std::to_string(j));
-            Log::Debug("Data: " + _archetype_index.archetype_table[i][j]);
-          }
-        }
-      }
-    }
-#endif
-
-// test serialization
-#if 0
-    {
-      Path save_to_path = Path::current("temp/serialization_test_scene.flxscene");
-      File& file = File::Open(save_to_path);
-      scene->Save(file);
-    }
-#endif
-
-// test deserialization
-#if 0
-    {
-      Path load_from_path = Path::current("temp/serialization_test_scene.flxscene");
-      File& file = File::Open(load_from_path);
-      auto loaded_scene = FlexECS::Scene::Load(file);
-      loaded_scene->DumpArchetypeIndex();
-    }
-#endif
 
 #pragma endregion
 
@@ -257,8 +171,6 @@ namespace Editor
 
 
     // Add custom framebuffers
-    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1080, 640));                                             
-    //Window::FrameBufferManager.AddFrameBuffer("Scene", Vector2(1280, 720));
     Vector2 window_size = Vector2(static_cast<float>(Application::GetCurrentWindow()->GetWidth()), static_cast<float>(Application::GetCurrentWindow()->GetHeight()));
     Window::FrameBufferManager.AddFrameBuffer("Scene", window_size);
     Window::FrameBufferManager.AddFrameBuffer("Game", window_size);
@@ -303,39 +215,6 @@ namespace Editor
 
     Editor::GetInstance().Update();
 
-    // Test for cam
-    #if 0
-    auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
-
-    for (auto& entity : cameraEntities)
-    {
-
-      auto camera = entity.GetComponent<Camera>();
-      if (camera)
-      {
-        auto& position = camera->m_data.position;
-
-        // Adjust movement speed as needed
-        float speed = 300.0f;
-
-        // Check for WASD input
-        if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
-          entity.GetComponent<Camera>()->m_data.position.y -=
-            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move forward
-        if (Input::GetKey('S'))
-          entity.GetComponent<Camera>()->m_data.position.y +=
-            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move backward
-        if (Input::GetKey('A'))
-          entity.GetComponent<Camera>()->m_data.position.x -=
-            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move left
-        if (Input::GetKey('D'))
-          entity.GetComponent<Camera>()->m_data.position.x +=
-            speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move right
-
-        entity.GetComponent<Transform>()->is_dirty = true;
-      }
-    }
-    #endif
 
     // good practise
     //OpenGLFrameBuffer::Unbind();
@@ -428,3 +307,128 @@ namespace Editor
   }
 
 } // namespace Editor
+
+
+
+
+// preliminary test
+#if 0
+{
+  for (auto& [type_list, archetype] : scene->archetype_index)
+  {
+    // test conversion
+    FlexECS::_Archetype _archetype_index = FlexECS::Internal_ConvertToSerializedArchetype(archetype);
+
+    // print the archetype
+    std::stringstream ss;
+    for (std::size_t i = 0; i < _archetype_index.type.size(); ++i)
+    {
+      ss << _archetype_index.type[i] << " ";
+    }
+    Log::Warning("Archetype: " + ss.str());
+
+    // print what was converted
+    for (std::size_t i = 0; i < _archetype_index.archetype_table.size(); ++i)
+    {
+      // print the type and data
+      Log::Info("Type: " + _archetype_index.type[i]);
+
+      // print per entity
+      for (std::size_t j = 0; j < _archetype_index.archetype_table[i].size(); ++j)
+      {
+        Log::Debug("Entity: " + std::to_string(j));
+        Log::Debug("Data: " + _archetype_index.archetype_table[i][j]);
+      }
+    }
+  }
+    }
+#endif
+
+// test serialization
+#if 0
+{
+  Path save_to_path = Path::current("temp/serialization_test_scene.flxscene");
+  File& file = File::Open(save_to_path);
+  scene->Save(file);
+}
+#endif
+
+// test deserialization
+#if 0
+{
+  Path load_from_path = Path::current("temp/serialization_test_scene.flxscene");
+  File& file = File::Open(load_from_path);
+  auto loaded_scene = FlexECS::Scene::Load(file);
+  loaded_scene->DumpArchetypeIndex();
+}
+#endif
+
+
+#if 0 // Test case
+static std::string extra = "";
+if (Input::GetKey(GLFW_KEY_J))
+extra += "j";
+Renderer2DText sample;
+static std::string fullText = "The whole human fraternity is becoming highly dependent on the computer technology; no one can imagine life without computer. As, it has spread its wings so deeply in every area and made people used of it. It is very beneficial for the students of any class. They can use it to prepare their projects, learn poems, read different stories, download notes for exam preparations, collect large information within seconds, learn about painting, drawing, etc. However it enhances the professional skills of the students and helps in getting job easily.";
+static std::string displayedText = ""; // Start with an empty string
+static float elapsedTime = 0.0f;       // To track time
+elapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 100;
+if (elapsedTime >= 1.0f && displayedText.size() < fullText.size()) {
+  displayedText += fullText[displayedText.size()]; // Append the next character
+  elapsedTime = 0.0f; // Reset the timer
+}
+sample.m_words = displayedText;
+//sample.m_words = "hello there my name is markiplier and welcome back to another game of amnesia the dark descent" + extra;
+sample.m_color = Vector3::Zero;
+sample.m_fonttype = R"(/fonts/Bangers/Bangers-Regular.ttf)";
+sample.m_transform = Matrix4x4(1.00, 0.00, 0.00, 0.00,
+    0.00, 1.00, 0.00, 0.00,
+    0.00, 0.00, 1.00, 0.00,
+     822.00, 248.00, 0.00, 1.00);
+sample.m_window_size = Vector2(static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()), static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight()));
+//sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Top };
+//sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Middle };
+//sample.m_alignment = { Renderer2DText::Alignment_Left,Renderer2DText::Alignment_Bottom };
+//sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Top };
+sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Middle };
+//sample.m_alignment = { Renderer2DText::Alignment_Center,Renderer2DText::Alignment_Bottom };
+//sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Top };
+//sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Middle };
+//sample.m_alignment = { Renderer2DText::Alignment_Right,Renderer2DText::Alignment_Bottom };
+sample.m_maxwidthtextbox = 850.0f;
+#endif
+
+
+// Test for cam
+#if 0
+auto cameraEntities = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>();
+
+for (auto& entity : cameraEntities)
+{
+
+  auto camera = entity.GetComponent<Camera>();
+  if (camera)
+  {
+    auto& position = camera->m_data.position;
+
+    // Adjust movement speed as needed
+    float speed = 300.0f;
+
+    // Check for WASD input
+    if (Input::GetKey('W')) // Replace 'W' with your input library's key codes
+      entity.GetComponent<Camera>()->m_data.position.y -=
+      speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move forward
+    if (Input::GetKey('S'))
+      entity.GetComponent<Camera>()->m_data.position.y +=
+      speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move backward
+    if (Input::GetKey('A'))
+      entity.GetComponent<Camera>()->m_data.position.x -=
+      speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move left
+    if (Input::GetKey('D'))
+      entity.GetComponent<Camera>()->m_data.position.x +=
+      speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime(); // Move right
+
+    entity.GetComponent<Transform>()->is_dirty = true;
+  }
+}
+#endif

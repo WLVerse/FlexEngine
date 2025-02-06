@@ -70,6 +70,16 @@ namespace Editor
   COMPONENT_VIEWER_DRAG_FLOAT(time)
   COMPONENT_VIEWER_END(Animator)
 
+
+
+  /**************
+  * Camera
+  * empty for now, i cant do it without
+  * disfiguring the shit out of it
+  **************/
+  COMPONENT_VIEWER_START(Camera)
+  COMPONENT_VIEWER_END(Camera)
+
   /**************
    * Physics
    **************/
@@ -114,6 +124,7 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER_FUNCTIONS(Audio, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER_FUNCTIONS(Sprite, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER(Animator);
+    REGISTER_COMPONENT_VIEWER(Camera);
 
     REGISTER_COMPONENT_VIEWER(BoundingBox2D);
     REGISTER_COMPONENT_VIEWER(Rigidbody);

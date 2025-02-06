@@ -118,7 +118,7 @@ void SetupImGuiStyle()
 namespace Editor
 {
 	static Editor instance;
-	Camera Editor::m_editorCamera;
+	Camera Editor::m_editorCamera({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
 
 	Editor& Editor::GetInstance()
 	{
