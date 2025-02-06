@@ -108,6 +108,7 @@ namespace FlexEngine
 
     // Draw with no usage of a camera entity
     static void DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData);
+    static void DrawTexture2D(const Renderer2DText& text, const Camera& cameraData);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.
