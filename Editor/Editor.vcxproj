@@ -163,6 +163,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\editor.cpp" />
     <ClCompile Include="src\editorcomponents.cpp" />
     <ClCompile Include="src\editorgui.cpp" />
+    <ClCompile Include="src\gameview.cpp" />
     <ClCompile Include="src\hierarchyview.cpp" />
     <ClCompile Include="src\inspector.cpp" />
     <ClCompile Include="src\launch.cpp" />
@@ -189,6 +190,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\editorgui.h" />
     <ClInclude Include="src\editorpanel.h" />
     <ClInclude Include="src\editorsystem.h" />
+    <ClInclude Include="src\gameview.h" />
     <ClInclude Include="src\hierarchyview.h" />
     <ClInclude Include="src\imguipayloads.h" />
     <ClInclude Include="src\inspector.h" />

@@ -20,6 +20,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include "application.h"
 
 namespace FlexEngine
 {
@@ -98,7 +99,11 @@ namespace FlexEngine
 
       auto& max = bb.max;
       auto& min = bb.min;
-      auto mouse = Input::GetMousePosition();
+      auto raw_mouse = Input::GetMousePosition();
+
+			Vector2 mouse = Vector2(raw_mouse.x - Application::GetCurrentWindow()->GetWidth()/2, 
+                        Application::GetCurrentWindow()->GetHeight()/2 - raw_mouse.y);
+
       bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
     }
 
