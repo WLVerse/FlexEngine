@@ -163,14 +163,14 @@ namespace FlexEngine
     {
         try
         {
-            Log::Debug("Getting main game camera...");
+            //Log::Debug("Getting main game camera...");
             auto it = m_cameraEntities.find(m_mainGameCameraID);
             if (it == m_cameraEntities.end())
             {
                 throw std::out_of_range("Main Game camera not found.");
             }
 
-            Log::Debug("Main Game camera found.");
+            //Log::Debug("Main Game camera found.");
             return it->second;
         }
         catch (const std::exception& e)
