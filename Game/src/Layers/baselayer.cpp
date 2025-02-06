@@ -40,6 +40,9 @@ namespace Game
     // Camera system goes last to capture the loaded scene
     camSystemLayer = std::make_shared<CameraSystemLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", camSystemLayer);
+
+    // Town layer comes after the menu layer
+    //FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<TownLayer>());
   }
 
   void BaseLayer::OnDetach()
