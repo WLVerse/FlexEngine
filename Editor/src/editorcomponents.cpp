@@ -78,6 +78,7 @@ namespace Editor
   * Use CameraData
   **************/
   COMPONENT_VIEWER_START(Camera)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.position)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.target)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.up)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.right)

@@ -26,8 +26,7 @@ namespace Game
         // Create the current shot entity.
         // Intentionally setting sprite handle to 0.
         m_currShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Current Cinematic Shot");
-        m_currShot.AddComponent<Position>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()) / 2,
-                                                    static_cast<float>(Application::GetCurrentWindow()->GetHeight()) / 2, 0.0f } });
+        m_currShot.AddComponent<Position>({});
         m_currShot.AddComponent<Rotation>({});
         m_currShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
                                                  static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
@@ -37,8 +36,7 @@ namespace Game
 
         // Create the next shot entity and assign the image if available.
         m_nextShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Next Cinematic Shot");
-        m_nextShot.AddComponent<Position>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()) / 2,
-                                                    static_cast<float>(Application::GetCurrentWindow()->GetHeight()) / 2, 0.0f } });
+        m_nextShot.AddComponent<Position>({});
         m_nextShot.AddComponent<Rotation>({});
         m_nextShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
                                                  static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
