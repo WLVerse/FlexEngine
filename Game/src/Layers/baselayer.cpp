@@ -6,6 +6,7 @@ namespace Game
   std::shared_ptr<GameLayer> gameLayer = nullptr;
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
+  std::shared_ptr<TownLayer> townLayer = nullptr;
 
   std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
 
@@ -37,6 +38,10 @@ namespace Game
     // Start with the menu layer
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+
+    // Town layer comes after the menu layer
+    townLayer = std::make_shared<TownLayer>();
+    //FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
 
     // Camera system goes last to capture the loaded scene
     camSystemLayer = std::make_shared<CameraSystemLayer>();
@@ -74,6 +79,16 @@ namespace Game
       gameLayer = std::make_shared<GameLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
       //camSystemLayer->RegisterCams();
+    }
+
+    // Town to Menu layer
+    if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr) {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+      //camSystemLayer->UnregisterCams();
+      townLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
 
     // Game to menu layer

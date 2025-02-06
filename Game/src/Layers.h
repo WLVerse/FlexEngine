@@ -13,3 +13,4 @@
 #include "Layers/menulayer.h"
 #include "Layers/gamelayer.h"
 #include "Layers/camerasystemlayer.h"
+#include "Layers/townlayer.h"
