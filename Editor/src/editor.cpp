@@ -118,6 +118,7 @@ void SetupImGuiStyle()
 namespace Editor
 {
 	static Editor instance;
+	Camera Editor::m_editorCamera({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
 
 	Editor& Editor::GetInstance()
 	{
@@ -138,10 +139,10 @@ namespace Editor
 		m_panels[std::type_index(typeid(AssetBrowser))] = &m_assetbrowser;
 		m_panels[std::type_index(typeid(HierarchyView))] = &m_hierarchy;
 		m_panels[std::type_index(typeid(Inspector))] = &m_inspector;
+		m_panels[std::type_index(typeid(PrefabEditor))] = &m_prefabeditor;
 		m_panels[std::type_index(typeid(SceneView))] = &m_sceneview;
-		//m_panels["GameView"] = &m_gameview;
+		m_panels[std::type_index(typeid(GameView))] = &m_gameview;
 
-		//m_systems["Selection"] = &m_selection;
 		m_systems[std::type_index(typeid(SelectionSystem))] = &m_selection;
 
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)
@@ -154,6 +155,11 @@ namespace Editor
 		}
 
 		SetupImGuiStyle();
+
+    //m_editorCamera.m_data = { 800.0f, 450.0f, 0 };
+		m_editorCamera.SetOrthographic(0.0f, static_cast<float>(Application::GetCurrentWindow()->GetWidth()), 
+																	0.0f, static_cast<float>(Application::GetCurrentWindow()->GetHeight()),
+																	-2.0f, 2.0f);
 	}
 
 	//ImGui startframe endframe already called in States::Window
@@ -161,6 +167,8 @@ namespace Editor
 	{
 		FLX_IMGUI_ALIGNCONTEXT();
 		EditorGUI::StartFrame();
+
+		m_editorCamera.Update();
 
 		//panels
 		for (auto iter = m_panels.begin(); iter != m_panels.end(); ++iter)

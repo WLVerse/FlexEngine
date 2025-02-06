@@ -203,4 +203,13 @@ namespace FlexEngine
 
 #pragma endregion
 
+  #pragma region mathshapevector Helper Fns
+
+  __FLX_API Vector3 RandomUnitVector();
+  __FLX_API Vector3 RandomUnitVectorCube();
+  __FLX_API Vector3 RandomUnitVectorCone(float coneHalfAngleDegrees);
+  __FLX_API Vector3 RotateVector(const Vector3& vector, const Vector3& eulerRotation);
+  #pragma endregion
+
+
 }

@@ -354,6 +354,7 @@ namespace FlexEngine
     return { point.x * value, point.y * value, point.z * value, point.w * value };
   }
 
+
   //Vector4 operator/(const Vector4& point_a, const Vector4& point_b)
   //{
   //  return { point_a.x / point_b.x, point_a.y / point_b.y, point_a.z / point_b.z, point_a.w / point_b.w };

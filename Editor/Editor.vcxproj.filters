@@ -54,6 +54,9 @@
     <ClCompile Include="src\editorcomponents.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\prefabeditor.cpp">
+      <Filter>src\Editor</Filter>
+    </ClCompile>
     <ClCompile Include="src\sceneview.cpp">
       <Filter>src\Editor</Filter>
     </ClCompile>
@@ -68,6 +71,12 @@
     </ClCompile>
     <ClCompile Include="src\Layers\camerasystemlayer.cpp">
       <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\particlesystemlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameview.cpp">
+      <Filter>src\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +132,9 @@
     <ClInclude Include="src\editorcomponents.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\prefabeditor.h">
+      <Filter>src\Editor</Filter>
+    </ClInclude>
     <ClInclude Include="src\sceneview.h">
       <Filter>src\Editor</Filter>
     </ClInclude>
@@ -137,6 +149,12 @@
     </ClInclude>
     <ClInclude Include="src\Layers\camerasystemlayer.h">
       <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\particlesystemlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameview.h">
+      <Filter>src\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

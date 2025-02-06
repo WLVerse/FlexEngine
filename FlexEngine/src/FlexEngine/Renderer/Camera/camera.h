@@ -33,7 +33,7 @@ namespace FlexEngine
         float farClip = 100.0f;                  /*!< Far clipping plane */
         bool m_isOrthographic = true;            /*!< Flag indicating orthographic (true) or perspective (false) projection */
 
-        bool is_dirty = true;
+        bool is_dirty = true; //to be removed
         float m_OrthoWidth = 1280.0f;
         float m_OrthoHeight = 750.0f;
     };

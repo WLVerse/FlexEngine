@@ -62,6 +62,7 @@ namespace Editor
   COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
   COMPONENT_VIEWER_DRAG_VECTOR2(scale)
   COMPONENT_VIEWER_CHECKBOX(center_aligned)
+  COMPONENT_VIEWER_DRAG_FLOAT(opacity)
   COMPONENT_VIEWER_END(Sprite)
 
   COMPONENT_VIEWER_START(Animator)
@@ -70,6 +71,59 @@ namespace Editor
   COMPONENT_VIEWER_DRAG_FLOAT(time)
   COMPONENT_VIEWER_END(Animator)
 
+
+
+  /**************
+  * Camera
+  * Use CameraData
+  **************/
+  COMPONENT_VIEWER_START(Camera)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.position)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.target)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.up)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.right)
+
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.fieldOfView)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.aspectRatio)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.nearClip)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.farClip)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.m_OrthoWidth)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_data.m_OrthoHeight)
+
+      COMPONENT_VIEWER_BOOL(m_data.m_isOrthographic)
+  COMPONENT_VIEWER_END(Camera)
+
+
+  COMPONENT_VIEWER_START(Text)
+      COMPONENT_VIEWER_EDITABLE_STRING(text)
+      COMPONENT_VIEWER_DRAG_VECTOR3(color)
+      COMPONENT_VIEWER_DRAG_VECTOR2(textboxDimensions)
+  COMPONENT_VIEWER_END(Text)
+
+  COMPONENT_VIEWER_START(ParticleSystem)
+      COMPONENT_VIEWER_DRAG_INT(ParticleSystem::max_particles)
+      COMPONENT_VIEWER_TEXTURE_PATH(particlesprite_handle)
+      COMPONENT_VIEWER_BOOL(ParticleSystem::is_looping)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::duration)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::start_delay)
+
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::lifetime)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::start_speed)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::end_speed)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::start_size)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::end_size)
+
+      COMPONENT_VIEWER_DRAG_VECTOR3(ParticleSystem::start_color)
+      COMPONENT_VIEWER_DRAG_VECTOR3(ParticleSystem::end_color)
+
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::simulation_speed)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::particleEmissionRate.rate_over_time)
+      COMPONENT_VIEWER_DRAG_FLOAT(ParticleSystem::particleEmissionRate.rate_over_distance)
+      COMPONENT_VIEWER_DRAG_INT(ParticleSystem::particleEmissionShapeIndex)
+
+      COMPONENT_VIEWER_BOOL(ParticleSystem::is_collidable)
+      COMPONENT_VIEWER_BOOL(ParticleSystem::is_static)
+  COMPONENT_VIEWER_END(ParticleSystem)
   /**************
    * Physics
    **************/
@@ -114,7 +168,9 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER_FUNCTIONS(Audio, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER_FUNCTIONS(Sprite, COMPONENT_ENABLE_ADD, COMPONENT_ENABLE_REMOVE);
     REGISTER_COMPONENT_VIEWER(Animator);
-
+    REGISTER_COMPONENT_VIEWER(Camera);
+    REGISTER_COMPONENT_VIEWER(Text);
+    REGISTER_COMPONENT_VIEWER(ParticleSystem);
     REGISTER_COMPONENT_VIEWER(BoundingBox2D);
     REGISTER_COMPONENT_VIEWER(Rigidbody);
 

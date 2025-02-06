@@ -9,8 +9,8 @@ uniform sampler2D u_texture;
 //uniform vec3 u_color;
 uniform vec3 u_color_to_add;
 uniform vec3 u_color_to_multiply;
+uniform float u_alpha;
 uniform bool u_use_texture;
-
 void main()
 {
   vec3 diffuse = vec3(1.0, 0.0, 1.0);
@@ -28,6 +28,11 @@ void main()
   }
 
   //fragment_color = vec4(diffuse, alpha);
+
+  if (u_alpha != 1.0)
+  {
+      alpha = u_alpha;
+  }
 
   vec3 result = diffuse * u_color_to_multiply + u_color_to_add;
   result = clamp(result, 0.0, 1.0);

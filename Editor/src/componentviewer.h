@@ -115,6 +115,7 @@ void COMPONENT_REMOVER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 \
 void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 { \
+	UNREFERENCED_PARAMETER(entity);\
   using T = TYPE;
 
 

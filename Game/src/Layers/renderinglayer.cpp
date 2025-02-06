@@ -29,7 +29,22 @@ namespace Game
   
   void RenderingLayer::Update()
   {
-#pragma region Animator System
+    // Update Transform component
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Rotation, Scale, Transform>())
+    {
+      auto position = element.GetComponent<Position>()->position;
+      auto rotation = element.GetComponent<Rotation>()->rotation;
+      auto scale = element.GetComponent<Scale>()->scale;
+      auto transform = element.GetComponent<Transform>();
+
+      Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+      Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+      Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+      transform->transform = translation_matrix * rotation_matrix * scale_matrix;
+    }
+
+    #pragma region Animator System
 
     // animator system updates the time for all animators
     // TODO: move this to a different layer
@@ -44,13 +59,16 @@ namespace Game
       }
     }
 
-#pragma endregion
+    #pragma endregion
 
-#pragma region Sprite Renderer System
+    #pragma region Sprite Renderer System
+    FunctionQueue game_queue;
 
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
     {
+      if (!element.GetComponent<Transform>()->is_active) continue;
+
       Sprite& sprite = *element.GetComponent<Sprite>();
       Position& pos = *element.GetComponent<Position>();
       Rotation& rotation = *element.GetComponent<Rotation>();
@@ -66,12 +84,17 @@ namespace Game
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
         props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.alpha = 1.0f; // Update pls
       }
       else
       {
         props.asset = FLX_STRING_GET(sprite.sprite_handle);
         props.texture_index = -1;
+        props.alpha = sprite.opacity;
       }
+
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
       props.position = Vector2(pos.position.x, pos.position.y);
       props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
@@ -82,12 +105,12 @@ namespace Game
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
+      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
     }
 
-#pragma endregion
+    #pragma endregion
 
-#pragma region Text Renderer System
+    #pragma region Text Renderer System
 
     // Text
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
@@ -101,6 +124,10 @@ namespace Game
         static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
         static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
       );
+
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
       sample.m_words = FLX_STRING_GET(textComponent->text);
       sample.m_color = textComponent->color;
       sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
@@ -115,9 +142,12 @@ namespace Game
                                       static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
     }
-
 #pragma endregion
+
+    game_queue.Flush();
+
+    OpenGLFrameBuffer::Unbind();
   }
 }

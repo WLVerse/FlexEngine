@@ -22,5 +22,10 @@ namespace FlexEngine
     template <typename T>
     __FLX_API T Clamp(T value, T min, T max);
 
+    // A generic linear interpolation function
+    template <typename T>
+    __FLX_API T Lerp(const T& a, const T& b, float t);
+
+
   }
 }

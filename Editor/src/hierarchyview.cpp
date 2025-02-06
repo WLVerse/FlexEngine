@@ -40,32 +40,26 @@ namespace Editor
 		auto selection_system = Editor::GetInstance().GetSystem<SelectionSystem>();
 
 		//Drag a sprite from assets to window to create entity with the sprite.
-		#if 0
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 		{
 			//calculate position to place, at center
-			CameraManager& cam_manager = Editor::GetInstance().GetCamManager();
-			Vector3 position = cam_manager.GetCameraData(cam_manager.GetEditorCamera())->position;
-			float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
-			float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
-			position.x += width / 2;
-			position.y += height / 2;
+			Vector3 position = Editor::GetInstance().m_editorCamera.m_data.position;
+			//float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
+			//float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
+			//position.x += width / 2;
+			//position.y += height / 2;
 
 			std::string image_key(image);
 			std::filesystem::path path = image_key;
 
 			FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
-			new_entity.AddComponent<IsActive>({true});
 			new_entity.AddComponent<Position>({ {position.x, position.y} });
 			new_entity.AddComponent<Rotation>({});
 			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
 			new_entity.AddComponent<Transform>({});
-			new_entity.AddComponent<ZIndex>({});
 			new_entity.AddComponent<Sprite>({ FLX_STRING_NEW(image_key) });
-			new_entity.AddComponent<Shader>({ FLX_STRING_NEW(R"(\shaders\texture)") });
 			EditorGUI::EndPayloadReceiver();
 		}
-		#endif
 
 		//Right click menu (create entity)
 		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
@@ -78,12 +72,10 @@ namespace Editor
 			{
 				//Add default components
 				FlexECS::Entity new_entity = FlexECS::Scene::CreateEntity();
-				//new_entity.AddComponent<IsActive>({});
 				new_entity.AddComponent<Position>({});
 				new_entity.AddComponent<Rotation>({});
 				new_entity.AddComponent<Scale>({});
 				new_entity.AddComponent<Transform>({});
-				//new_entity.AddComponent<ZIndex>({});
 			}
 			ImGui::EndPopup();
 		}
