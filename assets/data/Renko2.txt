@@ -1,0 +1,4 @@
+Strike
+Deal 6 damage to an enemy. Costs 1 Move Speed.
+1
+DAMAGE,6,4,

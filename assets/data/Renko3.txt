@@ -1,0 +1,4 @@
+Revolution
+Deal 10 damage to all enemies. Costs 9 Move Speed.
+9
+DAMAGE,10,6,

@@ -653,49 +653,57 @@ namespace Editor
             {
                 entity.GetComponent<Character>()->is_player = false;
             }
-            Find(entity.GetComponent<Character>()->character_name_text, entity.GetComponent<Character>()->character_name + " Name");
-            Find(entity.GetComponent<Character>()->character_hp_bar, entity.GetComponent<Character>()->character_name + " HP Bar");
-            Find(entity.GetComponent<Character>()->character_hp_text, entity.GetComponent<Character>()->character_name + " HP Text");
+            Find(entity.GetComponent<Character>()->character_name_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Name");
+            Find(entity.GetComponent<Character>()->character_hp_bar, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " HP Bar");
+            Find(entity.GetComponent<Character>()->character_hp_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " HP Text");
+            Find(entity.GetComponent<Character>()->skill_border, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Skill Border");
+            Find(entity.GetComponent<Character>()->skill_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Skill Text");
+
             if (entity.GetComponent<Character>()->is_player)
             {
-                Find(entity.GetComponent<Character>()->skill_one_button, entity.GetComponent<Character>()->character_name + " S1 Button");
-                Find(entity.GetComponent<Character>()->skill_two_button, entity.GetComponent<Character>()->character_name + " S2 Button");
-                Find(entity.GetComponent<Character>()->skill_three_button, entity.GetComponent<Character>()->character_name + " S3 Button");
-                Find(entity.GetComponent<Character>()->skill_one_text, entity.GetComponent<Character>()->character_name + " S1 Text");
-                Find(entity.GetComponent<Character>()->skill_two_text, entity.GetComponent<Character>()->character_name + " S2 Text");
-                Find(entity.GetComponent<Character>()->skill_three_text, entity.GetComponent<Character>()->character_name + " S3 Text");
+                Find(entity.GetComponent<Character>()->skill_one_button, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S1 Button");
+                Find(entity.GetComponent<Character>()->skill_two_button, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S2 Button");
+                Find(entity.GetComponent<Character>()->skill_three_button, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S3 Button");
+                Find(entity.GetComponent<Character>()->skill_one_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S1 Text");
+                Find(entity.GetComponent<Character>()->skill_two_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S2 Text");
+                Find(entity.GetComponent<Character>()->skill_three_text, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " S3 Text");
+                entity.GetComponent<Character>()->skill_one_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_one.name;
+                entity.GetComponent<Character>()->skill_two_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_two.name;
+                entity.GetComponent<Character>()->skill_three_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_three.name;
+                if (entity.GetComponent<Character>()->is_player && entity.GetComponent<Character>()->skill_one_button.GetComponent<Transform>()->is_active)
+                {
+                    ToggleSkill(*entity.GetComponent<Character>());
+                }
             }
             else
             {
-                Find(entity.GetComponent<Character>()->skill_enemy_button, entity.GetComponent<Character>()->character_name + " Skill Button");
+                Find(entity.GetComponent<Character>()->skill_enemy_button, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Skill Button");
             }
-            Find(entity.GetComponent<Character>()->skill_border, entity.GetComponent<Character>()->character_name + " Skill Border");
-            Find(entity.GetComponent<Character>()->skill_text, entity.GetComponent<Character>()->character_name + " Skill Text");
 
-            Find(entity.GetComponent<Character>()->attack_buff, entity.GetComponent<Character>()->character_name + " Attack Buff");
-            Find(entity.GetComponent<Character>()->attack_debuff, entity.GetComponent<Character>()->character_name + " Attack Debuff");
-            Find(entity.GetComponent<Character>()->invuln_buff, entity.GetComponent<Character>()->character_name + " Invuln Buff");
-            Find(entity.GetComponent<Character>()->stun_debuff, entity.GetComponent<Character>()->character_name + " Stun Debuff");
+            Find(entity.GetComponent<Character>()->attack_buff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Attack Buff");
+            Find(entity.GetComponent<Character>()->attack_debuff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Attack Debuff");
+            Find(entity.GetComponent<Character>()->invuln_buff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Invuln Buff");
+            Find(entity.GetComponent<Character>()->stun_debuff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Stun Debuff");
 
-            for (int i = 1; i < 4; i++)
+            if (*entity.GetComponent<EntityName>() == FLX_STRING_NEW("Renko"))
             {
-                switch (i)
+                for (int i = 1; i < 4; i++)
                 {
-                case 1:
-                    GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_one);
-                    break;
-                case 2:
-                    GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_two);
-                    break;
-                case 3:
-                    GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_three);
-                    break;
+                    switch (i)
+                    {
+                    case 1:
+                        GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_one);
+                        break;
+                    case 2:
+                        GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_two);
+                        break;
+                    case 3:
+                        GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_three);
+                        break;
+                    }
                 }
             }
             entity.GetComponent<Character>()->character_name_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->character_name;
-            entity.GetComponent<Character>()->skill_one_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_one.name;
-            entity.GetComponent<Character>()->skill_two_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_two.name;
-            entity.GetComponent<Character>()->skill_three_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_three.name;
             entity.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_one.description;
 
             entity.GetComponent<Character>()->current_hp = entity.GetComponent<Character>()->base_hp;
@@ -705,11 +713,6 @@ namespace Editor
             entity.GetComponent<Character>()->attack_debuff_duration = 0;
             entity.GetComponent<Character>()->invuln_buff_duration = 0;
             entity.GetComponent<Character>()->stun_debuff_duration = 0;
-
-            if (entity.GetComponent<Character>()->skill_border.GetComponent<Transform>()->is_active)
-            {
-                ToggleSkill(*entity.GetComponent<Character>());
-            }
 
             if (!entity.GetComponent<Transform>()->is_active)
             {
