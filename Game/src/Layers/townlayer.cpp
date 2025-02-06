@@ -1,3 +1,13 @@
+// WLVERSE [https://wlverse.web.app]
+// townlayer.cpp
+// 
+// CPP file for town layer where user can control main character to walk around the town scene
+//
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
 #include "Layers.h"
 
 namespace Game {

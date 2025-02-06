@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// playermovement.cpp
+// 
+// scripting cpp file for player movement
+//
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
