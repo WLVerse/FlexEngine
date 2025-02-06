@@ -49,7 +49,7 @@ namespace Game {
       // Camera Test
       {
         FlexECS::Entity cam = scene->CreateEntity("Test Cam");
-        cam.AddComponent<Position>({});
+        cam.AddComponent<Position>({ Vector3(850.0f, 450.0f,0.0f) });
         cam.AddComponent<Rotation>({});
         cam.AddComponent<Scale>({});
         cam.AddComponent<Transform>({});

@@ -76,8 +76,8 @@ namespace Game
       //camSystemLayer->UnregisterCams();
       cutsceneLayer = nullptr;
 
-      gameLayer = std::make_shared<GameLayer>();
-      FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
+      townLayer = std::make_shared<TownLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
       //camSystemLayer->RegisterCams();
     }
 

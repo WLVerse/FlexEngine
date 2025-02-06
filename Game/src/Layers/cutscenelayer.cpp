@@ -74,6 +74,8 @@ namespace Game
     {
         m_CutsceneActive = false;
 
+        m_currShot.GetComponent<Transform>()->is_active = false;
+        m_nextShot.GetComponent<Transform>()->is_active = false;
         //Additional logic
         Application::MessagingSystem::Send("Start Game", true);
     }
@@ -151,7 +153,7 @@ namespace Game
             // Pre-transition phase (e.g., fading out the current shot).
             m_TransitionElapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
             float progress = m_TransitionElapsedTime / m_PreTransitionDuration;
-            float newOpacity = FlexMath::Lerp(1.0f, 0.05f, progress);
+            float newOpacity = FlexMath::Lerp(1.0f, 0.0f, progress);
             m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
 
             if (m_TransitionElapsedTime >= m_PreTransitionDuration)

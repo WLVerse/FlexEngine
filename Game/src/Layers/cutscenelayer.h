@@ -36,7 +36,7 @@ namespace Game
 
         // Timing and phase management.
         float m_ElapsedTime = 0.0f;           // Time spent in normal (non-transition) phase.
-        float m_ImageDuration = 5.0f;         // How long to display each image (in seconds).
+        float m_ImageDuration = 0.6f;         // How long to display each image (in seconds).
 
         // Transition phase (for effects like fade out/in).
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
