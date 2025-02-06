@@ -144,7 +144,7 @@ namespace Editor
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
       game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
-      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetEditorCameraID()); }, "", index });
+      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, Editor::GetInstance().m_editorCamera); }, "", index });
     }
 #pragma endregion
 
