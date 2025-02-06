@@ -54,6 +54,8 @@ namespace Game
         m_TransitionElapsedTime = 0.0f;
 
         m_CutsceneActive = false;
+
+        StartCutscene();
     }
 
     void CutsceneLayer::OnDetach()
@@ -73,6 +75,9 @@ namespace Game
     void CutsceneLayer::StopCutscene()
     {
         m_CutsceneActive = false;
+
+        //Additional logic
+        Application::MessagingSystem::Send("Start Game", true);
     }
 
     void CutsceneLayer::RestartCutscene()
@@ -101,12 +106,6 @@ namespace Game
             Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
             return;
         }
-
-        // Test input to start the cutscene.
-        if (Application::MessagingSystem::Receive<bool>("Start Cutscene"))
-        {
-            StartCutscene();
-
 
 
         if (!m_CutsceneActive)
