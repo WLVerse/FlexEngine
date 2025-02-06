@@ -5,7 +5,7 @@ namespace Game
 {
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v3.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v4.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     #pragma region Menu Spawns
