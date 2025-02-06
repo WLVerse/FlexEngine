@@ -40,11 +40,13 @@ namespace Editor
 		ImVec2 WorldToScreen(const FlexEngine::Vector2& position);
 		void DrawGizmos();
 		void MoveEditorCam();
+		void DisplayMainCamBounds();
 
 		bool m_gizmo_hovered;
 		bool m_dragging;
 
 		bool m_dragging_camera{ false };
+		bool m_display_cam_bounds { true };
 
 		GizmoType m_current_gizmo_type = GizmoType::TRANSLATE;
 

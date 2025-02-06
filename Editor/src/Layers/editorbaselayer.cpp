@@ -67,7 +67,7 @@ namespace Editor
         // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
         entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
-        entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)"), true, 0.f });
+        entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"), true, 0.f });
         entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }
       // Camera Test

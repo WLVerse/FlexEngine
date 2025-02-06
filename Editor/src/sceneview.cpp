@@ -7,7 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 //Note to self - thoughts:
 // About global_pos / position
 // >global_pos is calculated with Transform component.
@@ -256,6 +255,11 @@ namespace Editor
 			else if (ImGui::IsKeyPressed(ImGuiKey_R))
 			{
 				m_current_gizmo_type = GizmoType::ROTATE;
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_LeftShift) && ImGui::IsKeyPressed(ImGuiKey_T))
+			{
+				m_display_cam_bounds = !m_display_cam_bounds;
 			}
 
 			//Delete Entity
@@ -688,6 +692,7 @@ namespace Editor
 		HandleMouseAndKeyboardEvents();
 		DrawGizmos();
 		MoveEditorCam();
+		DisplayMainCamBounds();
 
 		//Create new entity when dragging an image from assets to scene
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
@@ -764,5 +769,29 @@ namespace Editor
 				Editor::GetInstance().m_editorCamera.Update();
 			}
 		}
+	}
+	
+	void SceneView::DisplayMainCamBounds()
+	{
+		if (!m_display_cam_bounds) return;
+
+		FlexECS::Entity main_camera = CameraManager::GetMainGameCameraID();
+		if (!CameraManager::HasCamera(main_camera))
+		{
+			return;
+		}
+		
+		const auto& pos = main_camera.GetComponent<Position>()->position;
+		const auto& cam_data = main_camera.GetComponent<Camera>()->m_data;
+
+		//construct bounding box for camera
+		ImVec2 gizmo_origin_pos = WorldToScreen({pos.x, pos.y});
+
+		Vector2 max_point = { pos.x + cam_data.m_OrthoWidth / 2, pos.y + cam_data.m_OrthoHeight / 2};
+		Vector2 min_point = { pos.x - cam_data.m_OrthoWidth / 2, pos.y - cam_data.m_OrthoHeight / 2};
+
+		ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
+		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(100, 160, 100, 160), 0.0f, 0, 1.5f);
+	
 	}
 }

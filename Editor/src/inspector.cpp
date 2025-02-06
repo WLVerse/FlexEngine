@@ -17,7 +17,7 @@
 #include "componentviewer.h"
 
 using namespace FlexEngine;
-using EntityName = std::string;
+using EntityName = FlexECS::Scene::StringIndex;
 
 namespace Editor
 {
@@ -41,96 +41,11 @@ namespace Editor
 		//if (entity != FlexECS::Entity::Null)
 		if (selected_entities.size() == 1)
 		{
-			auto entity = *selected_entities.begin();
-			#if 0
-			//Do mandatory components
-			//IsActive and EntityName
-			if (entity.HasComponent<IsActive>())
-			{
-				auto& is_active = entity.GetComponent<IsActive>()->is_active;
-				ImGui::Checkbox("##IsActive", &is_active);
-				ImGui::SameLine();
-			}
+			FlexECS::Entity entity = *selected_entities.begin();
+			
 
-      std::string& name = entity.GetComponent<EntityName>();
+			std::string& name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
 			EditorGUI::EditableTextField(name);
-
-			//Hardcode these 3 components first so they appear
-			//at the top for clarity (also non removable)
-			auto transform = entity.GetComponent<Transform>();
-			if (entity.HasComponent<Position>())
-			{
-				auto& position = entity.GetComponent<Position>()->position;
-				if (ImGui::CollapsingHeader("Position"))
-				{
-					EditorGUI::DragFloat2(position, "Position");
-					transform->is_dirty = true;
-				}
-				//Fake popup for clarity
-				if (ImGui::BeginPopupContextItem("ComponentPopup Position"))
-				{
-					ImGui::BeginDisabled();
-					ImGui::MenuItem("Remove Component");
-					ImGui::EndDisabled();
-					ImGui::EndPopup();
-				}
-			}
-			if (entity.HasComponent<Rotation>())
-			{
-				auto& rotation = entity.GetComponent<Rotation>()->rotation;
-				if (ImGui::CollapsingHeader("Rotation"))
-				{
-					EditorGUI::DragFloat3(rotation, "Rotation");
-					transform->is_dirty = true;
-				}
-				if (ImGui::BeginPopupContextItem("ComponentPopup Rotation"))
-				{
-					ImGui::BeginDisabled();
-					ImGui::MenuItem("Remove Component");
-					ImGui::EndDisabled();
-					ImGui::EndPopup();
-				}
-			}
-			if (entity.HasComponent<Scale>())
-			{
-				auto& scale = entity.GetComponent<Scale>()->scale;
-				if (ImGui::CollapsingHeader("Scale"))
-				{
-					EditorGUI::DragFloat2(scale, "Scale");
-					transform->is_dirty = true;
-				}
-				if (ImGui::BeginPopupContextItem("ComponentPopup Scale"))
-				{
-					ImGui::BeginDisabled();
-					ImGui::MenuItem("Remove Component");
-					ImGui::EndDisabled();
-					ImGui::EndPopup();
-				}
-			}
-
-			// For cam only
-			if (entity.HasComponent<Camera>())
-			{
-				transform->is_dirty = true;
-				auto& cam = entity.GetComponent<Camera>()->camera;
-				if (entity.HasComponent<IsActive>())
-				{
-					auto& is_active = entity.GetComponent<IsActive>()->is_active;
-					if (!is_active && cam.cam_is_active)
-					{
-						// Disable the camera instead of removing it
-						Editor::GetInstance().GetCamManager().DisableCameraEntity(entity.Get());
-						cam.cam_is_active = is_active;
-					}
-					else if (is_active && !cam.cam_is_active)
-					{
-						// Enable the camera and validate it as the main camera if necessary
-						Editor::GetInstance().GetCamManager().EnableCameraEntity(entity.Get());
-						cam.cam_is_active = is_active;
-					}
-				}
-			}
-			#endif
 
 			auto entity_record = ENTITY_INDEX[entity];
 			auto archetype = entity_record.archetype;
@@ -248,5 +163,95 @@ namespace Editor
 				}
 				ImGui::EndPopup();
 			}
+*/
+
+/*
+//Do mandatory components
+//IsActive and EntityName
+if (entity.HasComponent<IsActive>())
+{
+	auto& is_active = entity.GetComponent<IsActive>()->is_active;
+	ImGui::Checkbox("##IsActive", &is_active);
+	ImGui::SameLine();
+}
+
+std::string& name = entity.GetComponent<EntityName>();
+EditorGUI::EditableTextField(name);
+
+//Hardcode these 3 components first so they appear
+//at the top for clarity (also non removable)
+auto transform = entity.GetComponent<Transform>();
+if (entity.HasComponent<Position>())
+{
+	auto& position = entity.GetComponent<Position>()->position;
+	if (ImGui::CollapsingHeader("Position"))
+	{
+		EditorGUI::DragFloat2(position, "Position");
+		transform->is_dirty = true;
+	}
+	//Fake popup for clarity
+	if (ImGui::BeginPopupContextItem("ComponentPopup Position"))
+	{
+		ImGui::BeginDisabled();
+		ImGui::MenuItem("Remove Component");
+		ImGui::EndDisabled();
+		ImGui::EndPopup();
+	}
+}
+if (entity.HasComponent<Rotation>())
+{
+	auto& rotation = entity.GetComponent<Rotation>()->rotation;
+	if (ImGui::CollapsingHeader("Rotation"))
+	{
+		EditorGUI::DragFloat3(rotation, "Rotation");
+		transform->is_dirty = true;
+	}
+	if (ImGui::BeginPopupContextItem("ComponentPopup Rotation"))
+	{
+		ImGui::BeginDisabled();
+		ImGui::MenuItem("Remove Component");
+		ImGui::EndDisabled();
+		ImGui::EndPopup();
+	}
+}
+if (entity.HasComponent<Scale>())
+{
+	auto& scale = entity.GetComponent<Scale>()->scale;
+	if (ImGui::CollapsingHeader("Scale"))
+	{
+		EditorGUI::DragFloat2(scale, "Scale");
+		transform->is_dirty = true;
+	}
+	if (ImGui::BeginPopupContextItem("ComponentPopup Scale"))
+	{
+		ImGui::BeginDisabled();
+		ImGui::MenuItem("Remove Component");
+		ImGui::EndDisabled();
+		ImGui::EndPopup();
+	}
+}
+
+// For cam only
+if (entity.HasComponent<Camera>())
+{
+	transform->is_dirty = true;
+	auto& cam = entity.GetComponent<Camera>()->camera;
+	if (entity.HasComponent<IsActive>())
+	{
+		auto& is_active = entity.GetComponent<IsActive>()->is_active;
+		if (!is_active && cam.cam_is_active)
+		{
+			// Disable the camera instead of removing it
+			Editor::GetInstance().GetCamManager().DisableCameraEntity(entity.Get());
+			cam.cam_is_active = is_active;
+		}
+		else if (is_active && !cam.cam_is_active)
+		{
+			// Enable the camera and validate it as the main camera if necessary
+			Editor::GetInstance().GetCamManager().EnableCameraEntity(entity.Get());
+			cam.cam_is_active = is_active;
+		}
+	}
+}
 */
 

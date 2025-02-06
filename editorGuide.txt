@@ -1,0 +1,35 @@
+========================================================================
+
+Thanks from the team at
+
+ ██╗    ██╗██╗    ██╗   ██╗███████╗██████╗ ███████╗███████╗
+ ██║    ██║██║    ██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝
+ ██║ █╗ ██║██║    ██║   ██║█████╗  ██████╔╝███████╗█████╗  
+ ██║███╗██║██║    ╚██╗ ██╔╝██╔══╝  ██╔══██╗╚════██║██╔══╝  
+ ╚███╔███╔╝███████╗╚████╔╝ ███████╗██║  ██║███████║███████╗
+  ╚══╝╚══╝ ╚══════╝ ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝
+                                                          
+========================================================================
+
+Features:
+- Can click show colliders to show colliders on anything with a rigidbody/boundingbox2d
+- Can drag image from asset browser to component to replace it. ie Sprites.
+- Right click empty space in the hierarchy to create new entity.
+- Select entity in hierarchy to have it show up in the inspector.
+	- Can add component to entity
+	- Can remove component in entity
+- Load/Save scene
+
+- Scene view:
+	- Can be navigated by using middle mouse button
+	- Click on entity to get information about it. From there, gizmo controls are E, R 	  and T to change to transform/rotate/scale.
+	- Can drag in an image to instantly spawn an entity with that image in the scene.
+
+- Note: Animator component must be added before sprite for it to work.
+
+Loading Scenes:
+- Scenes are located in assets/saves.
+
+Component System:
+- Minimum components to get things to show up: Position, Rotation, Scale, Sprite, Transform
+(Editor should automatically do this when you CreateEntity from the editor.

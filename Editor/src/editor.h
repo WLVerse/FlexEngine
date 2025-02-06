@@ -24,6 +24,7 @@ using namespace FlexEngine;
 #include "inspector.h"
 #include "prefabeditor.h"
 #include "sceneview.h"
+#include "gameview.h"
 
 #include "FlexEngine/Renderer/Camera/camera.h" // For an editor owned camera
 
@@ -74,9 +75,8 @@ namespace Editor
 		HierarchyView m_hierarchy;
 		Inspector m_inspector;
 		PrefabEditor m_prefabeditor;
-		//SceneView m_sceneview;
 		SceneView m_sceneview;
-		//GameView m_gameview;
+		GameView m_gameview;
 
 		SelectionSystem m_selection;
 
