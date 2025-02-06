@@ -17,6 +17,7 @@ namespace Game {
     #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
+      FlexECS::Scene::SetActiveScene(scene);
       {
         FlexECS::Entity entity = scene->CreateEntity("Town Image");
         entity.AddComponent<Position>({ { 750, 400, 0 } });
@@ -49,7 +50,7 @@ namespace Game {
       // Camera Test
       {
         FlexECS::Entity cam = scene->CreateEntity("Test Cam");
-        cam.AddComponent<Position>({ Vector3(850.0f, 450.0f,0.0f) });
+        cam.AddComponent<Position>({});
         cam.AddComponent<Rotation>({});
         cam.AddComponent<Scale>({});
         cam.AddComponent<Transform>({});

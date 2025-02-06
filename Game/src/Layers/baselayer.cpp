@@ -39,10 +39,6 @@ namespace Game
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
 
-    // Town layer comes after the menu layer
-    townLayer = std::make_shared<TownLayer>();
-    //FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
-
     // Camera system goes last to capture the loaded scene
     camSystemLayer = std::make_shared<CameraSystemLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", camSystemLayer);
@@ -69,16 +65,15 @@ namespace Game
         //camSystemLayer->RegisterCams();
     }
 
-    // Test to switch to game layer
+    // Test to switch to town layer
     if (Application::MessagingSystem::Receive<bool>("Start Game") && cutsceneLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", cutsceneLayer);
-      //camSystemLayer->UnregisterCams();
       cutsceneLayer = nullptr;
+      menuLayer = nullptr;
 
       townLayer = std::make_shared<TownLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
-      //camSystemLayer->RegisterCams();
     }
 
     // Town to Menu layer
