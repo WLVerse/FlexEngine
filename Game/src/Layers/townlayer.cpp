@@ -9,6 +9,7 @@
 // 
 // Copyright (c) 2025 DigiPen, All rights reserved.
 #include "Layers.h"
+#include "Physics/physicssystem.h"
 
 namespace Game {
   void TownLayer::OnAttach() {
@@ -26,13 +27,24 @@ namespace Game {
       }
       {
         main_character = scene->CreateEntity("Walking Renko");
-        main_character.AddComponent<Position>({ {750, 400, 0} });
+        main_character.AddComponent<Position>({ {1100, -50, 0} });
         main_character.AddComponent<Scale>({ {80, 186, 0} });
         main_character.AddComponent<Rotation>({});
         main_character.AddComponent<Transform>({});
         main_character.AddComponent<ZIndex>({1});
+        main_character.AddComponent<Rigidbody>({});
+        main_character.AddComponent<BoundingBox2D>({});
         main_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
         main_character.AddComponent<Script>({ FLX_STRING_NEW("MovePlayer") });
+      }
+      {
+        area_to_transition = scene->CreateEntity("Area To Transition");
+        area_to_transition.AddComponent<Position>({ {2000, 0, 0} });
+        area_to_transition.AddComponent<Scale>({ {1350, 950, 0} });
+        area_to_transition.AddComponent<Rotation>({});
+        area_to_transition.AddComponent<Transform>({});
+        area_to_transition.AddComponent<Rigidbody>({});
+        area_to_transition.AddComponent<BoundingBox2D>({});
       }
       // Camera Test
       {
@@ -55,5 +67,11 @@ namespace Game {
   }
   void TownLayer::Update() {
     CameraManager::GetMainGameCamera()->m_data.position = main_character.GetComponent<Position>()->position;
+    PhysicsSystem::UpdatePhysicsSystem();
+
+    if (area_to_transition.GetComponent<BoundingBox2D>()->is_colliding) {
+      // transition lorhhhhhhhh
+      Application::MessagingSystem::Send("Enter Battle", true);
+    }
   }
 }

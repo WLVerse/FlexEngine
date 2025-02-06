@@ -19,7 +19,7 @@ namespace Game
   class TownLayer : public FlexEngine::Layer
   {
   private:
-    FlexECS::Entity main_character;
+    FlexECS::Entity main_character, area_to_transition;
   public:
     TownLayer() : Layer("Town Scene Layer") {}
     ~TownLayer() = default;
