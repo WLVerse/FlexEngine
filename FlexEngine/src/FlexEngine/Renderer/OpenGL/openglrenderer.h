@@ -31,6 +31,7 @@ namespace FlexEngine
     Vector2 scale = Vector2(1.0f, 1.0f);
     Vector3 rotation = Vector3(0.f, 0.f, 0.f);
     Vector2 window_size = Vector2(800.0f, 600.0f);
+    float alpha = 1.0f;
     Alignment alignment = Alignment_Center;
   };
 

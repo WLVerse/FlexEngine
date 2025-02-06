@@ -17,6 +17,7 @@ namespace Game {
     #if 1
     {
       auto scene = FlexECS::Scene::CreateScene();
+      FlexECS::Scene::SetActiveScene(scene);
       {
         FlexECS::Entity entity = scene->CreateEntity("Town Image");
         entity.AddComponent<Position>({ { 750, 400, 0 } });

@@ -84,11 +84,13 @@ namespace Editor
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
         props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.alpha = 1.0f; // Update pls
       }
       else
       {
         props.asset = FLX_STRING_GET(sprite.sprite_handle);
         props.texture_index = -1;
+        props.alpha = sprite.opacity;
       }
 
       int index = 0;
@@ -100,7 +102,7 @@ namespace Editor
 
       const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
       props.window_size = Vector2((float)_wp.width, (float)_wp.height);
-
+      
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
       game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });

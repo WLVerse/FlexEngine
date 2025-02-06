@@ -147,6 +147,7 @@ namespace FlexEngine
     FlexECS::Scene::StringIndex sprite_handle;
     Vector2 scale = Vector2(100.0f, 100.0f);
     bool center_aligned = false;
+    float opacity = 1.0f;
   };
 
   class __FLX_API Animator
@@ -188,21 +189,21 @@ namespace FlexEngine
           FLX_REFL_SERIALIZABLE
       public:
           // Lifetime simulation state
-          float currentLifetime;    // Remaining lifetime (seconds)
-          float totalLifetime;      // Original lifetime (for interpolation)
+          float currentLifetime = 10.0f;    // Remaining lifetime (seconds)
+          float totalLifetime = 10.0f;      // Original lifetime (for interpolation)
 
           // Current interpolated properties (derived from spawn values)
-          float currentSpeed;
-          float currentSize;
-          Vector3 currentColor;
+          float currentSpeed = 1.0f;
+          float currentSize = 1.0f;
+          Vector3 currentColor = Vector3::One;
 
           // Store spawn settings for interpolation (copied from the ParticleSystem emitter)
-          float start_speed;        // Initial speed at spawn
-          float end_speed;          // Final speed at death
-          float start_size;         // Initial size at spawn
-          float end_size;           // Final size at death
-          Vector3 start_color;      // Initial color at spawn
-          Vector3 end_color;        // Final color at death
+          float start_speed = 1.0f;        // Initial speed at spawn
+          float end_speed = 1.0f;         // Final speed at death
+          float start_size = 1.0f;         // Initial size at spawn
+          float end_size = 1.0f;           // Final size at death
+          Vector3 start_color = Vector3::One;      // Initial color at spawn
+          Vector3 end_color = Vector3::One;        // Final color at death
 
           // You might want to add a default constructor and/or helper functions here.
       };

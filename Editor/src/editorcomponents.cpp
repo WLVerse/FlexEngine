@@ -62,6 +62,7 @@ namespace Editor
   COMPONENT_VIEWER_TEXTURE_PATH(sprite_handle)
   COMPONENT_VIEWER_DRAG_VECTOR2(scale)
   COMPONENT_VIEWER_CHECKBOX(center_aligned)
+  COMPONENT_VIEWER_DRAG_FLOAT(opacity)
   COMPONENT_VIEWER_END(Sprite)
 
   COMPONENT_VIEWER_START(Animator)
@@ -77,6 +78,7 @@ namespace Editor
   * Use CameraData
   **************/
   COMPONENT_VIEWER_START(Camera)
+      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.position)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.target)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.up)
       COMPONENT_VIEWER_DRAG_VECTOR3(m_data.right)

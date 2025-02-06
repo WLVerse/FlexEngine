@@ -40,6 +40,9 @@
     <ClInclude Include="src\Layers\camerasystemlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\cutscenelayer.h">
+          <Filter>src\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\Layers\townlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
@@ -74,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="src\Layers\camerasystemlayer.cpp">
       <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\cutscenelayer.cpp">
+       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\townlayer.cpp">
       <Filter>src\Layers</Filter>

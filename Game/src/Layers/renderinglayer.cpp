@@ -67,6 +67,8 @@ namespace Game
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
     {
+      if (!element.GetComponent<Transform>()->is_active) continue;
+
       Sprite& sprite = *element.GetComponent<Sprite>();
       Position& pos = *element.GetComponent<Position>();
       Rotation& rotation = *element.GetComponent<Rotation>();
@@ -82,11 +84,13 @@ namespace Game
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
         props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.alpha = 1.0f; // Update pls
       }
       else
       {
         props.asset = FLX_STRING_GET(sprite.sprite_handle);
         props.texture_index = -1;
+        props.alpha = sprite.opacity;
       }
 
       int index = 0;
