@@ -18,6 +18,7 @@
 
 namespace FlexEngine
 {
+  std::filesystem::path Path::m_srcpath = std::filesystem::current_path();
 
   #pragma region Constructors
 
@@ -225,6 +226,23 @@ namespace FlexEngine
     }
 
     return std::filesystem::absolute(std::filesystem::current_path() / path);
+  }
+
+  Path Path::source(const std::string& path_to_append)
+  {
+    if (path_to_append.empty())
+    {
+      return m_srcpath;
+    }
+
+    // Remove the first character if it is a slash
+    std::string path = path_to_append;
+    if (path[0] == '/' || path[0] == '\\')
+    {
+      path.erase(0, 1);
+    }
+
+    return std::filesystem::absolute(m_srcpath / path);
   }
 
   #pragma endregion

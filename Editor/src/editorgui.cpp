@@ -236,21 +236,26 @@ namespace Editor
 
 		std::filesystem::path current_texture = path;
 		std::string filename = current_texture.filename().string();
-		if (filename == "") filename = "(no sprite)";
+		if (filename == "") filename = "(no spritesheet)";
 
-		ImGui::Text("Sprite");
+		ImGui::Text("Spritesheet");
 		ImGui::SameLine();
 		ImGui::Button(filename.c_str());
 		
-		//TODO: Drag drop a spritesheet into inspector
+		//Drag drop a spritesheet into inspector
+		if (const char* data = StartPayloadReceiver<const char>(PayloadTags::SPRITESHEET))
+		{
+			std::string new_file_path(data);
+			path = new_file_path;
+			current_texture = path;
+			EndPayloadReceiver();
+		}
 
-
-		//if (filename != "(no spritesheet texture)")
+		//TODO: display image of spritesheet
+		//if (filename != "(no spritesheet)")
 		//{
 		//	std::string asset_key = current_texture.string();
-
 		//	Asset::Spritesheet& texture = AssetManager::Get<Asset::Spritesheet>(asset_key);
-		//	//ImGui::Image(texture.GetTextureImGui(), ImVec2(60.0f, 60.0f));
 		//}
 
 		PopID();
@@ -333,7 +338,7 @@ namespace Editor
 	void EditorGUI::EditableTextField(std::string& data, std::string title)
 	{
 		PushID();
-		char text_buffer[128];
+		char text_buffer[1024];
 		strncpy_s(text_buffer, data.c_str(), sizeof(text_buffer));
 		text_buffer[sizeof(text_buffer) - 1] = '\0';
 		ImGui::Text(title.c_str());

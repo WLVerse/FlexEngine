@@ -14,7 +14,7 @@
 #pragma once
 #include "editorpanel.h"
 
-namespace ChronoDrift
+namespace Editor
 {
 
 	class GameView : public EditorPanel
@@ -24,5 +24,12 @@ namespace ChronoDrift
 		void Update();
 		void EditorUI();
 		void Shutdown();
+	
+	private:
+		void CalculateViewportPosition();
+
+		ImVec2 m_viewport_size;
+		ImVec2 m_viewport_position;
+		ImVec2 m_viewport_screen_position;
 	};
 }

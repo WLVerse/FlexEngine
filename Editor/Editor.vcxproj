@@ -163,6 +163,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\editor.cpp" />
     <ClCompile Include="src\editorcomponents.cpp" />
     <ClCompile Include="src\editorgui.cpp" />
+    <ClCompile Include="src\gameview.cpp" />
     <ClCompile Include="src\hierarchyview.cpp" />
     <ClCompile Include="src\inspector.cpp" />
     <ClCompile Include="src\launch.cpp" />
@@ -171,10 +172,12 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
+    <ClCompile Include="src\Layers\particlesystemlayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\statisticspanellayer.cpp" />
+    <ClCompile Include="src\prefabeditor.cpp" />
     <ClCompile Include="src\sceneview.cpp" />
     <ClCompile Include="src\selectionsystem.cpp" />
   </ItemGroup>
@@ -187,6 +190,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\editorgui.h" />
     <ClInclude Include="src\editorpanel.h" />
     <ClInclude Include="src\editorsystem.h" />
+    <ClInclude Include="src\gameview.h" />
     <ClInclude Include="src\hierarchyview.h" />
     <ClInclude Include="src\imguipayloads.h" />
     <ClInclude Include="src\inspector.h" />
@@ -196,10 +200,12 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
+    <ClInclude Include="src\Layers\particlesystemlayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\statisticspanellayer.h" />
+    <ClInclude Include="src\prefabeditor.h" />
     <ClInclude Include="src\sceneview.h" />
     <ClInclude Include="src\selectionsystem.h" />
   </ItemGroup>

@@ -4,7 +4,9 @@
 namespace Game
 {
   std::shared_ptr<GameLayer> gameLayer = nullptr;
+  std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
+  std::shared_ptr<TownLayer> townLayer = nullptr;
 
   std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
 
@@ -51,28 +53,49 @@ namespace Game
   {
     Application::GetCurrentWindow()->Update();
 
-    // Test to switch to game layer
-    if (Application::MessagingSystem::Receive<bool>("Start Game") && menuLayer != nullptr)
+    // Test to switch to cutscene layer
+    if (Application::MessagingSystem::Receive<bool>("Start Cutscene") && menuLayer != nullptr)
     {
-      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
-      camSystemLayer->UnregisterCams();
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
+        //camSystemLayer->UnregisterCams();
+        menuLayer = nullptr;
+
+        cutsceneLayer = std::make_shared<CutsceneLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", cutsceneLayer);
+        //camSystemLayer->RegisterCams();
+    }
+
+    // Test to switch to town layer
+    if (Application::MessagingSystem::Receive<bool>("Start Game") && cutsceneLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", cutsceneLayer);
+      cutsceneLayer = nullptr;
       menuLayer = nullptr;
 
-      gameLayer = std::make_shared<GameLayer>();
-      FLX_COMMAND_ADD_WINDOW_LAYER("Game", gameLayer);
-      camSystemLayer->RegisterCams();
+      townLayer = std::make_shared<TownLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
+    }
+
+    // Town to Menu layer
+    if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr) {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+      //camSystemLayer->UnregisterCams();
+      townLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
 
     // Game to menu layer
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && gameLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", gameLayer);
-      camSystemLayer->UnregisterCams();
+      //camSystemLayer->UnregisterCams();
       gameLayer = nullptr;
 
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
-      camSystemLayer->RegisterCams();
+      //camSystemLayer->RegisterCams();
     }
   }
 }

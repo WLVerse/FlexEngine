@@ -37,6 +37,7 @@ namespace FlexEngine
   class __FLX_API Path
   {
     std::filesystem::path m_path;
+    static std::filesystem::path m_srcpath;
 
   public:
 
@@ -52,7 +53,6 @@ namespace FlexEngine
     Path(const std::filesystem::path& _path);
 
     // Getter
-
     std::filesystem::path get() const noexcept;
 
     #pragma region Extra Queries
@@ -151,6 +151,7 @@ namespace FlexEngine
     // Helper Functions
 
     static Path current(const std::string& path_to_append);
+    static Path source(const std::string& path_to_append);  // gets the filepath to the exe
 
     // Operator Overloads
 
