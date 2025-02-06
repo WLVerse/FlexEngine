@@ -21,7 +21,7 @@ namespace Editor
 
     void EditorBaseLayer::OnAttach()
     {
-
+      auto scene = FlexECS::Scene::CreateScene();
         FlexECS::Entity cam2 = scene->CreateEntity("Test Cam2");
         cam2.AddComponent<Position>({});
         cam2.AddComponent<Rotation>({});
