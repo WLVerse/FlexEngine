@@ -12,7 +12,7 @@ enum Targets
     all_enemies = 6
 };
 
-class Move
+/*class Move
 {
 public:
     std::string name = "";
@@ -81,4 +81,4 @@ public:
     void ChooseMoveOne();
 
     void UpdateEffect();
-};
+};*/

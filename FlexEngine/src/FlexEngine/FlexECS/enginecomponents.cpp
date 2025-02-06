@@ -163,4 +163,63 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(Button)
   FLX_REFL_REGISTER_END;
 
+  FLX_REFL_REGISTER_START(Effect)
+      FLX_REFL_REGISTER_PROPERTY(effect_name)
+      FLX_REFL_REGISTER_PROPERTY(damage_duration)
+      FLX_REFL_REGISTER_PROPERTY(target)
+      FLX_REFL_REGISTER_END;
+
+  // scripting
+  FLX_REFL_REGISTER_START(Character)
+      FLX_REFL_REGISTER_PROPERTY(is_player)
+      FLX_REFL_REGISTER_PROPERTY(character_name)
+      FLX_REFL_REGISTER_PROPERTY(base_speed)
+      FLX_REFL_REGISTER_PROPERTY(current_speed)
+      FLX_REFL_REGISTER_PROPERTY(base_hp)
+      FLX_REFL_REGISTER_PROPERTY(current_hp)
+      FLX_REFL_REGISTER_PROPERTY(skill_one)
+      FLX_REFL_REGISTER_PROPERTY(skill_two)
+      FLX_REFL_REGISTER_PROPERTY(skill_three)
+      FLX_REFL_REGISTER_PROPERTY(pending_skill)
+      FLX_REFL_REGISTER_PROPERTY(attack_buff_duration)
+      FLX_REFL_REGISTER_PROPERTY(attack_debuff_duration)
+      FLX_REFL_REGISTER_PROPERTY(invuln_buff_duration)
+      FLX_REFL_REGISTER_PROPERTY(stun_debuff_duration)
+      FLX_REFL_REGISTER_PROPERTY(char_position)
+      FLX_REFL_REGISTER_PROPERTY(name_offset)
+      FLX_REFL_REGISTER_PROPERTY(hp_offset)
+      FLX_REFL_REGISTER_PROPERTY(button_offset)
+      FLX_REFL_REGISTER_PROPERTY(description_offset)
+      FLX_REFL_REGISTER_PROPERTY(buff_offset)
+      FLX_REFL_REGISTER_PROPERTY(character_sprite)
+      FLX_REFL_REGISTER_PROPERTY(character_name_text)
+      FLX_REFL_REGISTER_PROPERTY(character_hp_bar)
+      FLX_REFL_REGISTER_PROPERTY(character_hp_text)
+      FLX_REFL_REGISTER_PROPERTY(skill_one_button)
+      FLX_REFL_REGISTER_PROPERTY(skill_two_button)
+      FLX_REFL_REGISTER_PROPERTY(skill_three_button)
+      FLX_REFL_REGISTER_PROPERTY(chrono_gear_button)
+      FLX_REFL_REGISTER_PROPERTY(skill_one_text)
+      FLX_REFL_REGISTER_PROPERTY(skill_two_text)
+      FLX_REFL_REGISTER_PROPERTY(skill_three_text)
+      FLX_REFL_REGISTER_PROPERTY(chrono_gear_text)
+      FLX_REFL_REGISTER_PROPERTY(skill_enemy_button)
+      FLX_REFL_REGISTER_PROPERTY(skill_border)
+      FLX_REFL_REGISTER_PROPERTY(skill_text)
+      FLX_REFL_REGISTER_PROPERTY(button_text)
+      FLX_REFL_REGISTER_PROPERTY(attack_buff)
+      FLX_REFL_REGISTER_PROPERTY(attack_debuff)
+      FLX_REFL_REGISTER_PROPERTY(invuln_buff)
+      FLX_REFL_REGISTER_PROPERTY(stun_debuff)
+      FLX_REFL_REGISTER_END;
+
+  // button
+  FLX_REFL_REGISTER_START(Character::Move)
+      FLX_REFL_REGISTER_PROPERTY(name)
+      FLX_REFL_REGISTER_PROPERTY(description)
+      FLX_REFL_REGISTER_PROPERTY(speed)
+      FLX_REFL_REGISTER_PROPERTY(damage)
+      FLX_REFL_REGISTER_PROPERTY(effect)
+      FLX_REFL_REGISTER_END;
+
 } // namespace FlexEngine

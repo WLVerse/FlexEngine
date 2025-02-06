@@ -1,4 +1,4 @@
-#include <FlexEngine.h>
+/*#include <FlexEngine.h>
 #include <character.h>
 using namespace FlexEngine;
 
@@ -78,6 +78,8 @@ public:
         {
             Log::Error("Entity not found");
         }
+        renko_portrait.GetComponent<Transform>()->is_active = true;
+
         renko_icon = scene->GetEntityByName("Renko Icon");
         if (renko_icon)
         {
@@ -87,6 +89,7 @@ public:
         {
             Log::Error("Entity not found");
         }
+        renko_icon.GetComponent<Transform>()->is_active = true;
 
         grace_portrait = scene->GetEntityByName("Grace Portrait");
         if (grace_portrait)
@@ -97,6 +100,8 @@ public:
         {
             Log::Error("Entity not found");
         }
+        grace_portrait.GetComponent<Transform>()->is_active = true;
+
         grace_icon = scene->GetEntityByName("Grace Icon");
         if (grace_icon)
         {
@@ -106,6 +111,7 @@ public:
         {
             Log::Error("Entity not found");
         }
+        grace_icon.GetComponent<Transform>()->is_active = true;
 
         jack_portrait = scene->GetEntityByName("Jack Portrait");
         if (jack_portrait)
@@ -116,6 +122,8 @@ public:
         {
             Log::Error("Entity not found");
         }
+        jack_portrait.GetComponent<Transform>()->is_active = true;
+
         jack_icon = scene->GetEntityByName("Jack Icon");
         if (jack_icon)
         {
@@ -125,6 +133,10 @@ public:
         {
             Log::Error("Entity not found");
         }
+        jack_portrait.GetComponent<Transform>()->is_active = true;
+
+        lose_screen.GetComponent<Transform>()->is_active = false;
+        win_screen.GetComponent<Transform>()->is_active = false;
         characters.clear();
         ally_characters.clear();
         enemy_characters.clear();
@@ -275,9 +287,9 @@ public:
             }
         }
 
-        if (delay_timer > 0.0f)
+        /*if (delay_timer > 0.0f)
         {
-           //delay_timer -= deltaTime;
+           delay_timer -= FramerateController::GetDeltaTime();???
         }
     }
 
@@ -348,11 +360,54 @@ public:
         for (unsigned i = 0; i < characters.size(); i++) {
             if (characters[i].GetComponent<Character>()->current_hp <= 0)
             {
-                //characters.erase(characters[i]);
+                for (unsigned j = 0; j < ally_characters.size(); j++) {
+                    if (characters[i] == ally_characters[j])
+                    {
+                        characters.erase(ally_characters.begin() + j);
+                    }
+                }
+                for (unsigned j = 0; j < enemy_characters.size(); j++) {
+                    if (characters[i] == enemy_characters[j])
+                    {
+                        characters.erase(enemy_characters.begin() + j);
+                    }
+                }
+                if (characters[i].GetComponent<Character>()->character_name == "Renko")
+                {
+                    renko_portrait.GetComponent<Transform>()->is_active = false;
+                    renko_icon.GetComponent<Transform>()->is_active = false;
+                }
+                else if (characters[i].GetComponent<Character>()->character_name == "Grace")
+                {
+                    grace_portrait.GetComponent<Transform>()->is_active = false;
+                    grace_icon.GetComponent<Transform>()->is_active = false;
+                }
+                else if (characters[i].GetComponent<Character>()->character_name == "Jack")
+                {
+                    jack_portrait.GetComponent<Transform>()->is_active = false;
+                    jack_icon.GetComponent<Transform>()->is_active = false;
+                }
+                std::string message = characters[i].GetComponent<Character>()->character_name + " has fallen!";
+                Log::Info(message);
+                characters.erase(characters.begin() + i);
             }
         }
-
-        StartOfTurn();
+        if (ally_characters.empty())
+        {
+            lose_screen.GetComponent<Transform>()->is_active = true;
+            std::string message = "You lose!";
+            Log::Info(message);
+        }
+        else if (enemy_characters.empty())
+        {
+            win_screen.GetComponent<Transform>()->is_active = true;
+            std::string message = "You win!";
+            Log::Info(message);
+        }
+        else
+        {
+            StartOfTurn();
+        }
     }
 
     void SpeedSort()
@@ -520,4 +575,4 @@ public:
             current_character.GetComponent<Character>()->current_speed = current_character.GetComponent<Character>()->base_speed + current_character.GetComponent<Character>()->pending_skill.speed;
         }
     }
-};
+};*/

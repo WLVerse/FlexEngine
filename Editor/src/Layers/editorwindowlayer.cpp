@@ -50,6 +50,11 @@ namespace Editor
       "Editor",
       std::make_shared<StatisticsPanelLayer>()
     );
+    // This is the base layer for the editor
+    FLX_COMMAND_ADD_WINDOW_LAYER(
+      "Editor",
+      std::make_shared<BattleLayer>()
+    );
   }
 
   void EditorWindowLayer::OnDetach()

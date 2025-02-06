@@ -1,4 +1,4 @@
-#include <FlexEngine.h>
+/*#include <FlexEngine.h>
 #include <character.h>
 using namespace FlexEngine;
 
@@ -60,7 +60,7 @@ public:
     FlexECS::Entity attack_buff, attack_debuff, invuln_buff, stun_debuff;
     //FlexECS::Entity Audio;
    //FlexECS::Entity Animation;
-   */
+   
     void Character::Awake()
     {
         Log::Debug("CharacterScript: Awake");
@@ -88,7 +88,7 @@ public:
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)"), -1 });
         //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
         //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
-        }*/
+        }
         //Vector3{ char_position.x + button_offset.x, char_position.y + button_offset.y, 0 } // first button is built of the position of character + button offset
         //Vector3{ char_position.x + button_offset.x + 10, char_position.y + button_offset.y + 5, 0 } //buttons & text are built off position of the first button
 
@@ -355,3 +355,4 @@ public:
         }
     }
 //};
+    */
