@@ -5,7 +5,7 @@ using namespace FlexEngine;
 class Battle
 {
 public:
-
+    //std::vector<FlexECS::Entity> original_characters;
     std::vector<FlexECS::Entity> characters;
     std::vector<FlexECS::Entity> ally_characters;
     std::vector<FlexECS::Entity> enemy_characters;
@@ -26,6 +26,7 @@ public:
     FlexECS::Entity initial_target;
     std::vector<FlexECS::Entity> current_targets;
 
+    bool move_selected = false;
 
     Vector3 barPos[3] = { { 483,470,0 }, { 483,400,0 }, { 483,330,0 } };
 
@@ -35,7 +36,7 @@ public:
     
     float delay_timer;
 
-    void Awake()
+    void Start()
     {
         auto scene = FlexECS::Scene::GetActiveScene();
         win_screen = scene->GetEntityByName("Win Screen");
@@ -124,10 +125,6 @@ public:
         {
             Log::Error("Entity not found");
         }
-    }
-
-    void Start()
-    {
         characters.clear();
         ally_characters.clear();
         enemy_characters.clear();
@@ -172,6 +169,9 @@ public:
                 }
                 current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(current_character.GetComponent<Character>()->skill_one.description);
                 target_num = 0;
+                move_selected = true;
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + current_character.GetComponent<Character>()->skill_one.name + " targeting " + initial_target.GetComponent<Character>()->character_name;
+                Log::Info(message);
             }
             else if (Input::GetKeyDown(GLFW_KEY_2))
             {
@@ -186,6 +186,9 @@ public:
                 }
                 current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(current_character.GetComponent<Character>()->skill_two.description);
                 target_num = 0;
+                move_selected = true;
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + current_character.GetComponent<Character>()->skill_two.name + " targeting " + initial_target.GetComponent<Character>()->character_name;
+                Log::Info(message);
             }
             else if (Input::GetKeyDown(GLFW_KEY_3))
             {
@@ -200,6 +203,9 @@ public:
                 }
                 current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(current_character.GetComponent<Character>()->skill_three.description);
                 target_num = 0;
+                move_selected = true;
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + current_character.GetComponent<Character>()->skill_three.name + " targeting " + initial_target.GetComponent<Character>()->character_name;
+                Log::Info(message);
             }
 
             if (Input::GetKeyDown(GLFW_KEY_Q))
@@ -229,6 +235,8 @@ public:
                         initial_target = enemy_characters[target_num];
                     }
                 }
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + current_character.GetComponent<Character>()->skill_three.name + " targeting " + initial_target.GetComponent<Character>()->character_name;
+                Log::Info(message);
             }
             else if (Input::GetKeyDown(GLFW_KEY_E))
             {
@@ -257,11 +265,13 @@ public:
                         initial_target = enemy_characters[target_num];
                     }
                 }
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + current_character.GetComponent<Character>()->skill_three.name + " targeting " + initial_target.GetComponent<Character>()->character_name;
+                Log::Info(message);
             }
 
-            if (Input::GetKeyDown(GLFW_KEY_SPACE))
+            if (Input::GetKeyDown(GLFW_KEY_SPACE) && move_selected)
             {
-
+                MoveResolution();
             }
         }
 
@@ -298,6 +308,8 @@ public:
         }
         current_character = characters[0];
         MoveSelect();
+        std::string message = current_character.GetComponent<Character>()->character_name + "'s turn!";
+        Log::Info(message);
     }
 
     void MoveSelect()
@@ -305,12 +317,14 @@ public:
         if (current_character.GetComponent<Character>()->is_player)
         {
             current_character.GetComponent<Character>()->ToggleSkill();
+            move_selected = false;
         }
         else
         {
             //random target, but doesn't matter for this boss fight.
             initial_target = ally_characters[0];
             MoveExecution();
+            MoveResolution();
         }
     }
     void MoveResolution()
@@ -319,12 +333,26 @@ public:
         {
             MoveExecution();
             current_character.GetComponent<Character>()->ToggleSkill();
+            EndOfTurn();
         }
-        else if (delay_timer <= 0.0f)
+        else
         {
             //random gen, but for this build boss uses 1->2->3->3
             BossSelect();
+            EndOfTurn();
         }
+    }
+
+    void EndOfTurn()
+    {
+        for (unsigned i = 0; i < characters.size(); i++) {
+            if (characters[i].GetComponent<Character>()->current_hp <= 0)
+            {
+                characters.erase(characters[i]);
+            }
+        }
+
+        StartOfTurn();
     }
 
     void SpeedSort()
@@ -491,10 +519,5 @@ public:
             }
             current_character.GetComponent<Character>()->current_speed = current_character.GetComponent<Character>()->base_speed + current_character.GetComponent<Character>()->pending_skill.speed;
         }
-    }
-
-    void Stop()
-    {
-        self.GetComponent<Animator>()->should_play = true;
     }
 };
