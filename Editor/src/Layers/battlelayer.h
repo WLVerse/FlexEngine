@@ -14,7 +14,7 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Editor
+namespace Game
 {
 
     class BattleLayer : public FlexEngine::Layer
