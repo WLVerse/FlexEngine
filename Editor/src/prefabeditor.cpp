@@ -167,17 +167,11 @@ namespace Editor
 				file_name.second.clear();
 			}
 			else {
-				try {
-					std::filesystem::remove(Path::source("assets/data/" + file_name.first[0].filename().string()));
-					Log::Info("Prefab deleted successfully.");
-					prefab_keys.clear();
-					file_name.first.clear();
-					file_name.second.clear();
-				}
-				catch (const std::filesystem::filesystem_error& e) {
-					// Handle rename error (optional error logging)
-					Log::Error("Unable to delete prefab");
-				}
+				std::filesystem::remove(Path::source("assets/data/" + file_name.first[0].filename().string()));
+				Log::Info("Prefab deleted successfully.");
+				prefab_keys.clear();
+				file_name.first.clear();
+				file_name.second.clear();
 			}
 		}
 		else Log::Error("No prefab selected");
