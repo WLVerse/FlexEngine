@@ -1,20 +1,21 @@
 // WLVERSE [https://wlverse.web.app]
 // filelist.h
+//
+// Specialization of std::vector for Path 
 // 
-// Specialization of std::vector for Path
+// Note that this does not store the files themselves, but rather the paths to the
+// files. Use the each() function to automatically apply a function to each file
+// in the list. 
 // 
-// Note that this does not store the files themselves,
-// but rather the paths to the files. Use the each() function
-// to automatically apply a function to each file in the list.
+// Using the composition and passthrough specialization pattern 
+// Referenced from: https://en.cppreference.com/w/cpp/container/vector 
 // 
-// Using the composition and passthrough specialization pattern
-// Referenced from: https://en.cppreference.com/w/cpp/container/vector
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

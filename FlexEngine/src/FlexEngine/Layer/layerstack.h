@@ -1,23 +1,22 @@
 // WLVERSE [https://wlverse.web.app]
 // layerstack.h
+//
+// A manager for layers and overlays that segregates logic into different layers
+// that run in a specific order. 
+// Add and remove operations are queued to ensure that they happen at the end of
+// the update function to prevent undefined behavior and invalidating iterators. 
 // 
-// A manager for layers and overlays that segregates logic into
-// different layers that run in a specific order.
-// Add and remove operations are queued to ensure that they
-// happen at the end of the update function to prevent
-// undefined behavior and invalidating iterators.
+// The layer manager implementation itself uses the Template Method Pattern. 
 // 
-// The layer manager implementation itself uses the Template Method Pattern.
-// 
-// Usage:
-// layerstack.AddLayer(std::make_shared<YourLayer>(), "YourLayerName", 2);
-// layerstack.RemoveLayer("YourLayerName");
+// Usage: 
+// layerstack.AddLayer(std::make_shared<YourLayer>(), "YourLayerName", 2); 
+// layerstack.RemoveLayer("YourLayerName"); 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

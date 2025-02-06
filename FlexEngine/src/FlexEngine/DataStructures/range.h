@@ -1,16 +1,18 @@
 // WLVERSE [https://wlverse.web.app]
 // range.h
+//
+// Data structure for a range of values. 
+// Use Get() to generate random values within the range. 
+// The number that is generated is inclusive of the min and max values. 
+// Can also be used to store a range of values by calling Min() and Max(). 
 // 
-// Data structure for a range of values.
-// Use Get() to generate random values within the range.
-// The number that is generated is inclusive of the min and max values.
-// Can also be used to store a range of values by calling Min() and Max().
+// Usage: int rand = Range<int>(3, 5).Get(); // gets a random number from 3 to 5 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

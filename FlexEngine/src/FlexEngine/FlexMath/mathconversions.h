@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // mathconversions.h
+//
+// Conversions between degrees and radians. 
 // 
-// Conversions between degrees and radians.
-// 
-// Values are taken from the glm library.
+// Values are taken from the glm library. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

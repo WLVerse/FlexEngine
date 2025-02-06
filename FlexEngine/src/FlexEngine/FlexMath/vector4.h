@@ -1,13 +1,13 @@
 // WLVERSE [https://wlverse.web.app]
 // vector4.h
-// 
-// A 4D vector.
+//
+// A 4D vector. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

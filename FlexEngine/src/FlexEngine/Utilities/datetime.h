@@ -1,14 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // datetime.h
-// 
-// Ease of use wrapper class that provides date and time functionality.
-// Format the date using the GetFormattedDateTime method.
+//
+// Ease of use wrapper class that provides date and time functionality. 
+// Format the date using the GetFormattedDateTime method. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

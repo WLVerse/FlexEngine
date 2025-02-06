@@ -1,14 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // pch.h
-// 
-// FlexEngine: Pre-compiled Header File
-// https://en.cppreference.com/w/cpp/header
+//
+// FlexEngine: Pre-compiled Header File 
+// https://en.cppreference.com/w/cpp/header 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

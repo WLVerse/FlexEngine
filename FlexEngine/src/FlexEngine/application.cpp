@@ -1,21 +1,23 @@
 // WLVERSE [https://wlverse.web.app]
-// application.h
+// application.cpp
+//
+// The architecture of the engine is designed to only have one application
+// instance. 
+// This manages the windows and the main loop of the application. 
 // 
-// The architecture of the engine is designed to only have one application instance.
-// This manages the windows and the main loop of the application.
-// 
-// All actions on the application, window, and layerstack are deferred and controlled
-// within the Application::Run function. It must be resolved in this order.
-// - Window LayerStack
-// - Window
-// - Application LayerStack
-// - Application
+// All actions on the application, window, and layerstack are deferred and
+// controlled 
+// within the Application::Run function. It must be resolved in this order. 
+// - Window LayerStack 
+// - Window 
+// - Application LayerStack 
+// - Application 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

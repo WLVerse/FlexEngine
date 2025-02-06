@@ -1,14 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // input.h
-// 
-// This static class is a wrapper to manage
-// the results of the glfw input callback.
+//
+// This static class is a wrapper to manage the results of the glfw input
+// callback. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

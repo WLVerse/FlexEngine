@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// openglmaterial.h
+//
+// Unused. This will become a part of the 3D renderer. 
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

@@ -1,3 +1,17 @@
+// WLVERSE [https://wlverse.web.app]
+// opengltexture.h
+//
+// Texture class to load and unload textures. 
+// Wraps around OpenGL texture functions and uses stb_image.h to load images. 
+// Can be used to load textures from files or create textures from memory. 
+// Can be used to bind and unbind textures for OpenGL. 
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

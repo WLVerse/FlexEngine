@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // flexassert.h
-// 
-// This file contains the assertion macros used in the FlexEngine.
-// These don't work like the standard assert.h, but safely exits the
-// application using log fatal.
+//
+// This file contains the assertion macros used in the FlexEngine. 
+// These don't work like the standard assert.h, but safely exits the application
+// using log fatal. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

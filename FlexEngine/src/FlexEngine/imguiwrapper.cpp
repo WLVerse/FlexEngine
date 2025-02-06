@@ -1,30 +1,30 @@
 // WLVERSE [https://wlverse.web.app]
 // imguiwrapper.cpp
+//
+// This class is a wrapper to handle the loading and unloading of the ImGui
+// context, backend, and store the context pointer. One context and backend setup
+// is needed per window. 
 // 
-// This class is a wrapper to handle the loading and unloading
-// of the ImGui context, backend, and store the context pointer.
-// One context and backend setup is needed per window.
+// Since ImGui is not recommended for DLLs, this class can only work by setting
+// the context pointer before using ImGui functions. Use the
+// FLX_IMGUI_ALIGNCONTEXT macro to set the context pointer. 
 // 
-// Since ImGui is not recommended for DLLs, this class can only work
-// by setting the context pointer before using ImGui functions.
-// Use the FLX_IMGUI_ALIGNCONTEXT macro to set the context pointer.
-// 
-// The order of operations is as follows:
-// The indentation represents the passing of control over to the
-// other DLLs.
-// - Init
-// - SetContext
-// - BeginFrame
-//   - SetContext
-//   - ImGui Functions
-// - EndFrame
-// - Shutdown
+// The order of operations is as follows: 
+// The indentation represents the passing of control over to the 
+// other DLLs. 
+// - Init 
+// - SetContext 
+// - BeginFrame 
+//   - SetContext 
+//   - ImGui Functions 
+// - EndFrame 
+// - Shutdown 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

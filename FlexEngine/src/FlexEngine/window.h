@@ -1,17 +1,17 @@
 // WLVERSE [https://wlverse.web.app]
 // window.h
+//
+// This class is mostly a data structure for window properties. 
+// It helps to manage the window properties and the window itself, wrapping around
+// GLFW window functions. 
 // 
-// This class is mostly a data structure for window properties.
-// It helps to manage the window properties and the window itself,
-// wrapping around GLFW window functions.
-// 
-// Windows are managed by the application class.
+// Windows are managed by the application class. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

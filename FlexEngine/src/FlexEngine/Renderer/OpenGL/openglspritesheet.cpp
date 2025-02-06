@@ -1,3 +1,16 @@
+// WLVERSE [https://wlverse.web.app]
+// openglspritesheet.cpp
+//
+// The spritesheet helps to manage the texture coordinates of a spritesheet. 
+// Simply provide the number of columns and rows in the spritesheet and the
+// spritesheet will calculate the UV coordinates for you. 
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "openglspritesheet.h"

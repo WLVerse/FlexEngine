@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// UnitTests.cpp
+//
+// Extremely trivial and basic unit tests for testing library functionality like
+// FlexMath and FlexID. 
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #include "pch.h"
 
 #include "CppUnitTest.h"
