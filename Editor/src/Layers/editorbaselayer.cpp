@@ -14,6 +14,7 @@
 #include "componentviewer.h"
 #include "editor.h"
 #include "editorcomponents.h"
+#include "../../Scripts/src/character.h"
 
 namespace Editor
 {
@@ -894,8 +895,10 @@ namespace Editor
             { 40, 93, 1 }
           });
           entity.AddComponent<Transform>({});
-          entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
+          //entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)"), -1 });
+          entity.AddComponent<Character>();
+          entity.GetComponent<Character>()->character_name = "Renko";
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
           //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }
@@ -912,7 +915,7 @@ namespace Editor
             { 71, 90, 1 }
           });
           entity.AddComponent<Transform>({});
-          entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
+          //entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1 });
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
         // true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
@@ -952,7 +955,7 @@ namespace Editor
       }
       //speed bar Renko icon
       {
-          FlexECS::Entity entity = scene->CreateEntity("Renko Icon");
+          FlexECS::Entity entity = scene->CreateEntity("Renko Portrait");
           entity.AddComponent<Position>({
             Vector3{ 483,470,0 }
           });
@@ -982,7 +985,7 @@ namespace Editor
       }
       //speed bar Jack icon
       {
-          FlexECS::Entity entity = scene->CreateEntity("Jack Icon");
+          FlexECS::Entity entity = scene->CreateEntity("Jack Portrait");
           entity.AddComponent<Position>({
             Vector3{ 483,400,0 }
           });
@@ -1012,7 +1015,7 @@ namespace Editor
       }
       //speed bar Grace icon
       {
-          FlexECS::Entity entity = scene->CreateEntity("Grace Icon");
+          FlexECS::Entity entity = scene->CreateEntity("Grace Portrait");
           entity.AddComponent<Position>({
             Vector3{ 483,330,0 }
           });

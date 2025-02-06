@@ -24,7 +24,7 @@
     <ClCompile Include="src\character.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="battle.cpp">
+    <ClCompile Include="src\battle.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

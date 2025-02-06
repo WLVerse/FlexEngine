@@ -1,21 +1,39 @@
 #include <FlexEngine.h>
+#include <character.h>
 using namespace FlexEngine;
 
-class CharacterScript : public IScript
+enum Targets
+{
+    single_target_ally = 1,
+    next_fastest_ally = 2,
+    all_allies = 3,
+    single_target_enemy = 4,
+    next_fastest_enemy = 5,
+    all_enemies = 6
+};
+
+class Move
 {
 public:
-    CharacterScript() { ScriptRegistry::RegisterScript(this); }
-    std::string GetName() const override { return "CharacterTest"; }
+    std::string name = "";
+    std::string description = "";
+    int speed = 0;
+    int damage = 0;
+    std::vector<std::tuple<std::string, int, int>> effect;
+};
 
-    bool player = true;
+class Character
+{
+public:
+    bool is_player = true;
 
     std::string character_name = "";
     int base_speed = 5;
     int current_speed = 0;
     int base_hp = 10;
     int current_hp = 0;
-    std::string skill_one_name = "", skill_two_name = "", skill_three_name = "";
-    std::string skill_one_description = "", skill_two_description = "", skill_three_description = "";
+    Move skill_one, skill_two, skill_three;
+    Move pending_skill;
     int attack_buff_duration = 0, attack_debuff_duration = 0, invuln_buff_duration = 0, stun_debuff_duration = 0;
 
     Vector2 char_position;
@@ -40,9 +58,10 @@ public:
     FlexECS::Entity button_text;
 
     FlexECS::Entity attack_buff, attack_debuff, invuln_buff, stun_debuff;
-   
+    //FlexECS::Entity Audio;
+   //FlexECS::Entity Animation;
 
-    void Awake() override
+    void Awake()
     {
         Log::Debug("CharacterScript: Awake");
 
@@ -72,10 +91,15 @@ public:
         }*/
         //Vector3{ char_position.x + button_offset.x, char_position.y + button_offset.y, 0 } // first button is built of the position of character + button offset
         //Vector3{ char_position.x + button_offset.x + 10, char_position.y + button_offset.y + 5, 0 } //buttons & text are built off position of the first button
+
+        if (character_name != "Renko" && character_name != "Grace" && character_name != "Ash")
+        {
+            is_player = false;
+        }
         Find(character_name_text, character_name + " Name");
         Find(character_hp_bar, character_name + " HP Bar");
         Find(character_hp_text, character_name + " HP Text");
-        if (player)
+        if (is_player)
         {
             Find(skill_one_button, character_name + " S1 Button");
             Find(skill_two_button, character_name + " S2 Button");
@@ -95,24 +119,51 @@ public:
         Find(attack_debuff, character_name + " Attack Debuff");
         Find(invuln_buff, character_name + " Invuln Buff");
         Find(stun_debuff, character_name + " Stun Debuff");
+
+        for (int i = 1; i < 4; i++)
+        {
+            switch (i)
+            {
+            case 1:
+                GetMove(character_name + std::to_string(i), skill_one);
+                break;
+            case 2:
+                GetMove(character_name + std::to_string(i), skill_two);
+                break;
+            case 3:
+                GetMove(character_name + std::to_string(i), skill_three);
+                break;
+            }
+        }
+        character_name_text.GetComponent<Text>()->text = FLX_STRING_NEW(character_name);
+        skill_one_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_one.name);
+        skill_two_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_two.name);
+        skill_three_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_three.name);
+        skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_one.description);
     }
 
-    void Start() override
+    void Start()
     {
         Log::Debug("CharacterScript: Start");
 
-        character_name_text.GetComponent<Text>()->text = FLX_STRING_NEW(character_name);
-        character_hp_text.GetComponent<Text>()->text = FLX_STRING_NEW("HP: " + std::to_string(base_hp) + "/" + std::to_string(base_hp) + " | " + "bSpd: " + std::to_string(base_speed));
-        skill_one_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_one_name);
-        skill_two_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_two_name);
-        skill_three_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_three_name);
+        current_hp = base_hp;
+        current_speed = base_speed;
+        character_hp_text.GetComponent<Text>()->text = FLX_STRING_NEW("HP: " + std::to_string(current_hp) + "/" + std::to_string(base_hp) + " | " + "bSpd: " + std::to_string(base_speed));
+        attack_buff_duration = 0;
+        attack_debuff_duration = 0;
+        invuln_buff_duration = 0;
+        stun_debuff_duration = 0;
 
-        ToggleSkill();
+        if (skill_border.GetComponent<Transform>()->is_active)
+        {
+            ToggleSkill();
+        }
     }
 
-    void Update() override
+    void Update()
     {
         //Log::Debug("CharacterScript: Update");
+        //if (skill_one_button.GetComponent<Button>()->on)
     }
 
     void Find(FlexECS::Entity& obj, std::string obj_name)
@@ -129,56 +180,92 @@ public:
         }
     }
 
-    /* GetMove(std::string skill_one_name, std::string name)
+    void GetMove(std::string move_name, Move move_num)
     {
-        Asset::FlxData& move = FLX_ASSET_GET(Asset::FlxData, "/data/" + name + ".flxdata");
-        Move result;
-        skill_one_name = move.GetString("name", "");
-        result.description = move.GetString("description", "");
-        result.cost = move.GetInt("speed_cost", 0);
-        result.is_target_enemy = move.GetBool("is_target_enemy", false);
-        result.target_type = break_down_numerical_string[move.GetString("target_type", "")];
+            std::string file_name = "assets/data/" + move_name + ".txt";
+            //std::stringstream ss(FLX_STRING_NEW(file_name));
+            std::ifstream ss(file_name);
 
-        std::stringstream ss(move.GetString("functions", ""));
-        std::array<std::string, 3> tokens;
+            if (!ss)
+            {
+                Log::Info("File not found!");
+                return;
+            }
 
-        while (std::getline(ss, tokens[0], ',')) {
-            std::getline(ss, tokens[1], ',');
-            std::getline(ss, tokens[2], ',');
-            for (std::string& token : tokens) {
-                for (std::string::iterator i = token.begin(); i != token.end(); i++) {
-                    if (*i == ' ') {
-                        token.erase(i);
-                        i = token.begin();
+            std::string line = "";
+
+            std::getline(ss, line);
+            move_num.name = line;
+
+            std::getline(ss, line);
+            move_num.description = line;
+            
+            std::getline(ss, line);
+            move_num.speed = std::stoi(line);
+
+            while (std::getline(ss, line)) {
+                std::tuple<std::string, int, int> current_effect;
+                std::string current = "";
+                int phase = 0;
+                for (char& c : line) {
+                    if (c == ',')
+                    {
+                        switch (phase)
+                        {
+                        case 0:
+                            std::get<0>(current_effect) = current;
+                            break;
+                        case 1:
+                            std::get<1>(current_effect) = std::stoi(current);
+                            break;
+                        case 2:
+                            std::get<2>(current_effect) = std::stoi(current);
+                            break;
+                        }
+                        current = "";
+                        phase++;
+                    }
+                    else
+                    {
+                        current = current + c;
                     }
                 }
+                move_num.effect.push_back(current_effect);
             }
-            int status_duration = std::stoi(tokens[1]);
-            int move_value = std::stoi(tokens[2]);
-            if (status_duration == 0 || move_value == 0) {
-                MoveExecution read_move;
-                read_move.move_function = s_move_function_registry[tokens[0]];
-                read_move.value = (move_value == 0) ? status_duration : move_value;
-                result.move_function_container.push_back(read_move);
-            }
-            else {
-                StatusEffectApplication status_effect_move;
-                status_effect_move.duration = status_duration;
-                status_effect_move.value = move_value;
-                status_effect_move.effect_function = s_status_function_registry[tokens[0]];
-                result.sea_function_container.push_back(status_effect_move);
-            }
-        }
-        result.move_value = move.GetInt("move_value", 0);
-        result.move_function = s_move_function_registry[move.GetString("move_function", "")];
-        result.effect_value = move.GetInt("effect_value", 0);
-        result.effect_duration = move.GetInt("effect_duration", 0);
-        if (move.GetString("effect_function", "") != "") {
-            result.effect_function = s_status_function_registry[move.GetString("effect_function", "")];
-        }
+        move_num.damage = std::get<1>(move_num.effect[0]);
+        Log::Info("Name: " + move_num.name);
+        Log::Info("Info: " + move_num.description);
+        Log::Info("DMG: " + std::to_string(move_num.damage));
+        Log::Info("SPD: " + std::to_string(move_num.speed));
+        for (unsigned i = 0; i < move_num.effect.size(); i++) {
+            Log::Info("Effect: " + std::get<0>(move_num.effect[i]));
+            Log::Info("DMG/Number of Turns: " + std::to_string(std::get<1>(move_num.effect[i])));
 
-        return result;
-    } */
+            std::string target = "";
+            switch (std::get<2>(move_num.effect[i]))
+            {
+            case 1:
+                target = "single_target_ally";
+                break;
+            case 2:
+                target = "next_fastest_ally";
+                break;
+            case 3:
+                target = "all_allies";
+                break;
+            case 4:
+                target = "single_target_enemy";
+                break;
+            case 5:
+                target = "next_fastest_enemy";
+                break;
+            case 6:
+                target = "all_enemies";
+                break;
+            }
+            Log::Info("Targets: " + target);
+        }
+    }
 
     int TakeDamage(int incoming_damage)
     {
@@ -194,7 +281,7 @@ public:
 
     void ToggleSkill()
     {
-        if (skill_border.GetComponent<Transform>()->is_active)
+        if (skill_one_button.GetComponent<Transform>()->is_active)
         {
             skill_one_button.GetComponent<Transform>()->is_active = false;
             skill_two_button.GetComponent<Transform>()->is_active = false;
@@ -220,7 +307,6 @@ public:
 
     void ToggleSkillText()
     {
-        skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_one_description);
         if (skill_border.GetComponent<Transform>()->is_active)
         {
             skill_border.GetComponent<Transform>()->is_active = false;
@@ -231,6 +317,11 @@ public:
             skill_border.GetComponent<Transform>()->is_active = true;
             skill_text.GetComponent<Transform>()->is_active = true;
         }
+    }
+
+    void ChooseMoveOne()
+    {
+
     }
 
     void UpdateEffect()
@@ -268,12 +359,4 @@ public:
             stun_debuff.GetComponent<Transform>()->is_active = false;
         }
     }
-
-    void Stop() override
-    {
-        Log::Debug("CharacterScript: Stop");
-    }
 };
-
-// Static instance to ensure registration
-static CharacterScript CharacterTest;
