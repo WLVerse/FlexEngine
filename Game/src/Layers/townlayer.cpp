@@ -19,7 +19,7 @@ namespace Game {
       auto scene = FlexECS::Scene::CreateScene();
       FlexECS::Scene::SetActiveScene(scene);
       {
-        FlexECS::Entity entity = scene->CreateEntity("Town Image");
+        FlexECS::Entity entity = scene->CreateEntity("Base Town Image");
         entity.AddComponent<Position>({ { 750, 400, 0 } });
         entity.AddComponent<Scale>({ { 5000, 4200, 0 } });
         entity.AddComponent<Rotation>({});
@@ -27,12 +27,21 @@ namespace Game {
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02.png)") });
       }
       {
+        FlexECS::Entity entity = scene->CreateEntity("Overlay Town Image");
+        entity.AddComponent<Position>({ { 750, 516.5f, 0 } });
+        entity.AddComponent<Scale>({ { 5000, 3976.5f, 0 } });
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 2 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02_+DE.png)") });
+      }
+      {
         main_character = scene->CreateEntity("Walking Renko");
         main_character.AddComponent<Position>({ {800, 350, 0} });
         main_character.AddComponent<Scale>({ {80, 186, 0} });
         main_character.AddComponent<Rotation>({ {180, 0, 0} });
         main_character.AddComponent<Transform>({});
-        main_character.AddComponent<ZIndex>({1});
+        main_character.AddComponent<ZIndex>({ 1 });
         main_character.AddComponent<Rigidbody>({});
         main_character.AddComponent<BoundingBox2D>({});
         main_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
