@@ -338,7 +338,7 @@ namespace Editor
 	void EditorGUI::EditableTextField(std::string& data, std::string title)
 	{
 		PushID();
-		char text_buffer[128];
+		char text_buffer[1024];
 		strncpy_s(text_buffer, data.c_str(), sizeof(text_buffer));
 		text_buffer[sizeof(text_buffer) - 1] = '\0';
 		ImGui::Text(title.c_str());

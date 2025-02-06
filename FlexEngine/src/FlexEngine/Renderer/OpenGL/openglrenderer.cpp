@@ -319,12 +319,12 @@ namespace FlexEngine
 
           float quadVertices[6][4] = 
           {
-              {xpos, ypos + h, 0.0f, 0.0f}, 
-              {xpos, ypos, 0.0f, 1.0f}, 
-              {xpos + w, ypos, 1.0f, 1.0f},
-              {xpos, ypos + h, 0.0f, 0.0f}, 
-              {xpos + w, ypos, 1.0f, 1.0f}, 
-              {xpos + w, ypos + h, 1.0f, 0.0f}
+              {xpos, -ypos - h, 0.0f, 0.0f}, 
+              {xpos, -ypos, 0.0f, 1.0f}, 
+              {xpos + w, -ypos, 1.0f, 1.0f},
+              {xpos, -ypos - h, 0.0f, 0.0f}, 
+              {xpos + w, -ypos, 1.0f, 1.0f}, 
+              {xpos + w, -ypos - h, 1.0f, 0.0f}
           };
 
           glBindBuffer(GL_ARRAY_BUFFER, vbo);

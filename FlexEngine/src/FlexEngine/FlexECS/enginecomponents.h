@@ -208,7 +208,7 @@ namespace FlexEngine
       };
 
       // ParticleSystem (emitter) configuration settings:
-      unsigned int max_particles = 200;
+      int max_particles = 10;
       FlexECS::Scene::StringIndex particlesprite_handle; // Sprite handle for particles
       // FlexECS::Scene::StringIndex particlespritesheet_handle; // Not implemented yet
       bool is_looping = true;
