@@ -23,6 +23,7 @@
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\menubutton.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
+    <ClCompile Include="src\playermovement.cpp" />
     <ClCompile Include="src\testbutton.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
