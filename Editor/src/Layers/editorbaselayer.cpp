@@ -179,10 +179,7 @@ namespace Editor
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<PhysicsLayer>());
 
     // add particle systems layer
-    FLX_COMMAND_ADD_WINDOW_LAYER(
-      "Editor",
-      std::make_shared<ParticleSystemLayer>()
-    );
+    FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<ParticleSystemLayer>());
 
     // add rendering layer
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<RenderingLayer>());
@@ -192,6 +189,9 @@ namespace Editor
 
     // add camera service layer
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<CameraSystemLayer>());
+
+    // add cutscene layer (ONLY FOR TESTING)
+    FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<CutsceneLayer>());
   }
 
   void EditorBaseLayer::OnDetach()

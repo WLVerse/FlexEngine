@@ -210,6 +210,7 @@ namespace FlexEngine
 
     asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
     asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
+    asset_shader.SetUniform_float("u_alpha", props.alpha);
 
     // alignment
     Vector2 position = Vector2(props.position.x, props.position.y);
@@ -737,7 +738,7 @@ namespace FlexEngine
 
     asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
     asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
-
+    asset_shader.SetUniform_float("u_alpha", props.alpha);
     // alignment
     Vector2 position = Vector2(props.position.x, props.position.y);
     switch (props.alignment)
