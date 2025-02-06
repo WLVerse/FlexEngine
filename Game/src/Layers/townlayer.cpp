@@ -21,26 +21,27 @@ namespace Game {
       {
         FlexECS::Entity entity = scene->CreateEntity("Town Image");
         entity.AddComponent<Position>({ { 750, 400, 0 } });
-        entity.AddComponent<Scale>({ { 5000, 5000, 0 } });
+        entity.AddComponent<Scale>({ { 5000, 4200, 0 } });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M3_Blocking_04_WithOverlay.png)") });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02.png)") });
       }
       {
         main_character = scene->CreateEntity("Walking Renko");
-        main_character.AddComponent<Position>({ {1100, -50, 0} });
+        main_character.AddComponent<Position>({ {800, 350, 0} });
         main_character.AddComponent<Scale>({ {80, 186, 0} });
-        main_character.AddComponent<Rotation>({});
+        main_character.AddComponent<Rotation>({ {180, 0, 0} });
         main_character.AddComponent<Transform>({});
         main_character.AddComponent<ZIndex>({1});
         main_character.AddComponent<Rigidbody>({});
         main_character.AddComponent<BoundingBox2D>({});
         main_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
+        main_character.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)") });
         main_character.AddComponent<Script>({ FLX_STRING_NEW("MovePlayer") });
       }
       {
         area_to_transition = scene->CreateEntity("Area To Transition");
-        area_to_transition.AddComponent<Position>({ {2000, 0, 0} });
+        area_to_transition.AddComponent<Position>({ {3000, 0, 0} });
         area_to_transition.AddComponent<Scale>({ {1350, 950, 0} });
         area_to_transition.AddComponent<Rotation>({});
         area_to_transition.AddComponent<Transform>({});
