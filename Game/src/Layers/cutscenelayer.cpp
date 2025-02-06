@@ -1,19 +1,39 @@
-// WLVERSE [https://wlverse.web.app]
-// baselayer.cpp
-// 
-// Base layer that runs before everything.
-//
-// AUTHORS
-// [100%] Chan Wen Loong (wenloong.c@digipen.edu)
-//   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
-
+/*!************************************************************************
+* CUTSCENE LAYER [https://wlverse.web.app]
+* cutscenelayer.cpp
+*
+* This file implements the CutsceneLayer class, which manages the playback
+* of cutscenes by automatically cycling through a series of images with
+* configurable transition effects. The class supports fade-out and fade-in
+* transitions between images, enabling smooth visual progression during
+* cutscenes.
+*
+* Key functionalities include:
+* - Loading and storing cutscene image identifiers.
+* - Automatically swapping between the current and next images based on elapsed time.
+* - Managing distinct transition phases (pre-transition and post-transition)
+*   to implement fade effects.
+*
+* The design emphasizes modularity and flexibility, making it easy to integrate
+* and extend the cutscene functionality within the game engine's layer system.
+*
+* AUTHORS
+* [100%] Soh Wei Jie (weijie.soh@digipen.edu)
+*   - Developed the core cutscene sequencing and transition functionalities.
+*
+* Copyright (c) 2025 DigiPen, All rights reserved.
+**************************************************************************/
 #include "Layers.h"
 
 namespace Game
 {
-
+    /*!
+    * \brief Initializes the CutsceneLayer by loading images and creating shot entities.
+    *
+    * This function is called when the layer is attached to the engine. It sets up
+    * the cutscene by loading the image paths, creating the current and next shot
+    * entities, and initializing their components.
+    */
     void CutsceneLayer::OnAttach()
     {
         // Load cutscene images.
@@ -24,22 +44,22 @@ namespace Game
         m_currIndex = 0;
 
         // Create the current shot entity.
-        // Intentionally setting sprite handle to 0.
+        // Note: Sprite handle is intentionally set to 0 initially.
         m_currShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Current Cinematic Shot");
         m_currShot.AddComponent<Position>({});
         m_currShot.AddComponent<Rotation>({});
-        m_currShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
-                                                 static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
+        m_currShot.AddComponent<Scale>({ Vector3{ static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
+                                                   static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
         m_currShot.AddComponent<Sprite>({ 0 });
         m_currShot.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
         m_currShot.AddComponent<ZIndex>({ 10 });
 
-        // Create the next shot entity and assign the image if available.
+        // Create the next shot entity and assign an image if available.
         m_nextShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Next Cinematic Shot");
         m_nextShot.AddComponent<Position>({});
         m_nextShot.AddComponent<Rotation>({});
-        m_nextShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
-                                                 static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
+        m_nextShot.AddComponent<Scale>({ Vector3{ static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
+                                                   static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
         if (m_currIndex + 1 < m_CutsceneImages.size())
             m_nextShot.AddComponent<Sprite>({ m_CutsceneImages[m_currIndex] });
         else
@@ -47,6 +67,7 @@ namespace Game
         m_nextShot.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
         m_nextShot.AddComponent<ZIndex>({ 9 });
 
+        // Reset timers and transition states.
         m_ElapsedTime = 0.0f;
         m_TransitionPhase = TransitionPhase::None;
         m_TransitionElapsedTime = 0.0f;
@@ -56,11 +77,22 @@ namespace Game
         StartCutscene();
     }
 
+    /*!
+    * \brief Detaches the CutsceneLayer and performs necessary cleanup.
+    *
+    * This function is called when the layer is removed from the engine.
+    * Add any cleanup logic here if needed.
+    */
     void CutsceneLayer::OnDetach()
     {
         // Cleanup code, if needed.
     }
 
+    /*!
+    * \brief Activates the cutscene playback.
+    *
+    * This function sets the cutscene as active and resets all timing and transition states.
+    */
     void CutsceneLayer::StartCutscene()
     {
         m_CutsceneActive = true;
@@ -70,16 +102,27 @@ namespace Game
         m_TransitionPhase = TransitionPhase::None;
     }
 
+    /*!
+    * \brief Deactivates the cutscene playback.
+    *
+    * Stops the cutscene, disables shot transforms, and sends a message to start the game.
+    */
     void CutsceneLayer::StopCutscene()
     {
         m_CutsceneActive = false;
 
         m_currShot.GetComponent<Transform>()->is_active = false;
         m_nextShot.GetComponent<Transform>()->is_active = false;
-        //Additional logic
+        // Additional logic can be added here.
         Application::MessagingSystem::Send("Start Game", true);
     }
 
+    /*!
+    * \brief Restarts the cutscene from the beginning.
+    *
+    * This function resets the image index, timers, and transition states,
+    * then reinitializes the shot entities with the appropriate images.
+    */
     void CutsceneLayer::RestartCutscene()
     {
         // Reset indices and timers.
@@ -99,6 +142,12 @@ namespace Game
         m_CutsceneActive = true;
     }
 
+    /*!
+    * \brief Updates the cutscene state each frame.
+    *
+    * Handles input for skipping, manages the timing for image display, and
+    * processes transition phases for fade effects between images.
+    */
     void CutsceneLayer::Update()
     {
         if (m_currShot == FlexECS::Entity::Null || m_nextShot == FlexECS::Entity::Null)
@@ -107,17 +156,8 @@ namespace Game
             return;
         }
 
-
         if (!m_CutsceneActive)
             return;
-
-        // Debug output for transition phases.
-        #if 0
-        if (m_TransitionPhase == TransitionPhase::PreTransition)
-            std::cout << "PRE" << std::endl;
-        if (m_TransitionPhase == TransitionPhase::PostTransition)
-            std::cout << "POST" << std::endl;
-        #endif
 
         // --- Input Handling for skipping ---
         if (Input::GetKey(GLFW_KEY_SPACE))
@@ -136,10 +176,10 @@ namespace Game
         // --- Phase-Based Update ---
         if (m_TransitionPhase == TransitionPhase::None)
         {
+            // Normal display phase: increment elapsed time.
             if (m_currIndex == 0 || m_currIndex > m_CutsceneImages.size())
                 m_ElapsedTime = m_ImageDuration;
 
-            // Normal display phase.
             m_ElapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
             if (m_ElapsedTime >= m_ImageDuration)
             {
@@ -150,7 +190,7 @@ namespace Game
         }
         else if (m_TransitionPhase == TransitionPhase::PreTransition)
         {
-            // Pre-transition phase (e.g., fading out the current shot).
+            // Pre-transition phase: fade out the current shot.
             m_TransitionElapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
             float progress = m_TransitionElapsedTime / m_PreTransitionDuration;
             float newOpacity = FlexMath::Lerp(1.0f, 0.0f, progress);
@@ -161,14 +201,14 @@ namespace Game
                 // Pre-transition complete; swap images.
                 SwapShots();
 
-                // Start the post-transition phase (e.g., fading in the new shot).
+                // Begin the post-transition phase (fade in the new shot).
                 m_TransitionPhase = TransitionPhase::PostTransition;
                 m_TransitionElapsedTime = 0.0f;
             }
         }
         else if (m_TransitionPhase == TransitionPhase::PostTransition)
         {
-            // Post-transition phase (e.g., fading in the new shot).
+            // Post-transition phase: fade in the new shot.
             m_TransitionElapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
             if (m_TransitionElapsedTime >= m_PostTransitionDuration)
@@ -180,6 +220,13 @@ namespace Game
         }
     }
 
+    /*!
+    * \brief Swaps the current shot with the next shot during a transition.
+    *
+    * This function is called after the pre-transition phase is complete.
+    * It updates the sprite handle and opacity of the current shot, advances
+    * the cutscene image index, and prepares the next shot with the subsequent image.
+    */
     void CutsceneLayer::SwapShots()
     {
         if (m_currIndex >= m_CutsceneImages.size() + 1)
@@ -203,4 +250,4 @@ namespace Game
             m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
         }
     }
-}
+} // namespace Game
