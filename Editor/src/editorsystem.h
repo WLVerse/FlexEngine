@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// editor.h
+//
+// Each system (selection, commands) will inherit from this
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+**************************************************************************/
+
 #pragma once
 #include <FlexEngine.h>
 

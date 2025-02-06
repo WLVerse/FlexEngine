@@ -1,5 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// imguipayloads.h
+//
+// Interface for simplifying the use of ImGui payloads.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
 #pragma once
-
 
 namespace Editor
 {

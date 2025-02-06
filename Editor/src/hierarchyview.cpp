@@ -13,13 +13,10 @@
 
 #include "editor.h"
 #include "hierarchyview.h"
-//#include "Components/rendering.h"
 #include "editorgui.h"
 
 using namespace FlexEngine;
 
-// Make sure this is updated along with the actual using directive in enginecomponents.h
-// Otherwise just use the one in enginecomponents.h
 using EntityName = FlexECS::Scene::StringIndex;
 
 namespace Editor

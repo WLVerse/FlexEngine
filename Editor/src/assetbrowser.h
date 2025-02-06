@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// assetbrowser.h
+//
+// Asset browser for the Level Editor.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #pragma once
 
 #include "FlexEngine.h"
@@ -50,10 +63,21 @@ namespace Editor
 		******************************************************************************/
 		void AddToDirectoryStructure(const std::filesystem::path& entry);
 
+		/*!***************************************************************************
+		* @brief
+		* Used for the add file feature.
+		* Renders the dropdown of where you use the folder.
+		* Recursive function, so start it by RenderFolderDropdown(root_folder);
+		******************************************************************************/
 		void RenderFolderDropdown(Folder& folder);
 
-		void DeleteFilePopup(std::filesystem::path& file);
 
+		/*!***************************************************************************
+		* @brief DeleteFilePopup, RenderDeleteConfirmationPopup
+		* These two functions combined handle the displaying of 
+		* delete confirmation popup
+		******************************************************************************/
+		void DeleteFilePopup(std::filesystem::path& file);
 		void RenderDeleteConfirmationPopup();
 
 		const std::filesystem::path m_root_directory = "../../assets";

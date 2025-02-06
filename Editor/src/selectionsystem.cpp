@@ -1,3 +1,17 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// selectionsystem.cpp
+//
+// Centralized location where selecting/deleting entities is managed in
+// the level editor.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #include "selectionsystem.h"
 
 using namespace FlexEngine;

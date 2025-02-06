@@ -71,8 +71,9 @@ namespace Editor
 	2) Use COMPONENT_VIEWER_xxxxx(member) with the appropriate type for every member inside the 
 	component you want to display
 	3) Use COMPONENT_VIEWER_END(ComponentName) to close the function (i know the define parameter is unused, for now D:)
-	4) Register the function using REGISTER_COMPONENT_VIEWER(ComponentName)
-
+	4) Register the function to the registry using REGISTER_COMPONENT_VIEWER(ComponentName)
+	4a) Use REGISTER_COMPONENT_VIEWER_FUNCTIONS(TYPE, ENABLE_ADD, ENABLE_REMOVE) to control 
+			whether adding or removing the component is allowed (default both allowed)
 
 	//Sample Usage in cpp file:
 	
@@ -120,8 +121,8 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 
 
 // Using Manual means that Component add and remove functionality won't be
-// automatically generated. So you can write your own in the case that special functionality
-// is needed.
+// automatically generated. So you can write your own in the case that special functionality is needed.
+// > Make sure that the naming convention is correct for your personalized function.
 	#define COMPONENT_VIEWER_START_MANUAL(TYPE) \
 void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 { \
