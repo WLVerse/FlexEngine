@@ -36,6 +36,25 @@ namespace Game {
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02_+DE.png)") });
       }
       {
+        FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel");
+        entity.AddComponent<Position>({ { -325, 350, 0 } });
+        entity.AddComponent<Scale>({ { 128, 192, 0 } });
+        entity.AddComponent<Rotation>({ { 180, 0, 0 } });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 3 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.png)") });
+        entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel Shadow");
+        entity.AddComponent<Position>({ { -300, 325, 0 } });
+        entity.AddComponent<Scale>({ { 128, 192, 0 } });
+        entity.AddComponent<Rotation>({ { 0, 0, -45 } });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 2 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/vfx/VFX_Char_Shadow.png)") });
+      }
+      {
         main_character = scene->CreateEntity("Walking Renko");
         main_character.AddComponent<Position>({ {800, 350, 0} });
         main_character.AddComponent<Scale>({ {80, 186, 0} });
