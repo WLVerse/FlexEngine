@@ -832,8 +832,7 @@ namespace Editor
           entity.AddComponent<Transform>({});
           //entity.AddComponent<Script>({ FLX_STRING_NEW(R"(CharacterTest)") });
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)"), -1 });
-          entity.AddComponent<Character>();
-          entity.GetComponent<Character>()->character_name = "Renko";
+          //entity.GetComponent<Character>()->character_name = "Renko";
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
           //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }

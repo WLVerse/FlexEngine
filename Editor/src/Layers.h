@@ -22,3 +22,4 @@
 #include "Layers/camerasystemlayer.h"
 #include "Layers/particlesystemlayer.h"
 #include "Layers/audiolayer.h"
+#include "Layers/battlelayer.h"

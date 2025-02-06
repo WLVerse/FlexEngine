@@ -2,7 +2,7 @@
 #include <character.h>
 using namespace FlexEngine;
 
-enum Targets
+/*enum Targets
 {
     single_target_ally = 1,
     next_fastest_ally = 2,
@@ -60,13 +60,13 @@ public:
     FlexECS::Entity attack_buff, attack_debuff, invuln_buff, stun_debuff;
     //FlexECS::Entity Audio;
    //FlexECS::Entity Animation;
-
-    void Awake()
+   */
+    void Character::Awake()
     {
         Log::Debug("CharacterScript: Awake");
 
         //find character_name, skill_one_name, skill_two_name, skill_three_name
-        character_name = FLX_STRING_GET(*self.GetComponent<EntityName>());
+        //character_name = FLX_STRING_GET(*self.GetComponent<EntityName>());
         //for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Script>())
         //{
             //if ()
@@ -142,7 +142,7 @@ public:
         skill_text.GetComponent<Text>()->text = FLX_STRING_NEW(skill_one.description);
     }
 
-    void Start()
+    void Character::Start()
     {
         Log::Debug("CharacterScript: Start");
 
@@ -160,13 +160,13 @@ public:
         }
     }
 
-    void Update()
+    void Character::Update()
     {
         //Log::Debug("CharacterScript: Update");
         //if (skill_one_button.GetComponent<Button>()->on)
     }
 
-    void Find(FlexECS::Entity& obj, std::string obj_name)
+    void Character::Find(FlexECS::Entity& obj, std::string obj_name)
     {
         auto scene = FlexECS::Scene::GetActiveScene();
         obj = scene->GetEntityByName(obj_name);
@@ -180,7 +180,7 @@ public:
         }
     }
 
-    void GetMove(std::string move_name, Move move_num)
+    void Character::GetMove(std::string move_name, Move move_num)
     {
             std::string file_name = "assets/data/" + move_name + ".txt";
             //std::stringstream ss(FLX_STRING_NEW(file_name));
@@ -267,7 +267,7 @@ public:
         }
     }
 
-    int TakeDamage(int incoming_damage)
+    int Character::TakeDamage(int incoming_damage)
     {
         if (invuln_buff_duration > 0)
             incoming_damage = 0;
@@ -279,7 +279,7 @@ public:
             return incoming_damage;
     }
 
-    void ToggleSkill()
+    void Character::ToggleSkill()
     {
         if (skill_one_button.GetComponent<Transform>()->is_active)
         {
@@ -305,7 +305,7 @@ public:
         }
     }
 
-    void ToggleSkillText()
+    void Character::ToggleSkillText()
     {
         if (skill_border.GetComponent<Transform>()->is_active)
         {
@@ -319,12 +319,7 @@ public:
         }
     }
 
-    void ChooseMoveOne()
-    {
-
-    }
-
-    void UpdateEffect()
+    void Character::UpdateEffect()
     {
         if (attack_buff_duration > 0)
         {
@@ -359,4 +354,4 @@ public:
             stun_debuff.GetComponent<Transform>()->is_active = false;
         }
     }
-};
+//};

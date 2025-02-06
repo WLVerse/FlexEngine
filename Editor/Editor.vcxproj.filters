@@ -78,6 +78,9 @@
     <ClCompile Include="src\gameview.cpp">
       <Filter>src\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layers\battlelayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -155,6 +158,9 @@
     </ClInclude>
     <ClInclude Include="src\gameview.h">
       <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\battlelayer.h">
+      <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -249,7 +249,7 @@ public:
                     }
                     else
                     {
-                        target_num = ally_characters.size() - 1;
+                        target_num = int(ally_characters.size()) - 1;
                         initial_target = ally_characters[target_num];
                     }
                 }
@@ -261,7 +261,7 @@ public:
                     }
                     else
                     {
-                        target_num = enemy_characters.size() - 1;
+                        target_num = int(enemy_characters.size()) - 1;
                         initial_target = enemy_characters[target_num];
                     }
                 }
@@ -277,7 +277,7 @@ public:
 
         if (delay_timer > 0.0f)
         {
-            delay_timer -= deltaTime;
+           //delay_timer -= deltaTime;
         }
     }
 
@@ -348,7 +348,7 @@ public:
         for (unsigned i = 0; i < characters.size(); i++) {
             if (characters[i].GetComponent<Character>()->current_hp <= 0)
             {
-                characters.erase(characters[i]);
+                //characters.erase(characters[i]);
             }
         }
 
@@ -422,16 +422,16 @@ public:
                 current_targets.push_back(initial_target);
                 break;
             case 2:
-                for (unsigned i = 0; i < ally_characters.size(); i++) {
-                    if (current_character != ally_characters[i])
+                for (unsigned j = 0; j < ally_characters.size(); j++) {
+                    if (current_character != ally_characters[j])
                     {
-                        current_targets.push_back(ally_characters[i]);
+                        current_targets.push_back(ally_characters[j]);
                     }
                     current_targets.push_back(initial_target);
                 }
                 break;
             case 3:
-                for (unsigned i = 0; i < ally_characters.size(); i++) {
+                for (unsigned j = 0; j < ally_characters.size(); j++) {
                     current_targets.push_back(initial_target);
                 }
                 break;
@@ -439,12 +439,12 @@ public:
                 current_targets.push_back(initial_target);
                 break;
             case 5:
-                for (unsigned i = 0; i < enemy_characters.size(); i++) {
+                for (unsigned j = 0; j < enemy_characters.size(); j++) {
                     current_targets.push_back(initial_target);
                 }
                 break;
             case 6:
-                for (unsigned i = 0; i < enemy_characters.size(); i++) {
+                for (unsigned j = 0; j < enemy_characters.size(); j++) {
                     current_targets.push_back(initial_target);
                 }
                 break;
@@ -468,12 +468,12 @@ public:
                 {
                     damage -= std::get<1>(current_character.GetComponent<Character>()->pending_skill.effect[i]);
                 }
-                for (unsigned i = 0; i < current_targets.size(); i++) {
+                for (unsigned j = 0; j < current_targets.size(); j++) {
 
-                    current_targets[i].GetComponent<Character>()->TakeDamage(damage);
-                    current_targets[i].GetComponent<Character>()->UpdateEffect();
-                    message += current_targets[i].GetComponent<Character>()->character_name + " ";
-                    if (i + 1 != current_targets.size())
+                    current_targets[j].GetComponent<Character>()->TakeDamage(damage);
+                    current_targets[j].GetComponent<Character>()->UpdateEffect();
+                    message += current_targets[j].GetComponent<Character>()->character_name + " ";
+                    if (j + 1 != current_targets.size())
                     {
                         message += "and ";
                     }
@@ -484,37 +484,37 @@ public:
             else if (std::get<0>(current_character.GetComponent<Character>()->pending_skill.effect[i]) == "ATTACK_BUFF")
             {
                 int duration = std::get<1>(current_character.GetComponent<Character>()->pending_skill.effect[i]);
-                for (unsigned i = 0; i < current_targets.size(); i++) {
+                for (unsigned j = 0; j < current_targets.size(); j++) {
 
-                    current_targets[i].GetComponent<Character>()->attack_buff_duration += duration;
-                    current_targets[i].GetComponent<Character>()->UpdateEffect();
+                    current_targets[j].GetComponent<Character>()->attack_buff_duration += duration;
+                    current_targets[j].GetComponent<Character>()->UpdateEffect();
                 }
             }
             else if (std::get<0>(current_character.GetComponent<Character>()->pending_skill.effect[i]) == "ATTACK_DEBUFF")
             {
                 int duration = std::get<1>(current_character.GetComponent<Character>()->pending_skill.effect[i]);
-                for (unsigned i = 0; i < current_targets.size(); i++) {
+                for (unsigned j = 0; j < current_targets.size(); j++) {
 
-                    current_targets[i].GetComponent<Character>()->attack_debuff_duration += duration;
-                    current_targets[i].GetComponent<Character>()->UpdateEffect();
+                    current_targets[j].GetComponent<Character>()->attack_debuff_duration += duration;
+                    current_targets[j].GetComponent<Character>()->UpdateEffect();
                 }
             }
             else if (std::get<0>(current_character.GetComponent<Character>()->pending_skill.effect[i]) == "INVULN_BUFF")
             {
                 int duration = std::get<1>(current_character.GetComponent<Character>()->pending_skill.effect[i]);
-                for (unsigned i = 0; i < current_targets.size(); i++) {
+                for (unsigned j = 0; j < current_targets.size(); j++) {
 
-                    current_targets[i].GetComponent<Character>()->invuln_buff_duration += duration;
-                    current_targets[i].GetComponent<Character>()->UpdateEffect();
+                    current_targets[j].GetComponent<Character>()->invuln_buff_duration += duration;
+                    current_targets[j].GetComponent<Character>()->UpdateEffect();
                 }
             }
             else if (std::get<0>(current_character.GetComponent<Character>()->pending_skill.effect[i]) == "STUN_DEBUFF")
             {
                 int duration = std::get<1>(current_character.GetComponent<Character>()->pending_skill.effect[i]);
-                for (unsigned i = 0; i < current_targets.size(); i++) {
+                for (unsigned j = 0; j < current_targets.size(); j++) {
 
-                    current_targets[i].GetComponent<Character>()->stun_debuff_duration += duration;
-                    current_targets[i].GetComponent<Character>()->UpdateEffect();
+                    current_targets[j].GetComponent<Character>()->stun_debuff_duration += duration;
+                    current_targets[j].GetComponent<Character>()->UpdateEffect();
                 }
             }
             current_character.GetComponent<Character>()->current_speed = current_character.GetComponent<Character>()->base_speed + current_character.GetComponent<Character>()->pending_skill.speed;

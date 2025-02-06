@@ -28,6 +28,9 @@
     <ClCompile Include="src\playermovement.cpp" />
     <ClCompile Include="src\testbutton.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\character.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
