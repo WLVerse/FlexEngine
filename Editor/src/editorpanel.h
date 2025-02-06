@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// editor.h
+//
+// Each panel (scene, hierarchy, inspector, etc) will inherit from this
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+**************************************************************************/
+
 #pragma once
 #include <FlexEngine.h>
 
