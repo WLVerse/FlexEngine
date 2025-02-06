@@ -169,7 +169,6 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
-    <ClCompile Include="src\Layers\cutscenelayer.cpp" />
     <ClCompile Include="src\Layers\editorbaselayer.cpp" />
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
     <ClCompile Include="src\Layers\particlesystemlayer.cpp" />
@@ -197,7 +196,6 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
-    <ClInclude Include="src\Layers\cutscenelayer.h" />
     <ClInclude Include="src\Layers\editorbaselayer.h" />
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
     <ClInclude Include="src\Layers\particlesystemlayer.h" />

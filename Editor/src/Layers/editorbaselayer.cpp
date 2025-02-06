@@ -189,9 +189,6 @@ namespace Editor
 
     // add camera service layer
     FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<CameraSystemLayer>());
-
-    // add cutscene layer (ONLY FOR TESTING)
-    FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<CutsceneLayer>());
   }
 
   void EditorBaseLayer::OnDetach()

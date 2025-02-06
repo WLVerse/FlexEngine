@@ -20,6 +20,5 @@
 #include "Layers/scriptinglayer.h"
 #include "Layers/statisticspanellayer.h"
 #include "Layers/camerasystemlayer.h"
-#include "Layers/cutscenelayer.h"
 #include "Layers/particlesystemlayer.h"
 #include "Layers/audiolayer.h"

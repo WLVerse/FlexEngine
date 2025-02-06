@@ -161,6 +161,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
+    <ClInclude Include="src\Layers\cutscenelayer.h" />
     <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\loadlayer.h" />
     <ClInclude Include="src\Layers\menulayer.h" />
@@ -173,6 +174,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
+    <ClCompile Include="src\Layers\cutscenelayer.cpp" />
     <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\loadlayer.cpp" />
     <ClCompile Include="src\Layers\menulayer.cpp" />

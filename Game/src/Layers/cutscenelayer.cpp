@@ -11,7 +11,7 @@
 
 #include "Layers.h"
 
-namespace Editor
+namespace Game
 {
 
     void CutsceneLayer::OnAttach()
@@ -96,14 +96,15 @@ namespace Editor
 
     void CutsceneLayer::Update()
     {
-        if (m_currShot.HasComponent<Transform>() == false || m_nextShot == FlexECS::Entity::Null)
+        if (m_currShot == FlexECS::Entity::Null || m_nextShot == FlexECS::Entity::Null)
         {
             Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
             return;
         }
 
         // Test input to start the cutscene.
-        if (Input::GetKey('W'))
+        if (Application::MessagingSystem::Receive<bool>("Start Cutscene"))
+        {
             StartCutscene();
 
 
@@ -118,6 +119,7 @@ namespace Editor
         if (m_TransitionPhase == TransitionPhase::PostTransition)
             std::cout << "POST" << std::endl;
         #endif
+
         // --- Input Handling for skipping ---
         if (Input::GetKey(GLFW_KEY_SPACE))
         {
@@ -139,7 +141,6 @@ namespace Editor
                 m_ElapsedTime = m_ImageDuration;
 
             // Normal display phase.
-            // (Note: Only adding delta time once per update cycle.)
             m_ElapsedTime += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
             if (m_ElapsedTime >= m_ImageDuration)
             {

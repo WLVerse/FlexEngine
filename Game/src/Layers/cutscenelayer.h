@@ -4,7 +4,7 @@
 // Base layer that runs before everything.
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [100%] Soh Wei Jie
 //   - Main Author
 // 
 // Copyright (c) 2024 DigiPen, All rights reserved.
@@ -14,12 +14,12 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Editor
+namespace Game
 {
     enum TransitionPhase
     {
-        PreTransition, // Pre-transition phase (e.g., fade-out before swap).
         None,          // No transition is occurring; normal image display.
+        PreTransition, // Pre-transition phase (e.g., fade-out before swap).
         PostTransition // Post-transition phase (e.g., fade-in after swap).
     };
 

@@ -4,6 +4,7 @@
 namespace Game
 {
   std::shared_ptr<GameLayer> gameLayer = nullptr;
+  std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
 
   std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
