@@ -1,13 +1,14 @@
-// WLVERSE [https://wlverse.web.app] 
+// WLVERSE [https://wlverse.web.app]
 // openglframebuffer.h
-// 
-// Wraps the framebuffer into a class. This class extends handles to allow decoupling of framebuffer calls.
-// 
-// AUTHORS 
-// [100%] Yew Chong (yewchong.k\@digipen.edu) 
-// - Main Author 
-// 
-// Copyright (c) 2025 DigiPen, All rights reserved
+//
+// Wraps the framebuffer into a class. This class extends handles to allow
+// decoupling of framebuffer calls. 
+//
+// AUTHORS
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 #include <glad/glad.h>

@@ -1,20 +1,22 @@
 // WLVERSE [https://wlverse.web.app]
 // flexformatter.cpp
+//
+// Handles the FlexFormat file specification. 
 // 
-// Handles the FlexFormat file specification.
+// - Use FlexFormatter::Create() to create a new FlxFmtFile. 
+// - Use FlexFormatter::Parse() to parse a FlxFmtFile from a FlexEngine::File. 
+// - Use FlxFmtFile.Save() to increment the save version and update the last
+// edited date. 
 // 
-// - Use FlexFormatter::Create() to create a new FlxFmtFile.
-// - Use FlexFormatter::Parse() to parse a FlxFmtFile from a FlexEngine::File.
-// - Use FlxFmtFile.Save() to increment the save version and update the last edited date.
-// 
-// Example usage:
-// FlxFmtFile flxfmtfile_scene = FlexFormatter::Parse(file_scene, FlxFmtFileType::Scene);
+// Example usage: 
+// FlxFmtFile flxfmtfile_scene = FlexFormatter::Parse(file_scene,
+// FlxFmtFileType::Scene); 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

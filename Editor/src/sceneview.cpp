@@ -441,7 +441,7 @@ namespace Editor
 
 				scale_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 				scale_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				entity_scale += Vector3(scale_change.x, -scale_change.y, 0.0f);
+				entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);
 
 				if (recording_ended)
 				{
@@ -471,7 +471,7 @@ namespace Editor
 					break;
 				}
 				m_gizmo_hovered = hovered;
-				entity_rotation.z -= value * (180 / IM_PI);
+				entity_rotation.z += value * (180 / IM_PI);
 
 				//Clamp to -360 and 360
 				if (entity_rotation.z > 360.0f) entity_rotation.z -= 360.0f;

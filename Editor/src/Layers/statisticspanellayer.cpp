@@ -1,19 +1,20 @@
 // WLVERSE [https://wlverse.web.app]
 // statisticspanellayer.cpp
+//
+// Statistics panel for debugging. 
 // 
-// Statistics panel for debugging.
-// 
-// This panel is designed to display every single thing that is happening in the engine
-// - List of layers in application layerstack
-// - Current state for application state manager
-// - All windows and their properties
-//   - List of layers in window layerstack
+// This panel is designed to display every single thing that is happening in the 
+// engine 
+// - List of layers in application layerstack 
+// - Current state for application state manager 
+// - All windows and their properties 
+//   - List of layers in window layerstack 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 

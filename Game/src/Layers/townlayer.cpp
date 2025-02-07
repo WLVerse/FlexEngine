@@ -19,28 +19,57 @@ namespace Game {
       auto scene = FlexECS::Scene::CreateScene();
       FlexECS::Scene::SetActiveScene(scene);
       {
-        FlexECS::Entity entity = scene->CreateEntity("Town Image");
+        FlexECS::Entity entity = scene->CreateEntity("Base Town Image");
         entity.AddComponent<Position>({ { 750, 400, 0 } });
-        entity.AddComponent<Scale>({ { 5000, 5000, 0 } });
+        entity.AddComponent<Scale>({ { 5000, 4200, 0 } });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M3_Blocking_04_WithOverlay.png)") });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02.png)") });
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Overlay Town Image");
+        entity.AddComponent<Position>({ { 750, 516.5f, 0 } });
+        entity.AddComponent<Scale>({ { 5000, 3976.5f, 0 } });
+        entity.AddComponent<Rotation>({});
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 2 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02_+DE.png)") });
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel");
+        entity.AddComponent<Position>({ { -325, 350, 0 } });
+        entity.AddComponent<Scale>({ { 128, 192, 0 } });
+        entity.AddComponent<Rotation>({ { 180, 0, 0 } });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 3 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.png)") });
+        entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
+      }
+      {
+        FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel Shadow");
+        entity.AddComponent<Position>({ { -300, 325, 0 } });
+        entity.AddComponent<Scale>({ { 128, 192, 0 } });
+        entity.AddComponent<Rotation>({ { 0, 0, -45 } });
+        entity.AddComponent<Transform>({});
+        entity.AddComponent<ZIndex>({ 2 });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/vfx/VFX_Char_Shadow.png)") });
       }
       {
         main_character = scene->CreateEntity("Walking Renko");
-        main_character.AddComponent<Position>({ {1100, -50, 0} });
+        main_character.AddComponent<Position>({ {800, 350, 0} });
         main_character.AddComponent<Scale>({ {80, 186, 0} });
-        main_character.AddComponent<Rotation>({});
+        main_character.AddComponent<Rotation>({ {180, 0, 0} });
         main_character.AddComponent<Transform>({});
-        main_character.AddComponent<ZIndex>({1});
+        main_character.AddComponent<ZIndex>({ 1 });
         main_character.AddComponent<Rigidbody>({});
         main_character.AddComponent<BoundingBox2D>({});
         main_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
+        main_character.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)") });
         main_character.AddComponent<Script>({ FLX_STRING_NEW("MovePlayer") });
       }
       {
         area_to_transition = scene->CreateEntity("Area To Transition");
-        area_to_transition.AddComponent<Position>({ {2000, 0, 0} });
+        area_to_transition.AddComponent<Position>({ {3000, 0, 0} });
         area_to_transition.AddComponent<Scale>({ {1350, 950, 0} });
         area_to_transition.AddComponent<Rotation>({});
         area_to_transition.AddComponent<Transform>({});

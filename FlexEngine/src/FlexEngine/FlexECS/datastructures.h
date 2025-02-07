@@ -1,15 +1,20 @@
 // WLVERSE [https://wlverse.web.app]
 // datastructures.h
+//
+// API for the ECS system. 
 // 
-// API for the ECS system
+// The scene wraps the entire ECS. Saving and loading takes a full memory imprint
+// of the actual ECS through an intermediary representation. 
+// Entities do not store data. 
+// ECS data is not persistent across scenes. 
 //
 // AUTHORS
 // [90%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - everything else
 // [10%] Kuan Yew Chong (yewchong.k\@digipen.edu)
 //   - cache query stuff, proxy container
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// openglshader.h
+//
+// Wraps the opengl shader. 
+// Handles compiling and linking of the shader program. 
+//
+// AUTHORS
+// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #pragma once
 
 #include "flx_api.h"

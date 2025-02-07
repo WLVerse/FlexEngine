@@ -1,8 +1,8 @@
 /*!************************************************************************
 // WLVERSE [https://wlverse.web.app]
-// sceneview.h
+// gameview.h
 //
-// Scene Panel for the editor.
+// Game Panel for the editor.
 //
 // AUTHORS
 // [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
@@ -26,7 +26,7 @@ namespace Editor
 		void Shutdown();
 	
 	private:
-		void CalculateViewportPosition();
+		void CalculateViewportPosition();	//internal function to determine position to place viewport
 
 		ImVec2 m_viewport_size;
 		ImVec2 m_viewport_position;

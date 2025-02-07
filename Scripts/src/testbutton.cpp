@@ -1,12 +1,12 @@
 // WLVERSE [https://wlverse.web.app]
 // testbutton.cpp
-// 
-// scripting cpp file for mouse click
+//
+// Scripting cpp file for testing mouse clicks on a button. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
+//
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include <FlexEngine.h>

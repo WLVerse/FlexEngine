@@ -1,13 +1,13 @@
 // WLVERSE [https://wlverse.web.app]
 // scene.cpp
-// 
-// The FlexEngine Entity-Component-System (ECS) implementation
+//
+// The FlexEngine Entity-Component-System (ECS) implementation. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "datastructures.h"
 #include "enginecomponents.h"

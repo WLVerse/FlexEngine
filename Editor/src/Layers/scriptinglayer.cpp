@@ -1,15 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // scriptinglayer.cpp
 //
-// Scripting layer for the editor.
-//
-// Very rough implementation of hotloading a scripting DLL.
+// Scripting layer for the editor. 
+// 
+// Very rough implementation of hotloading a scripting DLL. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 

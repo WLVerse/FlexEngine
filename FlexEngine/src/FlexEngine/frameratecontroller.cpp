@@ -1,13 +1,17 @@
 // WLVERSE [https://wlverse.web.app]
 // frameratecontroller.cpp
 //
-// Rough implementation of a framerate controller.
+// Rough implementation of a framerate controller. 
+// 
+// Uses the step method to allow dropped frames to still be calculated. Does not
+// implement load sharing yet so all the extra frames will be calculated in one
+// frame. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "frameratecontroller.h"
 

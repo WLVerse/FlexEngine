@@ -1,13 +1,13 @@
 // WLVERSE [https://wlverse.web.app]
 // matrix4x4.cpp
-// 
-// A 4x4 matrix.
+//
+// A 4x4 matrix. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "matrix4x4.h"
 

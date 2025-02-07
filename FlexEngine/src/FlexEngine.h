@@ -1,20 +1,20 @@
 // WLVERSE [https://wlverse.web.app]
 // FlexEngine.h
+//
+// FlexEngine Main Include File 
+// This file includes all the necessary files to use the FlexEngine library. 
 // 
-// FlexEngine Main Include File
-// This file includes all the necessary files to use the FlexEngine library.
-// 
-// Sections:
-// - Core  . . . . . . The core of the engine. Required for all applications.
-// - Tools . . . . . . Tools for logging, timing, and other utilities.
-// - Wrappers  . . . . Wrappers for external libraries and tools.
-// - Data Structures . Data structures used in the engine.
+// Sections 
+// - Core: The core of the engine. Required for all applications. 
+// - Tools: Tools for logging, timing, and other utilities. 
+// - Wrappers: Wrappers for external libraries and tools. 
+// - Data Structures: Data structures used in the engine. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

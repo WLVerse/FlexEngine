@@ -1,22 +1,21 @@
 // WLVERSE [https://wlverse.web.app]
 // assetmanager.cpp
+//
+// The asset manager will look through the entire directory of assets, parse
+// everything and assign it to a umap. (Basically the File Manager and File List
+// already does this) 
 // 
-// The asset manager will look through the entire directory of assets,
-// parse everything and assign it to a umap.
-// (Basically the File Manager and File List already does this)
+// A mesh component will simply hold the key (in this case the file path) and
+// perform a lookup everytime it needs it. 
 // 
-// A mesh component will simply hold the key (in this case the file path)
-// and perform a lookup everytime it needs it.
-// 
-// The key is specifically the relative path to the asset from the
-// default directory. This is to ensure that the asset manager can
-// easily find the asset.
+// The key is specifically the relative path to the asset from the default
+// directory. This is to ensure that the asset manager can easily find the asset. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

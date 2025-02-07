@@ -1,15 +1,16 @@
 // WLVERSE [https://wlverse.web.app]
 // entity.cpp
-// 
-// Implementation of Entity class and functions that assist its management in the ECS
+//
+// Implementation of Entity class and functions that assist its management in the
+// ECS. 
 //
 // AUTHORS
 // [90%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Everything else
 // [10%] Kuan Yew Chong (yewchong.k\@digipen.edu)
-//  - Update internal_addarchetype for updating caches
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//   - Update internal_addarchetype for updating caches
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "datastructures.h"
 

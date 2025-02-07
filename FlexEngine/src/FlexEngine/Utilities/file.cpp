@@ -1,17 +1,18 @@
 // WLVERSE [https://wlverse.web.app]
 // file.cpp
-// 
-// Structure to represent a file
-// Files are defined by their path and data
-// There can never be two files with the same path
-// This is enforced by the FileRegistry
-// Outside of the class, all the files are handled by references to the FileRegistry
+//
+// Structure to represent a file. 
+// Files are defined by their path and data. 
+// There can never be two files with the same path. 
+// This is enforced by the FileRegistry. 
+// Outside of the class, all the files are handled by references to the
+// FileRegistry. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "pch.h"
 

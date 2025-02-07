@@ -1,13 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // flx_api.h
-// 
-// Macro file for defining the API and calling conventions for the FlexEngine library.
+//
+// Macro file for defining the API and calling conventions for the FlexEngine
+// library. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

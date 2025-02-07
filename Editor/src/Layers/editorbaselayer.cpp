@@ -1,7 +1,7 @@
 // WLVERSE [https://wlverse.web.app]
-// editorbaselayer.h
+// editorbaselayer.cpp
 //
-// Base layer for the editor.
+// Base layer for the editor. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -65,7 +65,7 @@ namespace Editor
                 });
                 entity.AddComponent<Transform>({});
                 // entity.AddComponent<ScriptComponent>({ FLX_STRING_NEW(R"(CameraHandler)") });
-                entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/attack.mp3)") });
+                entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/generic attack.mp3)") });
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
                 entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"), true, 0.f });
                 entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
@@ -200,25 +200,22 @@ namespace Editor
 
     void EditorBaseLayer::Update()
     {
-        //Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
-        //Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+      //Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+      //Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
 
-        // Always remember to set the context before using ImGui
-        FLX_IMGUI_ALIGNCONTEXT();
+      // Always remember to set the context before using ImGui
+      FLX_IMGUI_ALIGNCONTEXT();
 
-        // setup dockspace
-        // ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode |
-        // ImGuiDockNodeFlags_NoDockingInCentralNode;
-        ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-        // #pragma warning(suppress: 4189) // local variable is initialized but not referenced
-        dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
+      // setup dockspace
+      // ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode |
+      // ImGuiDockNodeFlags_NoDockingInCentralNode;
+      ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+      // #pragma warning(suppress: 4189) // local variable is initialized but not referenced
+      dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
-        Editor::GetInstance().Update();
+      Editor::GetInstance().Update();
 
-
-        // good practise
-        //OpenGLFrameBuffer::Unbind();
-
+      
         // For IMGUI
         FunctionQueue function_queue;
         if (ImGui::BeginMainMenuBar())

@@ -77,7 +77,7 @@ namespace Editor
 		static void Mat44(FlexEngine::Matrix4x4& data, std::string title = "");
 
 		/*!***************************************************************************
-		* @brief PATH type vieweres
+		* @brief PATH type viewers
 		* Basically stores the key to the asset in the asset manager.
 		* Supports drag and drop of corresponding file type from from the content browser to the field.
 		******************************************************************************/

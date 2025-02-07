@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// assetbrowser.cpp
+//
+// Asset browser for the Level Editor.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2024 DigiPen, All rights reserved.
+**************************************************************************/
+
 #include "editor.h"
 #include "assetbrowser.h"
 #include "editorgui.h"
