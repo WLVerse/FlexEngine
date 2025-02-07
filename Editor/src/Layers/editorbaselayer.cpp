@@ -1025,14 +1025,14 @@ namespace Editor
           entity.GetComponent<Character>()->skill_one.effect_name = FLX_STRING_NEW("ATTACK_BUFF");
           entity.GetComponent<Character>()->skill_one.target = 1;
 
-          entity.GetComponent<Character>()->skill_two.damage_duration = 0;
+          entity.GetComponent<Character>()->skill_two.damage_duration = 3;
           entity.GetComponent<Character>()->skill_two.speed = 6;
           entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Timeout");
           entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Decrease an enemy's attack by 2 turns. Costs 6 Move Speed.");
           entity.GetComponent<Character>()->skill_two.effect_name = FLX_STRING_NEW("ATTACK_DEBUFF");
           entity.GetComponent<Character>()->skill_two.target = 4;
 
-          entity.GetComponent<Character>()->skill_three.damage_duration = 0;
+          entity.GetComponent<Character>()->skill_three.damage_duration = 1;
           entity.GetComponent<Character>()->skill_three.speed = 11;
           entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Innocent Verdict");
           entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Makes all allies immune to damage for 1 turn. Costs 11 Move Speed.");
