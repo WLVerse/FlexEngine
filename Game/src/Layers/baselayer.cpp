@@ -27,7 +27,7 @@ namespace Game
     );
 
     // Second, load assets
-    FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<LoadLayer>());
+    FLX_COMMAND_ADD_APPLICATION_LAYER(std::make_shared<AssetLayer>());
     
     // Third, add the engine behavior layers
     FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<PhysicsLayer>());
