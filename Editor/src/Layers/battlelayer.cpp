@@ -75,6 +75,22 @@ namespace Editor
         for (unsigned i = 0; i < characters.size(); i++) {
             characters[i].GetComponent<Character>()->current_speed -= value;
             Log::Info(FLX_STRING_GET(characters[i].GetComponent<Character>()->character_name) + std::to_string(characters[i].GetComponent<Character>()->current_speed));
+            if (characters[i].GetComponent<Character>()->attack_buff_duration > 0)
+            {
+                characters[i].GetComponent<Character>()->attack_buff_duration--;
+            }
+            if (characters[i].GetComponent<Character>()->attack_debuff_duration > 0)
+            {
+                characters[i].GetComponent<Character>()->attack_debuff_duration--;
+            }
+            if (characters[i].GetComponent<Character>()->invuln_buff_duration > 0)
+            {
+                characters[i].GetComponent<Character>()->invuln_buff_duration--;
+            }
+            if (characters[i].GetComponent<Character>()->stun_debuff_duration > 0)
+            {
+                characters[i].GetComponent<Character>()->stun_debuff_duration--;
+            }
             UpdateEffect(*characters[i].GetComponent<Character>());
         }
         current_character = characters[0];
