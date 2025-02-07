@@ -927,6 +927,75 @@ namespace Editor
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)"), -1 });
           entity.AddComponent<Character>({});
           entity.GetComponent<Character>()->character_name = FLX_STRING_NEW("Renko");
+          entity.GetComponent<Character>()->base_speed = 3;
+          
+          entity.GetComponent<Character>()->skill_one.damage_duration = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 3;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("Revolution");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Deal 5 damage to all enemies. Costs 3 Move Speed.");
+          entity.GetComponent<Character>()->skill_one.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_one.target = 6;
+
+          entity.GetComponent<Character>()->skill_two.damage_duration = 6;
+          entity.GetComponent<Character>()->skill_two.speed = 1;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Strike");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Deal 6 damage to an enemy. Costs 1 Move Speed.");
+          entity.GetComponent<Character>()->skill_two.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_two.target = 4;
+
+          entity.GetComponent<Character>()->skill_three.damage_duration = 10;
+          entity.GetComponent<Character>()->skill_three.speed = 9;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Hour of Reckoning");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Deal 10 damage to all enemies. Costs 9 Move Speed.");
+          entity.GetComponent<Character>()->skill_three.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_three.target = 6;
+          /*entity.GetComponent<Character>()->skill_one.damage = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 3;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("Revolution");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Deal 5 damage to all enemies. Costs 3 Move Speed.");
+          //entity.GetComponent<Character>()->skill_one.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_one.damage_duration.push_back(5);
+          //entity.GetComponent<Character>()->skill_one.target.push_back(6);
+
+          entity.GetComponent<Character>()->skill_two.damage = 6;
+          entity.GetComponent<Character>()->skill_two.speed = 1;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Strike");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Deal 6 damage to an enemy. Costs 1 Move Speed.");
+          //entity.GetComponent<Character>()->skill_two.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_two.damage_duration.push_back(6);
+          //entity.GetComponent<Character>()->skill_two.target.push_back(4);
+
+          entity.GetComponent<Character>()->skill_three.damage = 10;
+          entity.GetComponent<Character>()->skill_three.speed = 9;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Hour of Reckoning");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Deal 10 damage to all enemies. Costs 9 Move Speed.");
+          //entity.GetComponent<Character>()->skill_three.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_three.damage_duration.push_back(10);
+          //entity.GetComponent<Character>()->skill_three.target.push_back(6);
+
+          /*Effect current_effect{FLX_STRING_NEW("DAMAGE"), 5, 6};
+          entity.GetComponent<Character>()->skill_one.damage = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 3;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("Revolution");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Deal 5 damage to all enemies. Costs 3 Move Speed.");
+          entity.GetComponent<Character>()->skill_one.effect.push_back(current_effect);
+          current_effect = { FLX_STRING_NEW("DAMAGE"), 6, 4 };
+          entity.GetComponent<Character>()->skill_two.damage = 6;
+          entity.GetComponent<Character>()->skill_two.speed = 1;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Strike");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Deal 6 damage to an enemy. Costs 1 Move Speed.");
+          entity.GetComponent<Character>()->skill_two.effect.push_back(current_effect);
+          current_effect = { FLX_STRING_NEW("DAMAGE"), 10, 6 };
+          entity.GetComponent<Character>()->skill_three.damage = 10;
+          entity.GetComponent<Character>()->skill_three.speed = 9;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Hour of Reckoning");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Deal 10 damage to all enemies. Costs 9 Move Speed.");
+          entity.GetComponent<Character>()->skill_three.effect.push_back(current_effect);*/
+          //  move_num.effect.push_back(current_effect);
+          //entity.GetComponent<Character>()->base_speed = 1;
+          //entity.GetComponent<Character>()->base_speed = 1;
+          //entity.GetComponent<Character>()->base_speed = 1;
+
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
           //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }
@@ -947,6 +1016,64 @@ namespace Editor
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)"), -1 });
           entity.AddComponent<Character>({});
           entity.GetComponent<Character>()->character_name = FLX_STRING_NEW("Grace");
+          entity.GetComponent<Character>()->base_speed = 1;
+
+          entity.GetComponent<Character>()->skill_one.damage_duration = 1;
+          entity.GetComponent<Character>()->skill_one.speed = 5;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("Discipline");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Increase the next fastest ally's ATK for 1 turn. Costs 5 Move Speed.");
+          entity.GetComponent<Character>()->skill_one.effect_name = FLX_STRING_NEW("ATTACK_BUFF");
+          entity.GetComponent<Character>()->skill_one.target = 1;
+
+          entity.GetComponent<Character>()->skill_two.damage_duration = 0;
+          entity.GetComponent<Character>()->skill_two.speed = 6;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Timeout");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Decrease an enemy's attack by 2 turns. Costs 6 Move Speed.");
+          entity.GetComponent<Character>()->skill_two.effect_name = FLX_STRING_NEW("ATTACK_DEBUFF");
+          entity.GetComponent<Character>()->skill_two.target = 4;
+
+          entity.GetComponent<Character>()->skill_three.damage_duration = 0;
+          entity.GetComponent<Character>()->skill_three.speed = 11;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Innocent Verdict");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Makes all allies immune to damage for 1 turn. Costs 11 Move Speed.");
+          entity.GetComponent<Character>()->skill_three.effect_name = FLX_STRING_NEW("INVULN_BUFF");
+          entity.GetComponent<Character>()->skill_three.target = 3;
+          
+          /*entity.GetComponent<Character>()->skill_one.damage = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 5;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("Discipline");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Deal 5 damage to an enemy. Increase the next fastest ally's ATK for 1 turn. Costs 5 Move Speed.");
+          //entity.GetComponent<Character>()->skill_one.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_one.damage_duration.push_back(5);
+          //entity.GetComponent<Character>()->skill_one.target.push_back(4);
+
+          entity.GetComponent<Character>()->skill_one.effect_name.push_back(FLX_STRING_NEW("ATTACK_BUFF"));
+          entity.GetComponent<Character>()->skill_one.damage_duration.push_back(1);
+          entity.GetComponent<Character>()->skill_one.target.push_back(2);
+
+          entity.GetComponent<Character>()->skill_two.damage = 0;
+          entity.GetComponent<Character>()->skill_two.speed = 6;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("Timeout");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Decrease an enemy's attack by 2 turns. Costs 6 Move Speed.");
+          //entity.GetComponent<Character>()->skill_two.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_two.damage_duration.push_back(0);
+          //entity.GetComponent<Character>()->skill_two.target.push_back(4);
+
+          entity.GetComponent<Character>()->skill_two.effect_name.push_back(FLX_STRING_NEW("ATTACK_DEBUFF"));
+          entity.GetComponent<Character>()->skill_two.damage_duration.push_back(2);
+          entity.GetComponent<Character>()->skill_two.target.push_back(4);
+
+          entity.GetComponent<Character>()->skill_three.damage = 0;
+          entity.GetComponent<Character>()->skill_three.speed = 11;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("Innocent Verdict");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Makes all allies immune to damage for 1 turn. Costs 11 Move Speed.");
+          //entity.GetComponent<Character>()->skill_three.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_three.damage_duration.push_back(0);
+          //entity.GetComponent<Character>()->skill_three.target.push_back(3);
+
+          //entity.GetComponent<Character>()->skill_three.effect_name.push_back(FLX_STRING_NEW("INVULN_BUFF"));
+          //entity.GetComponent<Character>()->skill_three.damage_duration.push_back(1);
+          //entity.GetComponent<Character>()->skill_three.target.push_back(3);*/
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
         // true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }
@@ -967,6 +1094,53 @@ namespace Editor
           entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_jack.png)"), -1 });
           entity.AddComponent<Character>({});
           entity.GetComponent<Character>()->character_name = FLX_STRING_NEW("Jack");
+          entity.GetComponent<Character>()->base_speed = 2;
+          entity.GetComponent<Character>()->base_hp = 35;
+
+          entity.GetComponent<Character>()->skill_one.damage_duration = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 6;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("An Inopportune Greeting");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Strip all enemy buffs and deal 5 damage to all enemies. Costs 6 Move Speed.");
+          entity.GetComponent<Character>()->skill_one.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_one.target = 3;
+
+          entity.GetComponent<Character>()->skill_two.damage_duration = 8;
+          entity.GetComponent<Character>()->skill_two.speed = 3;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("A Theatrical Farce");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Deal 8 damage to all enemies. Costs 3 Move Speed.");
+          entity.GetComponent<Character>()->skill_two.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_two.target = 3;
+
+          entity.GetComponent<Character>()->skill_three.damage_duration = 20;
+          entity.GetComponent<Character>()->skill_three.speed = 2;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("End of Time");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Deal 20 damage to all enemies. Costs 2 Move Speed.");
+          entity.GetComponent<Character>()->skill_three.effect_name = FLX_STRING_NEW("DAMAGE");
+          entity.GetComponent<Character>()->skill_three.target = 3;
+
+          /*entity.GetComponent<Character>()->skill_one.damage = 5;
+          entity.GetComponent<Character>()->skill_one.speed = 6;
+          entity.GetComponent<Character>()->skill_one.name = FLX_STRING_NEW("An Inopportune Greeting");
+          entity.GetComponent<Character>()->skill_one.description = FLX_STRING_NEW("Strip all enemy buffs and deal 5 damage to all enemies. Costs 6 Move Speed.");
+          //entity.GetComponent<Character>()->skill_one.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_one.damage_duration.push_back(5);
+          //entity.GetComponent<Character>()->skill_one.target.push_back(6);
+
+          entity.GetComponent<Character>()->skill_two.damage = 8;
+          entity.GetComponent<Character>()->skill_two.speed = 3;
+          entity.GetComponent<Character>()->skill_two.name = FLX_STRING_NEW("A Theatrical Farce");
+          entity.GetComponent<Character>()->skill_two.description = FLX_STRING_NEW("Deal 8 damage to all enemies. Costs 3 Move Speed.");
+          //entity.GetComponent<Character>()->skill_two.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_two.damage_duration.push_back(8);
+          //entity.GetComponent<Character>()->skill_two.target.push_back(6);
+
+          entity.GetComponent<Character>()->skill_three.damage = 20;
+          entity.GetComponent<Character>()->skill_three.speed = 2;
+          entity.GetComponent<Character>()->skill_three.name = FLX_STRING_NEW("End of Time");
+          entity.GetComponent<Character>()->skill_three.description = FLX_STRING_NEW("Deal 20 damage to all enemies. Costs 2 Move Speed.");
+          //entity.GetComponent<Character>()->skill_three.effect_name.push_back(FLX_STRING_NEW("DAMAGE"));
+          //entity.GetComponent<Character>()->skill_three.damage_duration.push_back(20);
+          //entity.GetComponent<Character>()->skill_three.target.push_back(6);*/
           //entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
           //true, 0.f }); entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
       }

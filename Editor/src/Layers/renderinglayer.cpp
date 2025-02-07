@@ -67,8 +67,13 @@ namespace Editor
     FunctionQueue editor_queue, game_queue;
 
     // render all sprites
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
     {
+        Transform& trans = *element.GetComponent<Transform>();
+        if (!trans.is_active)
+        {
+            continue;
+        }
       Sprite& sprite = *element.GetComponent<Sprite>();
       Position& pos = *element.GetComponent<Position>();
       Rotation& rotation = *element.GetComponent<Rotation>();

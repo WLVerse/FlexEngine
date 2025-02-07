@@ -65,6 +65,7 @@ namespace Editor
         {
             current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_three;
         }
+        current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = current_character.GetComponent<Character>()->pending_skill.description;
     }
 
     void BattleLayer::StartOfTurn()
@@ -73,10 +74,12 @@ namespace Editor
         int value = characters[0].GetComponent<Character>()->current_speed;
         for (unsigned i = 0; i < characters.size(); i++) {
             characters[i].GetComponent<Character>()->current_speed -= value;
+            Log::Info(FLX_STRING_GET(characters[i].GetComponent<Character>()->character_name) + std::to_string(characters[i].GetComponent<Character>()->current_speed));
+            UpdateEffect(*characters[i].GetComponent<Character>());
         }
         current_character = characters[0];
         MoveSelect();
-        std::string message = current_character.GetComponent<Character>()->character_name + "'s turn!";
+        std::string message = FLX_STRING_GET(current_character.GetComponent<Character>()->character_name) + "'s turn!";
         Log::Info(message);
     }
 
@@ -116,7 +119,7 @@ namespace Editor
         for (unsigned i = 0; i < characters.size(); i++) {
             if (characters[i].GetComponent<Character>()->current_hp <= 0)
             {
-                for (unsigned j = 0; j < ally_characters.size(); j++) {
+                /*for (unsigned j = 0; j < ally_characters.size(); j++) {
                     if (characters[i] == ally_characters[j])
                     {
                         characters.erase(ally_characters.begin() + j);
@@ -127,7 +130,7 @@ namespace Editor
                     {
                         characters.erase(enemy_characters.begin() + j);
                     }
-                }
+                }*/
                 if (FLX_STRING_GET(characters[i].GetComponent<Character>()->character_name) == "Renko")
                 {
                     renko_portrait.GetComponent<Transform>()->is_active = false;
@@ -145,16 +148,16 @@ namespace Editor
                 }
                 std::string message = characters[i].GetComponent<Character>()->character_name + " has fallen!";
                 Log::Info(message);
-                characters.erase(characters.begin() + i);
+                //characters.erase(characters.begin() + i);
             }
         }
-        if (ally_characters.empty())
+        if (!renko_portrait.GetComponent<Transform>()->is_active)
         {
             lose_screen.GetComponent<Transform>()->is_active = true;
             std::string message = "You lose!";
             Log::Info(message);
         }
-        else if (enemy_characters.empty())
+        else if (!jack_portrait.GetComponent<Transform>()->is_active)
         {
             win_screen.GetComponent<Transform>()->is_active = true;
             std::string message = "You win!";
@@ -171,7 +174,7 @@ namespace Editor
         for (unsigned i = 0; i < characters.size(); i++) {
             for (unsigned j = i + 1; j < characters.size(); j++)
             {
-                if (characters[i].GetComponent<Character>()->current_speed < characters[j].GetComponent<Character>()->current_speed)
+                if (characters[i].GetComponent<Character>()->current_speed > characters[j].GetComponent<Character>()->current_speed)
                 {
                     std::swap(characters[i], characters[j]);
                 }
@@ -180,7 +183,7 @@ namespace Editor
         for (unsigned i = 0; i < ally_characters.size(); i++) {
             for (unsigned j = i + 1; j < ally_characters.size(); j++)
             {
-                if (ally_characters[i].GetComponent<Character>()->current_speed < ally_characters[j].GetComponent<Character>()->current_speed)
+                if (ally_characters[i].GetComponent<Character>()->current_speed > ally_characters[j].GetComponent<Character>()->current_speed)
                 {
                     std::swap(ally_characters[i], ally_characters[j]);
                 }
@@ -189,13 +192,14 @@ namespace Editor
         for (unsigned i = 0; i < enemy_characters.size(); i++) {
             for (unsigned j = i + 1; j < enemy_characters.size(); j++)
             {
-                if (enemy_characters[i].GetComponent<Character>()->current_speed < enemy_characters[j].GetComponent<Character>()->current_speed)
+                if (enemy_characters[i].GetComponent<Character>()->current_speed > enemy_characters[j].GetComponent<Character>()->current_speed)
                 {
                     std::swap(enemy_characters[i], enemy_characters[j]);
                 }
             }
         }
         for (unsigned i = 0; i < characters.size(); i++) {
+            Log::Info(FLX_STRING_GET(characters[i].GetComponent<Character>()->character_name) + std::to_string(characters[i].GetComponent<Character>()->current_speed));
             if (FLX_STRING_GET(characters[i].GetComponent<Character>()->character_name) == "Renko")
             {
                 renko_portrait.GetComponent<Position>()->position = barPos[i];
@@ -217,10 +221,10 @@ namespace Editor
     void BattleLayer::MoveExecution()
     {
         //random gen, but for this build boss uses 1->2->3->3
-        for (unsigned i = 0; i < current_character.GetComponent<Character>()->pending_skill.effect.size(); i++) {
+        //for (unsigned i = 0; i < current_character.GetComponent<Character>()->pending_skill.effect_name.size(); i++) {
             current_targets.clear();
 
-            switch ((current_character.GetComponent<Character>()->pending_skill.effect[i].target))
+            switch ((current_character.GetComponent<Character>()->pending_skill.target))
             {
                 //single_target_ally = 1,
                     //next_fastest_ally = 2,
@@ -243,7 +247,7 @@ namespace Editor
                 break;
             case 3:
                 for (unsigned j = 0; j < ally_characters.size(); j++) {
-                    current_targets.push_back(initial_target);
+                    current_targets.push_back(ally_characters[j]);
                 }
                 break;
             case 4:
@@ -256,33 +260,33 @@ namespace Editor
                 break;
             case 6:
                 for (unsigned j = 0; j < enemy_characters.size(); j++) {
-                    current_targets.push_back(initial_target);
+                    current_targets.push_back(enemy_characters[j]);
                 }
                 break;
             }
 
             if (current_targets.empty())
             {
-                continue;
+                return;
             }
 
-            if ((current_character.GetComponent<Character>()->pending_skill.effect[i].effect_name) == "DAMAGE")
+            if (FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.effect_name) == "DAMAGE")
             {
-                int damage = (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                int damage = (current_character.GetComponent<Character>()->pending_skill.damage_duration);
                 int totaldamage = 0;
-                std::string message = current_character.GetComponent<Character>()->character_name + " attacked ";
+                std::string message = FLX_STRING_GET(current_character.GetComponent<Character>()->character_name) + " attacked ";
                 if (current_character.GetComponent<Character>()->attack_buff_duration > 0)
                 {
-                    damage += (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                    damage += (current_character.GetComponent<Character>()->pending_skill.damage_duration) / 2;
                 }
                 if (current_character.GetComponent<Character>()->attack_debuff_duration > 0)
                 {
-                    damage -= (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                    damage -= (current_character.GetComponent<Character>()->pending_skill.damage_duration) / 2;
                 }
                 for (unsigned j = 0; j < current_targets.size(); j++) {
 
                     totaldamage += TakeDamage(*current_targets[j].GetComponent<Character>(), damage);
-                    message += current_targets[j].GetComponent<Character>()->character_name + " ";
+                    message += FLX_STRING_GET(current_targets[j].GetComponent<Character>()->character_name) + " ";
                     if (j + 1 != current_targets.size())
                     {
                         message += "and ";
@@ -291,36 +295,36 @@ namespace Editor
                 message += "with " + FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.name) + " for a total of " + std::to_string(totaldamage) + " damage!";
                 Log::Info(message);
             }
-            else if ((current_character.GetComponent<Character>()->pending_skill.effect[i].effect_name) == "ATTACK_BUFF")
+            else if (FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.effect_name) == "ATTACK_BUFF")
             {
-                int duration = (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                int duration = (current_character.GetComponent<Character>()->pending_skill.damage_duration);
                 for (unsigned j = 0; j < current_targets.size(); j++) {
 
                     current_targets[j].GetComponent<Character>()->attack_buff_duration += duration;
                     UpdateEffect(*current_targets[j].GetComponent<Character>());
                 }
             }
-            else if ((current_character.GetComponent<Character>()->pending_skill.effect[i].effect_name) == "ATTACK_DEBUFF")
+            else if (FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.effect_name) == "ATTACK_DEBUFF")
             {
-                int duration = (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                int duration = (current_character.GetComponent<Character>()->pending_skill.damage_duration);
                 for (unsigned j = 0; j < current_targets.size(); j++) {
 
                     current_targets[j].GetComponent<Character>()->attack_debuff_duration += duration;
                     UpdateEffect(*current_targets[j].GetComponent<Character>());
                 }
             }
-            else if ((current_character.GetComponent<Character>()->pending_skill.effect[i].effect_name) == "INVULN_BUFF")
+            else if (FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.effect_name) == "INVULN_BUFF")
             {
-                int duration = (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                int duration = (current_character.GetComponent<Character>()->pending_skill.damage_duration);
                 for (unsigned j = 0; j < current_targets.size(); j++) {
 
                     current_targets[j].GetComponent<Character>()->invuln_buff_duration += duration;
                     UpdateEffect(*current_targets[j].GetComponent<Character>());
                 }
             }
-            else if ((current_character.GetComponent<Character>()->pending_skill.effect[i].effect_name) == "STUN_DEBUFF")
+            else if (FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.effect_name) == "STUN_DEBUFF")
             {
-                int duration = (current_character.GetComponent<Character>()->pending_skill.effect[i].damage_duration);
+                int duration = (current_character.GetComponent<Character>()->pending_skill.damage_duration);
                 for (unsigned j = 0; j < current_targets.size(); j++) {
 
                     current_targets[j].GetComponent<Character>()->stun_debuff_duration += duration;
@@ -329,7 +333,7 @@ namespace Editor
             }
             current_character.GetComponent<Character>()->current_speed = current_character.GetComponent<Character>()->base_speed + current_character.GetComponent<Character>()->pending_skill.speed;
         }
-    }
+    //}
 
     void BattleLayer::Find(FlexECS::Entity& obj, std::string obj_name)
     {
@@ -348,15 +352,15 @@ namespace Editor
     void BattleLayer::GetMove(std::string move_name, Character::Move& move_num)
     {
         std::string file_name = "assets/data/" + move_name + ".txt";
-        //std::stringstream ss(FLX_STRING_NEW(file_name));
-        std::ifstream ss(file_name);
+        std::stringstream ss(FLX_STRING_NEW(file_name));
+        //std::ifstream ss(file_name);
 
         if (!ss)
         {
             Log::Info("File not found!");
             return;
         }
-
+        Log::Info(file_name);
         std::string line = "";
 
         std::getline(ss, line);
@@ -364,12 +368,54 @@ namespace Editor
 
         std::getline(ss, line);
         move_num.description = FLX_STRING_NEW(line);
+        Log::Info(line);
 
         std::getline(ss, line);
         move_num.speed = std::stoi(line);
 
+        int phase = 0;
         while (std::getline(ss, line)) {
-            Effect current_effect;
+            //Effect current_effect{};
+            Log::Info(line);
+            /*switch (phase)
+            {
+            case 0:
+                move_num.effect_name = (FLX_STRING_NEW(line));
+                break;
+            case 1:
+                move_num.damage_duration = std::stoi(line);
+                break;
+            case 2:
+                move_num.target = std::stoi(line);
+                break;
+            }
+            phase++;
+            if (phase > 2)
+            {
+                phase = 0;
+            }
+            /*
+            switch (phase)
+            {
+            case 0:
+                ss >> line;
+                {
+                    move_num.effect_name.push_back(FLX_STRING_NEW(line));
+                    ss >> current_num;
+                    move_num.damage_duration.push_back(current_num);
+                    ss >> current_num;
+                    move_num.target.push_back(current_num);
+                }
+                //move_num.effect_name.push_back(FLX_STRING_NEW(line));
+                break;
+            case 1:
+                move_num.damage_duration.push_back(std::atoi(line));
+                break;
+            case 2:
+                move_num.target.push_back(std::atoi(line));
+                break;
+            }
+            phase++;*/
             std::string current = "";
             int phase = 0;
             for (char& c : line) {
@@ -378,13 +424,13 @@ namespace Editor
                     switch (phase)
                     {
                     case 0:
-                        (current_effect).effect_name = current;
+                        move_num.effect_name = (FLX_STRING_NEW(current));
                         break;
                     case 1:
-                        (current_effect).damage_duration = std::stoi(current);
+                        move_num.damage_duration = (std::stoi(current));
                         break;
                     case 2:
-                        (current_effect).target = std::stoi(current);
+                        move_num.target = (std::stoi(current));
                         break;
                     }
                     current = "";
@@ -395,19 +441,15 @@ namespace Editor
                     current = current + c;
                 }
             }
-            move_num.effect.push_back(current_effect);
+            //.effect.push_back(current_effect);
         }
-        move_num.damage = (move_num.effect[0].damage_duration);
-        Log::Info("Name: " + move_num.name);
-        Log::Info("Info: " + move_num.description);
-        Log::Info("DMG: " + std::to_string(move_num.damage));
+        Log::Info("Name: " + FLX_STRING_GET(move_num.name));
+        Log::Info("Info: " + FLX_STRING_GET(move_num.description));
         Log::Info("SPD: " + std::to_string(move_num.speed));
-        for (unsigned i = 0; i < move_num.effect.size(); i++) {
-            Log::Info("Effect: " + (move_num.effect[i].effect_name));
-            Log::Info("DMG/Number of Turns: " + std::to_string((move_num.effect[i].damage_duration)));
-
+        Log::Info("Effect: " + FLX_STRING_GET(move_num.effect_name));
+        Log::Info("DMG/Number of Turns: " + std::to_string(move_num.damage_duration));
             std::string target = "";
-            switch ((move_num.effect[i].target))
+            switch ((move_num.target))
             {
             case 1:
                 target = "single_target_ally";
@@ -429,7 +471,6 @@ namespace Editor
                 break;
             }
             Log::Info("Targets: " + target);
-        }
     }
 
     int BattleLayer::TakeDamage(Character& cha, int incoming_damage)
@@ -440,6 +481,7 @@ namespace Editor
         {
             cha.current_hp -= incoming_damage;
             cha.character_hp_text.GetComponent<Text>()->text = FLX_STRING_NEW("HP: " + std::to_string(cha.current_hp) + "/" + std::to_string(cha.base_hp) + " | " + "bSpd: " + std::to_string(cha.base_speed));
+            Log::Info(std::to_string(cha.current_hp));
         }
         return incoming_damage;
     }
@@ -628,7 +670,7 @@ namespace Editor
         enemy_characters.clear();
         for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Character>())
         {
-            entity.GetComponent<Character>()->character_name = (*entity.GetComponent<EntityName>());
+            //entity.GetComponent<Character>()->character_name = (*entity.GetComponent<EntityName>());
             Find(entity.GetComponent<Character>()->character_sprite, FLX_STRING_GET(entity.GetComponent<Character>()->character_name));
             /* character_sprite = scene->CreateEntity("Renko");
             entity.AddComponent<Position>({
@@ -670,7 +712,7 @@ namespace Editor
                 entity.GetComponent<Character>()->skill_one_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_one.name;
                 entity.GetComponent<Character>()->skill_two_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_two.name;
                 entity.GetComponent<Character>()->skill_three_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_three.name;
-                if (entity.GetComponent<Character>()->is_player && entity.GetComponent<Character>()->skill_one_button.GetComponent<Transform>()->is_active)
+                if (entity.GetComponent<Character>()->skill_one_button.GetComponent<Transform>()->is_active)
                 {
                     ToggleSkill(*entity.GetComponent<Character>());
                 }
@@ -685,9 +727,7 @@ namespace Editor
             Find(entity.GetComponent<Character>()->invuln_buff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Invuln Buff");
             Find(entity.GetComponent<Character>()->stun_debuff, FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + " Stun Debuff");
 
-            if (*entity.GetComponent<EntityName>() == FLX_STRING_NEW("Renko"))
-            {
-                for (int i = 1; i < 4; i++)
+                /*for (int i = 1; i < 4; i++)
                 {
                     switch (i)
                     {
@@ -701,8 +741,7 @@ namespace Editor
                         GetMove(FLX_STRING_GET(entity.GetComponent<Character>()->character_name) + std::to_string(i), entity.GetComponent<Character>()->skill_three);
                         break;
                     }
-                }
-            }
+                }*/
             entity.GetComponent<Character>()->character_name_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->character_name;
             entity.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = entity.GetComponent<Character>()->skill_one.description;
 
@@ -728,12 +767,15 @@ namespace Editor
                 enemy_characters.push_back(entity);
             }
         }
+
         for (unsigned i = 0; i < enemy_characters.size(); i++) {
             //random gen, but for this build boss uses 1->2->3->3
             current_character = enemy_characters[i];
             boss_move = 0;
-            //BossSelect();
+            BossSelect();
         }
+
+        StartOfTurn();
     }
 
     void BattleLayer::OnDetach()
@@ -748,7 +790,9 @@ namespace Editor
             if (Input::GetKeyDown(GLFW_KEY_1))
             {
                 current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_one;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
+                Log::Info("Move " + (current_character.GetComponent<Character>()->pending_skill.name));
+                Log::Info("Move " + (current_character.GetComponent<Character>()->skill_one.name));
+                if ((current_character.GetComponent<Character>()->pending_skill.target) <= 3)
                 {
                     initial_target = ally_characters[0];
                 }
@@ -765,7 +809,7 @@ namespace Editor
             else if (Input::GetKeyDown(GLFW_KEY_2))
             {
                 current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_two;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
+                if ((current_character.GetComponent<Character>()->pending_skill.target) <= 3)
                 {
                     initial_target = ally_characters[0];
                 }
@@ -782,7 +826,7 @@ namespace Editor
             else if (Input::GetKeyDown(GLFW_KEY_3))
             {
                 current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_three;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
+                if ((current_character.GetComponent<Character>()->pending_skill.target) <= 3)
                 {
                     initial_target = ally_characters[0];
                 }
@@ -800,7 +844,7 @@ namespace Editor
             if (Input::GetKeyDown(GLFW_KEY_Q))
             {
                 target_num--;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
+                if ((current_character.GetComponent<Character>()->pending_skill.target) <= 3)
                 {
                     if (target_num >= 0 && target_num < ally_characters.size())
                     {
@@ -824,13 +868,13 @@ namespace Editor
                         initial_target = enemy_characters[target_num];
                     }
                 }
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_three.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
                 Log::Info(message);
             }
             else if (Input::GetKeyDown(GLFW_KEY_E))
             {
                 target_num++;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
+                if ((current_character.GetComponent<Character>()->pending_skill.target) <= 3)
                 {
                     if (target_num >= 0 && target_num < ally_characters.size())
                     {
@@ -854,7 +898,7 @@ namespace Editor
                         initial_target = enemy_characters[target_num];
                     }
                 }
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_three.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
+                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->pending_skill.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
                 Log::Info(message);
             }
 
@@ -867,130 +911,7 @@ namespace Editor
         if (delay_timer > 0.0f)
         {
             //delay_timer -= deltaTime;
-        } if (current_character.GetComponent<Character>()->is_player && current_character.GetComponent<Character>()->skill_one_button.GetComponent<Transform>()->is_active)
-        {
-            if (Input::GetKeyDown(GLFW_KEY_1))
-            {
-                current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_one;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
-                {
-                    initial_target = ally_characters[0];
-                }
-                else
-                {
-                    initial_target = enemy_characters[0];
-                }
-                current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = (current_character.GetComponent<Character>()->skill_one.description);
-                target_num = 0;
-                move_selected = true;
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_one.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
-                Log::Info(message);
-            }
-            else if (Input::GetKeyDown(GLFW_KEY_2))
-            {
-                current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_two;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
-                {
-                    initial_target = ally_characters[0];
-                }
-                else
-                {
-                    initial_target = enemy_characters[0];
-                }
-                current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = (current_character.GetComponent<Character>()->skill_two.description);
-                target_num = 0;
-                move_selected = true;
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_two.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
-                Log::Info(message);
-            }
-            else if (Input::GetKeyDown(GLFW_KEY_3))
-            {
-                current_character.GetComponent<Character>()->pending_skill = current_character.GetComponent<Character>()->skill_three;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
-                {
-                    initial_target = ally_characters[0];
-                }
-                else
-                {
-                    initial_target = enemy_characters[0];
-                }
-                current_character.GetComponent<Character>()->skill_text.GetComponent<Text>()->text = (current_character.GetComponent<Character>()->skill_three.description);
-                target_num = 0;
-                move_selected = true;
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_three.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
-                Log::Info(message);
-            }
-
-            if (Input::GetKeyDown(GLFW_KEY_Q))
-            {
-                target_num--;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
-                {
-                    if (target_num >= 0 && target_num < ally_characters.size())
-                    {
-                        initial_target = ally_characters[target_num];
-                    }
-                    else
-                    {
-                        target_num = 0;
-                        initial_target = ally_characters[target_num];
-                    }
-                }
-                else
-                {
-                    if (target_num >= 0 && target_num < enemy_characters.size())
-                    {
-                        initial_target = enemy_characters[target_num];
-                    }
-                    else
-                    {
-                        target_num = 0;
-                        initial_target = enemy_characters[target_num];
-                    }
-                }
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_three.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
-                Log::Info(message);
-            }
-            else if (Input::GetKeyDown(GLFW_KEY_E))
-            {
-                target_num++;
-                if ((current_character.GetComponent<Character>()->pending_skill.effect[0].target) <= 3)
-                {
-                    if (target_num >= 0 && target_num < ally_characters.size())
-                    {
-                        initial_target = ally_characters[target_num];
-                    }
-                    else
-                    {
-                        target_num = int(ally_characters.size()) - 1;
-                        initial_target = ally_characters[target_num];
-                    }
-                }
-                else
-                {
-                    if (target_num >= 0 && target_num < enemy_characters.size())
-                    {
-                        initial_target = enemy_characters[target_num];
-                    }
-                    else
-                    {
-                        target_num = int(enemy_characters.size()) - 1;
-                        initial_target = enemy_characters[target_num];
-                    }
-                }
-                std::string message = current_character.GetComponent<Character>()->character_name + " will use " + FLX_STRING_GET(current_character.GetComponent<Character>()->skill_three.name) + " targeting " + FLX_STRING_GET(initial_target.GetComponent<Character>()->character_name);
-                Log::Info(message);
-            }
-
-            if (Input::GetKeyDown(GLFW_KEY_SPACE) && move_selected)
-            {
-                MoveResolution();
-            }
         }
 
-        //if (delay_timer > 0.0f)
-        //{
-            //delay_timer -= m_frameratecontroller->GetDeltaTime();
-        //}
     }
 }

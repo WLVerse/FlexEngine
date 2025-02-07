@@ -1,0 +1,4 @@
+An Inopportune Greeting
+Strip all enemy buffs and deal 5 damage to all enemies. Costs 6 Move Speed.
+6
+DAMAGE,5,6,

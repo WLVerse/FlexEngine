@@ -163,12 +163,12 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(Button)
   FLX_REFL_REGISTER_END;
 
-  FLX_REFL_REGISTER_START(Effect)
+  /*FLX_REFL_REGISTER_START(Effect)
       FLX_REFL_REGISTER_PROPERTY(effect_name)
       FLX_REFL_REGISTER_PROPERTY(damage_duration)
       FLX_REFL_REGISTER_PROPERTY(target)
       FLX_REFL_REGISTER_END;
-
+      */
   // scripting
   FLX_REFL_REGISTER_START(Character)
       FLX_REFL_REGISTER_PROPERTY(is_player)
@@ -217,9 +217,10 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(Character::Move)
       FLX_REFL_REGISTER_PROPERTY(name)
       FLX_REFL_REGISTER_PROPERTY(description)
+      FLX_REFL_REGISTER_PROPERTY(effect_name)
       FLX_REFL_REGISTER_PROPERTY(speed)
-      FLX_REFL_REGISTER_PROPERTY(damage)
-      FLX_REFL_REGISTER_PROPERTY(effect)
+      FLX_REFL_REGISTER_PROPERTY(damage_duration)
+      FLX_REFL_REGISTER_PROPERTY(target)
       FLX_REFL_REGISTER_END;
 
 } // namespace FlexEngine

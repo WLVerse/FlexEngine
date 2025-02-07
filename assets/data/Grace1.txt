@@ -1,0 +1,4 @@
+Discipline
+Increase an ally's ATK for 1 turn. Costs 5 Move Speed.
+5
+ATTACK_BUFF,1,2,

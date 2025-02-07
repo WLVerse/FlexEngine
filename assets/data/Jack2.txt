@@ -1,0 +1,4 @@
+A Theatrical Farce
+Deal 8 damage to all enemies. Costs 3 Move Speed.
+3
+DAMAGE,8,6,

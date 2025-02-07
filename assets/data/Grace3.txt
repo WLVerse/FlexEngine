@@ -1,0 +1,4 @@
+Innocent Verdict
+Makes all allies immune to damage for 1 turn. Costs 11 Move Speed.
+11
+INVULN_BUFF,1,3,

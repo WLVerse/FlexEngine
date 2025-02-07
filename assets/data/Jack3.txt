@@ -1,0 +1,4 @@
+End of Time
+Deal 20 damage to all enemies. Costs 2 Move Speed.
+2
+DAMAGE,20,6,

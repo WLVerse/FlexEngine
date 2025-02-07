@@ -1,0 +1,4 @@
+Timeout
+Decrease an enemy's attack by 2 turns. Costs 6 Move Speed.
+6
+ATTACK_DEBUFF,2,4,

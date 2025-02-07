@@ -316,15 +316,15 @@ namespace FlexEngine
   public:
   };
 
-  struct __FLX_API Effect
+  /*struct __FLX_API Effect
   {
       FLX_REFL_SERIALIZABLE
 
   public:
-      std::string effect_name;
+      FlexECS::Scene::StringIndex effect_name;
       int damage_duration;
       int target;
-  };
+  };*/
 
   class __FLX_API Character
   {
@@ -336,10 +336,10 @@ namespace FlexEngine
       public:
           FlexECS::Scene::StringIndex name;
           FlexECS::Scene::StringIndex description;
+          FlexECS::Scene::StringIndex effect_name;
           int speed = 0;
-          int damage = 0;
-
-          std::vector<Effect> effect;
+          int damage_duration = 0;
+          int target = 0;
       };
       bool is_player = true;
 
