@@ -141,4 +141,18 @@ namespace Editor  // Future separation: GameCameraServiceLayer, EditorCameraServ
         }
 
         // Update camera components for all active and dirty camera entities.
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+        {
+            auto cameraComponent = element.GetComponent<Camera>();
 
+            if (!element.GetComponent<Transform>()->is_active ||
+                !element.GetComponent<Transform>()->is_dirty ||
+                !cameraComponent->getIsActive())
+            {
+                continue;
+            }
+
+            cameraComponent->Update();
+        }
+    }
+} // namespace Editor

@@ -1,3 +1,27 @@
+/*!************************************************************************
+ * WLVERSE [https://wlverse.web.app]
+ * openglrenderer.cpp
+ *
+ * This file implements the OpenGLRenderer class, which provides functions
+ * for rendering 2D textures and text using OpenGL. It manages OpenGL states
+ * such as depth testing and blending, maintains draw call statistics, and
+ * provides optimized rendering functions for textures and text.
+ *
+ * Key functionalities include:
+ * - Managing OpenGL state (blending, depth testing).
+ * - Clearing framebuffers with custom colors.
+ * - Drawing 2D textures and text with customizable rendering properties.
+ * - Rendering using VAOs and VBOs for performance.
+ * - Supporting spritesheets and text alignment.
+ *
+ * AUTHORS
+ * [70%] Chan Wen Loong (wenloong.c\@digipen.edu)
+ *   - Main Author
+ * [30%] Soh Wei Jie (weijie.soh@digipen.edu)
+ *   - Sub Author
+ *
+ * Copyright (c) 2025 DigiPen, All rights reserved.
+ **************************************************************************/
 #include "openglrenderer.h"
 
 #include "assetmanager.h" // FLX_ASSET_GET
@@ -5,6 +29,7 @@
 
 #include "FlexEngine/FlexMath/quaternion.h"
 
+/*********************Refer to header file for function level documentation***************************************/
 namespace FlexEngine
 {
 
