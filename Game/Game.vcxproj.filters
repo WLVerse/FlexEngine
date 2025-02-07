@@ -16,7 +16,7 @@
     <ClInclude Include="src\Layers.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\loadlayer.h">
+    <ClInclude Include="src\Layers\assetlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\audiolayer.h">
@@ -41,7 +41,7 @@
       <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\cutscenelayer.h">
-          <Filter>src\Layers</Filter>
+      <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\townlayer.h">
       <Filter>src\Layers</Filter>
@@ -54,7 +54,7 @@
     <ClCompile Include="src\launch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\loadlayer.cpp">
+    <ClCompile Include="src\Layers\assetlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\audiolayer.cpp">
@@ -79,7 +79,7 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\cutscenelayer.cpp">
-       <Filter>src\Layers</Filter>
+      <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\townlayer.cpp">
       <Filter>src\Layers</Filter>

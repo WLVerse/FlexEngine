@@ -1,19 +1,19 @@
 #include "Layers.h"
-#include "FlexEngine.h"
 
 namespace Game
 {
-  void LoadLayer::OnAttach()
+  void AssetLayer::OnAttach()
   {
     AssetManager::Load();
     FreeQueue::Push(std::bind(&AssetManager::Unload), "Application AssetManager");
   }
 
-  void LoadLayer::OnDetach()
+  void AssetLayer::OnDetach()
   {
+    FreeQueue::RemoveAndExecute("Application AssetManager");
   }
 
-  void LoadLayer::Update()
+  void AssetLayer::Update()
   {
   }
-}
+} // namespace Game

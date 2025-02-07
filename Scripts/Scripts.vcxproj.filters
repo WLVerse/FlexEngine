@@ -18,7 +18,7 @@
     <ClCompile Include="src\menubutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\exitbutton.cpp">
+    <ClCompile Include="src\quitbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\playermovement.cpp">

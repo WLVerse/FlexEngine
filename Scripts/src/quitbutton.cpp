@@ -4,8 +4,15 @@ using namespace FlexEngine;
 class QuitButtonScript : public IScript
 {
 public:
-  QuitButtonScript() { ScriptRegistry::RegisterScript(this); }
-  std::string GetName() const override { return "QuitButton"; }
+  QuitButtonScript()
+  {
+    ScriptRegistry::RegisterScript(this);
+  }
+
+  std::string GetName() const override
+  {
+    return "QuitButton";
+  }
 
   void OnMouseEnter() override
   {
@@ -14,10 +21,7 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-    {
-      Application::Quit();
-    }
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) Application::Quit();
   }
 
   void OnMouseExit() override
