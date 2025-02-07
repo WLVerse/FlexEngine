@@ -1,0 +1,58 @@
+// base town top and bottom, renko, camera, transition area
+
+auto scene = FlexECS::Scene::CreateScene();
+FlexECS::Scene::SetActiveScene(scene);
+FlexECS::Entity e;
+
+e = scene->CreateEntity("Base Town Image");
+e.AddComponent<Position>({ { 750, 400, 0 } });
+e.AddComponent<Scale>({ { 5000, 4200, 0 } });
+e.AddComponent<Rotation>({});
+e.AddComponent<Transform>({});
+e.AddComponent<ZIndex>({ 0 });
+e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02.png)") });
+
+e = scene->CreateEntity("Overlay Town Image");
+e.AddComponent<Position>({ { 750, 516.5f, 0 } });
+e.AddComponent<Scale>({ { 5000, 3976.5f, 0 } });
+e.AddComponent<Rotation>({});
+e.AddComponent<Transform>({});
+e.AddComponent<ZIndex>({ 10 });
+e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02_+DE.png)") });
+
+e = scene->CreateEntity("Stranded Flaming Barrel");
+e.AddComponent<Position>({ { -325, 350, 0 } });
+e.AddComponent<Scale>({ { 128, 192, 0 } });
+e.AddComponent<Rotation>({ { 180, 0, 0 } });
+e.AddComponent<Transform>({});
+e.AddComponent<ZIndex>({ 3 });
+e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.png)") });
+e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
+
+e = scene->CreateEntity("Stranded Flaming Barrel Shadow");
+e.AddComponent<Position>({ { -300, 325, 0 } });
+e.AddComponent<Scale>({ { 128, 192, 0 } });
+e.AddComponent<Rotation>({ { 0, 0, -45 } });
+e.AddComponent<Transform>({});
+e.AddComponent<ZIndex>({ 2 });
+e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/vfx/VFX_Char_Shadow.png)") });
+
+e = scene->CreateEntity("Walking Renko");
+e.AddComponent<Position>({ {800, 350, 0} });
+e.AddComponent<Scale>({ {80, 186, 0} });
+e.AddComponent<Rotation>({ {180, 0, 0} });
+e.AddComponent<Transform>({});
+e.AddComponent<ZIndex>({ 1 });
+e.AddComponent<Rigidbody>({});
+e.AddComponent<BoundingBox2D>({});
+e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
+e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)") });
+e.AddComponent<Script>({ FLX_STRING_NEW("MovePlayer") });
+
+e = scene->CreateEntity("Area To Transition");
+e.AddComponent<Position>({ {3000, 0, 0} });
+e.AddComponent<Scale>({ {1350, 950, 0} });
+e.AddComponent<Rotation>({});
+e.AddComponent<Transform>({});
+e.AddComponent<Rigidbody>({});
+e.AddComponent<BoundingBox2D>({});

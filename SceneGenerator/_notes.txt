@@ -1,0 +1,14 @@
+FlexECS::Entity cam = scene->CreateEntity("Cam");
+cam.AddComponent<Position>({});
+cam.AddComponent<Rotation>({});
+cam.AddComponent<Scale>({});
+cam.AddComponent<Transform>({});
+Camera gameTestCamera({ 800.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+cam.AddComponent<Camera>(gameTestCamera);
+
+auto scene = FlexECS::Scene::CreateScene();
+FlexECS::Scene::SetActiveScene(scene);
+FlexECS::Entity e;
+
+// unfortunately fmod does not stop itself because a command is not sent to stop it on scene switch, so this is it
+FMODWrapper::Core::ForceStop();
