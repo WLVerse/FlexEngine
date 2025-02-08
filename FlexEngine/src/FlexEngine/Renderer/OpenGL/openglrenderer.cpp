@@ -78,183 +78,18 @@ namespace FlexEngine
   }
   
   // TODO: cache the vao and vbo
+  // Draws to default camera
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
   {
-    // unit square
-    static const float vertices[] = {
-      // Position           // TexCoords
-      -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
-    };
+    if (!CameraManager::has_main_camera) return;
 
-    static GLuint vao = 0, vbo = 0;
-
-    if (vao == 0)
-    {
-      glGenVertexArrays(1, &vao);
-      glGenBuffers(1, &vbo);
-
-      glBindVertexArray(vao);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-      //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-      //glEnableVertexAttribArray(1);
-      //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-      glBindVertexArray(0);
-
-      // free in freequeue
-      FreeQueue::Push(
-        [=]()
-        {
-          glDeleteBuffers(1, &vbo);
-          glDeleteVertexArrays(1, &vao);
-        }
-      );
-    }
-
-    // guard
-    if (vao == 0 || props.scale == Vector2::Zero) return;
-
-    // tex coords
-    bool is_spritesheet = props.texture_index >= 0;
-
-    float tex_coords[12] = {
-      0.0f, 1.0f, // Bottom-left
-      1.0f, 1.0f, // Bottom-right
-      1.0f, 0.0f, // Top-right
-      1.0f, 0.0f, // Top-right
-      0.0f, 0.0f, // Top-left
-      0.0f, 1.0f  // Bottom-left
-    };
-
-    if (is_spritesheet)
-    {
-      auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
-      auto uv = asset_spritesheet.GetUV(props.texture_index);
-      tex_coords[0] = uv.x;
-      tex_coords[1] = uv.y;
-      tex_coords[2] = uv.z;
-      tex_coords[3] = uv.y;
-      tex_coords[4] = uv.z;
-      tex_coords[5] = uv.w;
-      tex_coords[6] = uv.z;
-      tex_coords[7] = uv.w;
-      tex_coords[8] = uv.x;
-      tex_coords[9] = uv.w;
-      tex_coords[10] = uv.x;
-      tex_coords[11] = uv.y;
-    }
-
-    GLuint vbo_uv = 0;
-
-    glGenBuffers(1, &vbo_uv);
-
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tex_coords), tex_coords, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
-    glBindVertexArray(0);
-
-    // free in freequeue
-    FreeQueue::Push(
-      [=]()
-      {
-        glDeleteBuffers(1, &vbo_uv);
-      },
-      "Free UV buffer"
-    );
-
-
-    // bind all
-    glBindVertexArray(vao);
-
-    auto& asset_shader = AssetManager::Get<Asset::Shader>(props.shader);
-    asset_shader.Use();
-
-    if (props.asset != "")
-    {
-      if (!is_spritesheet)
-      {
-        asset_shader.SetUniform_bool("u_use_texture", true);
-        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
-        asset_texture.Bind(asset_shader, "u_texture", 0);
-      }
-      else
-      {
-        asset_shader.SetUniform_bool("u_use_texture", true);
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
-        auto& asset_texture = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
-        asset_texture.Bind(asset_shader, "u_texture", 0);
-      }
-    }
-    else if (props.color != Vector3::Zero)
-    {
-      asset_shader.SetUniform_bool("u_use_texture", false);
-      asset_shader.SetUniform_vec3("u_color", props.color);
-    }
-    else
-    {
-      Log::Fatal("No texture or color specified for texture shader.");
-    }
-
-    asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
-    asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
-    asset_shader.SetUniform_float("u_alpha", props.alpha);
-
-    // alignment
-    Vector2 position = Vector2(props.position.x, props.position.y);
-    switch (props.alignment)
-    {
-    case Renderer2DProps::Alignment_TopLeft:
-      position += props.scale * 0.5f;
-      break;
-    case Renderer2DProps::Alignment_Center:
-    default:
-      break;
-    }
-    
-    // "Model scale" in this case refers to the scale of the object itself.
-    Matrix4x4 model = Matrix4x4::Identity;
-    
-    // Perform SRT 
-    Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, props.position);
-    Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(props.rotation).ToRotationMatrix();
-    Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, props.scale);
-    asset_shader.SetUniform_mat4("u_model",  translation_matrix * rotation_matrix * scale_matrix);
-
-    // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-    asset_shader.SetUniform_mat4("u_projection_view", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix(): CameraManager::GetEditorCamera()->GetProjViewMatrix());
-
-    // draw
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    m_draw_calls++;
-
-    // error checking
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-      Log::Fatal("OpenGL Error: " + std::to_string(error));
-    }
-
-    glBindVertexArray(0);
-
-    // free
-    FreeQueue::RemoveAndExecute("Free UV buffer");
+    DrawTexture2D(props, *CameraManager::GetMainGameCamera());
   }
 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
+    if (!CameraManager::has_main_camera) return;
+
       static GLuint vao = 0, vbo = 0;
 
       if (vao == 0)
@@ -302,7 +137,7 @@ namespace FlexEngine
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
       asset_shader.SetUniform_mat4("u_model", text.m_transform);
-      asset_shader.SetUniform_mat4("projection", CameraManager::HasCamera(camID) ? CameraManager::GetCamera(camID)->GetProjViewMatrix() : CameraManager::GetEditorCamera()->GetProjViewMatrix());
+      asset_shader.SetUniform_mat4("projection", CameraManager::GetMainGameCamera()->GetProjViewMatrix());
 
       glActiveTexture(GL_TEXTURE0);
       glBindVertexArray(vao);
@@ -649,7 +484,7 @@ namespace FlexEngine
     }
 
     // guard
-    if (vao == 0 || props.scale == Vector2::Zero) return;
+    if (vao == 0) return; // hey, might need to check if scale is 0 because thats what the old code does idk
 
     // tex coords
     bool is_spritesheet = props.texture_index >= 0;
@@ -739,8 +574,10 @@ namespace FlexEngine
     asset_shader.SetUniform_vec3("u_color_to_add", props.color_to_add);
     asset_shader.SetUniform_vec3("u_color_to_multiply", props.color_to_multiply);
     asset_shader.SetUniform_float("u_alpha", props.alpha);
-    // alignment
-    Vector2 position = Vector2(props.position.x, props.position.y);
+
+
+    // Original code for alignment, which I do not know what for
+   /* Vector2 position = Vector2(props.position.x, props.position.y);
     switch (props.alignment)
     {
     case Renderer2DProps::Alignment_TopLeft:
@@ -749,16 +586,9 @@ namespace FlexEngine
     case Renderer2DProps::Alignment_Center:
     default:
       break;
-    }
+    }*/
     
-    // "Model scale" in this case refers to the scale of the object itself.
-    Matrix4x4 model = Matrix4x4::Identity;
-    
-    // Perform SRT 
-    Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, props.position);
-    Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(props.rotation).ToRotationMatrix();
-    Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, props.scale);
-    asset_shader.SetUniform_mat4("u_model",  translation_matrix * rotation_matrix * scale_matrix);
+    asset_shader.SetUniform_mat4("u_model", props.world_transform);
 
     // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
     asset_shader.SetUniform_mat4("u_projection_view", cameraData.GetProjViewMatrix());

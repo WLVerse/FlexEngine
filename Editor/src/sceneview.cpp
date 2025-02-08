@@ -285,9 +285,6 @@ namespace Editor
 				 || !selected_entity.HasComponent<Scale>() || !selected_entity.HasComponent<Rotation>()) {
 				return;
 			}
-			else {
-				selected_entity.GetComponent<Transform>()->is_dirty = true;
-			}
 			
 			//auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
@@ -778,7 +775,7 @@ namespace Editor
 		if (!m_display_cam_bounds) return;
 
 		FlexECS::Entity main_camera = CameraManager::GetMainGameCameraID();
-		if (!CameraManager::HasCamera(main_camera))
+		if (!CameraManager::has_main_camera)
 		{
 			return;
 		}

@@ -57,7 +57,6 @@ namespace FlexEngine
 		{
 			auto& velocity = entity.GetComponent<Rigidbody>()->velocity;
 			auto& position = entity.GetComponent<Position>()->position;
-			entity.GetComponent<Transform>()->is_dirty = true;
 
 			position.x += velocity.x * dt;
 			position.y += velocity.y * dt;
@@ -153,9 +152,6 @@ namespace FlexEngine
 			auto& a_min = collision.first.GetComponent<BoundingBox2D>()->min;
 			auto& b_max = collision.second.GetComponent<BoundingBox2D>()->max;
 			auto& b_min = collision.second.GetComponent<BoundingBox2D>()->min;
-
-			collision.first.GetComponent<Transform>()->is_dirty = true;
-			collision.second.GetComponent<Transform>()->is_dirty = true;
 
 			//Check if already resolved
 			if (a_max.x < b_min.x || a_max.y < b_min.y || a_min.x > b_max.x || a_min.y > b_max.y) continue;

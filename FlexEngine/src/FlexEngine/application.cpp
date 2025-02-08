@@ -359,7 +359,6 @@ namespace FlexEngine
     glfwMakeContextCurrent(NULL);
     glfwTerminate();
     FMODWrapper::Unload();
-    CameraManager::Clear();
     FLX_FLOW_ENDSCOPE();
   }
 

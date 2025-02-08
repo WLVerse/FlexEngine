@@ -50,7 +50,7 @@ namespace Editor
                   { 100, 100, 100 }
                 });
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
-                entity.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
+                entity.AddComponent<Transform>({ Matrix4x4::Identity, true });
             }
             {
                 FlexECS::Entity entity = scene->CreateEntity("Animator Sprite Test");

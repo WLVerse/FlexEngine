@@ -16,7 +16,7 @@ namespace Editor
   COMPONENT_VIEWER_END(Scale)
 
   COMPONENT_VIEWER_START(Transform)
-  COMPONENT_VIEWER_BOOL(is_dirty)
+  COMPONENT_VIEWER_BOOL(is_active)
   COMPONENT_VIEWER_MAT44(transform)
   COMPONENT_VIEWER_END(Transform)
 

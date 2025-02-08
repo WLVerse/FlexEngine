@@ -21,15 +21,13 @@ namespace FlexEngine
       Alignment_TopLeft = 1,
     };
 
+    Matrix4x4 world_transform = Matrix4x4::Identity;
     std::string shader = R"(/shaders/texture.flxshader)";
     std::string asset = R"(/images/flexengine/flexengine-256.png)"; // Texture or spritesheet
     int texture_index = -1; // For spritesheets, -1 means not a spritesheet
     Vector3 color = Vector3(1.0f, 0.0f, 1.0f);
     Vector3 color_to_add = Vector3(0.0f, 0.0f, 0.0f);
     Vector3 color_to_multiply = Vector3(1.0f, 1.0f, 1.0f);
-    Vector2 position = Vector2(0.0f, 0.0f);
-    Vector2 scale = Vector2(1.0f, 1.0f);
-    Vector3 rotation = Vector3(0.f, 0.f, 0.f);
     Vector2 window_size = Vector2(800.0f, 600.0f);
     float alpha = 1.0f;
     Alignment alignment = Alignment_Center;

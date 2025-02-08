@@ -75,7 +75,6 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    bool is_dirty = true; // Determines if transform needs to be updated
     Matrix4x4 transform = Matrix4x4::Identity;
     bool is_active = true;
   };
@@ -148,6 +147,7 @@ namespace FlexEngine
     Vector2 scale = Vector2(100.0f, 100.0f);
     bool center_aligned = false;
     float opacity = 1.0f;
+    Matrix4x4 model_matrix = Matrix4x4::Identity;
   };
 
   class __FLX_API Animator

@@ -15,58 +15,16 @@ namespace FlexEngine
         // Storage for cameras, using raw pointers to manage lifetime
         static std::unordered_map<FlexECS::EntityID, Camera*> m_cameraEntities;
 
-        // Reserved editor camera ID
-        static FlexECS::EntityID m_editorCameraID;
-        // Reserved main game camera ID
         static FlexECS::EntityID m_mainGameCameraID;
 
     public:
+        static bool has_main_camera;
+
         // Initializes the CameraManager and sets up the default editor camera
         static void Initialize();
 
-        /*!************************************************************************
-         * \brief Adds or updates a camera associated with the given entity ID.
-         * \param entityID The ID of the entity to associate with the camera.
-         * \param cam The camera to associate with the entity.
-         *************************************************************************/
-        static void SetCamera(FlexECS::EntityID entityID, Camera* const& cam);
-
-        /*!************************************************************************
-         * \brief Removes the camera associated with the given entity ID.
-         * \param entityID The ID of the entity to remove.
-         *************************************************************************/
-        static void RemoveCamera(FlexECS::EntityID entityID);
-
-        /*!************************************************************************
-         * \brief Retrieves the camera associated with the given entity ID.
-         * \param entityID The ID of the entity to retrieve.
-         * \return A pointer to the camera if it exists, nullptr otherwise.
-         *************************************************************************/
-        static Camera* GetCamera(FlexECS::EntityID entityID);
-
-        /*!************************************************************************
-         * \brief Checks if a camera is registered with the given entity ID.
-         * \param entityID The ID of the entity to check.
-         * \return True if the camera exists, false otherwise.
-         *************************************************************************/
-        static bool HasCamera(FlexECS::EntityID entityID);
-
-        /*!************************************************************************
-         * \brief Clears all registered cameras.
-         *************************************************************************/
-        static void Clear();
-
-        /*!************************************************************************
-        * \brief Removes all ECS registered cameras
-        *************************************************************************/
-        static void DeregisterECSCams();
-
-        /*!************************************************************************
-         * \brief Gets the default editor camera.
-         * \return A pointer to the editor camera.
-         *************************************************************************/
-        static Camera* GetEditorCamera();
-        static FlexECS::EntityID GetEditorCameraID() { return m_editorCameraID; };
+        // Tries to find camera if there is none
+        static void TryMainCamera();
 
         /*!************************************************************************
         * \brief Gets the Main Game camera if available.
@@ -75,12 +33,13 @@ namespace FlexEngine
         static Camera* GetMainGameCamera();
         static FlexECS::EntityID GetMainGameCameraID();
 
+        static void RemoveMainCamera();
+
+        
         /*!************************************************************************
         * \brief Sets the main game camera id.
         * \return void.
         *************************************************************************/
         static void SetMainGameCameraID(FlexECS::EntityID id);
-
-        static void SetEditorCameraID(FlexECS::EntityID id);
     };
 }

@@ -132,10 +132,12 @@ namespace FlexEngine
 
     void Scene::SetActiveScene(const Scene& scene)
     {
-      //Depreciated -> pls check if still need after testing
-      CameraManager::DeregisterECSCams();
+      // When destroying the scene, no one else knows except the scene itself when this function is being called, therefore everything with ties to the scene must be deregistered here
+      CameraManager::RemoveMainCamera();
+
       SetActiveScene(std::make_shared<Scene>(scene));
     }
+
     void Scene::SetActiveScene(std::shared_ptr<Scene> scene)
     {
       FLX_FLOW_FUNCTION();
