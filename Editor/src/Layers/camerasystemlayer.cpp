@@ -30,8 +30,9 @@ namespace Editor
         CameraManager::TryMainCamera();
       }
 
-      for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+      for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
       {
+        elem.GetComponent<Camera>()->SetViewMatrix(elem.GetComponent<Position>()->position);
         elem.GetComponent<Camera>()->Update();
       }
     }
