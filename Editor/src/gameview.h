@@ -27,9 +27,13 @@ namespace Editor
 	
 	private:
 		void CalculateViewportPosition();	//internal function to determine position to place viewport
+		void SetMousePosition();
+
 
 		ImVec2 m_viewport_size;
 		ImVec2 m_viewport_position;
 		ImVec2 m_viewport_screen_position;
+
+		FlexEngine::Vector2 m_mouse_pos;
 	};
 }
