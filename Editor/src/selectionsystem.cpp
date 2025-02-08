@@ -90,6 +90,10 @@ void Editor::SelectionSystem::HandleEntityDelete()
 	auto scene = FlexECS::Scene::GetActiveScene();
 	for (auto entity : m_entities_to_delete)
 	{
+		if (entity == CameraManager::GetMainGameCameraID())
+		{
+			CameraManager::RemoveMainCamera();
+		}
 		scene->DestroyEntity(entity);
 	}
 }
