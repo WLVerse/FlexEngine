@@ -42,6 +42,9 @@ namespace FlexEngine
     static Vector2 GetCursorPosition()          { return m_cursor_position; }
     static Vector2 GetCursorPositionDelta()     { return m_cursor_position_delta; }
 
+    // Exceedingly illegal, but this is the only way to work with editor input. If you attempt to use this for any purpose other than this, it's a skill issue.
+    static Vector2 SetCursorPosition(Vector2 pos) { return m_cursor_position = pos; } 
+
     // renaming for convenience
     static Vector2 GetMousePosition()           { return GetCursorPosition(); }
     static Vector2 GetMousePositionDelta()      { return GetCursorPositionDelta(); }
