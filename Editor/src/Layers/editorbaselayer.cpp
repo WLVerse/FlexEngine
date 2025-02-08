@@ -223,6 +223,7 @@ namespace Editor
                     function_queue.Insert({ [this]()
                                             {
                         // Clear the scene and reset statics
+                        Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
                         FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
                         current_save_name = default_save_name;
                       } });
@@ -251,6 +252,7 @@ namespace Editor
                                               current_save_name = file.path.stem().string();
 
                                               // load the scene
+                                              Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
                                               FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
                                             } });
                 }
