@@ -78,19 +78,9 @@ namespace Editor
   * Use CameraData
   **************/
   COMPONENT_VIEWER_START(Camera)
-      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.position)
-      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.target)
-      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.up)
-      COMPONENT_VIEWER_DRAG_VECTOR3(m_data.right)
-
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.fieldOfView)
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.aspectRatio)
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.nearClip)
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.farClip)
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.m_OrthoWidth)
-      COMPONENT_VIEWER_DRAG_FLOAT(m_data.m_OrthoHeight)
-
-      COMPONENT_VIEWER_BOOL(m_data.m_isOrthographic)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_ortho_width)
+      COMPONENT_VIEWER_DRAG_FLOAT(m_ortho_height)
+      COMPONENT_VIEWER_BOOL(is_active)
   COMPONENT_VIEWER_END(Camera)
 
 

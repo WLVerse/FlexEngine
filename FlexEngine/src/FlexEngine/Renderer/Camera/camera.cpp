@@ -14,8 +14,10 @@
 
 namespace FlexEngine
 {
-    Camera::Camera() : m_data(), is_active(false) { UpdateCameraMatrix(); }
-    
+  Camera::Camera()
+  {
+    // For the purpose of serialization, this is needed, but do not make an empty camera
+  }
     Camera::Camera(const Vector3& t_pos,
         float t_orthoWidth,
         float t_orthoHeight,
@@ -42,7 +44,13 @@ namespace FlexEngine
       m_view_matrix = view;
     }
 
-
+    Vector3 Camera::GetPosition()
+    {
+      // Using the view matrix we can get a position by just inversing the translation, because position is inversed view
+      Matrix4x4 inverse_view = m_view_matrix;
+      inverse_view.Inverse();
+      return Vector3(inverse_view[3]);
+    }
 
     void Camera::Update()
     {

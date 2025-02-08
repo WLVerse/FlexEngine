@@ -40,7 +40,7 @@ namespace Editor
 		if (auto image = EditorGUI::StartWindowPayloadReceiver<const char>(PayloadTags::IMAGE))
 		{
 			//calculate position to place, at center
-			Vector3 position = Editor::GetInstance().m_editorCamera.m_data.position;
+			Vector3 position = Editor::GetInstance().m_editorCamera.GetPosition();
 			//float width = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth());
 			//float height = static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight());
 			//position.x += width / 2;

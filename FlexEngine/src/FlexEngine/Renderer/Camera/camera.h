@@ -18,27 +18,6 @@
 
 namespace FlexEngine
 {
-    #pragma region Reflection
-    struct __FLX_API CameraData
-    {
-        FLX_REFL_SERIALIZABLE
-        Vector3 position = Vector3::Zero;        /*!< Camera position in world space */
-        Vector3 target = Vector3::Zero;          /*!< Target the camera is facing towards */
-        Vector3 up = Vector3::Up;                /*!< Up vector for the camera's orientation */
-        Vector3 right = Vector3::Right;          /*!< Right vector for the camera's orientation */
-
-        float fieldOfView = 45.0f;               /*!< Field of view in degrees */
-        float aspectRatio = 1.77f;               /*!< Aspect ratio (width/height) */
-        float nearClip = 0.1f;                   /*!< Near clipping plane */
-        float farClip = 100.0f;                  /*!< Far clipping plane */
-        bool m_isOrthographic = true;            /*!< Flag indicating orthographic (true) or perspective (false) projection */
-
-        bool is_dirty = true; //to be removed
-        float m_OrthoWidth = 1280.0f;
-        float m_OrthoHeight = 750.0f;
-    };
-    #pragma endregion
-
     class __FLX_API Camera
     {
         FLX_REFL_SERIALIZABLE
@@ -47,13 +26,13 @@ namespace FlexEngine
         Matrix4x4 m_perspective_matrix = FlexEngine::Matrix4x4::Identity;
         Matrix4x4 m_view_matrix = Matrix4x4::Identity; // Back is our facing direction due to right hand system
         Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
-
+        
+    public:
         float m_ortho_width;
         float m_ortho_height;
-    public:
         bool is_active = true;
-        CameraData m_data;
 
+        // Does nothing, do not use this. For serialization only.
         Camera();
         
         //Set position as well
@@ -70,6 +49,7 @@ namespace FlexEngine
         void SetOrthographic(float left, float right, float bottom, float top, float near = -2.0f, float far = 2.0f);
         void SetViewMatrix(Vector3 pos);
 
+        Vector3 GetPosition();
 
         // Getters for matrices
         const Matrix4x4& GetProjectionMatrix() const;
