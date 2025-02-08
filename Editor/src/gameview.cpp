@@ -49,7 +49,7 @@ namespace Editor
 
 		float width = app_width;
 		float height = app_height;
-		float aspect_ratio = width / height;
+		float aspect_ratio = Editor::GetInstance().m_editorCamera.GetOrthoWidth() / Editor::GetInstance().m_editorCamera.GetOrthoHeight();
 
 		//also have a tiny bit of extra padding to ensure the whole image is in frame
 		if (height > content_size.y - TOP_PADDING)
