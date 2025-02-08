@@ -351,7 +351,6 @@ namespace FlexEngine
     // initialize glfw
     FLX_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW!");
     FMODWrapper::Load();
-    CameraManager::Initialize();
   }
 
   Application::~Application()
