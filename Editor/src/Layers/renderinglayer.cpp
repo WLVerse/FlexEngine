@@ -4,15 +4,26 @@
 // Rendering layer for the editor. 
 // 
 // Implements the main renderers for the editor and game. 
+// This layer loop runs in this order
+// 1. Transformation Calculations
+// 2. Update Animator System (ie delta time)
+// 3. Sprite Renderer System (Sprites and Animations included)
+// 4. Text Renderer System
+// 
+// The framebuffers used are "scene" and "game", and nothing is rendered to the default framebuffer. (Editor property)
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [90%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
+// 
+// [10%] Wen Loong (wenloong.l\@digipen.edu)
+//   - Added animation rendering
 //
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 #include "editor.h"
+
 namespace Editor
 {
 
@@ -34,7 +45,8 @@ namespace Editor
     OpenGLRenderer::ClearFrameBuffer();
     Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
     OpenGLRenderer::ClearFrameBuffer();
-
+    
+    #pragma region Transformation Calculations
     // Update Transform component to obtain the true world representation of the entity
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
     {
@@ -57,8 +69,6 @@ namespace Editor
         model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.rows,
                             sprite_info.GetHeight() / asset_spritesheet.columns,
                             1));
-
-        model.Dump();
       }
       else if (FLX_STRING_GET(sprite->sprite_handle) != "")
       {
@@ -73,6 +83,7 @@ namespace Editor
 
       transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
     }
+    #pragma endregion 
 
     #pragma region Animator System
 
@@ -146,8 +157,8 @@ namespace Editor
 
       Renderer2DText sample;
       sample.m_window_size = Vector2(
-        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+        static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoWidth()),
+        static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoHeight())
       );
 
       int index = 0;
