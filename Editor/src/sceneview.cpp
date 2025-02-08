@@ -19,17 +19,37 @@
 //	if we ever have mothers and fathers again, you gotta think of something
 //
 
-std::array<Vector2, 4> ComputeOBBCorners(const Vector2& pos, const Vector2& scale, const Vector2& rotation)
+std::array<Vector2, 4> ComputeOBBCorners(Matrix4x4& transform)
 {
-	Vector2 half_scale = { scale.x / 2, scale.y / 2 };
-	return 			
+	Vector4 corners[4] =
 	{
-		Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-		Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-		Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-		Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+		{-0.5f, -0.5f, 0.5f, 1.0f},
+		{0.5f, -0.5f, 0.5f, 1.0f},
+		{0.5f, 0.5f, 0.5f, 1.0f},
+		{-0.5f, 0.5f, 0.5f, 1.0f}
+	};
+
+	for (auto& corner : corners)
+	{
+		corner = transform * corner;
+	}
+	return
+	{
+		Vector2(corners[0].x, corners[0].y),
+		Vector2(corners[1].x, corners[1].y),
+		Vector2(corners[2].x, corners[2].y),
+		Vector2(corners[3].x, corners[3].y)
 	};
 }
+//	Vector2 half_scale = { scale.x / 2, scale.y / 2 };
+//	return 			
+//	{
+//		Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+//		Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+//		Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+//		Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
+//	};
+//}
 
 namespace Editor
 {
@@ -67,7 +87,6 @@ namespace Editor
 
 		float width = app_width;
 		float height = app_height;
-		//float aspect_ratio = width / height;
 		float aspect_ratio = Editor::GetInstance().m_editorCamera.GetOrthoWidth() / Editor::GetInstance().m_editorCamera.GetOrthoHeight();
 		
 		//also have a tiny bit of extra padding to ensure the whole image is in frame
@@ -76,7 +95,7 @@ namespace Editor
 			height = content_size.y - TOP_PADDING;
 			width = height * aspect_ratio;
 		}
-		m_viewport_size = { width, height };	//Need to change this to fit resolution of GAME, not screen
+		m_viewport_size = { width, height };
 		m_viewport_position = { (panel_size.x - m_viewport_size.x) / 2.0f, title_bar_height + TOP_PADDING / 2.0f }; // relative to imgui window
 		m_viewport_screen_position = { window_top_left.x + m_viewport_position.x, window_top_left.y + m_viewport_position.y };
 	}
@@ -154,23 +173,21 @@ namespace Editor
 			auto& active = entity.GetComponent<Transform>()->is_active;
 			if (!active) continue;
 
-			auto& pos = entity.GetComponent<Position>()->position;
-			auto& scale = entity.GetComponent<Scale>()->scale;
-			float rotation = entity.GetComponent<Rotation>()->rotation.z;
+			//auto& pos = entity.GetComponent<Position>()->position;
+			//auto& scale = entity.GetComponent<Scale>()->scale;
+			//float rotation = entity.GetComponent<Rotation>()->rotation.z;
+			auto &transform = entity.GetComponent<Transform>()->transform;
 
-			Vector2 half_scale = { scale.x / 2, scale.y / 2 };
+			auto corners = ComputeOBBCorners(transform);
 
-			//compute AABB max and min points
-			auto obb_corners = ComputeOBBCorners(pos, scale, rotation);
-			Vector2 max_point = obb_corners[0];
-			Vector2 min_point = obb_corners[0];
-
+			Vector2 max_point = corners[0];
+			Vector2 min_point = corners[0];
 			for (int i = 1; i < 4; i++)
 			{
-				min_point.x = std::min(min_point.x, obb_corners[i].x);
-				min_point.y = std::min(min_point.y, obb_corners[i].y);
-				max_point.x = std::max(max_point.x, obb_corners[i].x);
-				max_point.y = std::max(max_point.y, obb_corners[i].y);
+				min_point.x = std::min(min_point.x, corners[i].x);
+				min_point.y = std::min(min_point.y, corners[i].y);
+				max_point.x = std::max(max_point.x, corners[i].x);
+				max_point.y = std::max(max_point.y, corners[i].y);
 			}
 
 			if (mouse_world_pos.x >= min_point.x &&
@@ -290,23 +307,23 @@ namespace Editor
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
 			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
 			auto& entity_rotation	= selected_entity.GetComponent<Rotation>()->rotation;
+			auto entity_transform = selected_entity.GetComponent<Transform>()->transform;
 
 
 			//Find out where on the screen to draw the gizmos
 			//Take entity position and convert it back to screen position
 			ImVec2 gizmo_origin_pos = WorldToScreen(entity_position);
 
-			//compute AABB max and min points for display
-			auto obb_corners = ComputeOBBCorners(entity_position, entity_scale, entity_rotation.z);
+			auto corners = ComputeOBBCorners(entity_transform);
 
-			Vector2 max_point = obb_corners[0];
-			Vector2 min_point = obb_corners[0];
+			Vector2 max_point = corners[0];
+			Vector2 min_point = corners[0];
 			for (int i = 1; i < 4; i++)
 			{
-				min_point.x = std::min(min_point.x, obb_corners[i].x);
-				min_point.y = std::min(min_point.y, obb_corners[i].y);
-				max_point.x = std::max(max_point.x, obb_corners[i].x);
-				max_point.y = std::max(max_point.y, obb_corners[i].y);
+				min_point.x = std::min(min_point.x, corners[i].x);
+				min_point.y = std::min(min_point.y, corners[i].y);
+				max_point.x = std::max(max_point.x, corners[i].x);
+				max_point.y = std::max(max_point.y, corners[i].y);
 			}
 
 			//Display an imgui rect around the sprite so we know where we are clicking, at least
@@ -429,8 +446,9 @@ namespace Editor
 				m_gizmo_hovered = right || up || xy;
 				if (value != 0)	//if using xy scale
 				{
-					scale_change.x = value;
-					scale_change.y = value;
+					float modifier = entity_scale.x / 50.0f;
+					scale_change.x = value * modifier;
+					scale_change.y = value * modifier;
 				}
 				else
 				{
@@ -497,24 +515,25 @@ namespace Editor
 				{
 					return;
 				}
+				//auto& entity_position = entity.GetComponent<Position>()->position;
+				//auto& entity_scale = entity.GetComponent<Scale>()->scale;
+				//auto& entity_rotation = entity.GetComponent<Rotation>()->rotation;
 				auto& entity_transform = entity.GetComponent<Transform>()->transform;
+
 				average_pos += { entity_transform.m30, entity_transform.m31, entity_transform.m32};
 
-				auto& entity_position = entity.GetComponent<Position>()->position;
-				auto& entity_scale = entity.GetComponent<Scale>()->scale;
-				auto& entity_rotation = entity.GetComponent<Rotation>()->rotation;
+				auto corners = ComputeOBBCorners(entity_transform);
 
-				auto obb_corners = ComputeOBBCorners(entity_position, entity_scale, entity_rotation.z);
-
-				Vector2 max_point = obb_corners[0];
-				Vector2 min_point = obb_corners[0];
+				Vector2 max_point = corners[0];
+				Vector2 min_point = corners[0];
 				for (int i = 1; i < 4; i++)
 				{
-					min_point.x = std::min(min_point.x, obb_corners[i].x);
-					min_point.y = std::min(min_point.y, obb_corners[i].y);
-					max_point.x = std::max(max_point.x, obb_corners[i].x);
-					max_point.y = std::max(max_point.y, obb_corners[i].y);
+					min_point.x = std::min(min_point.x, corners[i].x);
+					min_point.y = std::min(min_point.y, corners[i].y);
+					max_point.x = std::max(max_point.x, corners[i].x);
+					max_point.y = std::max(max_point.y, corners[i].y);
 				}
+
 				//Display an imgui rect around the sprite so we know where we are clicking, at least
 				ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 				ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
@@ -780,14 +799,17 @@ namespace Editor
 			return;
 		}
 		
+		const auto& cam_data = main_camera.GetComponent<Camera>();
+		float cam_width = cam_data->GetOrthoWidth();
+		float cam_height = cam_data->GetOrthoHeight();
+
 		const auto& pos = main_camera.GetComponent<Position>()->position;
-		const auto& cam_data = main_camera.GetComponent<Camera>()->m_data;
 
 		//construct bounding box for camera
 		ImVec2 gizmo_origin_pos = WorldToScreen({pos.x, pos.y});
 
-		Vector2 max_point = { pos.x + cam_data.m_OrthoWidth / 2, pos.y + cam_data.m_OrthoHeight / 2};
-		Vector2 min_point = { pos.x - cam_data.m_OrthoWidth / 2, pos.y - cam_data.m_OrthoHeight / 2};
+		Vector2 max_point = { pos.x + cam_width / 2, pos.y + cam_height / 2 };
+		Vector2 min_point = { pos.x - cam_width / 2, pos.y - cam_height / 2};
 
 		ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(100, 160, 100, 160), 0.0f, 0, 1.5f);

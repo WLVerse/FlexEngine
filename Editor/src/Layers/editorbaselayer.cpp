@@ -26,34 +26,34 @@ namespace Editor
         {
             auto scene = FlexECS::Scene::CreateScene();
             {
-                FlexECS::Entity entity = scene->CreateEntity("Save Test 00000000000000000000000000000000000000000");
-                entity.AddComponent<Transform>({});
-                entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
+                //FlexECS::Entity entity = scene->CreateEntity("Save Test 00000000000000000000000000000000000000000");
+                //entity.AddComponent<Transform>({});
+                //entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
             }
             {
-                FlexECS::Entity entity = scene->CreateEntity("Sprite2 Test");
+                FlexECS::Entity entity = scene->CreateEntity("Empty Box");
                 entity.AddComponent<Position>({ {600, 600, 0} });
                 entity.AddComponent<Rotation>({});
-                entity.AddComponent<Scale>({ {250, 250, 0} });
+                entity.AddComponent<Scale>({ {300, 200, 0} });
                 entity.AddComponent<Transform>({});
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
             }
             {
-                FlexECS::Entity entity = scene->CreateEntity("Sprite Test");
+                FlexECS::Entity entity = scene->CreateEntity("Grace");
                 entity.AddComponent<Position>({
                   Vector3{ 100, 300, 0 }
                 });
                 entity.AddComponent<Rotation>({
-                  Vector3{ 0, 0, 35 }
+                  Vector3{ 0, 0, 0 }
                 });
                 entity.AddComponent<Scale>({
-                  { 100, 100, 100 }
+                  { 1, 1, 1 }
                 });
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
                 entity.AddComponent<Transform>({ Matrix4x4::Identity, true });
             }
             {
-                FlexECS::Entity entity = scene->CreateEntity("Animator Sprite Test");
+                FlexECS::Entity entity = scene->CreateEntity("Aniamted Grace");
                 entity.AddComponent<Position>({
                   Vector3{ 100, 100, 0 }
                 });
@@ -61,7 +61,7 @@ namespace Editor
                   Vector3{ 0, 0, 0 }
                 });
                 entity.AddComponent<Scale>({
-                  { 100, 100, 100 }
+                  { 1, 1, 1 }
                 });
                 entity.AddComponent<Transform>({});
                 entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/generic attack.mp3)") });
@@ -71,7 +71,7 @@ namespace Editor
             }
             // Camera Test
             {
-                FlexECS::Entity cam = scene->CreateEntity("Test Cam");
+                FlexECS::Entity cam = scene->CreateEntity("Main Camera");
                 cam.AddComponent<Position>({});
                 cam.AddComponent<Rotation>({});
                 cam.AddComponent<Scale>({});
@@ -95,7 +95,7 @@ namespace Editor
             }
             // Text test
             {
-                FlexECS::Entity txt = scene->CreateEntity("Test Text");
+                FlexECS::Entity txt = scene->CreateEntity("Text");
                 txt.AddComponent<Position>({ Vector3(822.0f, 248.0f, 0.0f) });
                 txt.AddComponent<Rotation>({});
                 txt.AddComponent<Scale>({});
@@ -113,7 +113,7 @@ namespace Editor
 
             // button
             {
-                FlexECS::Entity button = scene->CreateEntity("Test Button");
+                FlexECS::Entity button = scene->CreateEntity("Button");
                 button.AddComponent<Position>({ Vector3(200.0f, 200.0f, 0.0f) });
                 button.AddComponent<Rotation>({});
                 button.AddComponent<Scale>({ Vector3(300.0f, 100.0f, 0.0f) });
