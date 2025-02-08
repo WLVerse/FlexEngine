@@ -104,8 +104,9 @@ namespace Editor //In future will seperate this into GameCameraServiceLayer, Edi
             continue;
         
           // Update with available components
-          if (element.HasComponent<Position>()) entity->m_data.position = element.GetComponent<Position>()->position;
-          
+          //if (element.HasComponent<Position>()) entity->m_data.position = element.GetComponent<Position>()->position;
+          entity->SetViewMatrix(element.GetComponent<Position>()->position);
+
           // Update matrix
           entity->Update();
         }

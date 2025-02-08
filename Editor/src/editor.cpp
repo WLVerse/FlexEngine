@@ -118,7 +118,7 @@ void SetupImGuiStyle()
 namespace Editor
 {
 	static Editor instance;
-	Camera Editor::m_editorCamera({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
+	Camera Editor::m_editorCamera({ 0, 0, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
 
 	Editor& Editor::GetInstance()
 	{
@@ -157,8 +157,10 @@ namespace Editor
 		SetupImGuiStyle();
 
     //m_editorCamera.m_data = { 800.0f, 450.0f, 0 };
-		m_editorCamera.SetOrthographic(0.0f, static_cast<float>(Application::GetCurrentWindow()->GetWidth()), 
-																	0.0f, static_cast<float>(Application::GetCurrentWindow()->GetHeight()),
+		float width = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
+		float height = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
+		m_editorCamera.SetOrthographic(-width / 2, width / 2, 
+																	-height / 2, height / 2,
 																	-2.0f, 2.0f);
 	}
 

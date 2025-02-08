@@ -84,8 +84,8 @@ namespace Editor
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
-		float app_width = Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth;
-		float app_height = Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight;
+		float app_width = Editor::GetInstance().m_editorCamera.GetOrthoWidth();
+		float app_height = Editor::GetInstance().m_editorCamera.GetOrthoHeight();
 
 		// Get Mouse position relative to the viewport
 		ImVec2 relative_pos = ImVec2(mouse_pos_ss.x - window_top_left.x - m_viewport_position.x,
@@ -98,7 +98,7 @@ namespace Editor
 
 
 		Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
-		Matrix4x4 inverse = (Editor::GetInstance().m_editorCamera.GetProjectionMatrix()).Inverse();
+		Matrix4x4 inverse = (Editor::GetInstance().m_editorCamera.GetProjViewMatrix()).Inverse();
 		Vector4 clip = { ndc_click_pos.x,
 										 ndc_click_pos.y,
 										 1.0f,
@@ -370,8 +370,8 @@ namespace Editor
 				//Scale the change in position with relation to screen size
 				//pos_change represents how much the gizmo moved in absolute screen coordinates.
 				//Need to convert screen space to world space
-				pos_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				pos_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth()  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 				entity_position += Vector3(pos_change.x, -pos_change.y, 0.0f);
 
 				if (recording_ended)
@@ -439,8 +439,8 @@ namespace Editor
 					scale_change.y = -scale_change.y;
 				}
 
-				scale_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				scale_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				scale_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				scale_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 				entity_scale += Vector3(scale_change.x, scale_change.y, 0.0f);
 
 				if (recording_ended)
@@ -574,8 +574,8 @@ namespace Editor
 
 				m_gizmo_hovered = right || up || xy;
 
-				pos_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth/ ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				pos_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth()/ ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 
 				for (FlexECS::Entity entity : selected_list)
 				{
@@ -635,8 +635,8 @@ namespace Editor
 					scale_change.y = -scale_change.y;
 				}
 
-				scale_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				scale_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				scale_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				scale_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 
 				for (FlexECS::Entity entity : selected_list)
 				{
@@ -726,11 +726,10 @@ namespace Editor
 				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(2);
 				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-				camera_pos_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				camera_pos_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				Editor::GetInstance().m_editorCamera.m_data.position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
-				//Editor::GetInstance().m_editorCamera.m_data.position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
-				//Editor::GetInstance().m_editorCamera.MoveCamera(Vector3(camera_pos_change.x, camera_pos_change.y));
+				camera_pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				m_camera_position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
+				Editor::GetInstance().m_editorCamera.SetViewMatrix(m_camera_position);
 			}
 			else if (ImGui::IsMouseReleased(2))
 			{
@@ -744,9 +743,10 @@ namespace Editor
 				if (drag_delta.x != 0 || drag_delta.y != 0) ImGui::ResetMouseDragDelta(1);
 				Vector2 camera_pos_change{ drag_delta.x, -drag_delta.y };
 
-				camera_pos_change.x *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
-				camera_pos_change.y *= Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
-				Editor::GetInstance().m_editorCamera.m_data.position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
+				camera_pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				camera_pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
+				m_camera_position -= Vector3(camera_pos_change.x, camera_pos_change.y, 0.0f);
+				Editor::GetInstance().m_editorCamera.SetViewMatrix(m_camera_position);
 			}
 			else if (ImGui::IsMouseReleased(1))
 			{
@@ -755,7 +755,7 @@ namespace Editor
 
 
 			//Camera zooming
-			float baseAspectRatio = Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth / Editor::GetInstance().m_editorCamera.m_data.m_OrthoHeight;  // Base aspect ratio (can be easily adjusted)
+			float baseAspectRatio = Editor::GetInstance().m_editorCamera.GetOrthoWidth() / Editor::GetInstance().m_editorCamera.GetOrthoHeight();  // Base aspect ratio (can be easily adjusted)
 			float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
 			float minZoom = 100.0f;       // Minimum orthographic width
 			float maxZoom = 5000.0f;      // Maximum orthographic width
@@ -764,8 +764,9 @@ namespace Editor
 			if (io.MouseWheel != 0.0f)
 			{
 				float zoomDelta = io.MouseWheel * zoomSpeed;
-				float new_right = std::clamp(Editor::GetInstance().m_editorCamera.m_data.m_OrthoWidth - zoomDelta, minZoom, maxZoom);
-				Editor::GetInstance().m_editorCamera.SetOrthographic(0.0f, new_right, 0.0f, new_right / baseAspectRatio, -2.0f, 2.0f);
+				float new_right = std::clamp(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom, maxZoom);
+				float new_top = new_right / baseAspectRatio;
+				Editor::GetInstance().m_editorCamera.SetOrthographic(-new_right/2, new_right / 2, -new_top / 2, new_top / 2);
 				Editor::GetInstance().m_editorCamera.Update();
 			}
 		}

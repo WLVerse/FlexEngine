@@ -45,48 +45,44 @@ namespace FlexEngine
 
         Matrix4x4 m_ortho_matrix = FlexEngine::Matrix4x4::Identity;
         Matrix4x4 m_perspective_matrix = FlexEngine::Matrix4x4::Identity;
-        Matrix4x4 m_view_matrix = Matrix4x4::LookAt(Vector3::Zero, Vector3::Back, Vector3::Up); // Back is our facing direction due to right hand system
+        Matrix4x4 m_view_matrix = Matrix4x4::Identity; // Back is our facing direction due to right hand system
         Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
+
+        float m_ortho_width;
+        float m_ortho_height;
     public:
         bool is_active = true;
         CameraData m_data;
 
         Camera();
+        
+        //Set position as well
         Camera(const Vector3& t_pos,
             float t_orthoWidth,
             float t_orthoHeight,
-            float t_nearClip,
-            float t_farClip,
+            float t_nearClip = -2.0f,
+            float t_farClip = 2.0f,
             bool t_isActive = true);
-        Camera(const Vector3& t_pos,
-            const Vector3& t_target,
-            const Vector3& t_up,
-            float t_fieldOfView,
-            float t_aspectRatio,
-            float t_nearClip,
-            float t_farClip,
-            bool t_isActive = true);
-        Camera(const CameraData& t_data, bool t_isActive = true);
+
         ~Camera() = default;
 
         // Set orthographic projection
-        void SetOrthographic(float left, float right, float bottom, float top, float near, float far);
+        void SetOrthographic(float left, float right, float bottom, float top, float near = -2.0f, float far = 2.0f);
+        void SetViewMatrix(Vector3 pos);
 
-        // Set perspective projection
-        void SetPerspective(float fieldOfView, float aspectRatio, float near, float far);
 
         // Getters for matrices
         const Matrix4x4& GetProjectionMatrix() const;
         const Matrix4x4& GetViewMatrix() const;
         const Matrix4x4& GetProjViewMatrix() const;
 
-        // Activate perspective or orthographic mode
-        void SetMode(bool isOrthographic);
 
         // Updates the view and projection view matrices
         void Update();
 
         bool getIsActive();
+        float GetOrthoWidth();
+        float GetOrthoHeight();
 
     private:
         void UpdateCameraMatrix();

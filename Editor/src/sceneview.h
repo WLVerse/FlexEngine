@@ -59,6 +59,7 @@ namespace Editor
 		FlexEngine::Rotation m_recorded_rotation;
 
 		FlexEngine::FlexECS::Entity m_editor_camera;
+		FlexEngine::Vector3 m_camera_position{ 0,0,0 };
 		#endif
 	};
 }
