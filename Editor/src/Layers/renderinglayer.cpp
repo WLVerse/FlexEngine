@@ -100,8 +100,9 @@ namespace Editor
       props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
       props.scale = Vector2(scale.scale.x, scale.scale.y);
 
-      const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
-      props.window_size = Vector2((float)_wp.width, (float)_wp.height);
+      //const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
+      //props.window_size = Vector2((float)_wp.width, (float)_wp.height);
+      props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
       
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
