@@ -90,6 +90,18 @@ namespace FlexEngine
 	void PhysicsSystem::FindCollisions()
 	{
     // mouse over detection
+		//Convert raw_mouse to world space;
+		float app_width = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
+		float app_height = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
+		auto raw_mouse = Input::GetMousePosition();
+		Vector2 ndc_click_pos = { (2 * raw_mouse.x / app_width) - 1, 1 - 2 * raw_mouse.y / app_height };
+		Matrix4x4 inverse = CameraManager::GetMainGameCamera()->GetProjViewMatrix().Inverse();
+		Vector4 clip = { ndc_click_pos.x,
+										 ndc_click_pos.y,
+										 1.0f,
+										 1 };
+		Vector4 mouse_world_pos = inverse * clip;
+
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, BoundingBox2D>())
     {
       auto& bb = *entity.GetComponent<BoundingBox2D>();
@@ -98,12 +110,9 @@ namespace FlexEngine
 
       auto& max = bb.max;
       auto& min = bb.min;
-      auto raw_mouse = Input::GetMousePosition();
-
-			Vector2 mouse = Vector2(raw_mouse.x - Application::GetCurrentWindow()->GetWidth()/2, 
-                        Application::GetCurrentWindow()->GetHeight()/2 - raw_mouse.y);
-
-      bb.is_mouse_over = mouse.x > min.x && mouse.x < max.x && mouse.y > min.y && mouse.y < max.y;
+			
+      bb.is_mouse_over = mouse_world_pos.x > min.x && mouse_world_pos.x < max.x && 
+												 mouse_world_pos.y > min.y && mouse_world_pos.y < max.y;
     }
 
 		collisions.clear();
