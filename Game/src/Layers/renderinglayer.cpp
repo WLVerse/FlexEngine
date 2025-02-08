@@ -1,14 +1,14 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.cpp
-// 
+//
 // Rendering layer for the editor.
-// 
+//
 // Very rough implementation of hotloading a rendering DLL.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
+//
 // Copyright (c) 2024 DigiPen, All rights reserved.
 
 #include "Layers.h"
@@ -26,7 +26,7 @@ namespace Game
   {
     OpenGLRenderer::DisableBlending();
   }
-  
+
   void RenderingLayer::Update()
   {
     // Update Transform component
@@ -44,7 +44,7 @@ namespace Game
       transform->transform = translation_matrix * rotation_matrix * scale_matrix;
     }
 
-    #pragma region Animator System
+#pragma region Animator System
 
     // animator system updates the time for all animators
     // TODO: move this to a different layer
@@ -52,16 +52,57 @@ namespace Game
     {
       Animator& animator = *element.GetComponent<Animator>();
 
-      if (animator.should_play)
+      if (!animator.should_play) continue;
+
+      animator.frame_time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+
+      auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+
+      // calculate the total frames
+      if (animator.total_frames != asset_spritesheet.columns * asset_spritesheet.rows)
+        animator.total_frames = asset_spritesheet.columns * asset_spritesheet.rows;
+
+      // get the current frame time
+      // TODO: read from the metadata
+      // animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
+      animator.current_frame_time = 0.200000f;
+
+      // handling of animations
+      // move to the next frame
+      // loop if looping
+      // stop if not looping
+      // return to default and continue looping if return_to_default is true
+      if (animator.frame_time >= animator.current_frame_time)
       {
-        // TODO: reset time somewhere?
-        animator.time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+        animator.current_frame++;
+        animator.frame_time -= animator.current_frame_time;
+
+        if (animator.is_looping)
+        {
+          if (animator.current_frame >= animator.total_frames) animator.current_frame = 0;
+        }
+        else
+        {
+          if (animator.current_frame >= animator.total_frames)
+          {
+            if (animator.return_to_default)
+            {
+              animator.spritesheet_handle = animator.default_spritesheet_handle;
+              animator.is_looping = true;
+            }
+            else
+            {
+              animator.current_frame = animator.total_frames - 1;
+              animator.should_play = false;
+            }
+          }
+        }
       }
     }
 
-    #pragma endregion
+#pragma endregion
 
-    #pragma region Sprite Renderer System
+#pragma region Sprite Renderer System
     FunctionQueue game_queue;
 
     // render all sprites
@@ -80,10 +121,9 @@ namespace Game
       if (element.HasComponent<Animator>())
       {
         Animator& animator = *element.GetComponent<Animator>();
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-        props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.texture_index = animator.current_frame;
         props.alpha = 1.0f; // Update pls
       }
       else
@@ -105,12 +145,16 @@ namespace Game
 
       props.alignment = Renderer2DProps::Alignment_TopLeft;
 
-      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+      game_queue.Insert({ [props]()
+                          {
+                            OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID());
+                          },
+                          "", index });
     }
 
-    #pragma endregion
+#pragma endregion
 
-    #pragma region Text Renderer System
+#pragma region Text Renderer System
 
     // Text
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
@@ -142,7 +186,11 @@ namespace Game
                                       static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
+      game_queue.Insert({ [sample]()
+                          {
+                            OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+                          },
+                          "", index });
     }
 #pragma endregion
 
@@ -150,4 +198,4 @@ namespace Game
 
     OpenGLFrameBuffer::Unbind();
   }
-}
+} // namespace Game

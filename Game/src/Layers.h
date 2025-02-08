@@ -6,6 +6,7 @@
 #include "Layers/assetlayer.h"
 #include "Layers/audiolayer.h"
 #include "Layers/baselayer.h"
+#include "Layers/battlelayer.h"
 #include "Layers/camerasystemlayer.h"
 #include "Layers/cutscenelayer.h"
 #include "Layers/gamelayer.h"

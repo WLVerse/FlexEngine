@@ -56,6 +56,9 @@
     <Filter Include="src\FlexEngine\Physics">
       <UniqueIdentifier>{cea91fb9-789a-43f3-a7a3-df8d0aee0375}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\FlexEngine\Assets">
+      <UniqueIdentifier>{9526cf12-2968-4909-95c0-90ea33757622}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\pch.cpp">
@@ -222,6 +225,15 @@
     </ClCompile>
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglframebuffermanager.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Assets\battle.cpp">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Assets\character.cpp">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FlexEngine\Assets\move.cpp">
+      <Filter>src\FlexEngine\Assets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -425,6 +437,15 @@
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglframebuffermanager.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Assets\move.h">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Assets\battle.h">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Assets\character.h">
+      <Filter>src\FlexEngine\Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,7 @@
+CharacterName: Renko
+CharacterID: 1
+Health: 100
+Speed: 10
+MoveOne: /data/AttackOne.flxmove
+MoveTwo: /data/AttackTwo.flxmove
+MoveThree: /data/AttackThree.flxmove

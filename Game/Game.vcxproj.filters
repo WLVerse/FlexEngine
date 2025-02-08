@@ -8,6 +8,9 @@
     <Filter Include="src\Layers">
       <UniqueIdentifier>{dcc096df-92fe-4baa-bc83-294870aad723}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Battle">
+      <UniqueIdentifier>{13b7daf6-535d-4503-827b-eeee03d3db0f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers\baselayer.h">
@@ -46,6 +49,12 @@
     <ClInclude Include="src\Layers\townlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\battlelayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Battle\character.h">
+      <Filter>src\Battle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\baselayer.cpp">
@@ -82,6 +91,9 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\townlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\battlelayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>

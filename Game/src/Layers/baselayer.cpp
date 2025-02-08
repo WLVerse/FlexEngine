@@ -36,8 +36,9 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game",std::make_shared<ScriptingLayer>());
 
     // Start with the menu layer
-    menuLayer = std::make_shared<MenuLayer>();
-    FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    //menuLayer = std::make_shared<MenuLayer>();
+    //FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<BattleLayer>());
 
     // Camera system goes last to capture the loaded scene
     camSystemLayer = std::make_shared<CameraSystemLayer>();

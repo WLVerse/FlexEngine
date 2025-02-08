@@ -157,10 +157,12 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Battle\character.h" />
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
+    <ClInclude Include="src\Layers\battlelayer.h" />
     <ClInclude Include="src\Layers\cutscenelayer.h" />
     <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\assetlayer.h" />
@@ -175,6 +177,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
+    <ClCompile Include="src\Layers\battlelayer.cpp" />
     <ClCompile Include="src\Layers\cutscenelayer.cpp" />
     <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\assetlayer.cpp" />

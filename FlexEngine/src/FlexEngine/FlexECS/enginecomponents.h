@@ -128,17 +128,18 @@ namespace FlexEngine
   };
 
   /*!***************************************************************************
-  * \class Prefab
-  * \brief
-  * This class represents the prefab component of an entity
-  ******************************************************************************/
+   * \class Prefab
+   * \brief
+   * This class represents the prefab component of an entity
+   ******************************************************************************/
   class __FLX_API Prefab
   {
     FLX_REFL_SERIALIZABLE
+
   public:
     std::string prefab_name;
   };
-  
+
   class __FLX_API Sprite
   {
     FLX_REFL_SERIALIZABLE
@@ -155,86 +156,96 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
+    FlexECS::Scene::StringIndex default_spritesheet_handle;
     FlexECS::Scene::StringIndex spritesheet_handle;
+
     bool should_play = true;
-    float time = 0.f;
+    bool is_looping = true;
+    bool return_to_default = true;
+    float frame_time = 0.f;
+    int total_frames = 0;
+
+    int current_frame = 0;
+    float current_frame_time = 0.f;
   };
 
 
   // Grouping emission shape options
   enum ParticleEmitShape
   {
-      Sphere,
-      Hemisphere,
-      Cone,
-      Box,
-      // Sprite-shape can be added later
+    Sphere,
+    Hemisphere,
+    Cone,
+    Box,
+    // Sprite-shape can be added later
   };
+
   class __FLX_API ParticleSystem
   {
-      FLX_REFL_SERIALIZABLE
+    FLX_REFL_SERIALIZABLE
 
-      // Grouping emission rate settings
-      struct ParticleEmitRate
-      {
-          FLX_REFL_SERIALIZABLE
-          float rate_over_time = 10.0f;
-          float rate_over_distance = 1.0f;
-      };
+    // Grouping emission rate settings
+    struct ParticleEmitRate
+    {
+      FLX_REFL_SERIALIZABLE
+      float rate_over_time = 10.0f;
+      float rate_over_distance = 1.0f;
+    };
 
   public:
-      // Nested Particle class representing an individual particle's runtime state.
-      class __FLX_API Particle
-      {
-          FLX_REFL_SERIALIZABLE
-      public:
-          // Lifetime simulation state
-          float currentLifetime = 10.0f;    // Remaining lifetime (seconds)
-          float totalLifetime = 10.0f;      // Original lifetime (for interpolation)
+    // Nested Particle class representing an individual particle's runtime state.
+    class __FLX_API Particle
+    {
+      FLX_REFL_SERIALIZABLE
 
-          // Current interpolated properties (derived from spawn values)
-          float currentSpeed = 1.0f;
-          float currentSize = 1.0f;
-          Vector3 currentColor = Vector3::One;
+    public:
+      // Lifetime simulation state
+      float currentLifetime = 10.0f; // Remaining lifetime (seconds)
+      float totalLifetime = 10.0f;   // Original lifetime (for interpolation)
 
-          // Store spawn settings for interpolation (copied from the ParticleSystem emitter)
-          float start_speed = 1.0f;        // Initial speed at spawn
-          float end_speed = 1.0f;         // Final speed at death
-          float start_size = 1.0f;         // Initial size at spawn
-          float end_size = 1.0f;           // Final size at death
-          Vector3 start_color = Vector3::One;      // Initial color at spawn
-          Vector3 end_color = Vector3::One;        // Final color at death
+      // Current interpolated properties (derived from spawn values)
+      float currentSpeed = 1.0f;
+      float currentSize = 1.0f;
+      Vector3 currentColor = Vector3::One;
 
-          // You might want to add a default constructor and/or helper functions here.
-      };
+      // Store spawn settings for interpolation (copied from the ParticleSystem emitter)
+      float start_speed = 1.0f;           // Initial speed at spawn
+      float end_speed = 1.0f;             // Final speed at death
+      float start_size = 1.0f;            // Initial size at spawn
+      float end_size = 1.0f;              // Final size at death
+      Vector3 start_color = Vector3::One; // Initial color at spawn
+      Vector3 end_color = Vector3::One;   // Final color at death
 
-      // ParticleSystem (emitter) configuration settings:
-      int max_particles = 10;
-      FlexECS::Scene::StringIndex particlesprite_handle; // Sprite handle for particles
-      // FlexECS::Scene::StringIndex particlespritesheet_handle; // Not implemented yet
-      bool is_looping = true;
-      float duration = 5.0f;    // How long the particle system will be active
-      float start_delay = 0.0f;
+                                          // You might want to add a default constructor and/or helper functions here.
+    };
 
-      // Initial settings to be provided to spawned particles:
-      float lifetime = 5.0f;
-      float start_speed = 100.0f;
-      float end_speed = 100.0f;
-      float start_size = 100.0f;
-      float end_size = 100.0f;
-      Vector3 start_color = Vector3::One;
-      Vector3 end_color = Vector3::One;
-      float simulation_speed = 1.0f;
+    // ParticleSystem (emitter) configuration settings:
+    int max_particles = 10;
+    FlexECS::Scene::StringIndex particlesprite_handle; // Sprite handle for particles
+    // FlexECS::Scene::StringIndex particlespritesheet_handle; // Not implemented yet
+    bool is_looping = true;
+    float duration = 5.0f; // How long the particle system will be active
+    float start_delay = 0.0f;
 
-      ParticleEmitRate particleEmissionRate;
-      int particleEmissionShapeIndex = static_cast<int>(ParticleEmitShape::Sphere);
+    // Initial settings to be provided to spawned particles:
+    float lifetime = 5.0f;
+    float start_speed = 100.0f;
+    float end_speed = 100.0f;
+    float start_size = 100.0f;
+    float end_size = 100.0f;
+    Vector3 start_color = Vector3::One;
+    Vector3 end_color = Vector3::One;
+    float simulation_speed = 1.0f;
 
-      // Settings to assign to particles upon creation with other components:
-      bool is_collidable = false; // Particles have AABB Collision (isStatic = true)
-      bool is_static = false;     // Particles will inherit Velocity (isStatic = false)
-  
-      // --- Non-reflected runtime accumulator for emission ---
-      float emissionAccumulator = 0.0f;
+    ParticleEmitRate particleEmissionRate;
+    int particleEmissionShapeIndex = static_cast<int>(ParticleEmitShape::Sphere);
+
+    // Settings to assign to particles upon creation with other components:
+    bool is_collidable = false; // Particles have AABB Collision (isStatic = true)
+    bool is_static = false;     // Particles will inherit Velocity (isStatic = false)
+
+    // --- Non-reflected runtime accumulator for emission ---
+    float emissionAccumulator = 0.0f;
   };
 
   class __FLX_API Text
@@ -315,5 +326,60 @@ namespace FlexEngine
 
   public:
   };
+
+  /**************
+   * Gameplay
+   **************/
+
+#pragma region Slot
+
+  class __FLX_API CharacterSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7, 1-2 for player, 3-7 for enemy
+  };
+
+  class __FLX_API SpeedBarSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7
+    int character = 0;   // 1-5
+  };
+
+#pragma endregion
+
+  /**************
+   * Script-Component Pairs
+   **************/
+
+#pragma region Moves
+
+  class __FLX_API MoveOneComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveTwoComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveThreeComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+#pragma endregion
+
 
 } // namespace FlexEngine

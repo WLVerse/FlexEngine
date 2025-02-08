@@ -204,6 +204,11 @@
 // Include declarations for engine components
 #include "FlexEngine/FlexECS/enginecomponents.h"
 
+// include game assets
+#include "FlexEngine/Assets/battle.h"
+#include "FlexEngine/Assets/character.h"
+#include "FlexEngine/Assets/move.h"
+
 // temp
 #include "FlexEngine/FlexScripting/iscript.h"
 #include "FlexEngine/FlexScripting/scriptregistry.h"

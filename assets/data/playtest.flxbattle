@@ -1,0 +1,8 @@
+DrifterSlotOne: /data/Renko.flxcharacter
+DrifterSlotTwo: /data/Grace.flxcharacter
+EnemySlotOne: /data/Enemy1.flxcharacter
+EnemySlotTwo: /data/Enemy2.flxcharacter
+EnemySlotThree: /data/Jack.flxcharacter
+EnemySlotFour: /data/Enemy2.flxcharacter
+EnemySlotFive: /data/Enemy1.flxcharacter
+BossBattle: 3
