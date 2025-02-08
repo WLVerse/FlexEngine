@@ -13,7 +13,7 @@
 
 #include "cameramanager.h"
 #include <stdexcept>
-
+#include "FlexEngine/FlexECS/enginecomponents.h"
 
 namespace FlexEngine
 {
@@ -26,21 +26,15 @@ namespace FlexEngine
 
     #pragma region Camera Lifetime Management
 
-    //todo: find camera to make main, otherwise this entire manager just doesnt work
-
-    void CameraManager::Initialize()
-    {
-      // Used to make editor camera
-    }
-
     void CameraManager::TryMainCamera()
     {
-      if (has_main_camera) return;
-
       for (auto& cam_targets : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
       {
         m_mainGameCameraID = cam_targets;
         has_main_camera = true;
+
+        FlexECS::Entity cam_entity = cam_targets;
+        Log::Info("Setting main camera with entity name: " + FLX_STRING_GET(*cam_entity.GetComponent<EntityName>()));
         break;
       }
     }

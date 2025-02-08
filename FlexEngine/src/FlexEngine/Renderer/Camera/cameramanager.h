@@ -14,14 +14,10 @@ namespace FlexEngine
     {
         // Storage for cameras, using raw pointers to manage lifetime
         static std::unordered_map<FlexECS::EntityID, Camera*> m_cameraEntities;
-
         static FlexECS::EntityID m_mainGameCameraID;
 
     public:
         static bool has_main_camera;
-
-        // Initializes the CameraManager and sets up the default editor camera
-        static void Initialize();
 
         // Tries to find camera if there is none
         static void TryMainCamera();
@@ -34,7 +30,6 @@ namespace FlexEngine
         static FlexECS::EntityID GetMainGameCameraID();
 
         static void RemoveMainCamera();
-
         
         /*!************************************************************************
         * \brief Sets the main game camera id.
