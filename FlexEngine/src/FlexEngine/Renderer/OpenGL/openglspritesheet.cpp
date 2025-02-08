@@ -40,7 +40,8 @@ namespace FlexEngine
       float v1 = (float)row / rows;
       float u2 = (float)(column + 1) / columns;
       float v2 = (float)(row + 1) / rows;
-      return UV(u1, v1, u2, v2);
+      //return UV(u1, v1, u2, v2);
+      return UV(u1, v2, u2, v1); // flip y
     }
 
   }
