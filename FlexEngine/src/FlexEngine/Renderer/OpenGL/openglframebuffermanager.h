@@ -30,5 +30,7 @@ namespace FlexEngine
 
         // Get the current framebuffer
         OpenGLFrameBuffer* GetCurrentFrameBuffer() const;
+
+        void ResizeAllFramebuffers(float w, float h);
     };
 } // namespace FlexEngine

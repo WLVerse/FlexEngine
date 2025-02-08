@@ -26,7 +26,6 @@
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
 
-//#include "Renderer/OpenGL/openglframebuffer.h"
 //#include "FMOD/FMODWrapper.h"
 
 FlexEngine::OpenGLFrameBufferManager FlexEngine::Window::FrameBufferManager;
@@ -39,8 +38,10 @@ namespace
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
-    //if (width > 0 && height > 0)
-    //  FlexEngine::OpenGLFrameBuffer::RegenerateAllTextures(width, height);
+
+    // This is needed to follow with how IMGUI decides to draw images (which is using the glViewport values)
+    if (width > 0 && height > 0) // If we tab down, framebuffersizecallback returns size 0, which will absolutely destroy our rendering as the framebuffer width/height is now 0
+      FlexEngine::Window::FrameBufferManager.ResizeAllFramebuffers(static_cast<float>(width), static_cast<float>(height));
 
     // update the window properties
     for (auto& [window_name, win] : FlexEngine::Application::GetWindowRegistry())

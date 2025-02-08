@@ -59,4 +59,12 @@ namespace FlexEngine
     }
 
     OpenGLFrameBuffer* OpenGLFrameBufferManager::GetCurrentFrameBuffer() const { return m_CurrentFrameBuffer; }
+
+    void OpenGLFrameBufferManager::ResizeAllFramebuffers(float w, float h)
+    {
+      for (auto& pair : m_FrameBuffers)
+      {
+        pair.second->Resize(w, h);
+      }
+    }
 }
