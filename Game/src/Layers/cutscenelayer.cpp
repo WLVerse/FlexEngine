@@ -31,7 +31,7 @@ namespace Game
         m_currShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
                                                  static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
         m_currShot.AddComponent<Sprite>({ 0 });
-        m_currShot.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
+        m_currShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
         m_currShot.AddComponent<ZIndex>({ 10 });
 
         // Create the next shot entity and assign the image if available.
@@ -44,7 +44,7 @@ namespace Game
             m_nextShot.AddComponent<Sprite>({ m_CutsceneImages[m_currIndex] });
         else
             m_nextShot.AddComponent<Sprite>({ 0 });
-        m_nextShot.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
+        m_nextShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
         m_nextShot.AddComponent<ZIndex>({ 9 });
 
         m_ElapsedTime = 0.0f;

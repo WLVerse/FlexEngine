@@ -19,7 +19,7 @@ namespace Game
       { 100, 100, 100 }
     });
     entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
-    entity.AddComponent<Transform>({ true, Matrix4x4::Identity, true });
+    entity.AddComponent<Transform>({ Matrix4x4::Identity, true });
 
     FlexECS::Entity cam = scene->CreateEntity("Cam");
     cam.AddComponent<Position>({});
@@ -75,8 +75,6 @@ namespace Game
         auto camera = entity.GetComponent<Camera>();
         if (camera)
         {
-            auto& position = camera->m_data.position;
-
             // Adjust movement speed as needed
             float speed = 300.0f;
                 
@@ -89,8 +87,6 @@ namespace Game
                 entity.GetComponent<Camera>()->m_data.position.x -= speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move left
             if (Input::GetKey('D'))
                 entity.GetComponent<Camera>()->m_data.position.x += speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();  // Move right
-            
-            entity.GetComponent<Transform>()->is_dirty = true;
         }
     }
 

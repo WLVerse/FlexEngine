@@ -1,48 +1,88 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.cpp
+//
+// Rendering layer for the editor. 
 // 
-// Rendering layer for the editor.
+// Implements the main renderers for the editor and game. 
+// This layer loop runs in this order
+// 1. Transformation Calculations
+// 2. Update Animator System (ie delta time)
+// 3. Sprite Renderer System (Sprites and Animations included)
+// 4. Text Renderer System
 // 
-// Very rough implementation of hotloading a rendering DLL.
+// The framebuffers used are "scene" and "game", and nothing is rendered to the default framebuffer. (Editor property)
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [90%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
 // 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// [10%] Wen Loong (wenloong.l\@digipen.edu)
+//   - Added animation rendering
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 
-#include <Physics/physicssystem.h>
-
 namespace Game
 {
+
   void RenderingLayer::OnAttach()
   {
-    OpenGLRenderer::EnableBlending();
   }
 
   void RenderingLayer::OnDetach()
   {
-    OpenGLRenderer::DisableBlending();
   }
-  
+
   void RenderingLayer::Update()
   {
-    // Update Transform component
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Rotation, Scale, Transform>())
+    OpenGLFrameBuffer::Unbind(); // Default always unbinds, but its okay to unbind a second time since it doesn't do anything extra...
+
+    if (!CameraManager::has_main_camera) return;
+
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    OpenGLRenderer::ClearFrameBuffer();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+    OpenGLRenderer::ClearFrameBuffer();
+    
+    #pragma region Transformation Calculations
+    // Update Transform component to obtain the true world representation of the entity
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
     {
+      auto sprite = element.GetComponent<Sprite>();
       auto position = element.GetComponent<Position>()->position;
       auto rotation = element.GetComponent<Rotation>()->rotation;
       auto scale = element.GetComponent<Scale>()->scale;
       auto transform = element.GetComponent<Transform>();
 
+      // "Model scale" in this case refers to the scale of the object itself...
+      Matrix4x4 model = Matrix4x4::Identity;
+      
+      // However, spritesheets have a different scale...
+      if (element.HasComponent<Animator>())
+      {
+        auto& animator = *element.GetComponent<Animator>();
+        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+        auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+
+        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.rows,
+                            sprite_info.GetHeight() / asset_spritesheet.columns,
+                            1));
+      }
+      else if (FLX_STRING_GET(sprite->sprite_handle) != "")
+      {
+        auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
+        model.Scale(Vector3(sprite_info.GetWidth(), sprite_info.GetHeight(), 1));
+        sprite->model_matrix = model;
+      }
+
       Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
       Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
       Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
 
-      transform->transform = translation_matrix * rotation_matrix * scale_matrix;
+      transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
     }
+    #pragma endregion 
 
     #pragma region Animator System
 
@@ -62,13 +102,11 @@ namespace Game
     #pragma endregion
 
     #pragma region Sprite Renderer System
-    FunctionQueue game_queue;
+    FunctionQueue editor_queue, game_queue;
 
     // render all sprites
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale>())
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
     {
-      if (!element.GetComponent<Transform>()->is_active) continue;
-
       Sprite& sprite = *element.GetComponent<Sprite>();
       Position& pos = *element.GetComponent<Position>();
       Rotation& rotation = *element.GetComponent<Rotation>();
@@ -96,14 +134,10 @@ namespace Game
       int index = 0;
       if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
-      props.position = Vector2(pos.position.x, pos.position.y);
-      props.rotation = Vector3(rotation.rotation.x, rotation.rotation.y, rotation.rotation.z);
-      props.scale = Vector2(scale.scale.x, scale.scale.y);
-
-      const WindowProps& _wp = Application::GetCurrentWindow()->GetProps();
-      props.window_size = Vector2((float)_wp.width, (float)_wp.height);
-
+      props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+      
       props.alignment = Renderer2DProps::Alignment_TopLeft;
+      props.world_transform = element.GetComponent<Transform>()->transform;
 
       game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
     }
@@ -121,8 +155,8 @@ namespace Game
 
       Renderer2DText sample;
       sample.m_window_size = Vector2(
-        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+        static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoWidth()),
+        static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoHeight())
       );
 
       int index = 0;
@@ -144,10 +178,47 @@ namespace Game
 
       game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
     }
-#pragma endregion
-
+    #pragma endregion
+    
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+    editor_queue.Flush();
+    Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
     game_queue.Flush();
 
-    OpenGLFrameBuffer::Unbind();
+    OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
   }
-}
+
+  //Will be needed for batch
+  std::vector<std::pair<std::string, FlexECS::Entity>> RenderingLayer::GetRenderQueue()
+  {
+      std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
+
+      //---!Add relevant entities to sort with z-index!---
+      
+      //Sprite
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
+              sortedEntities.emplace_back(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Sprite>()->sprite_handle),
+                                          entity);
+      }
+
+      //Sprite
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Text>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
+          sortedEntities.emplace_back(FlexECS::Scene::GetActiveScene()->Internal_StringStorage_Get(entity.GetComponent<Text>()->fonttype),
+                                      entity);
+      }
+
+      //SORT
+      std::sort(sortedEntities.begin(), sortedEntities.end(),
+          [](auto& a, auto& b) {
+          int zA = a.second.HasComponent<ZIndex>() ? a.second.GetComponent<ZIndex>()->z : 0;
+          int zB = b.second.HasComponent<ZIndex>() ? b.second.GetComponent<ZIndex>()->z : 0;
+          return zA < zB; // Compare z-index
+      });
+
+      return sortedEntities;
+  }
+} // namespace Editor
