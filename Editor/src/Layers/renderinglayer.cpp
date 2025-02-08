@@ -26,7 +26,7 @@ namespace Editor
 
   void RenderingLayer::Update()
   {
-    OpenGLFrameBuffer::Unbind();
+    OpenGLFrameBuffer::Unbind(); // Default always unbinds, but its okay to unbind a second time since it doesn't do anything extra...
 
     if (!CameraManager::has_main_camera) return;
 
@@ -44,9 +44,23 @@ namespace Editor
       auto scale = element.GetComponent<Scale>()->scale;
       auto transform = element.GetComponent<Transform>();
 
-      // "Model scale" in this case refers to the scale of the object itself.
+      // "Model scale" in this case refers to the scale of the object itself...
       Matrix4x4 model = Matrix4x4::Identity;
-      if (FLX_STRING_GET(sprite->sprite_handle) != "")
+      
+      // However, spritesheets have a different scale...
+      if (element.HasComponent<Animator>())
+      {
+        auto& animator = *element.GetComponent<Animator>();
+        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+        auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+
+        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.rows,
+                            sprite_info.GetHeight() / asset_spritesheet.columns,
+                            1));
+
+        model.Dump();
+      }
+      else if (FLX_STRING_GET(sprite->sprite_handle) != "")
       {
         auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
         model.Scale(Vector3(sprite_info.GetWidth(), sprite_info.GetHeight(), 1));
@@ -62,109 +76,108 @@ namespace Editor
 
     #pragma region Animator System
 
-        // animator system updates the time for all animators
-        // TODO: move this to a different layer
-        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Sprite>())
-        {
-          Animator& animator = *element.GetComponent<Animator>();
+    // animator system updates the time for all animators
+    // TODO: move this to a different layer
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Sprite>())
+    {
+      Animator& animator = *element.GetComponent<Animator>();
 
-          if (animator.should_play)
-          {
-            // TODO: reset time somewhere?
-            animator.time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-          }
-        }
+      if (animator.should_play)
+      {
+        // TODO: reset time somewhere?
+        animator.time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      }
+    }
 
     #pragma endregion
 
     #pragma region Sprite Renderer System
-        FunctionQueue editor_queue, game_queue;
+    FunctionQueue editor_queue, game_queue;
 
-        // render all sprites
-        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
-        {
-          Sprite& sprite = *element.GetComponent<Sprite>();
-          Position& pos = *element.GetComponent<Position>();
-          Rotation& rotation = *element.GetComponent<Rotation>();
-          Scale& scale = *element.GetComponent<Scale>();
+    // render all sprites
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
+    {
+      Sprite& sprite = *element.GetComponent<Sprite>();
+      Position& pos = *element.GetComponent<Position>();
+      Rotation& rotation = *element.GetComponent<Rotation>();
+      Scale& scale = *element.GetComponent<Scale>();
 
-          Renderer2DProps props;
+      Renderer2DProps props;
 
-          // overload for animator
-          if (element.HasComponent<Animator>())
-          {
-            Animator& animator = *element.GetComponent<Animator>();
-            auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+      // overload for animator
+      if (element.HasComponent<Animator>())
+      {
+        Animator& animator = *element.GetComponent<Animator>();
+        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
-            props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-            props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
-            props.alpha = 1.0f; // Update pls
-          }
-          else
-          {
-            props.asset = FLX_STRING_GET(sprite.sprite_handle);
-            props.texture_index = -1;
-            props.alpha = sprite.opacity;
-          }
+        props.asset = FLX_STRING_GET(animator.spritesheet_handle);
+        props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.alpha = 1.0f; // Update pls
+      }
+      else
+      {
+        props.asset = FLX_STRING_GET(sprite.sprite_handle);
+        props.texture_index = -1;
+        props.alpha = sprite.opacity;
+      }
 
-          int index = 0;
-          if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
-          props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+      props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
       
-          props.alignment = Renderer2DProps::Alignment_TopLeft;
-          props.world_transform = element.GetComponent<Transform>()->transform;
+      props.alignment = Renderer2DProps::Alignment_TopLeft;
+      props.world_transform = element.GetComponent<Transform>()->transform;
 
-          game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
-          editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::GetInstance().m_editorCamera); }, "", index });
-        }
+      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::GetInstance().m_editorCamera); }, "", index });
+    }
 
     #pragma endregion
 
     #pragma region Text Renderer System
 
-        // Text
-        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
-        {
-          if (!element.GetComponent<Transform>()->is_active) continue;
+    // Text
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+    {
+      if (!element.GetComponent<Transform>()->is_active) continue;
 
-          const auto textComponent = element.GetComponent<Text>();
+      const auto textComponent = element.GetComponent<Text>();
 
-          Renderer2DText sample;
-          sample.m_window_size = Vector2(
-            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
-          );
+      Renderer2DText sample;
+      sample.m_window_size = Vector2(
+        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+      );
 
-          int index = 0;
-          if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+      int index = 0;
+      if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
-          sample.m_words = FLX_STRING_GET(textComponent->text);
-          sample.m_color = textComponent->color;
-          sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
-          // TODO: Need to convert text to similar to camera class
-          // Temp
-          sample.m_transform = Matrix4x4(
-            element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
-            0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
-            element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
-          );
-          sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
-                                          static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
-          sample.m_textboxDimensions = textComponent->textboxDimensions;
+      sample.m_words = FLX_STRING_GET(textComponent->text);
+      sample.m_color = textComponent->color;
+      sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+      // TODO: Need to convert text to similar to camera class
+      // Temp
+      sample.m_transform = Matrix4x4(
+        element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
+        0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
+        element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
+      );
+      sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                      static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+      sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-          game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
-          editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, Editor::GetInstance().m_editorCamera); }, "", index });
-        }
+      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
+      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, Editor::GetInstance().m_editorCamera); }, "", index });
+    }
     #pragma endregion
-
     
     Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
     editor_queue.Flush();
     Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
     game_queue.Flush();
 
-    OpenGLFrameBuffer::Unbind();
+    OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
   }
 
   //Will be needed for batch

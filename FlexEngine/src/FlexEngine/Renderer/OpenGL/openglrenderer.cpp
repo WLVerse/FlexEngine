@@ -503,17 +503,17 @@ namespace FlexEngine
       auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
       auto uv = asset_spritesheet.GetUV(props.texture_index);
       tex_coords[0] = uv.x;
-      tex_coords[1] = uv.y;
+      tex_coords[1] = uv.w;
       tex_coords[2] = uv.z;
-      tex_coords[3] = uv.y;
+      tex_coords[3] = uv.w;
       tex_coords[4] = uv.z;
-      tex_coords[5] = uv.w;
+      tex_coords[5] = uv.y;
       tex_coords[6] = uv.z;
-      tex_coords[7] = uv.w;
+      tex_coords[7] = uv.y;
       tex_coords[8] = uv.x;
-      tex_coords[9] = uv.w;
+      tex_coords[9] = uv.y;
       tex_coords[10] = uv.x;
-      tex_coords[11] = uv.y;
+      tex_coords[11] = uv.w;
     }
 
     GLuint vbo_uv = 0;

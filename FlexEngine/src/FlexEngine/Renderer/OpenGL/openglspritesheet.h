@@ -16,6 +16,7 @@
 #include "flx_api.h"
 
 #include "Renderer/OpenGL/opengltexture.h"
+#include "assetkey.h"
 
 namespace FlexEngine
 {
@@ -30,7 +31,7 @@ namespace FlexEngine
     struct __FLX_API Spritesheet
     {
       File& metadata;
-      std::string texture = "";
+      AssetKey texture = "";
       int columns = 1;
       int rows = 1;
 
