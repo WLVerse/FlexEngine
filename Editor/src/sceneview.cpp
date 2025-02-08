@@ -211,6 +211,12 @@ namespace Editor
 
 			if (current_selected != FlexECS::Entity::Null)
 			{
+				if (!current_selected.HasComponent<Position>())
+				{
+					clicked_entity = clicked_entities.begin()->first;
+					return clicked_entity;
+				}
+
 				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<Position>()->position.z });
 				
 				if (current == clicked_entities.end() || ++current == clicked_entities.end())
