@@ -56,13 +56,6 @@ namespace Game
   {
     Application::GetCurrentWindow()->Update();
 
-    if (Input::GetMouseButtonDown(0))
-    {
-      Vector2 pos = Input::GetCursorPosition();
-      pos.x = pos.x;
-      pos.y = Application::GetCurrentWindow()->GetHeight() - pos.y;
-      std::cout << "Clicked!!!: " << pos << "\n";
-    }
     // Test to switch to cutscene layer
     if (Application::MessagingSystem::Receive<bool>("Start Cutscene") && menuLayer != nullptr)
     {
