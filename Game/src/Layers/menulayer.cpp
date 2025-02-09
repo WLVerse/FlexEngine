@@ -11,6 +11,13 @@ namespace Game
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Main Menu BGM").GetComponent<Audio>()->should_play = true;
     
+    // find camera
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+    {
+      CameraManager::SetCamera(entity, entity.GetComponent<Camera>());
+      break;
+    }
+
     #pragma region Menu Spawns
     #if 0
     auto scene = FlexECS::Scene::CreateScene();
