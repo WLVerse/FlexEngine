@@ -24,6 +24,7 @@ namespace Game
     std::string name;
     int damage;
     int speed;
+    std::string description;
   };
 
   struct _Character
@@ -39,6 +40,7 @@ namespace Game
     int current_health;
     int current_speed;
     int current_slot; // 0-4, 0-1 for drifters, 0-4 for enemies
+    int current_selected_move = 0; //0 no selection, 1 2 3 otherwise 
   };
 
   struct _Battle
@@ -99,6 +101,7 @@ namespace Game
         move_one.name = move_one_asset.name;
         move_one.damage = move_one_asset.damage;
         move_one.speed = move_one_asset.speed;
+        move_one.description = move_one_asset.description;
         character.move_one = move_one;
       }
 
@@ -109,6 +112,7 @@ namespace Game
         move_two.name = move_two_asset.name;
         move_two.damage = move_two_asset.damage;
         move_two.speed = move_two_asset.speed;
+        move_two.description = move_two_asset.description;
         character.move_two = move_two;
       }
 
@@ -119,6 +123,7 @@ namespace Game
         move_three.name = move_three_asset.name;
         move_three.damage = move_three_asset.damage;
         move_three.speed = move_three_asset.speed;
+        move_three.description = move_three_asset.description;
         character.move_three = move_three;
       }
 
@@ -441,10 +446,74 @@ namespace Game
     e.AddComponent<Transform>({});
     e.AddComponent<Position>({ Vector3(910, 330, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(521, 237, 0) });
+    e.AddComponent<Scale>({ Vector3(521, 237, 0) });    
     e.GetComponent<Scale>()->scale *= 0.8f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
     e.AddComponent<ZIndex>({ 1 });
+
+    e = scene->CreateEntity("Move Description Text");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(722, 400, 0) });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(0.43f, 0.43f, 0) });
+    e.AddComponent<ZIndex>({ 2 });
+    e.AddComponent<Text>({
+              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+              FLX_STRING_NEW(
+                R"()"
+              ),
+              Vector3(1.0f, 1.0, 1.0f),
+              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Top },
+              {880, 320}
+            });
+
+    e = scene->CreateEntity("Move 1 Text");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(520, 400, 0) });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+    e.AddComponent<ZIndex>({ 2 });
+    e.AddComponent<Text>({
+              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+              FLX_STRING_NEW(
+                R"(My)"
+              ),
+              Vector3(1.0f, 1.0, 1.0f),
+              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+              {550, 320}
+            });
+
+    e = scene->CreateEntity("Move 2 Text");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(520, 370, 0) });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+    e.AddComponent<ZIndex>({ 2 });
+    e.AddComponent<Text>({
+              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+              FLX_STRING_NEW(
+                R"(Booty)"
+              ),
+              Vector3(1.0f, 1.0, 1.0f),
+              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+              {550, 320}
+            });
+
+    e = scene->CreateEntity("Move 3 Text");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(520, 340, 0) });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+    e.AddComponent<ZIndex>({ 2 });
+    e.AddComponent<Text>({
+              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+              FLX_STRING_NEW(
+                R"(Itches)"
+              ),
+              Vector3(1.0f, 1.0, 1.0f),
+              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+              {520, 320}
+            });
 
   #pragma endregion
 
@@ -931,11 +1000,12 @@ namespace Game
 
 #pragma region Moves
 
-    if (battle.is_player_turn && battle.target != 0)
+
+    if (battle.is_player_turn && battle.target != 0 && current_character->current_selected_move > 0)
     {
       _Move* current_move = nullptr;
 
-      if (Input::GetKeyDown(GLFW_KEY_Z))
+      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1)
       {
         current_move = &current_character->move_one;
 
@@ -956,7 +1026,7 @@ namespace Game
         }
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_X))
+      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
       {
         current_move = &current_character->move_two;
 
@@ -978,7 +1048,7 @@ namespace Game
       }
 
       // Ultimate move
-      if (Input::GetKeyDown(GLFW_KEY_C))
+      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
       {
         current_move = &current_character->move_three;
 
@@ -1055,10 +1125,57 @@ namespace Game
 
         // disable input for the duration of the move animation
         battle.disable_input_timer += animation_time + 1.f;
+
+        //Reset move selection, as well as description
+        current_character->current_selected_move = 0;
+        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        std::string& move1 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
+        std::string& move2 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
+        std::string& move3 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+        description = ""; move1 = ""; move2 = ""; move3 = "";
       }
     }
 
-#pragma endregion
+    if (battle.is_player_turn && current_character->current_speed <= 0)
+    {
+      if (Input::GetKeyDown(GLFW_KEY_Z))
+      {
+        current_character->current_selected_move = 1;
+        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        description = current_character->move_one.description;
+
+        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y = 
+        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1").GetComponent<Position>()->position.y;
+
+      }
+      if (Input::GetKeyDown(GLFW_KEY_X))
+      {
+        current_character->current_selected_move = 2;
+        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        description = current_character->move_two.description;
+        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y =
+        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2").GetComponent<Position>()->position.y;
+      }
+      if (Input::GetKeyDown(GLFW_KEY_C))
+      {
+        current_character->current_selected_move = 3;
+        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        description = current_character->move_three.description;
+        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y =
+        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3").GetComponent<Position>()->position.y;
+      }
+
+      //Write move names
+      std::string& move1 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
+      std::string& move2 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
+      std::string& move3 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+
+      move1 = current_character->move_one.name;
+      move2 = current_character->move_two.name;
+      move3 = current_character->move_three.name;
+    }
+
+    #pragma endregion
 
 #pragma endregion
 

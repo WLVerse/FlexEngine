@@ -27,6 +27,10 @@ namespace FlexEngine
           iss >> damage;
         else if (key == "Speed:")
           iss >> speed;
+        else if (key == "Description:")
+        {
+          std::getline(iss >> std::ws, description); // Read the rest of the line, trimming leading spaces
+        }
       }
     }
   } // namespace Asset

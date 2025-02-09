@@ -19,6 +19,7 @@ namespace FlexEngine
       std::string name = "None";
       int damage = 0;
       int speed = 0;
+      std::string description = "";
 
       Move(File& _metadata);
     };
