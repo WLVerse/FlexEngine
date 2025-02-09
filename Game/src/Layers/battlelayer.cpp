@@ -806,14 +806,13 @@ namespace Game
       current_character_entity.GetComponent<Position>()->position.x += 100;
 #endif
 
-      if (battle.prev_state != battle.is_player_turn)
-      {
-        // Plays sound if swap from enemy phase to player phase
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/start turn.mp3)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-        Log::Info("Player Turn");
-        battle.prev_state = true;
-      }
+    if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
+    {
+      // Plays sound if swap from enemy phase to player phase
+      FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/start turn.mp3)");
+      FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+      Log::Info("Player Turn Start");
+      battle.prev_state = true;
     }
 
 
