@@ -44,28 +44,28 @@ namespace Game
         });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<ZIndex>({ 2 });
+        entity.AddComponent<ZIndex>({ 50 });
         entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/env/Env_Town_Build_M4_03_+DE.png)") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel");
         entity.AddComponent<Position>({
-          { 70, 370, 0 }
+          { 90, 320, 0 }
         });
         entity.AddComponent<Scale>({
           { 64, 96, 0 }
         });
-        entity.GetComponent<Scale>()->scale *= 1.5;
+        entity.GetComponent<Scale>()->scale *= 1.4f;
         entity.AddComponent<Rotation>({
           { 0, 0, 0 }
         });
         entity.AddComponent<Transform>({});
-        entity.AddComponent<ZIndex>({ 3 });
+        entity.AddComponent<ZIndex>({ 10 });
         entity.AddComponent<Sprite>({});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
 
         entity.AddComponent<BoundingBox2D>({});
-        entity.GetComponent<BoundingBox2D>()->size = Vector2(0.5f, 0.5f);
+        entity.GetComponent<BoundingBox2D>()->size = Vector2(0.6f, 0.3f);
         entity.AddComponent<Rigidbody>({});
       }
       {
@@ -79,6 +79,7 @@ namespace Game
         main_character.AddComponent<ZIndex>({ 1 });
         main_character.AddComponent<Rigidbody>({});
         main_character.AddComponent<BoundingBox2D>({});
+        main_character.GetComponent<BoundingBox2D>()->size = Vector2(0.8f, 0.3f);
         main_character.AddComponent<Sprite>({});
 
         main_character.AddComponent<Animator>({});
@@ -170,6 +171,18 @@ namespace Game
     CameraManager::GetMainGameCamera()->m_data.position = main_character.GetComponent<Position>()->position;
 
 #pragma endregion
+
+#pragma region Renko X Barrel z-index resolver
+
+    // resolve z-index of renko and barrel
+    FlexECS::Entity barrel = FlexECS::Scene::GetEntityByName("Stranded Flaming Barrel");
+    float character_y = main_character.GetComponent<Position>()->position.y - main_character.GetComponent<Scale>()->scale.y / 2;
+    float barrel_y = barrel.GetComponent<Position>()->position.y - barrel.GetComponent<Scale>()->scale.y / 2;
+    main_character.GetComponent<ZIndex>()->z =
+      (character_y < barrel_y) ? barrel.GetComponent<ZIndex>()->z + 1 : barrel.GetComponent<ZIndex>()->z - 1;
+
+#pragma endregion
+
 
     if (area_to_transition.GetComponent<BoundingBox2D>()->is_colliding)
     {
