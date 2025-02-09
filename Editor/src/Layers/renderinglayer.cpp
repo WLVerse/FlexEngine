@@ -109,9 +109,6 @@ namespace Editor
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
     {
       Sprite& sprite = *element.GetComponent<Sprite>();
-      Position& pos = *element.GetComponent<Position>();
-      Rotation& rotation = *element.GetComponent<Rotation>();
-      Scale& scale = *element.GetComponent<Scale>();
 
       Renderer2DProps props;
 

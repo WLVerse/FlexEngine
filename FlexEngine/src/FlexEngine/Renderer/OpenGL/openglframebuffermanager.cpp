@@ -64,7 +64,7 @@ namespace FlexEngine
     {
       for (auto& pair : m_FrameBuffers)
       {
-        pair.second->Resize(w, h);
+        pair.second->Resize(static_cast<int>(w), static_cast<int>(h));
       }
     }
 }

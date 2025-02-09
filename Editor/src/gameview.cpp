@@ -68,8 +68,8 @@ namespace Editor
 
 		ImVec2 window_top_left = ImGui::GetWindowPos();
 		ImVec2 mouse_pos_ss = ImGui::GetMousePos(); // Screen space mouse pos
-		float app_width = Window::FrameBufferManager.GetFrameBuffer("Game")->GetWidth();
-		float app_height = Window::FrameBufferManager.GetFrameBuffer("Game")->GetHeight();
+		float app_width = static_cast<float>(Window::FrameBufferManager.GetFrameBuffer("Game")->GetWidth());
+		float app_height = static_cast<float>(Window::FrameBufferManager.GetFrameBuffer("Game")->GetHeight());
 
 		bool within_viewport = (ImGui::GetMousePos().x >= m_viewport_screen_position.x && ImGui::GetMousePos().x <= m_viewport_screen_position.x + m_viewport_size.x &&
 														ImGui::GetMousePos().y >= m_viewport_screen_position.y && ImGui::GetMousePos().y <= m_viewport_screen_position.y + m_viewport_size.y);
