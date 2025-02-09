@@ -39,9 +39,9 @@ namespace Game
 
     int current_health = 0;
     int current_speed = 0;
-    int current_slot = 0; // 0-4, 0-1 for drifters, 0-4 for enemies
+    int current_slot = 0;          // 0-4, 0-1 for drifters, 0-4 for enemies
     bool is_alive = true;
-    int current_selected_move = 0; //0 no selection, 1 2 3 otherwise 
+    int current_selected_move = 0; // 0 no selection, 1 2 3 otherwise
   };
 
   struct _Battle
@@ -63,6 +63,11 @@ namespace Game
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
     bool prev_state = is_player_turn;
+
+    int drifter_alive_count = 0;
+    int enemy_alive_count = 0;
+    bool is_win = false;
+    bool is_lose = false;
   };
 
   _Battle battle;
@@ -197,6 +202,8 @@ namespace Game
 
 #pragma endregion
 
+  FlexECS::Entity main_camera = FlexECS::Entity::Null;
+
   void BattleLayer::OnAttach()
   {
 #pragma region Scene Generation
@@ -209,18 +216,19 @@ namespace Game
   #define WIDTH Application::GetCurrentWindow()->GetWidth()
   #define HEIGHT Application::GetCurrentWindow()->GetHeight()
 
-    e = scene->CreateEntity("Camera");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({});
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({});
+    main_camera = scene->CreateEntity("Camera");
+    main_camera.AddComponent<Transform>({});
+    main_camera.AddComponent<Position>({});
+    main_camera.AddComponent<Rotation>({});
+    main_camera.AddComponent<Scale>({});
     Camera gameCamera({ WIDTH / 2.f, HEIGHT / 2.f, 0 }, (float)WIDTH, (float)HEIGHT, -2.0f, 2.0f);
-    e.AddComponent<Camera>(gameCamera);
+    main_camera.AddComponent<Camera>(gameCamera);
 
-    CameraManager::SetCamera(e, e.GetComponent<Camera>()); // set the camera as the main game camera
+    CameraManager::SetCamera(main_camera, main_camera.GetComponent<Camera>()); // set the camera as the main game camera
 
   #pragma region Backgrounds
 
+  #if 0
     e = scene->CreateEntity("Mockup");
     e.AddComponent<Transform>({});
     e.AddComponent<Position>({ Vector3(WIDTH / 2.f, HEIGHT / 2.f, 0.0f) });
@@ -229,6 +237,7 @@ namespace Game
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle UI_04_Revamp_05.png)"), -1 });
     e.GetComponent<Sprite>()->center_aligned = true;
     e.AddComponent<ZIndex>({ 0 });
+  #endif
 
     e = scene->CreateEntity("Background");
     e.AddComponent<Transform>({});
@@ -446,7 +455,7 @@ namespace Game
     e.AddComponent<Transform>({});
     e.AddComponent<Position>({ Vector3(910, 330, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(521, 237, 0) });    
+    e.AddComponent<Scale>({ Vector3(521, 237, 0) });
     e.GetComponent<Scale>()->scale *= 0.8f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
     e.AddComponent<ZIndex>({ 1 });
@@ -458,14 +467,12 @@ namespace Game
     e.AddComponent<Scale>({ Vector3(0.43f, 0.43f, 0) });
     e.AddComponent<ZIndex>({ 2 });
     e.AddComponent<Text>({
-              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-              FLX_STRING_NEW(
-                R"()"
-              ),
-              Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Top },
-              {880, 320}
-            });
+      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+      FLX_STRING_NEW(R"()"),
+      Vector3(1.0f, 1.0, 1.0f),
+      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Top },
+      {                            880,                           320 }
+    });
 
     e = scene->CreateEntity("Move 1 Text");
     e.AddComponent<Transform>({});
@@ -474,14 +481,12 @@ namespace Game
     e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
     e.AddComponent<ZIndex>({ 2 });
     e.AddComponent<Text>({
-              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-              FLX_STRING_NEW(
-                R"(My)"
-              ),
-              Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {550, 320}
-            });
+      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+      FLX_STRING_NEW(R"(My)"),
+      Vector3(1.0f, 1.0, 1.0f),
+      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+      {                            550,                              320 }
+    });
 
     e = scene->CreateEntity("Move 2 Text");
     e.AddComponent<Transform>({});
@@ -490,14 +495,12 @@ namespace Game
     e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
     e.AddComponent<ZIndex>({ 2 });
     e.AddComponent<Text>({
-              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-              FLX_STRING_NEW(
-                R"(Booty)"
-              ),
-              Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {550, 320}
-            });
+      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+      FLX_STRING_NEW(R"(Booty)"),
+      Vector3(1.0f, 1.0, 1.0f),
+      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+      {                            550,                              320 }
+    });
 
     e = scene->CreateEntity("Move 3 Text");
     e.AddComponent<Transform>({});
@@ -506,14 +509,12 @@ namespace Game
     e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
     e.AddComponent<ZIndex>({ 2 });
     e.AddComponent<Text>({
-              FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-              FLX_STRING_NEW(
-                R"(Itches)"
-              ),
-              Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {520, 320}
-            });
+      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+      FLX_STRING_NEW(R"(Itches)"),
+      Vector3(1.0f, 1.0, 1.0f),
+      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+      {                            520,                              320 }
+    });
 
   #pragma endregion
 
@@ -658,11 +659,13 @@ namespace Game
     {
       battle.drifters_and_enemies.push_back(&character);
       battle.speed_bar.push_back(&character);
+      battle.drifter_alive_count++;
     }
     for (auto& character : battle.enemies)
     {
       battle.drifters_and_enemies.push_back(&character);
       battle.speed_bar.push_back(&character);
+      battle.enemy_alive_count++;
     }
 
     for (auto character : battle.speed_bar)
@@ -799,38 +802,59 @@ namespace Game
 
   void BattleLayer::OnDetach()
   {
+    // Make sure nothing carries over in the way of sound
+    FMODWrapper::Core::ForceStop();
   }
 
   void BattleLayer::Update()
   {
-#if 1
+#if 0
     FlexECS::Scene::GetActiveScene()->GetEntityByName("Mockup").GetComponent<Transform>()->is_active =
       Input::GetKey(GLFW_KEY_SPACE);
 #endif
 
-    // start of the battle system
-    //
-    // Battle System Preparation
-    // - return when playing animations (disable_input_timer > 0)
-    // - get the current character from the speed bar
-    //
-    // AI Move
-    // - if it's not the player's turn, do the AI move and skip the player input code
-    //
-    // Player Input
-    // - if it's the player's turn, skip the AI move and check for input
-    // - if the player has selected a target, check for input for the move
-    // - if the player has selected a move, apply the move and update the speed
-    // - play the animations and disable input for the duration of the move animation
-    //
-    // Resolve Game State
-    // - resolve speed bar
-    //
-    // Update Displays
-    // - update the targeting display
-    // - update the speed bar display
-    //
-    // end of the battle system
+    // check for escape key
+    // this goes back to the main menu
+    if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
+    {
+      // set the main camera
+      CameraManager::SetCamera(main_camera, main_camera.GetComponent<Camera>());
+
+      // unload win layer
+      auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
+      if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
+
+      // unload lose layer
+      auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
+      if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
+    }
+
+    // return if the battle is over
+    if (battle.is_win || battle.is_lose) return;
+
+      // start of the battle system
+      //
+      // Battle System Preparation
+      // - return when playing animations (disable_input_timer > 0)
+      // - get the current character from the speed bar
+      //
+      // AI Move
+      // - if it's not the player's turn, do the AI move and skip the player input code
+      //
+      // Player Input
+      // - if it's the player's turn, skip the AI move and check for input
+      // - if the player has selected a target, check for input for the move
+      // - if the player has selected a move, apply the move and update the speed
+      // - play the animations and disable input for the duration of the move animation
+      //
+      // Resolve Game State
+      // - resolve speed bar
+      //
+      // Update Displays
+      // - update the targeting display
+      // - update the speed bar display
+      //
+      // end of the battle system
 
 #pragma region Battle System Preparation
 
@@ -1141,13 +1165,21 @@ namespace Game
         // disable input for the duration of the move animation
         battle.disable_input_timer += animation_time + 1.f;
 
-        //Reset move selection, as well as description
+        // Reset move selection, as well as description
         current_character->current_selected_move = 0;
-        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
-        std::string& move1 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
-        std::string& move2 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
-        std::string& move3 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
-        description = ""; move1 = ""; move2 = ""; move3 = "";
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
+        std::string& move1 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
+        std::string& move2 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
+        std::string& move3 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+        description = "";
+        move1 = "";
+        move2 = "";
+        move3 = "";
       }
     }
 
@@ -1156,36 +1188,50 @@ namespace Game
       if (Input::GetKeyDown(GLFW_KEY_Z))
       {
         current_character->current_selected_move = 1;
-        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
         description = current_character->move_one.description;
       }
       if (Input::GetKeyDown(GLFW_KEY_X))
       {
         current_character->current_selected_move = 2;
-        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
         description = current_character->move_two.description;
       }
       if (Input::GetKeyDown(GLFW_KEY_C))
       {
         current_character->current_selected_move = 3;
-        std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
         description = current_character->move_three.description;
       }
-      
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "[Z] " + current_character->move_one.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "[X] " + current_character->move_two.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "[C] " + current_character->move_three.name;
+
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
+        "[Z] " + current_character->move_one.name;
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
+        "[X] " + current_character->move_two.name;
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
+        "[C] " + current_character->move_three.name;
 
       FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
       FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
       FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
-      FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-
+      FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
+        (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
+        (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
+        (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
     }
 
-    #pragma endregion
+#pragma endregion
 
 #pragma endregion
 
@@ -1208,6 +1254,12 @@ namespace Game
           std::remove(battle.speed_bar.begin(), battle.speed_bar.end(), character), battle.speed_bar.end()
         );
 
+        // update alive count
+        if (character->character_id <= 2)
+          battle.drifter_alive_count--;
+        else
+          battle.enemy_alive_count--;
+
         // play death animation
         auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name);
         auto& animator = *entity.GetComponent<Animator>();
@@ -1224,16 +1276,16 @@ namespace Game
         case 3:
           animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
-          //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          //  FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+          //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 4:
           animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
-          //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          //  FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+          //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 5:
           // goto jack death cutscene
@@ -1245,6 +1297,28 @@ namespace Game
         animator.frame_time = 0.f;
         animator.current_frame = 0;
       }
+    }
+
+#pragma endregion
+
+#pragma region Game Over Resolution
+
+    // insta win/lose
+    if (Input::GetKeyDown(GLFW_KEY_9)) battle.enemy_alive_count = 0;
+    if (Input::GetKeyDown(GLFW_KEY_0)) battle.drifter_alive_count = 0;
+
+    // check if the battle is over
+    if (battle.enemy_alive_count == 0 && !battle.is_win)
+    {
+      battle.is_win = true;
+      // load win layer
+      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+    }
+    else if (battle.drifter_alive_count == 0 && !battle.is_lose)
+    {
+      battle.is_lose = true;
+      // load lose layer
+      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
     }
 
 #pragma endregion
