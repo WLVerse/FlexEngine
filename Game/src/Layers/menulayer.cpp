@@ -8,6 +8,13 @@ namespace Game
     File& file = File::Open(Path::current("assets/saves/mainmenu_v4.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
+    // find camera
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+    {
+      CameraManager::SetCamera(entity, entity.GetComponent<Camera>());
+      break;
+    }
+
     #pragma region Menu Spawns
     #if 0
     auto scene = FlexECS::Scene::CreateScene();

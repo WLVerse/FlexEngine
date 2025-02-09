@@ -147,6 +147,8 @@ namespace Game
         //  Second way is to create a camera outside and then copy constructor it -> Easier
         Camera gameTestCamera({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
         cam.AddComponent<Camera>(gameTestCamera);
+
+        CameraManager::SetCamera(cam, cam.GetComponent<Camera>()); // set the camera as the main game camera
       }
     }
 #endif
