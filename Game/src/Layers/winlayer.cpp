@@ -31,6 +31,7 @@ namespace Game
     ui.AddComponent<Rotation>({});
     ui.AddComponent<Transform>({});
     ui.AddComponent<Sprite>({ FLX_STRING_NEW("/images/battle ui/UI_Lose_V.png") });
+    ui.AddComponent<ZIndex>({ 1 });
 
     ui = FlexECS::Scene::CreateEntity("Player Stats");
     ui.AddComponent<Position>({ Vector3(-533, -49, 0) });
@@ -38,6 +39,15 @@ namespace Game
     ui.AddComponent<Rotation>({});
     ui.AddComponent<Transform>({});
     ui.AddComponent<Sprite>({ FLX_STRING_NEW("/images/battle ui/UI_Win_Player Stats.png") });
+    ui.AddComponent<ZIndex>({ 0 });
+
+    ui = FlexECS::Scene::CreateEntity("Win base");
+    ui.AddComponent<Position>({ Vector3(0, 0, 0) });
+    ui.AddComponent<Scale>({ Vector3(1600, 675, 1) });
+    ui.AddComponent<Rotation>({});
+    ui.AddComponent<Transform>({});
+    ui.AddComponent<Sprite>({ FLX_STRING_NEW("/images/battle ui/UI_Win_Screen_Base.png") });
+    ui.AddComponent<ZIndex>({ 0 });
 
     ui = FlexECS::Scene::CreateEntity("Press any button");
     ui.AddComponent<Position>({ Vector3(0, -370, 0) });
@@ -45,11 +55,14 @@ namespace Game
     ui.AddComponent<Rotation>({});
     ui.AddComponent<Transform>({});
     ui.AddComponent<Sprite>({ FLX_STRING_NEW("/images/battle ui/UI_Win_Text_Press Any Button To Continue.png") });
+    ui.AddComponent<ZIndex>({ 1 });
+
 
     ui = FlexECS::Scene::CreateEntity("dmg dealt");
     ui.AddComponent<Position>({ Vector3(-674, -58, 0) });
     ui.AddComponent<Scale>({ Vector3(0.28, 0.3, 0.3) });
     ui.AddComponent<Rotation>({});
+    ui.AddComponent<ZIndex>({ 1 });
     ui.AddComponent<Transform>({});
     ui.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
                             FLX_STRING_NEW(R"(DMG DEALT)")});
@@ -58,22 +71,16 @@ namespace Game
     ui.AddComponent<Position>({ Vector3(-423, -57, 0) });
     ui.AddComponent<Scale>({ Vector3(0.28, 0.3, 0.3) });
     ui.AddComponent<Rotation>({});
+    ui.AddComponent<ZIndex>({ 1 });
     ui.AddComponent<Transform>({});
     ui.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
                             FLX_STRING_NEW(R"(0000)")});
-
-    ui = FlexECS::Scene::CreateEntity("completion time text");
-    ui.AddComponent<Position>({ Vector3(-627, 172, 0) });
-    ui.AddComponent<Scale>({ Vector3(0.45, 0.5, 0.5) });
-    ui.AddComponent<Rotation>({});
-    ui.AddComponent<Transform>({});
-    ui.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
-                            FLX_STRING_NEW(R"(Completion Time)")});
 
     ui = FlexECS::Scene::CreateEntity("completion time value");
     ui.AddComponent<Position>({ Vector3(-545, 48, 0) });
     ui.AddComponent<Scale>({ Vector3(2.2, 3, 1) });
     ui.AddComponent<Rotation>({});
+    ui.AddComponent<ZIndex>({ 1 });
     ui.AddComponent<Transform>({});
     ui.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
                             FLX_STRING_NEW(R"(1m52s)")});
@@ -82,6 +89,7 @@ namespace Game
     ui.AddComponent<Position>({ Vector3(-669, -24, 0) });
     ui.AddComponent<Scale>({ Vector3(0.45, 0.5, 0.5) });
     ui.AddComponent<Rotation>({});
+    ui.AddComponent<ZIndex>({ 1 });
     ui.AddComponent<Transform>({});
     ui.AddComponent<Text>({ FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
                             FLX_STRING_NEW(R"(Renko)")});

@@ -58,6 +58,9 @@
     <ClInclude Include="src\Layers\winlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\loselayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\baselayer.cpp">
@@ -100,6 +103,9 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\winlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\loselayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>
