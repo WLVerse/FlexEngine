@@ -11,6 +11,8 @@
 #include "Layers.h"
 #include "Physics/physicssystem.h"
 
+#include "FMOD/FMODWrapper.h"
+
 namespace Game
 {
   void TownLayer::OnAttach()
@@ -150,6 +152,14 @@ namespace Game
 
         CameraManager::SetCamera(cam, cam.GetComponent<Camera>()); // set the camera as the main game camera
       }
+      {
+        FlexECS::Entity bgm = scene->CreateEntity("Town BGM");
+        bgm.AddComponent<Position>({});
+        bgm.AddComponent<Rotation>({});
+        bgm.AddComponent<Scale>({});
+        bgm.AddComponent<Transform>({});
+        bgm.AddComponent<Audio>({ true, false, true, false, FLX_STRING_NEW("/audio/bgm/town (I already clocked out an hour ago).mp3") });
+      }
     }
 #endif
 #pragma endregion
@@ -157,6 +167,8 @@ namespace Game
 
   void TownLayer::OnDetach()
   {
+    // Make sure nothing carries over in the way of sound
+    FMODWrapper::Core::ForceStop();
   }
 
   void TownLayer::Update()

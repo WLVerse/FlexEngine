@@ -1,6 +1,8 @@
 #include "Layers.h"
 #include "FlexEngine.h"
 
+#include "FMOD/FMODWrapper.h"
+
 namespace Game
 {
   void MenuLayer::OnAttach()
@@ -100,7 +102,8 @@ namespace Game
 
   void MenuLayer::OnDetach()
   {
-    Log::Info("Menu Layer Detach");
+    // Make sure nothing carries over in the way of sound
+    FMODWrapper::Core::ForceStop();
   }
 
   void MenuLayer::Update()
