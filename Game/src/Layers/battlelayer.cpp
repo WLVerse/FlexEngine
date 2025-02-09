@@ -59,6 +59,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
+    bool prev_state = is_player_turn;
   };
 
   _Battle battle;
@@ -557,6 +558,21 @@ namespace Game
 
   #pragma endregion
 
+  #pragma region Audio Storage
+  e = scene->CreateEntity("Background Music");
+  e.AddComponent<Transform>({});
+  e.AddComponent<Position>({});
+  e.AddComponent<Rotation>({});
+  e.AddComponent<Scale>({});
+  e.AddComponent<Audio>({true, false, true, false, FLX_STRING_NEW(R"(\audio\bgm\battle (Workinghours).mp3)")});
+
+  e = scene->CreateEntity("Play SFX");
+  e.AddComponent<Transform>({});
+  e.AddComponent<Position>({});
+  e.AddComponent<Rotation>({});
+  e.AddComponent<Scale>({});
+  e.AddComponent<Audio>({ false, false, false, false, FLX_STRING_NEW(R"(\audio\generic attack.mp3)") });
+  #pragma endregion
 #else
 // load from flxscene
 #endif
@@ -755,7 +771,11 @@ namespace Game
 
     // determine if it's the player's turn
     // player is 1-2, enemy is 3-5
-    battle.is_player_turn = (current_character->character_id <= 2);
+    battle.is_player_turn = (current_character->character_id <= 2); 
+    
+    // Flip only if not true to cache for later
+    if (!battle.is_player_turn)
+      battle.prev_state = battle.is_player_turn; 
 
     // disable input if the timer is active
     if (battle.disable_input_timer > 0.f)
@@ -782,8 +802,19 @@ namespace Game
     }
     // offset current player character to the right a bit
     if (battle.is_player_turn)
+    {
       current_character_entity.GetComponent<Position>()->position.x += 100;
 #endif
+
+      if (battle.prev_state != battle.is_player_turn)
+      {
+        // Plays sound if swap from enemy phase to player phase
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/start turn.mp3)");
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+        Log::Info("Player Turn");
+        battle.prev_state = true;
+      }
+    }
 
 
 #pragma endregion
@@ -819,14 +850,20 @@ namespace Game
       case 3:
         current_character_animator.spritesheet_handle =
           FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       case 4:
         current_character_animator.spritesheet_handle =
           FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       case 5:
         // current_character_animator.spritesheet_handle =
         //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       }
       float animation_time =
@@ -908,10 +945,14 @@ namespace Game
         case 1:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 2:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         }
       }
@@ -925,14 +966,19 @@ namespace Game
         case 1:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 2:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         }
       }
 
+      // Ultimate move
       if (Input::GetKeyDown(GLFW_KEY_C))
       {
         current_move = &current_character->move_three;
@@ -942,10 +988,14 @@ namespace Game
         case 1:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 2:
           current_character_animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         }
       }
