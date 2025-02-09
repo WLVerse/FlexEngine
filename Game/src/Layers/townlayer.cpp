@@ -50,33 +50,23 @@ namespace Game
       {
         FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel");
         entity.AddComponent<Position>({
-          { -325, 350, 0 }
+          { 70, 370, 0 }
         });
         entity.AddComponent<Scale>({
-          { 128, 192, 0 }
+          { 64, 96, 0 }
         });
+        entity.GetComponent<Scale>()->scale *= 1.5;
         entity.AddComponent<Rotation>({
-          { 180, 0, 0 }
+          { 0, 0, 0 }
         });
         entity.AddComponent<Transform>({});
         entity.AddComponent<ZIndex>({ 3 });
         entity.AddComponent<Sprite>({});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
-      }
-      {
-        FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel Shadow");
-        entity.AddComponent<Position>({
-          { -300, 325, 0 }
-        });
-        entity.AddComponent<Scale>({
-          { 128, 192, 0 }
-        });
-        entity.AddComponent<Rotation>({
-          { 0, 0, -45 }
-        });
-        entity.AddComponent<Transform>({});
-        entity.AddComponent<ZIndex>({ 2 });
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/vfx/VFX_Char_Shadow.png)") });
+
+        entity.AddComponent<BoundingBox2D>({});
+        entity.GetComponent<BoundingBox2D>()->size = Vector2(0.5f, 0.5f);
+        entity.AddComponent<Rigidbody>({});
       }
       {
         main_character = scene->CreateEntity("Walking Renko");
@@ -158,7 +148,8 @@ namespace Game
         bgm.AddComponent<Rotation>({});
         bgm.AddComponent<Scale>({});
         bgm.AddComponent<Transform>({});
-        bgm.AddComponent<Audio>({ true, false, true, false, FLX_STRING_NEW("/audio/bgm/town (I already clocked out an hour ago).mp3") });
+        bgm.AddComponent<Audio>({ true, false, true, false,
+                                  FLX_STRING_NEW("/audio/bgm/town (I already clocked out an hour ago).mp3") });
       }
     }
 #endif
@@ -173,8 +164,12 @@ namespace Game
 
   void TownLayer::Update()
   {
+#pragma region Camera Follow System
+
+    // move camera to follow main character
     CameraManager::GetMainGameCamera()->m_data.position = main_character.GetComponent<Position>()->position;
-    // PhysicsSystem::UpdatePhysicsSystem();
+
+#pragma endregion
 
     if (area_to_transition.GetComponent<BoundingBox2D>()->is_colliding)
     {
