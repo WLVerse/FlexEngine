@@ -26,24 +26,24 @@ namespace Game
           { 750, 400, 0 }
         });
         entity.AddComponent<Scale>({
-          { 5000, 4200, 0 }
+          { 3200, 2688, 0 }
         });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({});
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02.png)") });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/env/Env_Town_Build_M4_03.png)") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Overlay Town Image");
         entity.AddComponent<Position>({
-          { 750, 516.5f, 0 }
+          { 750, 400, 0 }
         });
         entity.AddComponent<Scale>({
-          { 5000, 3976.5f, 0 }
+          { 3200, 2688, 0 }
         });
         entity.AddComponent<Rotation>({});
         entity.AddComponent<Transform>({});
         entity.AddComponent<ZIndex>({ 2 });
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Env_Town_Build_M4_02_+DE.png)") });
+        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/env/Env_Town_Build_M4_03_+DE.png)") });
       }
       {
         FlexECS::Entity entity = scene->CreateEntity("Stranded Flaming Barrel");
@@ -58,7 +58,7 @@ namespace Game
         });
         entity.AddComponent<Transform>({});
         entity.AddComponent<ZIndex>({ 3 });
-        entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.png)") });
+        entity.AddComponent<Sprite>({});
         entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/Prop_Flaming_Barrel.flxspritesheet)") });
       }
       {
@@ -81,34 +81,59 @@ namespace Game
         main_character.AddComponent<Position>({
           { 800, 350, 0 }
         });
-        main_character.AddComponent<Scale>({
-          { 80, 186, 0 }
-        });
-        main_character.AddComponent<Rotation>({
-          { 180, 0, 0 }
-        });
+        main_character.AddComponent<Scale>({});
+        main_character.AddComponent<Rotation>({});
         main_character.AddComponent<Transform>({});
         main_character.AddComponent<ZIndex>({ 1 });
         main_character.AddComponent<Rigidbody>({});
         main_character.AddComponent<BoundingBox2D>({});
-        main_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_renko.png)") });
-        main_character.AddComponent<Animator>(
-          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)") }
-        );
+        main_character.AddComponent<Sprite>({});
+
+        main_character.AddComponent<Animator>({});
+        main_character.GetComponent<Animator>()->spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+        main_character.GetComponent<Animator>()->default_spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+        main_character.GetComponent<Animator>()->should_play = true;
+        main_character.GetComponent<Animator>()->is_looping = true;
+        main_character.GetComponent<Animator>()->return_to_default = false;
+
         main_character.AddComponent<Script>({ FLX_STRING_NEW("MovePlayer") });
       }
       {
         area_to_transition = scene->CreateEntity("Area To Transition");
         area_to_transition.AddComponent<Position>({
-          { 3000, 0, 0 }
+          { 1500, 350, 0 }
         });
         area_to_transition.AddComponent<Scale>({
-          { 1350, 950, 0 }
+          { 72, 108, 0 }
         });
+        area_to_transition.GetComponent<Scale>()->scale *= 1.5;
         area_to_transition.AddComponent<Rotation>({});
         area_to_transition.AddComponent<Transform>({});
         area_to_transition.AddComponent<Rigidbody>({});
         area_to_transition.AddComponent<BoundingBox2D>({});
+      }
+      {
+        FlexECS::Entity e = scene->CreateEntity("Jack");
+        e.AddComponent<Transform>({});
+        e.AddComponent<Position>({ area_to_transition.GetComponent<Position>()->position });
+        e.AddComponent<Scale>({
+          { 72, 108, 0 }
+        });
+        e.GetComponent<Scale>()->scale *= 1.5;
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Sprite>({});
+        e.AddComponent<Animator>({});
+        e.GetComponent<Animator>()->spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)");
+        e.GetComponent<Animator>()->default_spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)");
+        e.GetComponent<Animator>()->should_play = true;
+        e.GetComponent<Animator>()->is_looping = true;
+        e.GetComponent<Animator>()->return_to_default = false;
+
+        e.AddComponent<ZIndex>({ 1 });
       }
       // Camera Test
       {
@@ -135,7 +160,7 @@ namespace Game
   void TownLayer::Update()
   {
     CameraManager::GetMainGameCamera()->m_data.position = main_character.GetComponent<Position>()->position;
-    //PhysicsSystem::UpdatePhysicsSystem();
+    // PhysicsSystem::UpdatePhysicsSystem();
 
     if (area_to_transition.GetComponent<BoundingBox2D>()->is_colliding)
     {

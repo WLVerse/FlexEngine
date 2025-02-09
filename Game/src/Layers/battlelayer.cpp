@@ -235,7 +235,7 @@ namespace Game
     // slots for the characters
     e = scene->CreateEntity("Drifter Slot 1");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(200, 200, 0) });
+    e.AddComponent<Position>({ Vector3(350, 500, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -244,7 +244,7 @@ namespace Game
 
     e = scene->CreateEntity("Drifter Slot 2");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(200, 300, 0) });
+    e.AddComponent<Position>({ Vector3(350, 300, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -253,7 +253,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 1");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 200, 0) });
+    e.AddComponent<Position>({ Vector3(1350, 600, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -262,7 +262,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 2");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 300, 0) });
+    e.AddComponent<Position>({ Vector3(1450, 500, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -271,7 +271,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 3");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 400, 0) });
+    e.AddComponent<Position>({ Vector3(1550, 400, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -280,7 +280,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 4");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 500, 0) });
+    e.AddComponent<Position>({ Vector3(1650, 300, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -289,7 +289,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 5");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 600, 0) });
+    e.AddComponent<Position>({ Vector3(1750, 200, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -301,19 +301,23 @@ namespace Game
   #pragma region Moves
 
     e = scene->CreateEntity("Move Accent");
+    e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(500, 300, 0) });
+    e.AddComponent<Position>({ Vector3(550, 440, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(170, 8, 0) });
+    e.GetComponent<Scale>()->scale *= 0.7f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Accent.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
     e = scene->CreateEntity("Move 1");
+    e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(700, 300, 0) });
+    e.AddComponent<Position>({ Vector3(600, 410, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
+    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
+    e.GetComponent<Scale>()->scale *= 0.8f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<BoundingBox2D>({});
     e.AddComponent<Button>({});
@@ -321,11 +325,13 @@ namespace Game
     e.AddComponent<MoveOneComponent>({});
 
     e = scene->CreateEntity("Move 2");
+    e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(700, 400, 0) });
+    e.AddComponent<Position>({ Vector3(600, 380, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
+    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
+    e.GetComponent<Scale>()->scale *= 0.8f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<BoundingBox2D>({});
     e.AddComponent<Button>({});
@@ -333,11 +339,13 @@ namespace Game
     e.AddComponent<MoveTwoComponent>({});
 
     e = scene->CreateEntity("Move 3");
+    e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(700, 500, 0) });
+    e.AddComponent<Position>({ Vector3(600, 350, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
+    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
+    e.GetComponent<Scale>()->scale *= 0.8f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<BoundingBox2D>({});
     e.AddComponent<Button>({});
@@ -345,10 +353,12 @@ namespace Game
     e.AddComponent<MoveThreeComponent>({});
 
     e = scene->CreateEntity("Move Description");
+    e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(900, 300, 0) });
+    e.AddComponent<Position>({ Vector3(870, 320, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(521, 237, 0) });
+    e.GetComponent<Scale>()->scale *= 0.7f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
@@ -358,25 +368,32 @@ namespace Game
 
     e = scene->CreateEntity("Speed bar left");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(400, 900, 0) });
+    e.AddComponent<Position>({ Vector3(480, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(-100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(-34, 24, 0) });
+    e.GetComponent<Scale>()->scale *= 0.7f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Accent_01.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
     e = scene->CreateEntity("Speed bar right");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1400, 900, 0) });
+    e.AddComponent<Position>({ Vector3(1420, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(34, 24, 0) });
+    e.GetComponent<Scale>()->scale *= 0.7f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Accent_01.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
+    // ease of use
+    float scale = 0.75f;
+    float offset = 130;
+
     e = scene->CreateEntity("Speed slot 1");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(600, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -385,9 +402,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 2");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(700, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 1, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -396,9 +414,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 3");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(800, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 2, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -407,9 +426,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 4");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(900, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 3, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -418,9 +438,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 5");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1000, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 4, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -429,9 +450,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 6");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1100, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 5, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -440,9 +462,10 @@ namespace Game
 
     e = scene->CreateEntity("Speed slot 7");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1200, 900, 0) });
+    e.AddComponent<Position>({ Vector3(560 + offset * 6, 970, 0) });
     e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
+    e.GetComponent<Scale>()->scale *= scale;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
     e.AddComponent<ZIndex>({ 1 });
     e.AddComponent<SpeedBarSlot>({});
@@ -488,23 +511,25 @@ namespace Game
     {
       e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
       e.AddComponent<Transform>({});
+      e.AddComponent<Character>({});
+      e.AddComponent<Drifter>({});
 
       // find the slot position
       e.AddComponent<Position>({ battle.slot_positions[character.current_slot] });
-
       e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(100, 100, 0) });
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
       switch (character.character_id)
       {
       case 1:
+        e.AddComponent<Scale>({ Vector3(236, 151, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 2:
+        e.AddComponent<Scale>({ Vector3(219, 114, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
@@ -512,40 +537,49 @@ namespace Game
         break;
       }
 
+      e.GetComponent<Scale>()->scale *= 2.0f;
       e.AddComponent<ZIndex>({ 25 });
     }
 
+    int index = 0;
     for (auto& character : battle.enemies)
     {
       e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
       e.AddComponent<Transform>({});
-      e.AddComponent<Position>({ battle.slot_positions[character.current_slot + 2] }); // offset by 2 for enemy slots
+      e.AddComponent<Character>({});
+      e.AddComponent<Enemy>({});
+
+      e.AddComponent<Position>({ battle.slot_positions[character.current_slot + 2] + Vector3(50, -70, 0) }
+      ); // offset by 2 for enemy slots, and offset the position
       e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(100, 100, 0) });
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
       switch (character.character_id)
       {
       case 3:
+        e.AddComponent<Scale>({ Vector3(87, 74, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 4:
+        e.AddComponent<Scale>({ Vector3(78, 72, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 5:
+        e.AddComponent<Scale>({ Vector3(72, 108, 0) });
         e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       }
 
-      e.AddComponent<ZIndex>({ 25 });
+      e.GetComponent<Scale>()->scale *= 2.0f;
+      e.AddComponent<ZIndex>({ 21 + index++ });
     }
 #pragma endregion
   }
@@ -559,37 +593,38 @@ namespace Game
     FlexECS::Scene::GetActiveScene()->GetEntityByName("Mockup").GetComponent<Transform>()->is_active =
       Input::GetKey(GLFW_KEY_SPACE);
 
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_1))
+    {
+      Vector2 mouse_position = Input::GetMousePosition();
+      Vector2 window_size =
+        Vector2(Application::GetCurrentWindow()->GetWidth(), Application::GetCurrentWindow()->GetHeight());
+      mouse_position.y = window_size.y - mouse_position.y;
+      Log::Warning("Position: " + std::to_string(mouse_position.x) + ", " + std::to_string(mouse_position.y));
+    }
+
     // start of the battle system
-    // 
+    //
     // Battle System Preparation
     // - return when playing animations (disable_input_timer > 0)
     // - get the current character from the speed bar
-    // 
+    //
     // AI Move
     // - if it's not the player's turn, do the AI move and skip the player input code
-    // 
+    //
     // Player Input
     // - if it's the player's turn, skip the AI move and check for input
     // - if the player has selected a target, check for input for the move
     // - if the player has selected a move, apply the move and update the speed
     // - play the animations and disable input for the duration of the move animation
-    // 
+    //
     // Resolve Game State
     // - resolve speed bar
-    // 
+    //
     // Update Displays
     // - update the targeting display
     // - update the speed bar display
-    // 
+    //
     // end of the battle system
-
-    // disable input if the timer is active
-    if (battle.disable_input_timer > 0.f)
-    {
-      battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-      return;
-    }
-
 
 #pragma region Battle System Preparation
 
@@ -601,6 +636,28 @@ namespace Game
     // determine if it's the player's turn
     // player is 1-2, enemy is 3-5
     battle.is_player_turn = (current_character->character_id <= 2);
+
+    // disable input if the timer is active
+    if (battle.disable_input_timer > 0.f)
+    {
+      battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      return;
+    }
+
+    // hide or display the move UI
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
+      entity.GetComponent<Transform>()->is_active = battle.is_player_turn;
+
+    // lock characters to their slots
+    for (auto character : battle.drifters)
+    {
+      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
+      entity.GetComponent<Position>()->position = battle.slot_positions[character.current_slot];
+    }
+    // offset current player character to the right a bit
+    if (battle.is_player_turn)
+      current_character_entity.GetComponent<Position>()->position.x += 100;
+
 
 #pragma endregion
 
@@ -645,6 +702,9 @@ namespace Game
         //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
         break;
       }
+      float animation_time =
+        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
+          .total_frame_time;
       current_character_animator.should_play = true;
       current_character_animator.is_looping = false;
       current_character_animator.return_to_default = true;
@@ -675,7 +735,7 @@ namespace Game
       // play sound
 
       // disable input for the duration of the move animation
-      battle.disable_input_timer = 1.f;
+      battle.disable_input_timer += animation_time + 1.f;
     }
 
 #pragma endregion
@@ -784,6 +844,9 @@ namespace Game
         battle.target = 0;
 
         // play the animation
+        float animation_time =
+          FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
+            .total_frame_time;
         current_character_animator.should_play = true;
         current_character_animator.is_looping = false;
         current_character_animator.return_to_default = true;
@@ -815,7 +878,7 @@ namespace Game
         // play sound
 
         // disable input for the duration of the move animation
-        battle.disable_input_timer = 1.f;
+        battle.disable_input_timer += animation_time + 1.f;
       }
     }
 
@@ -928,7 +991,6 @@ namespace Game
 #pragma endregion
 
 #pragma endregion
-
   }
 
 } // namespace Game

@@ -62,10 +62,11 @@ namespace Game
       if (animator.total_frames != asset_spritesheet.columns * asset_spritesheet.rows)
         animator.total_frames = asset_spritesheet.columns * asset_spritesheet.rows;
 
+      // TODO: debug why this is happening
+      if (animator.current_frame >= asset_spritesheet.frame_times.size()) animator.current_frame = 0;
+
       // get the current frame time
-      // TODO: read from the metadata
-      // animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
-      animator.current_frame_time = 0.200000f;
+      animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
 
       // handling of animations
       // move to the next frame
@@ -81,20 +82,17 @@ namespace Game
         {
           if (animator.current_frame >= animator.total_frames) animator.current_frame = 0;
         }
-        else
+        else if (animator.current_frame >= animator.total_frames)
         {
-          if (animator.current_frame >= animator.total_frames)
+          if (animator.return_to_default)
           {
-            if (animator.return_to_default)
-            {
-              animator.spritesheet_handle = animator.default_spritesheet_handle;
-              animator.is_looping = true;
-            }
-            else
-            {
-              animator.current_frame = animator.total_frames - 1;
-              animator.should_play = false;
-            }
+            animator.spritesheet_handle = animator.default_spritesheet_handle;
+            animator.is_looping = true;
+          }
+          else
+          {
+            animator.current_frame = animator.total_frames - 1;
+            animator.should_play = false;
           }
         }
       }

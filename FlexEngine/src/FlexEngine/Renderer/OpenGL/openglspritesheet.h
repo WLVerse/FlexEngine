@@ -1,9 +1,9 @@
 // WLVERSE [https://wlverse.web.app]
 // openglspritesheet.h
 //
-// The spritesheet helps to manage the texture coordinates of a spritesheet. 
+// The spritesheet helps to manage the texture coordinates of a spritesheet.
 // Simply provide the number of columns and rows in the spritesheet and the
-// spritesheet will calculate the UV coordinates for you. 
+// spritesheet will calculate the UV coordinates for you.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -33,6 +33,8 @@ namespace FlexEngine
       std::string texture = "";
       int columns = 1;
       int rows = 1;
+      std::vector<float> frame_times = { 1.f };
+      float total_frame_time = 1.f; // sum of all frame times
 
       Spritesheet(File& _metadata);
 
@@ -44,5 +46,5 @@ namespace FlexEngine
       UV GetUV(int sprite_index = 0) const;
     };
 
-  }
-}
+  } // namespace Asset
+} // namespace FlexEngine

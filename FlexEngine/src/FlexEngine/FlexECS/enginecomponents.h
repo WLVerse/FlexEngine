@@ -156,8 +156,8 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex default_spritesheet_handle;
     FlexECS::Scene::StringIndex spritesheet_handle;
+    FlexECS::Scene::StringIndex default_spritesheet_handle;
 
     bool should_play = true;
     bool is_looping = true;
@@ -330,6 +330,34 @@ namespace FlexEngine
   /**************
    * Gameplay
    **************/
+
+  class __FLX_API Character
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API Drifter
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API Enemy
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
 
 #pragma region Slot
 
