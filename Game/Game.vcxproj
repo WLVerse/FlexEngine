@@ -171,6 +171,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\townlayer.h" />
+    <ClInclude Include="src\Layers\winlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp" />
@@ -186,6 +187,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\townlayer.cpp" />
+    <ClCompile Include="src\Layers\winlayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

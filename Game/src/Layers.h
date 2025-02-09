@@ -15,3 +15,4 @@
 #include "Layers/renderinglayer.h"
 #include "Layers/scriptinglayer.h"
 #include "Layers/townlayer.h"
+#include "Layers/winlayer.h"
