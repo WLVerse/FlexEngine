@@ -5,9 +5,12 @@ namespace Game
 {
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v4.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v5.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
-
+    
+    // Trigger music to start
+    FlexECS::Scene::GetEntityByName("Main Menu BGM").GetComponent<Audio>()->should_play = true;
+    
     #pragma region Menu Spawns
     #if 0
     auto scene = FlexECS::Scene::CreateScene();
