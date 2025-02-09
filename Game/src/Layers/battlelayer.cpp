@@ -1143,36 +1143,31 @@ namespace Game
         current_character->current_selected_move = 1;
         std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
         description = current_character->move_one.description;
-
-        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y = 
-        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1").GetComponent<Position>()->position.y;
-
       }
       if (Input::GetKeyDown(GLFW_KEY_X))
       {
         current_character->current_selected_move = 2;
         std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
         description = current_character->move_two.description;
-        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y =
-        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2").GetComponent<Position>()->position.y;
       }
       if (Input::GetKeyDown(GLFW_KEY_C))
       {
         current_character->current_selected_move = 3;
         std::string& description = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text);
         description = current_character->move_three.description;
-        //FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position.y =
-        //  FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3").GetComponent<Position>()->position.y;
       }
+      
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = current_character->move_one.name;
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = current_character->move_two.name;
+      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = current_character->move_three.name;
 
-      //Write move names
-      std::string& move1 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
-      std::string& move2 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
-      std::string& move3 = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+      FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+      FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+      FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+      FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) = (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png") : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
 
-      move1 = current_character->move_one.name;
-      move2 = current_character->move_two.name;
-      move3 = current_character->move_three.name;
     }
 
     #pragma endregion
