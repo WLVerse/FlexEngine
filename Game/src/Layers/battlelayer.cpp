@@ -29,7 +29,7 @@ namespace Game
   struct _Character
   {
     std::string name;
-    int character_id; // 1-5
+    int character_id; // 1-5, determines the animations and sprites which are hardcoded
     int health;
     int speed;
     _Move move_one;
@@ -38,15 +38,24 @@ namespace Game
 
     int current_health;
     int current_speed;
+    int current_slot; // 0-6
   };
 
   struct _Battle
   {
-    std::vector<_Character> drifter_slots;
-    std::vector<_Character> enemy_slots;
+    std::vector<_Character> drifters;
+    std::vector<_Character> enemies;
     int boss_battle = 0; // 0 = false, 1-5 = true, pointing out which enemy slot is the boss
 
+    std::array<_Character*, 2> drifter_slots = { nullptr, nullptr };
+    std::array<_Character*, 5> enemy_slots = { nullptr, nullptr, nullptr, nullptr, nullptr };
     std::vector<_Character*> speed_bar;
+    int target = 0; // 1-5, pointing out which enemy slot is the target
+    std::array<Vector3, 7> slot_positions;
+
+    // game state
+    bool is_player_turn = true;
+    float disable_input_timer = 0.f;
   };
 
   _Battle battle;
@@ -55,11 +64,24 @@ namespace Game
   {
     // get the battle asset
     auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
+
+    // reserve the vectors
+    // pushing back will invalidate the pointers in the arrays
+    // TODO: this is a temporary solution
+    battle.drifters.reserve(asset.GetDrifterSlots().size() + 1);
+    battle.enemies.reserve(asset.GetEnemySlots().size() + 1);
+
     // parse the battle data
+    int index = 0;
     for (auto& slot : asset.GetDrifterSlots())
     {
       _Character character;
-      if (*slot == "None") continue;
+      if (*slot == "None")
+      {
+        battle.drifter_slots[index] = nullptr;
+        index++;
+        continue;
+      }
       auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
       character.name = character_asset.character_name;
       character.health = character_asset.health;
@@ -96,12 +118,23 @@ namespace Game
         character.move_three = move_three;
       }
 
-      battle.drifter_slots.push_back(character);
+      character.current_slot = index;
+
+      battle.drifters.push_back(character);
+      battle.drifter_slots[index] = &battle.drifters.back();
+      index++;
     }
+
+    index = 0;
     for (auto& slot : asset.GetEnemySlots())
     {
       _Character character;
-      if (*slot == "None") continue;
+      if (*slot == "None")
+      {
+        battle.enemy_slots[index] = nullptr;
+        index++;
+        continue;
+      }
       auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
       character.name = character_asset.character_name;
       character.health = character_asset.health;
@@ -138,8 +171,13 @@ namespace Game
         character.move_three = move_three;
       }
 
-      battle.enemy_slots.push_back(character);
+      character.current_slot = index;
+
+      battle.enemies.push_back(character);
+      battle.enemy_slots[index] = &battle.enemies.back();
+      index++;
     }
+
     battle.boss_battle = asset.boss_battle;
 
     // can't have empty drifter or enemy vector
@@ -149,46 +187,9 @@ namespace Game
 
 #pragma endregion
 
-#pragma region OOP Animation System
-
-  // always default to idle
-  // attack, hurt, and ult will return to idle
-  // death will stop on the last frame
-
-  struct AnimationData
-  {
-    FlexECS::Scene::StringIndex spritesheet_handle;
-    int frame_count;
-    float frame_time;
-    bool looping;
-  };
-
-  // Global animation storage (external to ECS)
-  // Converts animation data to ECS savable components
-  struct AnimationSystem
-  {
-    std::vector<AnimationData> animations;
-
-    int RegisterAnimation(FlexECS::Scene::StringIndex spritesheet, int frame_count, float frame_time, bool looping)
-    {
-      animations.push_back({ spritesheet, frame_count, frame_time, looping });
-      return animations.size() - 1; // Return animation index
-    }
-
-    const AnimationData* GetAnimation(int index) const
-    {
-      return (index >= 0 && index < animations.size()) ? &animations[index] : nullptr;
-    }
-  };
-
-  // Create animation system instance
-  AnimationSystem animation_system;
-
-
-#pragma endregion
-
   void BattleLayer::OnAttach()
   {
+
 #pragma region Scene Generation
 #if 1
 
@@ -238,10 +239,6 @@ namespace Game
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<Animator>(
-      { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
-        FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
-    );
     e.AddComponent<ZIndex>({ 30 });
     e.AddComponent<CharacterSlot>({ 1 });
 
@@ -462,11 +459,12 @@ namespace Game
 #pragma region Load Battle Data
 
     // load the battle
-    Internal_ParseBattle(R"(/data/demo.flxbattle)");
+    Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
     // init non-loaded values
-    for (auto& character : battle.drifter_slots) battle.speed_bar.push_back(&character);
-    for (auto& character : battle.enemy_slots) battle.speed_bar.push_back(&character);
+    // these values are used internally for the battle system and are not saved
+    for (auto& character : battle.drifters) battle.speed_bar.push_back(&character);
+    for (auto& character : battle.enemies) battle.speed_bar.push_back(&character);
 
     for (auto character : battle.speed_bar)
     {
@@ -474,35 +472,81 @@ namespace Game
       character->current_speed = character->speed;
     }
 
+    // cache the slot positions
+    // this is purely just so that the editor can actually position the slots
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
+    {
+      auto& character_slot = *entity.GetComponent<CharacterSlot>();
+      battle.slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+    }
+
     // create entities for the characters using the battle data
     // each drifter will have drifter, health, speed, and 3 moves
-    // each enemy will have enemy, health, speed, and 3 moves
+    // each enemy will have enemy, health, speed, and 2 moves
     // position is based on the slot number
-    // for (int i = 0; i < battle.drifter_slots.size(); i++)
-    //{
-    //  // get the location based on the slot
-    //  Vector3 position = {};
-    //  for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, CharacterSlot>())
-    //  {
-    //    auto& characterSlot = *entity.GetComponent<CharacterSlot>();
-    //    if (characterSlot.slot_number == i)
-    //    {
-    //      position = entity.GetComponent<Position>()->position;
-    //      break;
-    //    }
-    //  }
-    //
-    //
-    //}
+    for (auto& character : battle.drifters)
+    {
+      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
 
-#pragma endregion
+      // find the slot position
+      e.AddComponent<Position>({ battle.slot_positions[character.current_slot] });
 
-#pragma region Load Hardcoded Animator
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
-    // each loaded character will need one of these
-    // the animator will be updated in the update loop
+      switch (character.character_id)
+      {
+      case 1:
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 2:
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      }
 
+      e.AddComponent<ZIndex>({ 25 });
+    }
 
+    for (auto& character : battle.enemies)
+    {
+      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.slot_positions[character.current_slot + 2] }); // offset by 2 for enemy slots
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(100, 100, 0) });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
+
+      switch (character.character_id)
+      {
+      case 3:
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 4:
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 5:
+        e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
+                                   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      }
+
+      e.AddComponent<ZIndex>({ 25 });
+    }
 #pragma endregion
   }
 
@@ -515,57 +559,274 @@ namespace Game
     FlexECS::Scene::GetActiveScene()->GetEntityByName("Mockup").GetComponent<Transform>()->is_active =
       Input::GetKey(GLFW_KEY_SPACE);
 
-#pragma region Debug
+    // start of the battle system
+    // 
+    // Battle System Preparation
+    // - return when playing animations (disable_input_timer > 0)
+    // - get the current character from the speed bar
+    // 
+    // AI Move
+    // - if it's not the player's turn, do the AI move and skip the player input code
+    // 
+    // Player Input
+    // - if it's the player's turn, skip the AI move and check for input
+    // - if the player has selected a target, check for input for the move
+    // - if the player has selected a move, apply the move and update the speed
+    // - play the animations and disable input for the duration of the move animation
+    // 
+    // Resolve Game State
+    // - resolve speed bar
+    // 
+    // Update Displays
+    // - update the targeting display
+    // - update the speed bar display
+    // 
+    // end of the battle system
 
-    // print the speed bar
-    if (Input::GetKeyDown(GLFW_KEY_D))
+    // disable input if the timer is active
+    if (battle.disable_input_timer > 0.f)
     {
-      Log::Info("Speed Bar:");
-      for (auto character : battle.speed_bar)
-        Log::Debug(character->name + " - " + std::to_string(character->current_speed));
+      battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      return;
+    }
+
+
+#pragma region Battle System Preparation
+
+    // current active character
+    _Character* current_character = battle.speed_bar.front();
+    auto current_character_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(current_character->name);
+    auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
+
+    // determine if it's the player's turn
+    // player is 1-2, enemy is 3-5
+    battle.is_player_turn = (current_character->character_id <= 2);
+
+#pragma endregion
+
+
+#pragma region AI Move
+
+    // enemy AI
+    if (!battle.is_player_turn)
+    {
+      // randomly pick a target
+      _Character* target_character = nullptr;
+      while (target_character == nullptr) target_character = battle.drifter_slots[Range<int>(0, 1).Get()];
+
+      // randomly pick a move
+      // TODO: not yet
+      _Move* move = &current_character->move_one;
+
+      // apply the move
+      target_character->current_health -= move->damage;
+
+      // update the character's speed
+      current_character->current_speed += current_character->speed + move->speed;
+
+      // reset the target
+      battle.target = 0;
+
+      // play the animation
+#pragma region Animation
+
+      switch (current_character->character_id)
+      {
+      case 3:
+        current_character_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
+        break;
+      case 4:
+        current_character_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
+        break;
+      case 5:
+        // current_character_animator.spritesheet_handle =
+        //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+        break;
+      }
+      current_character_animator.should_play = true;
+      current_character_animator.is_looping = false;
+      current_character_animator.return_to_default = true;
+      current_character_animator.frame_time = 0.f;
+      current_character_animator.current_frame = 0;
+
+      auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
+      auto& target_animator = *target_entity.GetComponent<Animator>();
+      switch (target_character->character_id)
+      {
+      case 1:
+        target_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
+        break;
+      case 2:
+        target_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+        break;
+      }
+      target_animator.should_play = true;
+      target_animator.is_looping = false;
+      target_animator.return_to_default = true;
+      target_animator.frame_time = 0.f;
+      target_animator.current_frame = 0;
+
+#pragma endregion
+
+      // play sound
+
+      // disable input for the duration of the move animation
+      battle.disable_input_timer = 1.f;
     }
 
 #pragma endregion
 
-#pragma region Animation Tester
 
-    // when a button is pressed, change the animation state of the
-    if (Input::GetKeyDown(GLFW_KEY_U))
+#pragma region Player Input
+
+#pragma region Targeting
+
+    // TODO: support multi-targeting patterns
+    if (battle.is_player_turn)
     {
-      // get the entity
-      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Drifter Slot 1");
-      // get the animator component
-      auto& animator = *entity.GetComponent<Animator>();
+      if (Input::GetKeyDown(GLFW_KEY_1))
+        battle.target = 1;
+      else if (Input::GetKeyDown(GLFW_KEY_2))
+        battle.target = 2;
+      else if (Input::GetKeyDown(GLFW_KEY_3))
+        battle.target = 3;
+      else if (Input::GetKeyDown(GLFW_KEY_4))
+        battle.target = 4;
+      else if (Input::GetKeyDown(GLFW_KEY_5))
+        battle.target = 5;
 
-      // essentially update the animator for each animation
-      animator.spritesheet_handle =
-        FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-      animator.should_play = true;
-      animator.is_looping = false;
-      animator.return_to_default = true;
-      animator.frame_time = 0.f;
-      animator.current_frame = 0;
+      // if targeting nothing, untarget
+      if (battle.target != 0)
+        if (battle.enemy_slots[battle.target - 1] == nullptr) battle.target = 0;
     }
 
 #pragma endregion
 
-#pragma region Speed Bar Increment
+#pragma region Moves
 
-    // increment the speed bar
-    // this happens after clicking a move
-    if (Input::GetKeyDown(GLFW_KEY_G))
+    if (battle.is_player_turn && battle.target != 0)
     {
-      Log::Info("Speed Bar Increment");
+      _Move* current_move = nullptr;
 
-      // add the speed to the first character + a random value
-      battle.speed_bar[0]->current_speed += battle.speed_bar[0]->speed + Range<int>(20, 30).Get();
+      if (Input::GetKeyDown(GLFW_KEY_Z))
+      {
+        current_move = &current_character->move_one;
 
-      Log::Debug("New speed: " + std::to_string(battle.speed_bar[0]->current_speed));
+        switch (current_character->character_id)
+        {
+        case 1:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+          break;
+        case 2:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+          break;
+        }
+      }
+
+      if (Input::GetKeyDown(GLFW_KEY_X))
+      {
+        current_move = &current_character->move_two;
+
+        switch (current_character->character_id)
+        {
+        case 1:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+          break;
+        case 2:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+          break;
+        }
+      }
+
+      if (Input::GetKeyDown(GLFW_KEY_C))
+      {
+        current_move = &current_character->move_three;
+
+        switch (current_character->character_id)
+        {
+        case 1:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
+          break;
+        case 2:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+          break;
+        }
+      }
+
+      // if a move is selected, resolve the move
+      if (current_move != nullptr)
+      {
+        // get the target character
+        _Character* target_character = battle.enemy_slots[battle.target - 1];
+        if (target_character == nullptr)
+        {
+          Log::Error("Target not found.");
+          return;
+        }
+
+        // apply the move
+        target_character->current_health -= current_move->damage;
+
+        // update the character's speed
+        current_character->current_speed += current_character->speed + current_move->speed;
+
+        // reset the target
+        battle.target = 0;
+
+        // play the animation
+        current_character_animator.should_play = true;
+        current_character_animator.is_looping = false;
+        current_character_animator.return_to_default = true;
+        current_character_animator.frame_time = 0.f;
+        current_character_animator.current_frame = 0;
+
+        auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
+        auto& target_animator = *target_entity.GetComponent<Animator>();
+        switch (target_character->character_id)
+        {
+        case 3:
+          target_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+          break;
+        case 4:
+          target_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+          break;
+        case 5:
+          // special case, the screen will flash red
+          break;
+        }
+        target_animator.should_play = true;
+        target_animator.is_looping = false;
+        target_animator.return_to_default = true;
+        target_animator.frame_time = 0.f;
+        target_animator.current_frame = 0;
+
+        // play sound
+
+        // disable input for the duration of the move animation
+        battle.disable_input_timer = 1.f;
+      }
     }
 
 #pragma endregion
 
-#pragma region Speed Bar Sorting
+#pragma endregion
+
+
+#pragma region Resolve Game State
+
+#pragma region Speed Bar Resolution
 
     // sort the speed bar slots
     // 0 is the fastest so use < instead of >
@@ -576,10 +837,6 @@ namespace Game
         return a->current_speed < b->current_speed;
       }
     );
-
-#pragma endregion
-
-#pragma region Speed Bar Resolution
 
     // resolve the speed bar (just minus the speed by the value of the first character)
     int first_speed = battle.speed_bar[0]->current_speed;
@@ -595,6 +852,29 @@ namespace Game
         speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
       else
         speed_bar_slot.character = 0;
+    }
+
+#pragma endregion
+
+#pragma endregion
+
+
+#pragma region Update Displays
+
+#pragma region Targeting Display
+
+    // show the target
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
+    {
+      auto& transform = *entity.GetComponent<Transform>();
+      auto& character_slot = *entity.GetComponent<CharacterSlot>();
+
+      // +2 to offset the slot number to the enemy slots
+      // only target slots that have a character in them
+      if (battle.target != 0)
+        transform.is_active = (character_slot.slot_number == (battle.target + 2));
+      else
+        transform.is_active = false;
     }
 
 #pragma endregion
@@ -646,6 +926,9 @@ namespace Game
     }
 
 #pragma endregion
+
+#pragma endregion
+
   }
 
 } // namespace Game

@@ -16,8 +16,6 @@ public:
 
   void Update() override
   {
-    // click move one
-    if (Input::GetKey(GLFW_KEY_Z)) Log::Info("MoveOne clicked");
   }
 
   void OnMouseEnter() override

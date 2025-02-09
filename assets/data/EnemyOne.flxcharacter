@@ -1,7 +1,7 @@
-CharacterName: Jack
-CharacterID: 5
+CharacterName: EnemyOne
+CharacterID: 3
 Health: 100
-Speed: 30
+Speed: 20
 MoveOne: /data/AttackOne.flxmove
 MoveTwo: /data/AttackTwo.flxmove
 MoveThree: /data/AttackThree.flxmove
