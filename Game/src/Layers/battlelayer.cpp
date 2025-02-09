@@ -38,7 +38,7 @@ namespace Game
 
     int current_health;
     int current_speed;
-    int current_slot; // 0-6
+    int current_slot; // 0-4, 0-1 for drifters, 0-4 for enemies
   };
 
   struct _Battle
@@ -47,11 +47,14 @@ namespace Game
     std::vector<_Character> enemies;
     int boss_battle = 0; // 0 = false, 1-5 = true, pointing out which enemy slot is the boss
 
+    std::vector<_Character*> drifters_and_enemies = {};
     std::array<_Character*, 2> drifter_slots = { nullptr, nullptr };
     std::array<_Character*, 5> enemy_slots = { nullptr, nullptr, nullptr, nullptr, nullptr };
     std::vector<_Character*> speed_bar;
     int target = 0; // 1-5, pointing out which enemy slot is the target
-    std::array<Vector3, 7> slot_positions;
+    std::array<Vector3, 7> sprite_slot_positions;
+    // std::array<Vector3, 7> speedbar_slot_positions; // needed for animated speed bar
+    std::array<Vector3, 7> healthbar_slot_positions;
 
     // game state
     bool is_player_turn = true;
@@ -208,6 +211,8 @@ namespace Game
     Camera gameCamera({ WIDTH / 2.f, HEIGHT / 2.f, 0 }, (float)WIDTH, (float)HEIGHT, -2.0f, 2.0f);
     e.AddComponent<Camera>(gameCamera);
 
+    CameraManager::SetCamera(e, e.GetComponent<Camera>()); // set the camera as the main game camera
+
   #pragma region Backgrounds
 
     e = scene->CreateEntity("Mockup");
@@ -235,7 +240,7 @@ namespace Game
     // slots for the characters
     e = scene->CreateEntity("Drifter Slot 1");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(350, 500, 0) });
+    e.AddComponent<Position>({ Vector3(350, 550, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -253,7 +258,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 1");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1350, 600, 0) });
+    e.AddComponent<Position>({ Vector3(1250, 500, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -262,7 +267,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 2");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1450, 500, 0) });
+    e.AddComponent<Position>({ Vector3(1350, 450, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -271,7 +276,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 3");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1550, 400, 0) });
+    e.AddComponent<Position>({ Vector3(1450, 400, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -280,7 +285,7 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 4");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1650, 300, 0) });
+    e.AddComponent<Position>({ Vector3(1550, 300, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
@@ -289,12 +294,90 @@ namespace Game
 
     e = scene->CreateEntity("Enemy Slot 5");
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1750, 200, 0) });
+    e.AddComponent<Position>({ Vector3(1650, 200, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(100, 100, 0) });
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
     e.AddComponent<ZIndex>({ 30 });
     e.AddComponent<CharacterSlot>({ 7 });
+
+  #pragma endregion
+
+  #pragma region Healthbars
+
+    // hardcoded generation using offsets
+    // this can be edited in the editor
+    Vector3 healthbar_offset = Vector3(0, -100, 0);
+
+    e = scene->CreateEntity("Drifter Healthbar Slot 1");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(350, 550, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 1 });
+
+    e = scene->CreateEntity("Drifter Healthbar Slot 2");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(350, 300, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 2 });
+
+    e = scene->CreateEntity("Enemy Healthbar Slot 1");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(1250, 500, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 3 });
+
+    e = scene->CreateEntity("Enemy Healthbar Slot 2");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(1350, 450, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 4 });
+
+    e = scene->CreateEntity("Enemy Healthbar Slot 3");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(1450, 400, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 5 });
+
+    e = scene->CreateEntity("Enemy Healthbar Slot 4");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(1550, 300, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 6 });
+
+    e = scene->CreateEntity("Enemy Healthbar Slot 5");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(1650, 200, 0) + healthbar_offset });
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
+    e.GetComponent<Scale>()->scale *= 0.1f;
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
+    e.AddComponent<ZIndex>({ 31 });
+    e.AddComponent<HealthbarSlot>({ 7 });
 
   #pragma endregion
 
@@ -355,10 +438,10 @@ namespace Game
     e = scene->CreateEntity("Move Description");
     e.AddComponent<MoveUI>({});
     e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(870, 320, 0) });
+    e.AddComponent<Position>({ Vector3(910, 330, 0) });
     e.AddComponent<Rotation>({});
     e.AddComponent<Scale>({ Vector3(521, 237, 0) });
-    e.GetComponent<Scale>()->scale *= 0.7f;
+    e.GetComponent<Scale>()->scale *= 0.8f;
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
@@ -486,8 +569,16 @@ namespace Game
 
     // init non-loaded values
     // these values are used internally for the battle system and are not saved
-    for (auto& character : battle.drifters) battle.speed_bar.push_back(&character);
-    for (auto& character : battle.enemies) battle.speed_bar.push_back(&character);
+    for (auto& character : battle.drifters)
+    {
+      battle.drifters_and_enemies.push_back(&character);
+      battle.speed_bar.push_back(&character);
+    }
+    for (auto& character : battle.enemies)
+    {
+      battle.drifters_and_enemies.push_back(&character);
+      battle.speed_bar.push_back(&character);
+    }
 
     for (auto character : battle.speed_bar)
     {
@@ -500,13 +591,18 @@ namespace Game
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
     {
       auto& character_slot = *entity.GetComponent<CharacterSlot>();
-      battle.slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+      battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+    }
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
+    {
+      auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
+      battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
     }
 
     // create entities for the characters using the battle data
-    // each drifter will have drifter, health, speed, and 3 moves
-    // each enemy will have enemy, health, speed, and 2 moves
-    // position is based on the slot number
+    // note that the system doesn’t deal with duplicates
+    // dupes break the targetting system and anything that uses GetEntityByName
+    int index = 0;
     for (auto& character : battle.drifters)
     {
       e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
@@ -515,7 +611,7 @@ namespace Game
       e.AddComponent<Drifter>({});
 
       // find the slot position
-      e.AddComponent<Position>({ battle.slot_positions[character.current_slot] });
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
       e.AddComponent<Rotation>({});
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
@@ -538,10 +634,10 @@ namespace Game
       }
 
       e.GetComponent<Scale>()->scale *= 2.0f;
-      e.AddComponent<ZIndex>({ 25 });
+      e.AddComponent<ZIndex>({ 25 + index++ });
     }
 
-    int index = 0;
+    index = 0;
     for (auto& character : battle.enemies)
     {
       e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
@@ -549,7 +645,7 @@ namespace Game
       e.AddComponent<Character>({});
       e.AddComponent<Enemy>({});
 
-      e.AddComponent<Position>({ battle.slot_positions[character.current_slot + 2] + Vector3(50, -70, 0) }
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
       ); // offset by 2 for enemy slots, and offset the position
       e.AddComponent<Rotation>({});
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
@@ -581,6 +677,37 @@ namespace Game
       e.GetComponent<Scale>()->scale *= 2.0f;
       e.AddComponent<ZIndex>({ 21 + index++ });
     }
+
+    // create the healthbars
+    for (auto& character : battle.drifters)
+    {
+      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Healthbar>({});
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(1371, 54, 0) });
+      e.GetComponent<Scale>()->scale *= 0.1f;
+
+      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
+      e.AddComponent<ZIndex>({ 35 });
+    }
+    for (auto& character : battle.enemies)
+    {
+      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Healthbar>({});
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(1371, 54, 0) });
+      e.GetComponent<Scale>()->scale *= 0.1f;
+      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
+      e.AddComponent<ZIndex>({ 35 });
+    }
+
 #pragma endregion
   }
 
@@ -590,17 +717,10 @@ namespace Game
 
   void BattleLayer::Update()
   {
+#if 1
     FlexECS::Scene::GetActiveScene()->GetEntityByName("Mockup").GetComponent<Transform>()->is_active =
       Input::GetKey(GLFW_KEY_SPACE);
-
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_1))
-    {
-      Vector2 mouse_position = Input::GetMousePosition();
-      Vector2 window_size =
-        Vector2(Application::GetCurrentWindow()->GetWidth(), Application::GetCurrentWindow()->GetHeight());
-      mouse_position.y = window_size.y - mouse_position.y;
-      Log::Warning("Position: " + std::to_string(mouse_position.x) + ", " + std::to_string(mouse_position.y));
-    }
+#endif
 
     // start of the battle system
     //
@@ -641,6 +761,11 @@ namespace Game
     if (battle.disable_input_timer > 0.f)
     {
       battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+
+      // hide the move UI during the animation
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
+        entity.GetComponent<Transform>()->is_active = false;
+
       return;
     }
 
@@ -648,15 +773,17 @@ namespace Game
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
       entity.GetComponent<Transform>()->is_active = battle.is_player_turn;
 
+#if 0
     // lock characters to their slots
     for (auto character : battle.drifters)
     {
       auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
-      entity.GetComponent<Position>()->position = battle.slot_positions[character.current_slot];
+      entity.GetComponent<Position>()->position = battle.sprite_slot_positions[character.current_slot];
     }
     // offset current player character to the right a bit
     if (battle.is_player_turn)
       current_character_entity.GetComponent<Position>()->position.x += 100;
+#endif
 
 
 #pragma endregion
@@ -923,6 +1050,33 @@ namespace Game
 
 
 #pragma region Update Displays
+
+#pragma region Healthbar Display
+
+    // update the healthbar display
+    // loop through each healthbar and update the scale based on the current health
+    // there is the healthbarslot, the actual healthbar entity, and the character entity that are all needed
+    for (auto character : battle.drifters_and_enemies)
+    {
+      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Healthbar");
+
+      // guard
+      if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
+
+      // get the character's current health
+      float health_percentage = (float)character->current_health / (float)character->health;
+
+      // update the scale
+      entity.GetComponent<Scale>()->scale = entity.GetComponent<Healthbar>()->original_scale * health_percentage;
+
+      // update the position
+      // keep it left-aligned, it's centered by default
+      // entity.GetComponent<Position>()->position.x =
+      //  battle.healthbar_slot_positions[character->current_slot + (character->character_id < 2) ? 0 : 2].x +
+      //  (entity.GetComponent<Healthbar>()->original_scale.x - entity.GetComponent<Scale>()->scale.x) / 2;
+    }
+
+#pragma endregion
 
 #pragma region Targeting Display
 

@@ -352,6 +352,14 @@ namespace FlexEngine
   public:
   };
 
+  class __FLX_API Healthbar
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    Vector3 original_scale = Vector3::One;
+  };
+
   class __FLX_API MoveUI
   {
     FLX_REFL_SERIALIZABLE
@@ -362,6 +370,14 @@ namespace FlexEngine
 #pragma region Slot
 
   class __FLX_API CharacterSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7, 1-2 for player, 3-7 for enemy
+  };
+
+  class __FLX_API HealthbarSlot
   {
     FLX_REFL_SERIALIZABLE
 

@@ -35,7 +35,7 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<ScriptingLayer>());
 
 // Start with the menu layer
-#if 0
+#if 1
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
 #else

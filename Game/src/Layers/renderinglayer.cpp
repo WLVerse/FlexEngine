@@ -75,20 +75,29 @@ namespace Game
       // return to default and continue looping if return_to_default is true
       if (animator.frame_time >= animator.current_frame_time)
       {
-        animator.current_frame++;
-        animator.frame_time -= animator.current_frame_time;
-
-        if (animator.is_looping)
+        // skip frames if needed
+        while (animator.frame_time >= animator.current_frame_time)
         {
-          if (animator.current_frame >= animator.total_frames) animator.current_frame = 0;
+          animator.current_frame++;
+          animator.frame_time -= animator.current_frame_time;
         }
-        else if (animator.current_frame >= animator.total_frames)
+
+        // loop
+        if (animator.is_looping && animator.current_frame >= animator.total_frames)
         {
+          animator.current_frame = 0;
+        }
+
+        // not looping
+        if (!animator.is_looping && animator.current_frame >= animator.total_frames)
+        {
+          // return to default and continue looping
           if (animator.return_to_default)
           {
             animator.spritesheet_handle = animator.default_spritesheet_handle;
             animator.is_looping = true;
           }
+          // stop at the last frame
           else
           {
             animator.current_frame = animator.total_frames - 1;

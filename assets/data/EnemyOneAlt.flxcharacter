@@ -1,0 +1,7 @@
+CharacterName: EnemyOneAlt
+CharacterID: 3
+Health: 100
+Speed: 20
+MoveOne: /data/AttackOne.flxmove
+MoveTwo: /data/AttackTwo.flxmove
+MoveThree: /data/AttackThree.flxmove
