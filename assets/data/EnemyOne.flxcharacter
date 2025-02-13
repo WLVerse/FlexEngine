@@ -1,7 +1,7 @@
 CharacterName: EnemyOne
 CharacterID: 3
-Health: 20
-Speed: 10
-MoveOne: /data/Strike.flxmove
-MoveTwo: /data/Strike.flxmove
-MoveThree: /data/Strike.flxmove
+Health: 8
+Speed: 15
+MoveOne: /data/Warning_Shot.flxmove
+MoveTwo: /data/Rapid_Fire.flxmove
+MoveThree: /data/Rapid_Barrage.flxmove

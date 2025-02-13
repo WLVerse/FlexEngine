@@ -782,6 +782,20 @@ namespace Game
 
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
       e.AddComponent<ZIndex>({ 35 });
+
+      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(-30, -100, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+      e.AddComponent<ZIndex>({ 3 });
+      e.AddComponent<Text>({
+        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+        FLX_STRING_NEW(R"(Itches)"),
+        Vector3(1.0f, 1.0, 1.0f),
+        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+        {                            600,                              320 }
+      });
     }
     for (auto& character : battle.enemies)
     {
@@ -795,6 +809,20 @@ namespace Game
       e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
       e.AddComponent<ZIndex>({ 35 });
+
+      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-105, -100, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+      e.AddComponent<ZIndex>({ 3 });
+      e.AddComponent<Text>({
+        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+        FLX_STRING_NEW(R"(Itches)"),
+        Vector3(1.0f, 1.0, 1.0f),
+        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+        {                            600,                              320 }
+      });
     }
 
 #pragma endregion
@@ -927,10 +955,26 @@ namespace Game
 
       // randomly pick a move
       // TODO: not yet
+      int move_num = Range<int>(0, 2).Get();
+
       _Move* move = &current_character->move_one;
+
+      switch (move_num)
+      {
+      case 0:
+          move = &current_character->move_one;
+          break;
+      case 1:
+          move = &current_character->move_two;
+          break;
+      case 2:
+          move = &current_character->move_three;
+          break;
+      }
 
       // apply the move
       target_character->current_health -= move->damage;
+      target_character->current_speed += move->damage;
 
       // update the character's speed
       current_character->current_speed += current_character->speed + move->speed;
@@ -1123,6 +1167,7 @@ namespace Game
 
         // apply the move
         target_character->current_health -= current_move->damage;
+        target_character->current_speed += current_move->damage;
 
         // update the character's speed
         current_character->current_speed += current_character->speed + current_move->speed;
@@ -1375,6 +1420,17 @@ namespace Game
 
       // update the scale
       entity.GetComponent<Scale>()->scale = entity.GetComponent<Healthbar>()->original_scale * health_percentage;
+
+      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
+
+      // guard
+      if (!entity && !entity.HasComponent<Text>()) continue;
+
+      // get the character's current health
+      std::string stats = "HP: " + std::to_string(character->current_health) + " / " + std::to_string(character->health) + " , " + "SPD: " + std::to_string(character->current_speed);
+
+      // update the scale
+      entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
       // update the position
       // keep it left-aligned, it's centered by default

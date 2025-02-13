@@ -1,7 +1,7 @@
 CharacterName: EnemyTwo
 CharacterID: 4
-Health: 20
-Speed: 10
-MoveOne: /data/Strike.flxmove
-MoveTwo: /data/Strike.flxmove
-MoveThree: /data/Strike.flxmove
+Health: 14
+Speed: 20
+MoveOne: /data/Warning_Shot.flxmove
+MoveTwo: /data/Suppressing_Fire.flxmove
+MoveThree: /data/Suppressing_Barrage.flxmove
