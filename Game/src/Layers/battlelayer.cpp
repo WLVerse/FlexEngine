@@ -39,9 +39,11 @@ namespace Game
 
     int current_health = 0;
     int current_speed = 0;
-    int current_slot = 0;          // 0-4, 0-1 for drifters, 0-4 for enemies
+    int current_slot = 0;           // 0-4, 0-1 for drifters, 0-4 for enemies
     bool is_alive = true;
-    int current_selected_move = 0; // 0 no selection, 1 2 3 otherwise
+    _Move* selected_move = nullptr; // nullptr no selection, otherwise points to the move
+    int selected_move_index = 0;    // 0 no selection, 1 2 3 otherwise
+    int estimated_speed = 0;
   };
 
   struct _Battle
@@ -54,9 +56,9 @@ namespace Game
     std::array<_Character*, 2> drifter_slots = { nullptr, nullptr };
     std::array<_Character*, 5> enemy_slots = { nullptr, nullptr, nullptr, nullptr, nullptr };
     std::vector<_Character*> speed_bar = {};
-    int target = 0; // 1-5, pointing out which enemy slot is the target
+    int target = 0;                                      // 1-5, pointing out which enemy slot is the target
     std::array<Vector3, 7> sprite_slot_positions = {};
-    // std::array<Vector3, 7> speedbar_slot_positions; // needed for animated speed bar
+    std::array<Vector3, 7> speedbar_slot_positions = {}; // needed for animated speed bar
     std::array<Vector3, 7> healthbar_slot_positions = {};
 
     // game state
@@ -538,6 +540,16 @@ namespace Game
     e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Accent_01.png)") });
     e.AddComponent<ZIndex>({ 1 });
 
+    e = scene->CreateEntity("Speed bar preview");
+    e.AddComponent<Transform>({});
+    e.AddComponent<Position>({ Vector3(560, 970, 0) });
+    e.GetComponent<Position>()->position += Vector3(65, -70, 0);
+    e.AddComponent<Rotation>({});
+    e.AddComponent<Scale>({ Vector3(80, 65, 0) });
+    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Preview.png)") });
+    e.AddComponent<ZIndex>({ 2 });
+    e.AddComponent<SpeedBarPreview>({});
+
     // ease of use
     float scale = 0.75f;
     float offset = 130;
@@ -681,6 +693,11 @@ namespace Game
     {
       auto& character_slot = *entity.GetComponent<CharacterSlot>();
       battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+    }
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+    {
+      auto& speedbar_slot = *entity.GetComponent<SpeedBarSlot>();
+      battle.speedbar_slot_positions[speedbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
     }
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
     {
@@ -962,14 +979,14 @@ namespace Game
       switch (move_num)
       {
       case 0:
-          move = &current_character->move_one;
-          break;
+        move = &current_character->move_one;
+        break;
       case 1:
-          move = &current_character->move_two;
-          break;
+        move = &current_character->move_two;
+        break;
       case 2:
-          move = &current_character->move_three;
-          break;
+        move = &current_character->move_three;
+        break;
       }
 
       // apply the move
@@ -1080,11 +1097,11 @@ namespace Game
 #pragma region Moves
 
 
-    if (battle.is_player_turn && battle.target != 0 && current_character->current_selected_move > 0)
+    if (battle.is_player_turn && battle.target != 0 && current_character->selected_move_index > 0)
     {
       _Move* current_move = nullptr;
 
-      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1)
+      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->selected_move_index == 1)
       {
         current_move = &current_character->move_one;
 
@@ -1107,7 +1124,7 @@ namespace Game
         }
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
+      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->selected_move_index == 2)
       {
         current_move = &current_character->move_two;
 
@@ -1131,7 +1148,7 @@ namespace Game
       }
 
       // Ultimate move
-      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
+      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->selected_move_index == 3)
       {
         current_move = &current_character->move_three;
 
@@ -1211,7 +1228,7 @@ namespace Game
         battle.disable_input_timer += animation_time + 1.f;
 
         // Reset move selection, as well as description
-        current_character->current_selected_move = 0;
+        current_character->selected_move_index = 0;
         std::string& description = FLX_STRING_GET(
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
@@ -1232,7 +1249,8 @@ namespace Game
     {
       if (Input::GetKeyDown(GLFW_KEY_Z))
       {
-        current_character->current_selected_move = 1;
+        current_character->selected_move = &current_character->move_one;
+        current_character->selected_move_index = 1;
         std::string& description = FLX_STRING_GET(
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
@@ -1240,7 +1258,8 @@ namespace Game
       }
       if (Input::GetKeyDown(GLFW_KEY_X))
       {
-        current_character->current_selected_move = 2;
+        current_character->selected_move = &current_character->move_two;
+        current_character->selected_move_index = 2;
         std::string& description = FLX_STRING_GET(
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
@@ -1248,7 +1267,8 @@ namespace Game
       }
       if (Input::GetKeyDown(GLFW_KEY_C))
       {
-        current_character->current_selected_move = 3;
+        current_character->selected_move = &current_character->move_three;
+        current_character->selected_move_index = 3;
         std::string& description = FLX_STRING_GET(
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
@@ -1266,14 +1286,20 @@ namespace Game
       FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
       FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
       FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (current_character->selected_move_index == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                      : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
       FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (current_character->selected_move_index == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                      : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
       FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (current_character->selected_move_index == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+                                                      : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+
+      // estimate the current character's speed
+      if (current_character->selected_move != nullptr && current_character->selected_move_index > 0)
+        current_character->estimated_speed = current_character->speed + current_character->selected_move->speed;
+      else
+        current_character->estimated_speed = 0;
     }
 
 #pragma endregion
@@ -1427,7 +1453,9 @@ namespace Game
       if (!entity && !entity.HasComponent<Text>()) continue;
 
       // get the character's current health
-      std::string stats = "HP: " + std::to_string(character->current_health) + " / " + std::to_string(character->health) + " , " + "SPD: " + std::to_string(character->current_speed);
+      std::string stats = "HP: " + std::to_string(character->current_health) + " / " +
+                          std::to_string(character->health) + " , " +
+                          "SPD: " + std::to_string(character->current_speed);
 
       // update the scale
       entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
@@ -1504,6 +1532,49 @@ namespace Game
         break;
       }
     }
+
+#pragma endregion
+
+#pragma region Speed Bar Preview Display
+
+    // move the preview sprite to the estimated location
+    // if move selected, calculate the position based on the speed
+    // then move the preview sprite to that location
+    // offset 65, -70
+    for (FlexECS::Entity& entity :
+          FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Position, SpeedBarPreview>())
+    {
+      auto& transform = *entity.GetComponent<Transform>();
+      auto& position = entity.GetComponent<Position>()->position;
+
+      // early out
+      if (!battle.is_player_turn || current_character == nullptr ||
+          current_character->selected_move_index <= 0 || current_character->estimated_speed <= 0)
+      {
+        transform.is_active = false;
+        continue;
+      }
+
+      // get the estimated position in the array based on the current character's estimated speed
+      int estimated_index = 0;
+      for (int i = 0; i < battle.speed_bar.size(); i++)
+      {
+        if (battle.speed_bar[i]->current_speed > current_character->estimated_speed)
+        {
+          estimated_index = i;
+          break;
+        }
+      }
+
+      // with the index, get the position
+      if (estimated_index >= 0 && estimated_index < battle.speed_bar.size())
+      {
+        position = battle.speedbar_slot_positions[estimated_index];
+        position += Vector3(65, -70, 0); // offset
+        transform.is_active = true;
+      }
+    }
+
 
 #pragma endregion
 

@@ -367,6 +367,13 @@ namespace FlexEngine
   public:
   };
 
+  class __FLX_API SpeedBarPreview
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
 #pragma region Slot
 
   class __FLX_API CharacterSlot
