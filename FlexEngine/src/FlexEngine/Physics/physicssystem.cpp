@@ -35,13 +35,29 @@ namespace FlexEngine
 	******************************************************************************/
 	void PhysicsSystem::RecomputeBounds(FlexECS::Entity entity)
 	{
-		auto& position = entity.GetComponent<Position>()->position;
-		auto& scale = entity.GetComponent<Scale>()->scale;
-		auto& size = entity.GetComponent<BoundingBox2D>()->size;
-		entity.GetComponent<BoundingBox2D>()->max.x = position.x + scale.x / 2 * size.x;
-		entity.GetComponent<BoundingBox2D>()->max.y = position.y + scale.y / 2 * size.y;
-		entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x;
-		entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
+		if (entity.HasComponent<Sprite>())
+		{
+			// Need to take into account the model scaling, which can be obtained from sprite
+			auto& sprite_scale = entity.GetComponent<Sprite>()->model_matrix;
+      auto& position = entity.GetComponent<Position>()->position;
+      auto& scale = entity.GetComponent<Scale>()->scale;
+      auto& size = entity.GetComponent<BoundingBox2D>()->size;
+
+      entity.GetComponent<BoundingBox2D>()->max.x = position.x + scale.x / 2 * size.x * sprite_scale[0];
+      entity.GetComponent<BoundingBox2D>()->max.y = position.y + scale.y / 2 * size.y * sprite_scale[5];
+      entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x * sprite_scale[0];
+      entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y * sprite_scale[5];
+		}
+		else
+		{
+			auto& position = entity.GetComponent<Position>()->position;
+			auto& scale = entity.GetComponent<Scale>()->scale;
+			auto& size = entity.GetComponent<BoundingBox2D>()->size;
+			entity.GetComponent<BoundingBox2D>()->max.x = position.x + scale.x / 2 * size.x;
+			entity.GetComponent<BoundingBox2D>()->max.y = position.y + scale.y / 2 * size.y;
+			entity.GetComponent<BoundingBox2D>()->min.x = position.x - scale.x / 2 * size.x;
+			entity.GetComponent<BoundingBox2D>()->min.y = position.y - scale.y / 2 * size.y;
+		}
 	}
 
 
@@ -115,7 +131,7 @@ namespace FlexEngine
 			
 				bb.is_mouse_over = mouse_world_pos.x > min.x && mouse_world_pos.x < max.x && 
 													 mouse_world_pos.y > min.y && mouse_world_pos.y < max.y;
-    }
+			}
 		}
 
 
