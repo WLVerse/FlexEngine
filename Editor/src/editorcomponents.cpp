@@ -32,7 +32,7 @@ namespace Editor
   {
     if (entity.HasComponent<Audio>()) return;
 
-    entity.AddComponent<Audio>({ false, false, false, false, FLX_STRING_NEW("") });
+    entity.AddComponent<Audio>({ FLX_STRING_NEW(""), false, false, false, false});
   }
   void COMPONENT_REMOVER_Audio(FlexEngine::FlexECS::Entity entity)
   {

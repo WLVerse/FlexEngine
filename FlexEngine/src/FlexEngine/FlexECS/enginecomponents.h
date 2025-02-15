@@ -119,11 +119,11 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    bool should_play;
-    bool should_stop;
-    bool is_looping;
+    FlexECS::Scene::StringIndex audio_file = FLX_STRING_NEW("");
+    bool should_play = true;
+    bool should_stop = false;
+    bool is_looping = false;
     bool change_mode = false; // For tagging to flip
-    FlexECS::Scene::StringIndex audio_file;
   };
 
   /*!***************************************************************************

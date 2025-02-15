@@ -64,7 +64,7 @@ namespace Editor
                   { 1, 1, 1 }
                 });
                 entity.AddComponent<Transform>({});
-                entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/generic attack.mp3)") });
+                entity.AddComponent<Audio>({ FLX_STRING_NEW(R"(/audio/generic attack.mp3)")});
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
                 entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"), true, 0.f });
                 entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
