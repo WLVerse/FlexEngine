@@ -3,13 +3,13 @@
 //
 // The asset manager will look through the entire directory of assets, parse
 // everything and assign it to a umap. (Basically the File Manager and File List
-// already does this) 
-// 
+// already does this)
+//
 // A mesh component will simply hold the key (in this case the file path) and
-// perform a lookup everytime it needs it. 
-// 
+// perform a lookup everytime it needs it.
+//
 // The key is specifically the relative path to the asset from the default
-// directory. This is to ensure that the asset manager can easily find the asset. 
+// directory. This is to ensure that the asset manager can easily find the asset.
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
@@ -21,7 +21,7 @@
 
 #include "assetmanager.h"
 
-//#include "Utilities/assimp.h"
+// #include "Utilities/assimp.h"
 
 namespace FlexEngine
 {
@@ -29,7 +29,6 @@ namespace FlexEngine
   // static member initialization
   Path AssetManager::default_directory = Path::current("assets");
   std::unordered_map<AssetKey, AssetVariant> AssetManager::assets;
-
 
   AssetKey AssetManager::AddTexture(const std::string& assetkey, const Asset::Texture& texture)
   {
@@ -42,7 +41,8 @@ namespace FlexEngine
       Log::Warning(
         "The internal texture already exists. "
         "Instead of creating a new one, we reuse the one that already exists. "
-        "Asset key: " + std::string(key)
+        "Asset key: " +
+        std::string(key)
       );
       return key;
     }
@@ -78,7 +78,7 @@ namespace FlexEngine
     // .glsl and .hlsl files are currently not supported
     // but in the future they will skip this linker because
     // they contain all the necessary information in one file
-    //std::unordered_map<std::string, std::array<File*, 3>> shader_linker;
+    // std::unordered_map<std::string, std::array<File*, 3>> shader_linker;
 
     Log::Flow("Loading assets...");
     // iterate through all files in the directory
@@ -86,33 +86,33 @@ namespace FlexEngine
       [&default_directory_length](File& file)
       {
         // determine what type of asset it is
-        // 
+        //
         // currently supported:
         // - textures
         // - spritesheets
         // - shaders
         // - models
+        // - sounds
+        // - fonts
+        // - battles
+        // - characters
+        // - moves
 
         auto file_extension = file.path.extension();
 
-        if (
-          file_extension.string() == ".jpg" ||
-          file_extension.string() == ".jpeg" ||
-          file_extension.string() == ".png"
-        )
+        if (file_extension.string() == ".jpg" || file_extension.string() == ".jpeg" ||
+            file_extension.string() == ".png")
         {
           // create an asset key
           AssetKey key = file.path.string().substr(default_directory_length);
-          
+
           // load texture
           assets.emplace(key, Asset::Texture());
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
           texture.Load(file.path);
           Log::Info("Loaded texture: " + key);
         }
-        else if (
-          file_extension.string() == ".flxshader"
-        )
+        else if (file_extension.string() == ".flxshader")
         {
           // create an asset key
           AssetKey key = file.path.string().substr(default_directory_length);
@@ -123,7 +123,7 @@ namespace FlexEngine
           shader.Load(file.path);
           Log::Info("Loaded shader: " + key);
         }
-        else if (file_extension.string() == ".mp3")
+        else if (file_extension.string() == ".mp3" || file_extension.string() == ".wav")
         {
           FLX_FLOW_BEGINSCOPE();
           AssetKey key = file.path.string().substr(default_directory_length);
@@ -148,6 +148,31 @@ namespace FlexEngine
           assets.emplace(key, Asset::Spritesheet(file));
           Log::Info("Loaded spritesheet: " + key);
         }
+        else if (file_extension.string() == ".flxbattle")
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load battle
+          assets.emplace(key, Asset::Battle(file));
+          Log::Info("Loaded battle: " + key);
+        }
+        else if (file_extension.string() == ".flxcharacter")
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load character
+          assets.emplace(key, Asset::Character(file));
+          Log::Info("Loaded character: " + key);
+        }
+        else if (file_extension.string() == ".flxmove")
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load move
+          assets.emplace(key, Asset::Move(file));
+          Log::Info("Loaded move: " + key);
+        }
+        else { Log::Warning("Unsupported file type: " + file.path.string()); }
       }
     );
 
@@ -165,19 +190,14 @@ namespace FlexEngine
         {
           using T = std::decay_t<decltype(arg)>;
           if constexpr (std::is_same_v<T, Asset::Texture>)
-          {
             arg.Unload();
-          }
           else if constexpr (std::is_same_v<T, Asset::Shader>)
-          {
             arg.Destroy();
-          }
         },
         asset
       );
     }
   }
-
 
   AssetVariant* AssetManager::Internal_Get(AssetKey key)
   {
@@ -187,7 +207,6 @@ namespace FlexEngine
     if (assets.count(key) == 0) return nullptr;
     return &assets[key];
   }
-
 
   Path AssetManager::DefaultDirectory()
   {
@@ -224,5 +243,4 @@ namespace FlexEngine
     Log::Debug("End of dump.");
   }
 #endif
-
-}
+} // namespace FlexEngine

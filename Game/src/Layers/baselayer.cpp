@@ -7,7 +7,7 @@ namespace Game
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
   std::shared_ptr<TownLayer> townLayer = nullptr;
-  //std::shared_ptr<BattleLayer> battleLayer = nullptr;
+  std::shared_ptr<BattleLayer> battleLayer = nullptr;
 
   std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
 
@@ -35,7 +35,7 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<ScriptingLayer>());
 
 // Start with the menu layer
-#if 1
+#if 0
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
 #else
@@ -60,12 +60,10 @@ namespace Game
     if (Application::MessagingSystem::Receive<bool>("Start Cutscene") && menuLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", menuLayer);
-      // camSystemLayer->UnregisterCams();
       menuLayer = nullptr;
 
       cutsceneLayer = std::make_shared<CutsceneLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", cutsceneLayer);
-      // camSystemLayer->RegisterCams();
     }
 
     // Test to switch to town layer
@@ -80,26 +78,23 @@ namespace Game
     }
 
     // Town to Battle layer
-    //if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
-    //{
-    //  FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
-    //  // camSystemLayer->UnregisterCams();
-    //  townLayer = nullptr;
+    if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+      townLayer = nullptr;
 
-    //  battleLayer = std::make_shared<BattleLayer>();
-    //  FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
-    //}
+      battleLayer = std::make_shared<BattleLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
+    }
 
     // Battle to menu layer
-    //if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && battleLayer != nullptr)
-    //{
-    //  FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
-    //  // camSystemLayer->UnregisterCams();
-    //  battleLayer = nullptr;
+    if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && battleLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+      battleLayer = nullptr;
 
-    //  menuLayer = std::make_shared<MenuLayer>();
-    //  FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
-    //  // camSystemLayer->RegisterCams();
-    //}
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
   }
 } // namespace Game

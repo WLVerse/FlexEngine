@@ -22,6 +22,9 @@
     <ClCompile Include="src\camerahandler.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\menubutton.cpp" />
+    <ClCompile Include="src\moveone.cpp" />
+    <ClCompile Include="src\movethree.cpp" />
+    <ClCompile Include="src\movetwo.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
     <ClCompile Include="src\playermovement.cpp" />
     <ClCompile Include="src\testbutton.cpp" />
