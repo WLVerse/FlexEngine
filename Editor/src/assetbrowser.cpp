@@ -74,11 +74,12 @@ namespace Editor
 	void AssetBrowser::AddToDirectoryStructure(const std::filesystem::path& entry)
 	{
 		auto relative_path = std::filesystem::relative(entry, m_root_directory);
+		relative_path = relative_path;
 		auto parent_path = relative_path.parent_path();
 
 		if (relative_path.extension().string() == ".ttf")
 		{
-			m_font_paths.insert({ relative_path.filename().string(), "/" + relative_path.string() });
+			m_font_paths.insert({ relative_path.filename().string(), "/" + relative_path.generic_string()});
 		}
 
 		Folder* current_folder = nullptr;
@@ -230,8 +231,8 @@ namespace Editor
 				//Drag and drop assets
 				if (ImGui::BeginDragDropSource())
 				{
-					std::string payload(file.string());
-					payload.insert(0, "\\");	//to fit the AssetKey format
+					std::string payload(file.generic_string());
+					payload.insert(0, "/");	//to fit the AssetKey format
 					std::string extension = file.extension().string();
 					//hardcode for now
 					if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
