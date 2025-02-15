@@ -15,6 +15,8 @@
 
 #include "FlexEngine.h"
 #include "editorpanel.h"
+#include <unordered_map>
+#include <string>
 
 namespace Editor
 {
@@ -41,7 +43,7 @@ namespace Editor
 		void EditorUI();
 		void Shutdown();
 
-		const std::vector<std::string>& GetLoadedFontsList() const { return m_font_paths; }
+		const std::unordered_map<std::string, std::string>& GetLoadedFontsList() const;
 
 	private:
 		/*!***************************************************************************
@@ -95,8 +97,7 @@ namespace Editor
 
 		//Additional tracking of certain file types
 		//For things such as font dropdown menus.
-		std::vector<std::string> m_font_paths;
-
+		std::unordered_map<std::string, std::string> m_font_paths;
 	};
 
 

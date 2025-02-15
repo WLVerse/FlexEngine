@@ -44,6 +44,11 @@ namespace Editor
 		m_directories.clear();
 	}
 
+	const std::unordered_map<std::string, std::string>& AssetBrowser::GetLoadedFontsList() const
+	{
+		return m_font_paths;
+	}
+
 	void AssetBrowser::LoadAllDirectories()
 	{
 		m_root_folder.files.clear(); 
@@ -73,7 +78,7 @@ namespace Editor
 
 		if (relative_path.extension().string() == ".ttf")
 		{
-			m_font_paths.push_back("\\" + relative_path.string());
+			m_font_paths.insert({ relative_path.filename().string(), "/" + relative_path.string() });
 		}
 
 		Folder* current_folder = nullptr;

@@ -283,50 +283,47 @@ namespace Editor
 		PopID();
 	}
 
-	#if 0
 	void EditorGUI::FontPath(std::string& path, std::string title)
 	{
 		PushID();
-		std::filesystem::path current_texture = path;
-		std::string filename = current_texture.filename().string();
+		std::filesystem::path current_font = path;
+		std::string filename = current_font.filename().string();
 		if (filename == "") filename = "(no font)";
-		//default "\fonts\Bangers\Bangers-Regular.ttf"
 		ImGui::Text(title.c_str());
 		ImGui::SameLine();
 
-		ImGui::Button(filename.c_str());
 
-		if (const char* data = StartPayloadReceiver<const char>(PayloadTags::FONT))
-		{
-			std::string new_file_path(data);
-			path = new_file_path;
-			EndPayloadReceiver();
-		}
-		ImGui::SameLine();
+		const std::unordered_map<std::string, std::string>& saved_fonts = Editor::GetInstance().GetPanel<AssetBrowser>()->GetLoadedFontsList();
+		std::vector<std::string> font_names;
+		std::vector<const char*> font_ptrs;
+		font_names.reserve(saved_fonts.size());
+		font_ptrs.reserve(saved_fonts.size());
 
-		// Tiny circle button for Unity-style dropdown trigger
-		if (ImGui::Button("v"))
+		int current_font_index = 0; // Index of selected item
+		int i = 0;
+		for (const auto& pair : saved_fonts)
 		{
-			ImGui::OpenPopup("FontDropdown");
-		}
-
-		// Dropdown menu content
-		if (ImGui::BeginPopup("FontDropdown"))
-		{
-			for (const std::string& font : static_cast<AssetBrowser*>(Editor::GetInstance().GetPanel("AssetBrowser"))->GetLoadedFontsList())
+			font_names.push_back(pair.first);  // Store keys as std::string
+			if (filename == pair.first)
 			{
-				if (ImGui::Selectable(font.c_str()))
-				{
-					path = font; // Update the path with the selected font
-					ImGui::CloseCurrentPopup(); // Close the dropdown after selection
-				}
+				current_font_index = i;
 			}
-			ImGui::EndPopup();
+			++i;
+		}
+		for (const auto& key : font_names)
+		{
+			font_ptrs.push_back(key.c_str());  // Store const char* pointers
+		}
+
+
+		if (ImGui::Combo("", &current_font_index, font_ptrs.data(), static_cast<int>(font_ptrs.size())))
+		{
+			// Action when selection changes
+			path = saved_fonts.at(font_names[current_font_index]);
 		}
 
 		PopID();
 	}
-	#endif
 
 	void EditorGUI::Color3(Vector3& data, std::string title)
 	{
@@ -388,6 +385,31 @@ namespace Editor
 		}
 		ImGui::PopItemWidth();
 
+		PopID();
+	}
+
+	void EditorGUI::TextAlignment(std::pair<int, int>& alignment)
+	{
+		PushID();
+
+		const char* h_options[] = { "Center", "Left", "Right" };
+		const char* v_options[] = { "Middle", "Top", "Bottom" };
+		int h = alignment.first;
+		int v = alignment.second;
+
+		ImGui::Text("AlignmentX");
+		ImGui::SameLine();
+		if (ImGui::Combo("##FontAlignmentH", &h, h_options, IM_ARRAYSIZE(h_options)))
+		{
+			alignment.first = h;
+		}		
+
+		ImGui::Text("AlignmentY");
+		ImGui::SameLine();
+		if (ImGui::Combo("##FontAlignmentV", &v, v_options, IM_ARRAYSIZE(v_options)))
+		{
+			alignment.second = v;
+		}
 		PopID();
 	}
 

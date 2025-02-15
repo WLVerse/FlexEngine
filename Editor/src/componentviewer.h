@@ -201,6 +201,9 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	#define COMPONENT_VIEWER_MAT44(name) \
 	EditorGUI::Mat44(entity.GetComponent<T>()->name, #name);
 
+	#define COMPONENT_VIEWER_TEXT_ALIGNMENT(name) \
+	EditorGUI::TextAlignment(entity.GetComponent<T>()->name);
+
 #pragma endregion
 
 

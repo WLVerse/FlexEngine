@@ -17,6 +17,8 @@
 #include "editor.h"
 #include "imguipayloads.h"
 #include "imgui_internal.h"
+#include <utility>
+
 namespace Editor
 {
 
@@ -76,6 +78,8 @@ namespace Editor
 
 		static void Mat44(FlexEngine::Matrix4x4& data, std::string title = "");
 
+		static void TextAlignment(std::pair<int, int>& alignment);
+
 		/*!***************************************************************************
 		* @brief PATH type viewers
 		* Basically stores the key to the asset in the asset manager.
@@ -90,6 +94,8 @@ namespace Editor
     static void AudioPath(std::string& path, std::string title = "Audio");
 
 		static void FontPath(std::string& path, std::string title = "Font");	//Change to a dropdown box of fonts in the future
+
+		static void FontDropdown(std::string& path, std::string title = "Font");
 
 		static void SpritesheetPath(std::string& path, std::string title = "Spritesheet");
 

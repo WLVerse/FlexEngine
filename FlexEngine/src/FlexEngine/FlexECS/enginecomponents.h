@@ -250,10 +250,9 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex fonttype = FLX_STRING_NEW(R"(\fonts\Electrolize\Electrolize-Regular.ttf)");
+    FlexECS::Scene::StringIndex fonttype = FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
     FlexECS::Scene::StringIndex text = FLX_STRING_NEW("Default Text");
     Vector3 color = Vector3::One;
-    // border color, border size, underline, etc
     std::pair<int, int> alignment = std::make_pair(1, 1); // Default value: centered (all bits set)
     Vector2 textboxDimensions = Vector2(850.0f, 300.0f);
   };
