@@ -206,447 +206,10 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-#pragma region Scene Generation
-#if 1
+    File& file = File::Open(Path::current("assets/saves/mewhenibattle.flxscene"));
+    FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
-    auto scene = FlexECS::Scene::CreateScene();
-    FlexECS::Scene::SetActiveScene(scene);
-    FlexECS::Entity e = FlexECS::Entity::Null;
-
-  #define WIDTH Application::GetCurrentWindow()->GetWidth()
-  #define HEIGHT Application::GetCurrentWindow()->GetHeight()
-
-    main_camera = scene->CreateEntity("Camera");
-    main_camera.AddComponent<Transform>({});
-    main_camera.AddComponent<Position>({});
-    main_camera.AddComponent<Rotation>({});
-    main_camera.AddComponent<Scale>({});
-    Camera gameCamera({ WIDTH / 2.f, HEIGHT / 2.f, 0 }, (float)WIDTH, (float)HEIGHT, -2.0f, 2.0f);
-    main_camera.AddComponent<Camera>(gameCamera);
-
-    CameraManager::SetMainGameCameraID(main_camera);
-
-  #pragma region Backgrounds
-
-  #if 0
-    e = scene->CreateEntity("Mockup");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(WIDTH / 2.f, HEIGHT / 2.f, 0.0f) });
-    e.AddComponent<Rotation>({ Vector3(0.f, 0.f, 0.f) });
-    e.AddComponent<Scale>({ Vector3((float)WIDTH, (float)HEIGHT, 0.0f) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle UI_04_Revamp_05.png)"), -1 });
-    e.GetComponent<Sprite>()->center_aligned = true;
-    e.AddComponent<ZIndex>({ 0 });
-  #endif
-
-    e = scene->CreateEntity("Background");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(WIDTH / 2.f, HEIGHT / 2.f, 0.0f) });
-    e.AddComponent<Rotation>({ Vector3(0.f, 0.f, 0.f) });
-    e.AddComponent<Scale>({ Vector3::One });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Background_Final.jpg)"), -1 });
-    e.GetComponent<Sprite>()->center_aligned = true;
-    e.AddComponent<ZIndex>({ 0 });
-
-  #pragma endregion
-
-  #pragma region Character Slots
-
-    // slots for the characters
-    e = scene->CreateEntity("Drifter Slot 1");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(350, 550, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3::One  });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 1 });
-
-    e = scene->CreateEntity("Drifter Slot 2");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(350, 300, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 2 });
-
-    e = scene->CreateEntity("Enemy Slot 1");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1250, 500, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 3 });
-
-    e = scene->CreateEntity("Enemy Slot 2");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1350, 450, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 4 });
-
-    e = scene->CreateEntity("Enemy Slot 3");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1450, 400, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 5 });
-
-    e = scene->CreateEntity("Enemy Slot 4");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1550, 300, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 6 });
-
-    e = scene->CreateEntity("Enemy Slot 5");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1650, 200, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(100, 100, 0) });
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Indicator_Enemy.png)") });
-    e.AddComponent<ZIndex>({ 30 });
-    e.AddComponent<CharacterSlot>({ 7 });
-
-  #pragma endregion
-
-  #pragma region Healthbars
-
-    // hardcoded generation using offsets
-    // this can be edited in the editor
-    Vector3 healthbar_offset = Vector3(0, -100, 0);
-
-    e = scene->CreateEntity("Drifter Healthbar Slot 1");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(350, 550, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 1 });
-
-    e = scene->CreateEntity("Drifter Healthbar Slot 2");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(350, 300, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 2 });
-
-    e = scene->CreateEntity("Enemy Healthbar Slot 1");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1250, 500, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 3 });
-
-    e = scene->CreateEntity("Enemy Healthbar Slot 2");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1350, 450, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 4 });
-
-    e = scene->CreateEntity("Enemy Healthbar Slot 3");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1450, 400, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 5 });
-
-    e = scene->CreateEntity("Enemy Healthbar Slot 4");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1550, 300, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 6 });
-
-    e = scene->CreateEntity("Enemy Healthbar Slot 5");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1650, 200, 0) + healthbar_offset });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(1397, 76, 0) });
-    e.GetComponent<Scale>()->scale *= 0.1f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Black.png)") });
-    e.AddComponent<ZIndex>({ 31 });
-    e.AddComponent<HealthbarSlot>({ 7 });
-
-  #pragma endregion
-
-  #pragma region Moves
-
-    e = scene->CreateEntity("Move Accent");
-    e.AddComponent<MoveUI>({});
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(550, 440, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(170, 8, 0) });
-    e.GetComponent<Scale>()->scale *= 0.7f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Accent.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-
-    e = scene->CreateEntity("Move 1");
-    e.AddComponent<MoveUI>({});
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(600, 410, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
-    e.GetComponent<Scale>()->scale *= 0.8f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<BoundingBox2D>({});
-    e.AddComponent<Button>({});
-    e.AddComponent<Script>({ FLX_STRING_NEW(R"(MoveOne)") });
-    e.AddComponent<MoveOneComponent>({});
-
-    e = scene->CreateEntity("Move 2");
-    e.AddComponent<MoveUI>({});
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(600, 380, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
-    e.GetComponent<Scale>()->scale *= 0.8f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<BoundingBox2D>({});
-    e.AddComponent<Button>({});
-    e.AddComponent<Script>({ FLX_STRING_NEW(R"(MoveTwo)") });
-    e.AddComponent<MoveTwoComponent>({});
-
-    e = scene->CreateEntity("Move 3");
-    e.AddComponent<MoveUI>({});
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(600, 350, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(232, 36, 0) });
-    e.GetComponent<Scale>()->scale *= 0.8f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Unselected.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<BoundingBox2D>({});
-    e.AddComponent<Button>({});
-    e.AddComponent<Script>({ FLX_STRING_NEW(R"(MoveThree)") });
-    e.AddComponent<MoveThreeComponent>({});
-
-    e = scene->CreateEntity("Move Description");
-    e.AddComponent<MoveUI>({});
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(910, 330, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(521, 237, 0) });
-    e.GetComponent<Scale>()->scale *= 0.8f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_Skill_Description.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-
-    e = scene->CreateEntity("Move Description Text");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(722, 400, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(0.43f, 0.43f, 0) });
-    e.AddComponent<ZIndex>({ 2 });
-    e.AddComponent<Text>({
-      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-      FLX_STRING_NEW(R"()"),
-      Vector3(1.0f, 1.0, 1.0f),
-      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Top },
-      {                            880,                           320 }
-    });
-
-    e = scene->CreateEntity("Move 1 Text");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(520, 400, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-    e.AddComponent<ZIndex>({ 2 });
-    e.AddComponent<Text>({
-      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-      FLX_STRING_NEW(R"(My)"),
-      Vector3(1.0f, 1.0, 1.0f),
-      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-      {                            550,                              320 }
-    });
-
-    e = scene->CreateEntity("Move 2 Text");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(520, 370, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-    e.AddComponent<ZIndex>({ 2 });
-    e.AddComponent<Text>({
-      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-      FLX_STRING_NEW(R"(Booty)"),
-      Vector3(1.0f, 1.0, 1.0f),
-      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-      {                            550,                              320 }
-    });
-
-    e = scene->CreateEntity("Move 3 Text");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(520, 340, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-    e.AddComponent<ZIndex>({ 2 });
-    e.AddComponent<Text>({
-      FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-      FLX_STRING_NEW(R"(Itches)"),
-      Vector3(1.0f, 1.0, 1.0f),
-      { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-      {                            520,                              320 }
-    });
-
-  #pragma endregion
-
-  #pragma region Speed bar
-
-    e = scene->CreateEntity("Speed bar left");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(480, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(-34, 24, 0) });
-    e.GetComponent<Scale>()->scale *= 0.7f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Accent_01.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-
-    e = scene->CreateEntity("Speed bar right");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(1420, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(34, 24, 0) });
-    e.GetComponent<Scale>()->scale *= 0.7f;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_Accent_01.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-
-    // ease of use
-    float scale = 0.75f;
-    float offset = 130;
-
-    e = scene->CreateEntity("Speed slot 1");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 1;
-    e.GetComponent<SpeedBarSlot>()->character = 1;
-
-    e = scene->CreateEntity("Speed slot 2");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 1, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 2;
-    e.GetComponent<SpeedBarSlot>()->character = 2;
-
-    e = scene->CreateEntity("Speed slot 3");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 2, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 3;
-    e.GetComponent<SpeedBarSlot>()->character = 3;
-
-    e = scene->CreateEntity("Speed slot 4");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 3, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 4;
-    e.GetComponent<SpeedBarSlot>()->character = 4;
-
-    e = scene->CreateEntity("Speed slot 5");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 4, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 5;
-    e.GetComponent<SpeedBarSlot>()->character = 3;
-
-    e = scene->CreateEntity("Speed slot 6");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 5, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 6;
-    e.GetComponent<SpeedBarSlot>()->character = 4;
-
-    e = scene->CreateEntity("Speed slot 7");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({ Vector3(560 + offset * 6, 970, 0) });
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({ Vector3(189, 189, 0) });
-    e.GetComponent<Scale>()->scale *= scale;
-    e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
-    e.AddComponent<ZIndex>({ 1 });
-    e.AddComponent<SpeedBarSlot>({});
-    e.GetComponent<SpeedBarSlot>()->slot_number = 7;
-    e.GetComponent<SpeedBarSlot>()->character = 5;
-
-  #pragma endregion
-
-  #pragma region Audio Storage
-    e = scene->CreateEntity("Background Music");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({});
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({});
-    e.AddComponent<Audio>({ true, false, true, false, FLX_STRING_NEW(R"(\audio\bgm\battle (Workinghours).mp3)") });
-
-    e = scene->CreateEntity("Play SFX");
-    e.AddComponent<Transform>({});
-    e.AddComponent<Position>({});
-    e.AddComponent<Rotation>({});
-    e.AddComponent<Scale>({});
-    e.AddComponent<Audio>({ false, false, false, false, FLX_STRING_NEW(R"(\audio\generic attack.mp3)") });
-  #pragma endregion
-#else
-// load from flxscene
-#endif
-#pragma endregion
+    CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
 
 #pragma region Load Battle Data
 
@@ -692,6 +255,9 @@ namespace Game
     // note that the system doesn’t deal with duplicates
     // dupes break the targetting system and anything that uses GetEntityByName
     int index = 0;
+    FlexECS::Entity e;
+    auto scene = FlexECS::Scene::GetActiveScene();
+
     for (auto& character : battle.drifters)
     {
       e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
@@ -707,14 +273,14 @@ namespace Game
       switch (character.character_id)
       {
       case 1:
-        e.AddComponent<Scale>({ Vector3(236, 151, 0) });
+        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 2:
-        e.AddComponent<Scale>({ Vector3(219, 114, 0) });
+        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
@@ -722,7 +288,6 @@ namespace Game
         break;
       }
 
-      e.GetComponent<Scale>()->scale *= 2.0f;
       e.AddComponent<ZIndex>({ 25 + index++ });
     }
 
@@ -742,28 +307,27 @@ namespace Game
       switch (character.character_id)
       {
       case 3:
-        e.AddComponent<Scale>({ Vector3(87, 74, 0) });
+        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 4:
-        e.AddComponent<Scale>({ Vector3(78, 72, 0) });
+        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
         e.AddComponent<Animator>(
           { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       case 5:
-        e.AddComponent<Scale>({ Vector3(72, 108, 0) });
+        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
         e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
         );
         break;
       }
 
-      e.GetComponent<Scale>()->scale *= 2.0f;
       e.AddComponent<ZIndex>({ 21 + index++ });
     }
 
@@ -775,8 +339,7 @@ namespace Game
       e.AddComponent<Transform>({});
       e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
       e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(1371, 54, 0) });
-      e.GetComponent<Scale>()->scale *= 0.1f;
+      e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
 
       e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
 
@@ -804,8 +367,7 @@ namespace Game
       e.AddComponent<Transform>({});
       e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
       e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(1371, 54, 0) });
-      e.GetComponent<Scale>()->scale *= 0.1f;
+      e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
       e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
       e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
       e.AddComponent<ZIndex>({ 35 });
@@ -826,6 +388,8 @@ namespace Game
     }
 
 #pragma endregion
+
+    main_camera = FlexECS::Scene::GetEntityByName("Camera");
   }
 
   void BattleLayer::OnDetach()
@@ -836,11 +400,6 @@ namespace Game
 
   void BattleLayer::Update()
   {
-#if 0
-    FlexECS::Scene::GetActiveScene()->GetEntityByName("Mockup").GetComponent<Transform>()->is_active =
-      Input::GetKey(GLFW_KEY_SPACE);
-#endif
-
     // check for escape key
     // this goes back to the main menu
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE))

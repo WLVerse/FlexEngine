@@ -17,13 +17,13 @@ namespace Game
 {
   void TownLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/townscene2.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/townscene.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     // Trigger music to start
-    FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
-    main_character = FlexECS::Scene::GetEntityByName("Walking Renko");
-    area_to_transition = FlexECS::Scene::GetEntityByName("Area To Transition");
+    //FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
+    //main_character = FlexECS::Scene::GetEntityByName("Walking Renko");
+    //area_to_transition = FlexECS::Scene::GetEntityByName("Area To Transition");
   }
 
   void TownLayer::OnDetach()
@@ -34,6 +34,7 @@ namespace Game
 
   void TownLayer::Update()
   {
+    /*
 #pragma region Camera Follow System
 
     // move camera to follow main character
@@ -59,5 +60,6 @@ namespace Game
       // transition lorhhhhhhhh
       Application::MessagingSystem::Send("Enter Battle", true);
     }
+    */
   }
 } // namespace Game
