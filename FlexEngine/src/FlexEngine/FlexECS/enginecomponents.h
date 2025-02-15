@@ -10,7 +10,7 @@
 // Copyright (c) 2024 DigiPen, All rights reserved.
 #pragma once
 
-#include "../Renderer/Camera/camera.h"
+#include "../Renderer/Camera/camera.h" // External declaration of the reflected Camera component
 #include "FlexECS/datastructures.h"
 #include "FlexMath/matrix4x4.h"
 #include "FlexMath/vector3.h"
@@ -304,7 +304,7 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex script_name;
+    FlexECS::Scene::StringIndex script_name = FLX_STRING_NEW("");
     bool is_awake = false;
     bool is_start = false;
   };

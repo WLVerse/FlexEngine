@@ -28,17 +28,14 @@ namespace FlexEngine
         Matrix4x4 m_proj_view_matrix = FlexEngine::Matrix4x4::Identity;
         
     public:
-        float m_ortho_width;
-        float m_ortho_height;
+        float m_ortho_width = 0.f;
+        float m_ortho_height = 0.f;
         bool is_active = true;
 
-        // Does nothing, do not use this. For serialization only.
-        Camera();
-        
         //Set position as well
-        Camera(const Vector3& t_pos,
-            float t_orthoWidth,
-            float t_orthoHeight,
+        Camera(const Vector3& t_pos = Vector3::Zero,
+            float t_orthoWidth = 1600.f,
+            float t_orthoHeight = 900.f,
             float t_nearClip = -2.0f,
             float t_farClip = 2.0f,
             bool t_isActive = true);
@@ -55,7 +52,6 @@ namespace FlexEngine
         const Matrix4x4& GetProjectionMatrix() const;
         const Matrix4x4& GetViewMatrix() const;
         const Matrix4x4& GetProjViewMatrix() const;
-
 
         // Updates the view and projection view matrices
         void Update();

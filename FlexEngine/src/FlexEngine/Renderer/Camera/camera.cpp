@@ -14,10 +14,6 @@
 
 namespace FlexEngine
 {
-  Camera::Camera()
-  {
-    // For the purpose of serialization, this is needed, but do not make an empty camera
-  }
     Camera::Camera(const Vector3& t_pos,
         float t_orthoWidth,
         float t_orthoHeight,
@@ -54,6 +50,8 @@ namespace FlexEngine
 
     void Camera::Update()
     {
+      // Recalculate ortho matrix changes, then update the final matrix
+      SetOrthographic(-m_ortho_width / 2, m_ortho_width/2, -m_ortho_height/2, m_ortho_height/2, -2.f, 2.f);
       UpdateCameraMatrix();
     }
 
@@ -61,9 +59,6 @@ namespace FlexEngine
     {
       m_proj_view_matrix = m_ortho_matrix * m_view_matrix;
     }
-
-
-
 
     const Matrix4x4& Camera::GetProjectionMatrix() const
     {
