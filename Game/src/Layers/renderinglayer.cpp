@@ -51,9 +51,10 @@ namespace Game
         auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
         auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
 
-        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.rows,
-                            sprite_info.GetHeight() / asset_spritesheet.columns,
+        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.columns,
+                            sprite_info.GetHeight() / asset_spritesheet.rows,
                             1));
+        sprite->model_matrix = model;
       }
       else if (FLX_STRING_GET(sprite->sprite_handle) != "")
       {
@@ -155,7 +156,7 @@ namespace Game
           auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
           props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-          props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+          props.texture_index = animator.current_frame;
           props.alpha = 1.0f; // Update pls
         }
         else

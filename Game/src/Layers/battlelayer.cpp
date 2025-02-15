@@ -268,19 +268,19 @@ namespace Game
         // find the slot position
         e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
+        e.AddComponent<Sprite>({  });//FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
         switch (character.character_id)
         {
         case 1:
-          e.AddComponent<Scale>({ Vector3(1, 1, 0) });
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
           e.AddComponent<Animator>(
             { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
               FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
           );
           break;
         case 2:
-          e.AddComponent<Scale>({ Vector3(1, 1, 0) });
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
           e.AddComponent<Animator>(
             { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
               FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
@@ -307,21 +307,21 @@ namespace Game
         switch (character.character_id)
         {
         case 3:
-          e.AddComponent<Scale>({ Vector3(1, 1, 0) });
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
           e.AddComponent<Animator>(
             { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
               FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
           );
           break;
         case 4:
-          e.AddComponent<Scale>({ Vector3(1, 1, 0) });
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
           e.AddComponent<Animator>(
             { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
               FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
           );
           break;
         case 5:
-          e.AddComponent<Scale>({ Vector3(1, 1, 0) });
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
           e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
                                      FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
           );
