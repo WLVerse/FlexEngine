@@ -67,7 +67,10 @@ namespace Editor
 
   COMPONENT_VIEWER_START(Animator)
   COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_handle)
+  COMPONENT_VIEWER_SPRITESHEET_PATH(default_spritesheet_handle)
   COMPONENT_VIEWER_BOOL(should_play)
+  COMPONENT_VIEWER_BOOL(is_looping)
+  COMPONENT_VIEWER_BOOL(return_to_default)
   COMPONENT_VIEWER_END(Animator)
 
 
