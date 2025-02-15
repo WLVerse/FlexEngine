@@ -21,12 +21,16 @@
 
 #include "flx_api.h"
 
-#include "assetkey.h"
-#include "Utilities/path.h"
-#include "Renderer/OpenGL/opengltexture.h"
-#include "Renderer/OpenGL/openglspritesheet.h"
-#include "Renderer/OpenGL/openglshader.h"
+#include "Assets/battle.h"
+#include "Assets/character.h"
+#include "Assets/move.h"
 #include "Renderer/OpenGL/openglmodel.h"
+#include "Renderer/OpenGL/openglshader.h"
+#include "Renderer/OpenGL/openglspritesheet.h"
+#include "Renderer/OpenGL/opengltexture.h"
+#include "Utilities/path.h"
+#include "assetkey.h"
+#include "assetkey.h"
 
 #include "Renderer/OpenGL/openglfont.h"
 #include "fmod/Sound.h"
@@ -39,7 +43,9 @@ namespace FlexEngine
 {
 
   // Variant of all asset types
-  using AssetVariant = std::variant<Asset::Texture,Asset::Spritesheet,Asset::Shader, Asset::Model, Asset::Sound, Asset::Font>;
+  using AssetVariant = std::variant<
+    Asset::Texture, Asset::Spritesheet, Asset::Shader, Asset::Model, Asset::Sound, Asset::Font, Asset::Battle,
+    Asset::Character, Asset::Move>;
 
   // Helper macro to get an asset by its key.
   // Deprecation warning: This macro is deprecated and will be removed in the future.

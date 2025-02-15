@@ -24,8 +24,8 @@ namespace Game
 
       if (scene_name == "Menu")
         FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<MenuLayer>());
-      /*else if (scene_name == "Town")
-        FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<TownLayer>());*/
+      else if (scene_name == "Town")
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<TownLayer>());
       // 
   
       // else if (scene_name == "Battle")

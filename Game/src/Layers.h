@@ -14,6 +14,6 @@
 #include "Layers/physicslayer.h"
 #include "Layers/renderinglayer.h"
 #include "Layers/scriptinglayer.h"
-//#include "Layers/townlayer.h"
+#include "Layers/townlayer.h"
 #include "Layers/winlayer.h"
 #include "Layers/loselayer.h"

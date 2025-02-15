@@ -34,6 +34,8 @@ namespace FlexEngine
       AssetKey texture = "";
       int columns = 1;
       int rows = 1;
+      std::vector<float> frame_times = { 1.f };
+      float total_frame_time = 1.f; // sum of all frame times
 
       Spritesheet(File& _metadata);
 

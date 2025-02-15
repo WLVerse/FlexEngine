@@ -141,7 +141,7 @@ namespace Game
         Camera gameTestCamera({ 850.0f, 450.0f, 0 }, 1600.0f, 900.0f, -2.0f, 2.0f);
         cam.AddComponent<Camera>(gameTestCamera);
 
-        CameraManager::SetCamera(cam, cam.GetComponent<Camera>()); // set the camera as the main game camera
+        CameraManager::SetMainGameCameraID(cam);
       }
       {
         FlexECS::Entity bgm = scene->CreateEntity("Town BGM");
@@ -168,7 +168,8 @@ namespace Game
 #pragma region Camera Follow System
 
     // move camera to follow main character
-    CameraManager::GetMainGameCamera()->m_data.position = main_character.GetComponent<Position>()->position;
+    FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
+    camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
 
 #pragma endregion
 
