@@ -16,7 +16,7 @@ public:
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-      Application::Quit();
+      Application::QueueCommand(Application::Command::QuitApplication);
     }
   }
 

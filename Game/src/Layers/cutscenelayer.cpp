@@ -28,8 +28,7 @@ namespace Game
         m_currShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Current Cinematic Shot");
         m_currShot.AddComponent<Position>({});
         m_currShot.AddComponent<Rotation>({});
-        m_currShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
-                                                 static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
+        m_currShot.AddComponent<Scale>({ Vector3::One });
         m_currShot.AddComponent<Sprite>({ 0 });
         m_currShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
         m_currShot.AddComponent<ZIndex>({ 10 });
@@ -38,8 +37,7 @@ namespace Game
         m_nextShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Next Cinematic Shot");
         m_nextShot.AddComponent<Position>({});
         m_nextShot.AddComponent<Rotation>({});
-        m_nextShot.AddComponent<Scale>({ Vector3{static_cast<float>(Application::GetCurrentWindow()->GetWidth()),
-                                                 static_cast<float>(Application::GetCurrentWindow()->GetHeight()), 0.0f } });
+        m_nextShot.AddComponent<Scale>({ Vector3::One });
         if (m_currIndex + 1 < m_CutsceneImages.size())
             m_nextShot.AddComponent<Sprite>({ m_CutsceneImages[m_currIndex] });
         else

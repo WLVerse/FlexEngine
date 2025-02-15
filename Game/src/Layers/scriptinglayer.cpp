@@ -1,23 +1,51 @@
 // WLVERSE [https://wlverse.web.app]
 // scriptinglayer.cpp
+//
+// Scripting layer for the editor. 
 // 
-// Scripting layer for the editor.
-// 
-// Very rough implementation of hotloading a scripting DLL.
+// Very rough implementation of hotloading a scripting DLL. 
 //
 // AUTHORS
 // [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
-// 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
 
-#include <thread>
-
 namespace Game
 {
+  void ScriptingLayer::Internal_UnloadScriptingDLL()
+  {
+    // guard
+    if (!is_scripting_dll_loaded) return;
 
+    // call stop for all scripts
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
+    {
+      auto& script_component = *entity.GetComponent<Script>();
+      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
+
+      // guard
+      if (!script)
+      {
+        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
+        continue;
+      }
+
+      // always remember to set the context before calling functions
+      script->Internal_SetContext(entity);
+      script->Stop();
+    }
+
+    // unload the scripting DLL
+    if (hmodule_scripting) FreeLibrary(hmodule_scripting);
+    hmodule_scripting = nullptr;
+    ScriptRegistry::ClearScripts();
+
+    is_scripting_dll_loaded = false;
+    ScriptRegistry::is_running = false;
+  }
   void ScriptingLayer::Internal_LoadScriptingDLL()
   {
     // guard
@@ -61,39 +89,7 @@ namespace Game
 
     Log::Info("Loaded DLL: " + to);
     is_scripting_dll_loaded = true;
-    ScriptRegistry::is_running = true; // absolutely crazy that this has to be has to true even because this isnt a flag, this is a trigger
-  }
-
-  void ScriptingLayer::Internal_UnloadScriptingDLL()
-  {
-    // guard
-    if (!is_scripting_dll_loaded) return;
-
-    // call stop for all scripts
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Script>())
-    {
-      auto& script_component = *entity.GetComponent<Script>();
-      auto script = ScriptRegistry::GetScript(FLX_STRING_GET(script_component.script_name));
-
-      // guard
-      if (!script)
-      {
-        Log::Warning("Script: " + FLX_STRING_GET(script_component.script_name) + " does not exist.");
-        continue;
-      }
-
-      // always remember to set the context before calling functions
-      script->Internal_SetContext(entity);
-      script->Stop();
-    }
-
-    // unload the scripting DLL
-    if (hmodule_scripting) FreeLibrary(hmodule_scripting);
-    hmodule_scripting = nullptr;
-    ScriptRegistry::ClearScripts();
-
-    is_scripting_dll_loaded = false;
-    ScriptRegistry::is_running = false;
+    ScriptRegistry::is_running = true;
   }
 
   void ScriptingLayer::OnAttach()
@@ -104,10 +100,7 @@ namespace Game
   void ScriptingLayer::OnDetach()
   {
     // auto cleanup in case the user forgot to stop the scripts
-    if (is_scripting_dll_loaded)
-    {
-      Internal_UnloadScriptingDLL();
-    }
+    if (is_scripting_dll_loaded) Internal_UnloadScriptingDLL();
   }
 
   void ScriptingLayer::Update()
@@ -194,4 +187,4 @@ namespace Game
     }
   }
 
-}
+} // namespace Editor
