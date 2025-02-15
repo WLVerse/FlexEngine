@@ -155,8 +155,8 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex spritesheet_handle;
-    FlexECS::Scene::StringIndex default_spritesheet_handle;
+    FlexECS::Scene::StringIndex spritesheet_handle = FLX_STRING_NEW("");
+    FlexECS::Scene::StringIndex default_spritesheet_handle = FLX_STRING_NEW("");
     bool should_play = true;
     bool is_looping = true;
     bool return_to_default = true;

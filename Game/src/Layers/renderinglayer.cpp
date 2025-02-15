@@ -45,7 +45,7 @@ namespace Game
       Matrix4x4 model = Matrix4x4::Identity;
       
       // However, spritesheets have a different scale...
-      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) == "")
+      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
       {
         auto& animator = *element.GetComponent<Animator>();
         auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
@@ -149,7 +149,7 @@ namespace Game
         Renderer2DProps props;
 
         // overload for animator
-        if (element.HasComponent<Animator>())
+        if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
         {
           Animator& animator = *element.GetComponent<Animator>();
           auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
