@@ -29,6 +29,8 @@ namespace Game
 
   void RenderingLayer::Update()
   {
+    OpenGLFrameBuffer::Unbind();
+
    #pragma region Transformation Calculations
     // Update Transform component to obtain the true world representation of the entity
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
@@ -67,6 +69,8 @@ namespace Game
       transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
     }
     #pragma endregion 
+
+    if (!CameraManager::has_main_camera) return;
 
    #pragma region Animator System
 
