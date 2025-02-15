@@ -69,6 +69,11 @@ namespace
     }*/
   }
 
+  void WindowCloseCallback([[maybe_unused]] GLFWwindow* window)
+  {
+    FlexEngine::Application::QueueCommand(FlexEngine::Application::Command::QuitApplication);
+  }
+
 }
 
 namespace FlexEngine
@@ -111,7 +116,7 @@ namespace FlexEngine
     glfwSetScrollCallback(m_glfwwindow, Input::ScrollCallback);
     //glfwSetWindowSizeCallback(m_glfwwindow, WindowSizeCallback);
     glfwSetFramebufferSizeCallback(m_glfwwindow, FramebufferSizeCallback);
-    //glfwSetWindowCloseCallback(m_glfwwindow, WindowCloseCallback);
+    glfwSetWindowCloseCallback(m_glfwwindow, WindowCloseCallback);
     glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallBack); // For now only audio requires this, but someone else should handle this centrally.
     //glfwSetCharCallback(m_glfwwindow, CharCallback);
     //glfwSetDropCallback(m_glfwwindow, DropCallback);
