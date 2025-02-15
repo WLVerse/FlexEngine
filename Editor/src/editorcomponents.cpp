@@ -68,7 +68,6 @@ namespace Editor
   COMPONENT_VIEWER_START(Animator)
   COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_handle)
   COMPONENT_VIEWER_BOOL(should_play)
-  COMPONENT_VIEWER_DRAG_FLOAT(time)
   COMPONENT_VIEWER_END(Animator)
 
 

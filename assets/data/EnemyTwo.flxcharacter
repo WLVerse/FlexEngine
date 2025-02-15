@@ -1,0 +1,7 @@
+CharacterName: EnemyTwo
+CharacterID: 4
+Health: 14
+Speed: 20
+MoveOne: /data/Warning_Shot.flxmove
+MoveTwo: /data/Suppressing_Fire.flxmove
+MoveThree: /data/Suppressing_Barrage.flxmove

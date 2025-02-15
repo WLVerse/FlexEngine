@@ -1,0 +1,7 @@
+CharacterName: Jack
+CharacterID: 5
+Health: 30
+Speed: 26
+MoveOne: /data/Theatrical_Farce.flxmove
+MoveTwo: /data/Theatrical_Farce.flxmove
+MoveThree: /data/Theatrical_Farce.flxmove

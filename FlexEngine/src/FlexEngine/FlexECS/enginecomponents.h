@@ -156,7 +156,15 @@ namespace FlexEngine
 
   public:
     FlexECS::Scene::StringIndex spritesheet_handle;
+    FlexECS::Scene::StringIndex default_spritesheet_handle;
     bool should_play = true;
+    bool is_looping = true;
+    bool return_to_default = true;
+    float frame_time = 0.f;
+    int total_frames = 0;
+
+    int current_frame = 0;
+    float current_frame_time = 0.f;
     float time = 0.f;
   };
 
@@ -315,5 +323,103 @@ namespace FlexEngine
 
   public:
   };
+
+   /**************
+   * Gameplay
+   **************/
+
+  class __FLX_API Character
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API Drifter
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API Enemy
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API Healthbar
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    Vector3 original_scale = Vector3::One;
+  };
+
+  class __FLX_API MoveUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+#pragma region Slot
+
+  class __FLX_API CharacterSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7, 1-2 for player, 3-7 for enemy
+  };
+
+  class __FLX_API HealthbarSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7, 1-2 for player, 3-7 for enemy
+  };
+
+  class __FLX_API SpeedBarSlot
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+    int slot_number = 0; // 1-7
+    int character = 0;   // 1-5
+  };
+
+#pragma endregion
+
+  /**************
+   * Script-Component Pairs
+   **************/
+
+#pragma region Moves
+
+  class __FLX_API MoveOneComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveTwoComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveThreeComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+#pragma endregion
 
 } // namespace FlexEngine

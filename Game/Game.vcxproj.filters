@@ -8,6 +8,9 @@
     <Filter Include="src\Layers">
       <UniqueIdentifier>{dcc096df-92fe-4baa-bc83-294870aad723}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Battle">
+      <UniqueIdentifier>{6d2200de-68ec-45a6-ac37-0f2425afeed9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers\baselayer.h">
@@ -15,9 +18,6 @@
     </ClInclude>
     <ClInclude Include="src\Layers.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Layers\loadlayer.h">
-      <Filter>src\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\audiolayer.h">
       <Filter>src\Layers</Filter>
@@ -37,13 +37,22 @@
     <ClInclude Include="src\Layers\menulayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\camerasystemlayer.h">
+    <ClInclude Include="src\Layers\cutscenelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\cutscenelayer.h">
-          <Filter>src\Layers</Filter>
+    <ClInclude Include="src\Layers\assetlayer.h">
+      <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\townlayer.h">
+    <ClInclude Include="src\Layers\loselayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\winlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Battle\character.h">
+      <Filter>src\Battle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\camerasystemlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,9 +62,6 @@
     </ClCompile>
     <ClCompile Include="src\launch.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Layers\loadlayer.cpp">
-      <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\audiolayer.cpp">
       <Filter>src\Layers</Filter>
@@ -75,13 +81,19 @@
     <ClCompile Include="src\Layers\menulayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\camerasystemlayer.cpp">
+    <ClCompile Include="src\Layers\cutscenelayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\cutscenelayer.cpp">
-       <Filter>src\Layers</Filter>
+    <ClCompile Include="src\Layers\assetlayer.cpp">
+      <Filter>src\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\townlayer.cpp">
+    <ClCompile Include="src\Layers\loselayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\winlayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\camerasystemlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,11 +5,11 @@ using namespace FlexEngine;
 
 namespace Game
 {
-  class LoadLayer : public FlexEngine::Layer
+  class LoseLayer : public FlexEngine::Layer
   {
   public:
-    LoadLayer() : Layer("Load Layer") {}
-    ~LoadLayer() = default;
+    LoseLayer() : Layer("Lose Layer") {}
+    ~LoseLayer() = default;
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;

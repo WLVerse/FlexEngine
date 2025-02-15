@@ -26,8 +26,6 @@ namespace Game
     virtual void OnAttach() override;
     virtual void OnDetach() override;
     virtual void Update() override;
-
-    std::vector<std::pair<std::string, FlexECS::Entity>> GetRenderQueue();
   };
 
 }

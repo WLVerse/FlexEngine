@@ -157,32 +157,35 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Battle\character.h" />
     <ClInclude Include="src\Layers.h" />
+    <ClInclude Include="src\Layers\assetlayer.h" />
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
     <ClInclude Include="src\Layers\cutscenelayer.h" />
     <ClInclude Include="src\Layers\gamelayer.h" />
-    <ClInclude Include="src\Layers\loadlayer.h" />
+    <ClInclude Include="src\Layers\loselayer.h" />
     <ClInclude Include="src\Layers\menulayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
-    <ClInclude Include="src\Layers\townlayer.h" />
+    <ClInclude Include="src\Layers\winlayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\launch.cpp" />
+    <ClCompile Include="src\Layers\assetlayer.cpp" />
     <ClCompile Include="src\Layers\audiolayer.cpp" />
     <ClCompile Include="src\Layers\baselayer.cpp" />
     <ClCompile Include="src\Layers\camerasystemlayer.cpp" />
     <ClCompile Include="src\Layers\cutscenelayer.cpp" />
     <ClCompile Include="src\Layers\gamelayer.cpp" />
-    <ClCompile Include="src\Layers\loadlayer.cpp" />
+    <ClCompile Include="src\Layers\loselayer.cpp" />
     <ClCompile Include="src\Layers\menulayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
-    <ClCompile Include="src\Layers\townlayer.cpp" />
+    <ClCompile Include="src\Layers\winlayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

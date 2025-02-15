@@ -1,0 +1,7 @@
+CharacterName: Grace
+CharacterID: 2
+Health: 10
+Speed: 1
+MoveOne: /data/Discipline.flxmove
+MoveTwo: /data/Timeout.flxmove
+MoveThree: /data/Verdict_Guilty.flxmove

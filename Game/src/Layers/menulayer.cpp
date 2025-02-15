@@ -1,12 +1,24 @@
 #include "Layers.h"
 #include "FlexEngine.h"
 
+#include "FMOD/FMODWrapper.h"
+
 namespace Game
 {
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v4.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v5.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+    
+    // Trigger music to start
+    FlexECS::Scene::GetEntityByName("Main Menu BGM").GetComponent<Audio>()->should_play = true;
+    
+    // find camera
+    for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
+    {
+      CameraManager::SetMainGameCameraID(entity);
+      break;
+    }
 
     #pragma region Menu Spawns
     #if 0
@@ -90,7 +102,8 @@ namespace Game
 
   void MenuLayer::OnDetach()
   {
-    Log::Info("Menu Layer Detach");
+    // Make sure nothing carries over in the way of sound
+    FMODWrapper::Core::ForceStop();
   }
 
   void MenuLayer::Update()
