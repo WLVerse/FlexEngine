@@ -250,9 +250,8 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex fonttype =
-      FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(R"(\fonts\Prompt\Prompt-Black.ttf)");
-    FlexECS::Scene::StringIndex text = FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New("TEST");
+    FlexECS::Scene::StringIndex fonttype = FLX_STRING_NEW(R"(\fonts\Electrolize\Electrolize-Regular.ttf)");
+    FlexECS::Scene::StringIndex text = FLX_STRING_NEW("Default Text");
     Vector3 color = Vector3::One;
     // border color, border size, underline, etc
     std::pair<int, int> alignment = std::make_pair(1, 1); // Default value: centered (all bits set)
