@@ -106,7 +106,7 @@ namespace Game
     ui.AddComponent<Scale>({ Vector3(0.45, 0.5, 0.5) });
     ui.AddComponent<Rotation>({});
     ui.AddComponent<Transform>({});
-    ui.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(\audio\win.mp3)") });
+    ui.AddComponent<Audio>({ FLX_STRING_NEW(R"(\audio\win.mp3)", true, false, false, false) });
     win_layer_entities.push_back(ui);
 
     #pragma endregion
