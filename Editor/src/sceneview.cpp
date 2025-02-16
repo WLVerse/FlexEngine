@@ -41,15 +41,7 @@ std::array<Vector2, 4> ComputeOBBCorners(Matrix4x4& transform)
 		Vector2(corners[3].x, corners[3].y)
 	};
 }
-//	Vector2 half_scale = { scale.x / 2, scale.y / 2 };
-//	return 			
-//	{
-//		Vector2(-half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-//		Vector2(half_scale.x, -half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-//		Vector2(half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-//		Vector2(-half_scale.x, half_scale.y).RotateDeg(rotation) + Vector2(pos.x, pos.y),
-//	};
-//}
+
 
 namespace Editor
 {
@@ -69,6 +61,7 @@ namespace Editor
 	{
 
 	}
+	
 	void SceneView::CalculateViewportPosition()
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
@@ -113,6 +106,31 @@ namespace Editor
 
 		//normalize 0, 1 coords relative to viewport, then scale by app height
 		//This is mouse relative and scaled to "game" screen 
+		Vector2 screen_pos = { (relative_pos.x / m_viewport_size.x) * app_width,
+													 (relative_pos.y / m_viewport_size.y) * app_height };
+
+
+		Vector2 ndc_click_pos = { (2 * screen_pos.x / app_width) - 1, 1 - 2 * screen_pos.y / app_height };
+		Matrix4x4 inverse = (Editor::GetInstance().m_editorCamera.GetProjViewMatrix()).Inverse();
+		Vector4 clip = { ndc_click_pos.x,
+										 ndc_click_pos.y,
+										 1.0f,
+										 1 };
+		Vector4 world_pos = inverse * clip;
+
+		return world_pos;
+	}
+
+	FlexEngine::Vector4 SceneView::ScreenToWorld(ImVec2 point)
+	{
+		ImVec2 window_top_left = ImGui::GetWindowPos();
+		float app_width = Editor::GetInstance().m_editorCamera.GetOrthoWidth();
+		float app_height = Editor::GetInstance().m_editorCamera.GetOrthoHeight();
+
+		// Get Mouse position relative to the viewport
+		ImVec2 relative_pos = ImVec2(point.x - window_top_left.x - m_viewport_position.x,
+																 point.y - window_top_left.y - m_viewport_position.y); // IMGUI space is screen space - top left of imgui window
+
 		Vector2 screen_pos = { (relative_pos.x / m_viewport_size.x) * app_width,
 													 (relative_pos.y / m_viewport_size.y) * app_height };
 
@@ -237,13 +255,74 @@ namespace Editor
 		return clicked_entity;
 	}
 
+	void SceneView::DraggingEntitySelect()
+	{
+		if (!m_dragging_selection)
+		{
+			m_drag_selection_start_point = ImGui::GetMousePos();
+			m_dragging_selection = true;
+		}
+
+		ImVec2 current_mouse_pos = ImGui::GetMousePos();
+
+		//Display an imgui rect around the sprite so we know where we are clicking, at least
+		ImRect bounding_box(m_drag_selection_start_point, current_mouse_pos);
+		ImGui::GetWindowDrawList()->AddRectFilled(bounding_box.Min, bounding_box.Max, IM_COL32(108, 121, 142, 100));
+		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(175, 179, 184, 220), 0.0f, 0, 2.0f);
+
+	}
+
+	void SceneView::FindEntitiesInSelection()
+	{
+		std::vector<FlexECS::Entity> selected_entities;
+
+		ImVec2 current_mouse_pos = ImGui::GetMousePos();
+		Vector2 pt1 = ScreenToWorld(current_mouse_pos);
+		Vector2 pt2 = ScreenToWorld(m_drag_selection_start_point);
+		
+		Vector2 max_point = { std::max(pt1.x, pt2.x), std::max(pt1.y, pt2.y) };
+		Vector2 min_point = { std::min(pt1.x, pt2.x), std::min(pt1.y, pt2.y) };
+		
+		auto scene = FlexECS::Scene::GetActiveScene();
+		for (auto entity : scene->CachedQuery<Position, Rotation, Scale, Transform, Sprite>()) //you probably only wanna click on things that are rendered
+		{
+			auto& active = entity.GetComponent<Transform>()->is_active;
+			if (!active) continue;
+
+			//auto& pos = entity.GetComponent<Position>()->position;
+			//auto& scale = entity.GetComponent<Scale>()->scale;
+			//float rotation = entity.GetComponent<Rotation>()->rotation.z;
+			auto& transform = entity.GetComponent<Transform>()->transform;
+
+			Vector2 entity_center = { transform.m30, transform.m31 };
+
+			if (entity_center.x >= min_point.x &&
+					entity_center.x <= max_point.x &&
+					entity_center.y >= min_point.y &&
+					entity_center.y <= max_point.y)
+			{
+				selected_entities.push_back(entity);
+			}
+		}
+		if (selected_entities.size() > 0)
+		{
+			Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
+			for (auto e : selected_entities)
+			{
+				Editor::GetInstance().GetSystem<SelectionSystem>()->AddSelectedEntity(e);
+			}
+		}
+	}
+
 	void SceneView::HandleMouseAndKeyboardEvents()
 	{
 		if (ImGui::IsWindowFocused())
 		{
-			if (ImGui::IsMouseClicked(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
+			if (ImGui::IsMouseReleased(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 			{
-				if (!m_gizmo_hovered)
+				if (!m_gizmo_hovered &&
+						std::abs(ImGui::GetMousePos().x - m_drag_selection_start_point.x) < 10 && 
+						std::abs(ImGui::GetMousePos().y - m_drag_selection_start_point.y) < 10)
 				{
 					//check if mouse click was within the viewport
 					bool within_viewport = (ImGui::GetMousePos().x >= m_viewport_screen_position.x && ImGui::GetMousePos().x <= m_viewport_screen_position.x + m_viewport_size.x &&
@@ -266,6 +345,17 @@ namespace Editor
 					}
 				}
 			}
+			else if (ImGui::IsMouseDown(0) && !m_gizmo_hovered && !m_dragging_gizmo)
+			{
+				DraggingEntitySelect();
+			}
+			else if (!ImGui::IsMouseDown(0) && m_dragging_selection && !m_gizmo_hovered && !m_dragging_gizmo)
+			{
+				FindEntitiesInSelection();
+				m_dragging_selection = false;
+			}
+
+			
 			
 			//Changing Gizmos type
 			if (ImGui::IsKeyPressed(ImGuiKey_W))
@@ -297,6 +387,8 @@ namespace Editor
 	void SceneView::DrawGizmos()
 	{
 		m_gizmo_hovered = false;
+		m_dragging_gizmo = false;
+
 		auto& selected_list = Editor::GetInstance().GetSystem<SelectionSystem>()->GetSelectedEntities();
 		//Single entity gizmos and multiple gizmos settled differently
 		if (selected_list.size() == 1)
@@ -348,6 +440,7 @@ namespace Editor
 					m_recorded_position.position = entity_position;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -355,13 +448,13 @@ namespace Editor
 				default:
 					break;
 				}
-
 				switch (EditorGUI::GizmoTranslateUp(&pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &up))
 				{
 				case EditorGUI::GizmoStatus::START_DRAG:
 					m_recorded_position.position = entity_position;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -369,7 +462,6 @@ namespace Editor
 				default:
 					break;
 				}
-
 				switch (EditorGUI::GizmoTranslateXY(&pos_change.x, &pos_change.y, { gizmo_origin_pos.x, gizmo_origin_pos.y }, &xy))
 				{
 				case EditorGUI::GizmoStatus::START_DRAG:
@@ -377,6 +469,7 @@ namespace Editor
 					m_recorded_position.position = entity_position;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					//End recording, new position
@@ -416,6 +509,7 @@ namespace Editor
 					m_recorded_scale.scale = entity_scale;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -429,6 +523,7 @@ namespace Editor
 					m_recorded_scale.scale = entity_scale;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -442,6 +537,7 @@ namespace Editor
 					m_recorded_scale.scale = entity_scale;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -453,6 +549,7 @@ namespace Editor
 				if (value != 0)	//if using xy scale
 				{
 					float modifier = entity_scale.x / 50.0f;
+					modifier = std::max(modifier, 0.01f);
 					scale_change.x = value * modifier;
 					scale_change.y = value * modifier;
 				}
@@ -485,6 +582,7 @@ namespace Editor
 					m_recorded_rotation.rotation = entity_rotation;
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -559,6 +657,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -572,6 +671,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -586,6 +686,7 @@ namespace Editor
 					//start recording old position
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					//End recording, new position
@@ -616,6 +717,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -628,6 +730,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -640,6 +743,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
@@ -650,8 +754,9 @@ namespace Editor
 				m_gizmo_hovered = right || up || xy;
 				if (value != 0)	//if using xy scale
 				{
-					scale_change.x = value;
-					scale_change.y = value;
+					float modifier = 0.5f;
+					scale_change.x = value * modifier;
+					scale_change.y = value * modifier;
 				}
 				else
 				{
@@ -663,7 +768,7 @@ namespace Editor
 
 				for (FlexECS::Entity entity : selected_list)
 				{
-					entity.GetComponent<Scale>()->scale += Vector3(scale_change.x, -scale_change.y, 0.0f);
+					entity.GetComponent<Scale>()->scale += Vector3(scale_change.x, scale_change.y, 0.0f);
 				}
 			}
 			else if (m_current_gizmo_type == GizmoType::ROTATE)
@@ -676,6 +781,7 @@ namespace Editor
 				case EditorGUI::GizmoStatus::START_DRAG:
 					break;
 				case EditorGUI::GizmoStatus::DRAGGING:
+					m_dragging_gizmo = true;
 					break;
 				case EditorGUI::GizmoStatus::END_DRAG:
 					recording_ended = true;
