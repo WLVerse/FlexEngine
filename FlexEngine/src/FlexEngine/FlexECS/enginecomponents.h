@@ -349,9 +349,10 @@ namespace FlexEngine
 
   class __FLX_API Healthbar
   {
-    FLX_REFL_SERIALIZABLE
-
+      FLX_REFL_SERIALIZABLE
   public:
+    int pixelLength = 140;
+    Vector3 original_position = Vector3::One;
     Vector3 original_scale = Vector3::One;
   };
 
