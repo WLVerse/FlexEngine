@@ -340,7 +340,7 @@ namespace Game
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
         e.AddComponent<Rotation>({});
         e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
-
+        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
@@ -368,6 +368,7 @@ namespace Game
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
         e.AddComponent<Rotation>({});
         e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
         e.AddComponent<ZIndex>({ 35 });
@@ -974,11 +975,17 @@ namespace Game
       // guard
       if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
-      // get the character's current health
-      float health_percentage = (float)character->current_health / (float)character->health;
+      auto* scale = entity.GetComponent<Scale>();
+      auto* healthbar = entity.GetComponent<Healthbar>();
+      auto* position = entity.GetComponent<Position>();
 
-      // update the scale
-      entity.GetComponent<Scale>()->scale = entity.GetComponent<Healthbar>()->original_scale * health_percentage;
+      // Calculate the health percentage and new scale.
+      float health_percentage = static_cast<float>(character->current_health) / static_cast<float>(character->health);
+      // Update Scale
+      scale->scale.x = healthbar->original_scale.x * health_percentage;
+
+      // Update Position
+      position->position.x = healthbar->original_position.x - static_cast<float>(healthbar->pixelLength/2) * (1.0-health_percentage);
 
       entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
 
@@ -990,12 +997,6 @@ namespace Game
 
       // update the scale
       entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
-
-      // update the position
-      // keep it left-aligned, it's centered by default
-      // entity.GetComponent<Position>()->position.x =
-      //  battle.healthbar_slot_positions[character->current_slot + (character->character_id < 2) ? 0 : 2].x +
-      //  (entity.GetComponent<Healthbar>()->original_scale.x - entity.GetComponent<Scale>()->scale.x) / 2;
     }
 
 #pragma endregion
