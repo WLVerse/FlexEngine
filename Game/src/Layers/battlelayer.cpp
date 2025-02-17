@@ -258,6 +258,7 @@ namespace Game
       FlexECS::Entity e;
       auto scene = FlexECS::Scene::GetActiveScene();
 
+      // Spawn characters
       for (auto& character : battle.drifters)
       {
         e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
@@ -291,6 +292,7 @@ namespace Game
         e.AddComponent<ZIndex>({ 25 + index++ });
       }
 
+      // Spawn enemies
       index = 0;
       for (auto& character : battle.enemies)
       {
@@ -420,31 +422,31 @@ namespace Game
     // return if the battle is over
     if (battle.is_win || battle.is_lose) return;
 
-      // start of the battle system
-      //
-      // Battle System Preparation
-      // - return when playing animations (disable_input_timer > 0)
-      // - get the current character from the speed bar
-      //
-      // AI Move
-      // - if it's not the player's turn, do the AI move and skip the player input code
-      //
-      // Player Input
-      // - if it's the player's turn, skip the AI move and check for input
-      // - if the player has selected a target, check for input for the move
-      // - if the player has selected a move, apply the move and update the speed
-      // - play the animations and disable input for the duration of the move animation
-      //
-      // Resolve Game State
-      // - resolve speed bar
-      //
-      // Update Displays
-      // - update the targeting display
-      // - update the speed bar display
-      //
-      // end of the battle system
+    // start of the battle system
+    //
+    // Battle System Preparation
+    // - return when playing animations (disable_input_timer > 0)
+    // - get the current character from the speed bar
+    //
+    // AI Move
+    // - if it's not the player's turn, do the AI move and skip the player input code
+    //
+    // Player Input
+    // - if it's the player's turn, skip the AI move and check for input
+    // - if the player has selected a target, check for input for the move
+    // - if the player has selected a move, apply the move and update the speed
+    // - play the animations and disable input for the duration of the move animation
+    //
+    // Resolve Game State
+    // - resolve speed bar
+    //
+    // Update Displays
+    // - update the targeting display
+    // - update the speed bar display
+    //
+    // end of the battle system
 
-#pragma region Battle System Preparation
+  #pragma region Battle System Preparation
 
     // current active character
     _Character* current_character = battle.speed_bar.front();
