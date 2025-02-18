@@ -680,8 +680,7 @@ namespace Game
     {
       _Move* current_move = nullptr;
 
-      if (move_one_click
-        || (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1))
+      if ((Input::GetKeyDown(GLFW_KEY_Z) || move_one_click) && current_character->current_selected_move == 1)
       {
         current_move = &current_character->move_one;
 
@@ -704,8 +703,7 @@ namespace Game
         }
       }
 
-      if (move_two_click
-        || Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
+      if ((Input::GetKeyDown(GLFW_KEY_X) || move_two_click) && current_character->current_selected_move == 2)
       {
         current_move = &current_character->move_two;
 
@@ -729,8 +727,7 @@ namespace Game
       }
 
       // Ultimate move
-      if (move_three_click
-        || Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
+      if ((Input::GetKeyDown(GLFW_KEY_C) || move_three_click) && current_character->current_selected_move == 3)
       {
         current_move = &current_character->move_three;
 
