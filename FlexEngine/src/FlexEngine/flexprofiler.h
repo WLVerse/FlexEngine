@@ -2,14 +2,6 @@
 // flexprofiler.h
 // 
 // Profiler that allows tracking of any number of breakpoints and prints the execution time to an IMGUI window
-// 
-// Usage: Profiler profiler;
-//        profiler.StartCounter("CounterName");
-//        // Code to profile...
-//        profiler.EndCounter("CounterName");
-//        
-//        // Show results
-//        profiler.ShowProfilerWindow();
 //
 // AUTHORS
 // [100%] Kuan Yew Chong (yewchong.k\@digipen.edu)
@@ -20,7 +12,7 @@
 #pragma once
 
 #include <chrono>
-#include <map>
+#include <unordered_map>
 #ifndef GAME
 #include "imgui.h"
 #endif
@@ -28,20 +20,32 @@
 
 namespace FlexEngine
 {
+  // Profiler that allows tracking of any number of breakpoints and prints the execution time to an IMGUI window
+  // For optimisation purposes, this class will not check if you call start without an end. If this happens, the profiler will not show the time for that counter.
+  // 
+  // Usage: Profiler profiler;
+  //        profiler.StartCounter("CounterName");
+  //        // Code to profile...
+  //        profiler.EndCounter("CounterName");
+  //        
+  //        // Show results
+  //        profiler.ShowProfilerWindow();
   class __FLX_API Profiler
   {
-    std::map<std::string, std::chrono::high_resolution_clock::time_point> start_times;
-    static std::map<std::string, std::chrono::microseconds> execute_times;
+    static Profiler profiler;
+    static std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> start_times;
+    static std::unordered_map<std::string, std::chrono::microseconds> execute_times;
+    static long long combined_time;
     static bool paused;
 
   public:
     Profiler() = default;
     ~Profiler() = default;
 
-    void StartCounter(std::string const& name);
-    void EndCounter(std::string const& name);
+    static void StartCounter(std::string const& name);
+    static void EndCounter(std::string const& name);
 
     // Create profiler window with IMGUI
-    void ShowProfilerWindow();
+    static void ShowProfilerWindow();
   };
 }

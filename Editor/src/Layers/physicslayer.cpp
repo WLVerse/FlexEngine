@@ -26,7 +26,11 @@ namespace Editor
 
   void PhysicsLayer::Update()
   {
+    Profiler::StartCounter("Physics Loop");
+
     FlexEngine::PhysicsSystem::UpdatePhysicsSystem();
+
+    Profiler::EndCounter("Physics Loop");
   }
 
 }

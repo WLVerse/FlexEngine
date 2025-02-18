@@ -41,6 +41,8 @@ namespace Editor
 
     if (!CameraManager::has_main_camera) return;
 
+    Profiler::StartCounter("Graphics");
+
     Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
     OpenGLRenderer::ClearFrameBuffer();
     Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
@@ -110,6 +112,8 @@ namespace Editor
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
     {
+      if (!element.GetComponent<Transform>()->is_active) continue;
+
       Sprite& sprite = *element.GetComponent<Sprite>();
 
       Renderer2DProps props;
@@ -188,6 +192,8 @@ namespace Editor
     game_queue.Flush();
 
     OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
+    
+    Profiler::EndCounter("Graphics");
   }
 
   //Will be needed for batch

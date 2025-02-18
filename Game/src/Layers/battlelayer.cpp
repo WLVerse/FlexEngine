@@ -62,7 +62,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = is_player_turn;
+    bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -201,12 +201,12 @@ namespace Game
   }
 
 #pragma endregion
-
+  
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mewhenibattle.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -393,6 +393,9 @@ namespace Game
   #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
+
+    // Just set some random shit as the target for the start of game lmao
+    battle.target = 1;
   }
 
   void BattleLayer::OnDetach()
@@ -403,6 +406,10 @@ namespace Game
 
   void BattleLayer::Update()
   {
+    bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
+    bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
+    bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
+
     // check for escape key
     // this goes back to the main menu
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -492,14 +499,25 @@ namespace Game
       current_character_entity.GetComponent<Position>()->position.x += 100;
 #endif
 
+    // Just swapped from enemy phase to player phase
     if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
     {
       // Plays sound if swap from enemy phase to player phase
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
         FLX_STRING_NEW(R"(/audio/start turn.mp3)");
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-      Log::Info("Player Turn Start");
-      battle.prev_state = true;
+
+      // Defaults target selection
+      for (int i{0}; i < battle.enemy_slots.size(); ++i)
+      {
+        if (battle.enemy_slots[i]->is_alive && battle.enemy_slots[i] != nullptr)
+        {
+          battle.target = i + 1;
+          break;
+        }
+      }
+
+      battle.prev_state = true; // dont forget to reset, of course...
     }
 
 
@@ -626,6 +644,7 @@ namespace Game
       else if (Input::GetKeyDown(GLFW_KEY_5))
         battle.target = 5;
 
+      // Unselect illegal choices
       if (battle.target != 0)
       {
         // if targeting nothing, untarget
@@ -640,13 +659,13 @@ namespace Game
 #pragma endregion
 
 #pragma region Moves
-
-
-    if (battle.is_player_turn && battle.target != 0 && current_character->current_selected_move > 0)
+    // Executes if player turn and target is selected and some move is already selected
+    if (battle.is_player_turn && battle.target != 0)
     {
       _Move* current_move = nullptr;
 
-      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1)
+      if (move_one_click
+        || (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1))
       {
         current_move = &current_character->move_one;
 
@@ -669,7 +688,8 @@ namespace Game
         }
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
+      if (move_two_click
+        || Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
       {
         current_move = &current_character->move_two;
 
@@ -693,7 +713,8 @@ namespace Game
       }
 
       // Ultimate move
-      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
+      if (move_three_click
+        || Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
       {
         current_move = &current_character->move_three;
 
@@ -787,12 +808,15 @@ namespace Game
         move1 = "";
         move2 = "";
         move3 = "";
+
+        battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
       }
     }
 
+    // Sets the description for the current character and locks the current selected move for the next loop to consume
     if (battle.is_player_turn && current_character->current_speed <= 0)
     {
-      if (Input::GetKeyDown(GLFW_KEY_Z))
+      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
       {
         current_character->current_selected_move = 1;
         std::string& description = FLX_STRING_GET(
@@ -800,7 +824,7 @@ namespace Game
         );
         description = current_character->move_one.description;
       }
-      if (Input::GetKeyDown(GLFW_KEY_X))
+      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
       {
         current_character->current_selected_move = 2;
         std::string& description = FLX_STRING_GET(
@@ -808,7 +832,7 @@ namespace Game
         );
         description = current_character->move_two.description;
       }
-      if (Input::GetKeyDown(GLFW_KEY_C))
+      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
       {
         current_character->current_selected_move = 3;
         std::string& description = FLX_STRING_GET(

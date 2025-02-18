@@ -25,7 +25,10 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) Log::Info("MoveOne clicked");
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+    {
+      Application::MessagingSystem::Send("MoveOne clicked", true);
+    }
   }
 
   void OnMouseExit() override
