@@ -51,9 +51,6 @@ namespace Game
     camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 880.f);
 
 #pragma endregion
-#pragma region Physics Colllision System
-   PhysicsSystem::UpdatePhysicsSystem();
-#pragma endregion
 #pragma region Scene Transition
    if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
    {
