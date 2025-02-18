@@ -54,10 +54,16 @@ namespace Game
     std::array<_Character*, 2> drifter_slots = { nullptr, nullptr };
     std::array<_Character*, 5> enemy_slots = { nullptr, nullptr, nullptr, nullptr, nullptr };
     std::vector<_Character*> speed_bar = {};
+
+    //projected_icon and the speed for it
+    FlexECS::Entity projected_character;
+    int projected_speed = 0;
+
     int target = 0; // 1-5, pointing out which enemy slot is the target
     std::array<Vector3, 7> sprite_slot_positions = {};
     // std::array<Vector3, 7> speedbar_slot_positions; // needed for animated speed bar
     std::array<Vector3, 7> healthbar_slot_positions = {};
+
 
     // game state
     bool is_player_turn = true;
@@ -257,6 +263,16 @@ namespace Game
     int index = 0;
     FlexECS::Entity e;
     auto scene = FlexECS::Scene::GetActiveScene();
+    
+    //projected_character icon creation
+    battle.projected_character = scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
+    battle.projected_character.AddComponent<Transform>({});
+    battle.projected_character.AddComponent<Position>({});
+    battle.projected_character.AddComponent<Rotation>({});
+    battle.projected_character.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)")});
+    battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
+    battle.projected_character.AddComponent<ZIndex>({ 21 });
+    battle.projected_character.GetComponent<Transform>()->is_active = false;
 
     for (auto& character : battle.drifters)
     {
@@ -784,6 +800,9 @@ namespace Game
         move1 = "";
         move2 = "";
         move3 = "";
+
+        battle.projected_character.GetComponent<Transform>()->is_active = false;
+        battle.projected_speed = 0;
       }
     }
 
@@ -796,6 +815,9 @@ namespace Game
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
         description = current_character->move_one.description;
+
+        //calculate projected_icon's speed
+        battle.projected_speed = current_character->speed + current_character->move_one.speed;
       }
       if (Input::GetKeyDown(GLFW_KEY_X))
       {
@@ -804,6 +826,10 @@ namespace Game
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
         description = current_character->move_two.description;
+
+        //calculate projected_icon's speed, artifically inflated to show how different values affect position in turn bar
+        battle.projected_speed = current_character->speed + current_character->move_two.speed + 15;
+        //Log::Info(std::to_string(current_character->move_two.speed));
       }
       if (Input::GetKeyDown(GLFW_KEY_C))
       {
@@ -812,6 +838,57 @@ namespace Game
           FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
         );
         description = current_character->move_three.description;
+
+        //calculate projected_icon's speed, artifically inflated to show how different values affect position in turn bar
+        battle.projected_speed = current_character->speed + current_character->move_three.speed + 55;
+      }
+
+      int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+      if (battle.projected_speed > 0)
+      {
+          battle.projected_character.GetComponent<Transform>()->is_active = true;
+          for (auto character : battle.speed_bar)
+          {
+              if (battle.projected_speed < character->current_speed)
+              {
+                  //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                  break;
+              }
+              else
+              {
+                  slot_number++;
+              }
+          }
+
+          bool checkFirst = true; //grabs current character's icon, slot 0
+          for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
+          {
+              if (checkFirst)
+              {
+                  battle.projected_character.GetComponent<Sprite>()->sprite_handle = entity.GetComponent<Sprite>()->sprite_handle;
+                  checkFirst = false;
+              }
+              if (slot_number == 0)
+              {
+                  battle.projected_character.GetComponent<Position>()->position = entity.GetComponent<Position>()->position +Vector3{ 65, -65, 0 };
+                  break;
+              }
+              else
+              {
+                  slot_number--; //counts backwards to the slot it's supposed to be
+              }
+          }
+      }
+
+      // update the character id in the slot based on the speed bar order
+      for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+      {
+          auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
+
+          if (speed_bar_slot.slot_number <= battle.speed_bar.size())
+              speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
+          else
+              speed_bar_slot.character = 0;
       }
 
       FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
