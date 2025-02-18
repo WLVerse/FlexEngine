@@ -22,3 +22,7 @@
 #include "Layers/camerasystemlayer.h"
 #include "Layers/particlesystemlayer.h"
 #include "Layers/audiolayer.h"
+#include "Layers/profilelayer.h"
+
+// Profiling enabled for all layers under editor
+#include "flexprofiler.h"
