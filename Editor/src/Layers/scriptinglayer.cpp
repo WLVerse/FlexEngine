@@ -175,6 +175,8 @@ namespace Editor
     // guard
     if (!is_scripting_dll_loaded) return;
 
+    Profiler::StartCounter("Scripting");
+
     // process all scripts, multiple of the same script can exist
     // order is not guaranteed and should never be
     // call awake, start, update, and stop
@@ -252,6 +254,8 @@ namespace Editor
           script->OnMouseExit();
       }
     }
+    
+    Profiler::EndCounter("Scripting");
   }
 
 } // namespace Editor

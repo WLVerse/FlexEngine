@@ -11,8 +11,6 @@
 
 #include "Layers.h"
 
-#include <thread>
-
 namespace Editor
 {
   void AudioLayer::OnAttach()
@@ -27,27 +25,7 @@ namespace Editor
 
   void AudioLayer::Update()
   {
-    if (Input::GetKeyDown(GLFW_KEY_2))
-    {
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
-      {
-        if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
-
-        Audio& audio = *element.GetComponent<Audio>();
-        audio.change_mode = true;
-      }
-    }
-
-    if (Input::GetKeyDown(GLFW_KEY_3))
-    {
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
-      {
-        if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
-
-        Audio& audio = *element.GetComponent<Audio>();
-        audio.should_play = true;
-      }
-    }
+    Profiler::StartCounter("Audio Loop");
 
     // Audio
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
@@ -85,5 +63,7 @@ namespace Editor
         FMODWrapper::Core::ChangeLoopProperty(FLX_STRING_GET(*element.GetComponent<EntityName>()), audio->is_looping);
       }
     }
+  
+    Profiler::EndCounter("Audio Loop");
   }
 }

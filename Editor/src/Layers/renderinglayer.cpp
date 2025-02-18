@@ -41,6 +41,8 @@ namespace Editor
 
     if (!CameraManager::has_main_camera) return;
 
+    Profiler::StartCounter("Graphics");
+
     Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
     OpenGLRenderer::ClearFrameBuffer();
     Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
@@ -60,15 +62,17 @@ namespace Editor
       Matrix4x4 model = Matrix4x4::Identity;
       
       // However, spritesheets have a different scale...
-      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) == "")
+      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
       {
         auto& animator = *element.GetComponent<Animator>();
         auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
         auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
 
-        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.rows,
-                            sprite_info.GetHeight() / asset_spritesheet.columns,
+        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.columns,
+                            sprite_info.GetHeight() / asset_spritesheet.rows,
                             1));
+
+        sprite->model_matrix = model;
       }
       else if (FLX_STRING_GET(sprite->sprite_handle) != "")
       {
@@ -108,18 +112,20 @@ namespace Editor
     // render all sprites
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
     {
+      if (!element.GetComponent<Transform>()->is_active) continue;
+
       Sprite& sprite = *element.GetComponent<Sprite>();
 
       Renderer2DProps props;
 
       // overload for animator
-      if (element.HasComponent<Animator>())
+      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
       {
         Animator& animator = *element.GetComponent<Animator>();
         auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-        props.texture_index = (int)(animator.time * asset_spritesheet.columns) % asset_spritesheet.columns;
+        props.texture_index = animator.current_frame;
         props.alpha = 1.0f; // Update pls
       }
       else
@@ -186,6 +192,8 @@ namespace Editor
     game_queue.Flush();
 
     OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
+    
+    Profiler::EndCounter("Graphics");
   }
 
   //Will be needed for batch

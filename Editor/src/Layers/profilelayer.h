@@ -1,33 +1,31 @@
 // WLVERSE [https://wlverse.web.app]
-// townlayer.h
+// audiolayer.h
 // 
-// Header file for town layer where user can control main character to walk around the town scene
+// Audio layer for the editor.
 //
 // AUTHORS
-// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+// [100%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
 // 
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
+
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Game
+namespace Editor
 {
 
-  class TownLayer : public FlexEngine::Layer
+  class ProfilerLayer : public FlexEngine::Layer
   {
-  private:
-
   public:
-    TownLayer() : Layer("Town Scene Layer") {}
-    ~TownLayer() = default;
+    ProfilerLayer() : Layer("Profiler Layer") {}
+    ~ProfilerLayer() = default;
 
     virtual void OnAttach() override;
     virtual void OnDetach() override;
     virtual void Update() override;
-
   };
 
 }

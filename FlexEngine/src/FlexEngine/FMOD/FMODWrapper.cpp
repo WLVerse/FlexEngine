@@ -93,7 +93,12 @@ void FMODWrapper::Core::PlaySound(std::string const& identifier, Asset::Sound co
 
     channels[identifier] = channel;
   }
-  else Log::Warning("Channel already exists for identifier: " + identifier);
+  else
+  {
+    Log::Warning("Channel already exists for identifier: " + identifier + ", playing newly requested sound...");
+    StopSound(identifier);
+    PlaySound(identifier, asset);
+  }
 }
 
 void FMODWrapper::Core::PlayLoopingSound(std::string const& identifier, Asset::Sound const& asset)

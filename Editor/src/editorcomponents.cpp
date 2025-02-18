@@ -32,7 +32,7 @@ namespace Editor
   {
     if (entity.HasComponent<Audio>()) return;
 
-    entity.AddComponent<Audio>({ false, false, false, false, FLX_STRING_NEW("") });
+    entity.AddComponent<Audio>({ FLX_STRING_NEW(""), false, false, false, false});
   }
   void COMPONENT_REMOVER_Audio(FlexEngine::FlexECS::Entity entity)
   {
@@ -67,7 +67,10 @@ namespace Editor
 
   COMPONENT_VIEWER_START(Animator)
   COMPONENT_VIEWER_SPRITESHEET_PATH(spritesheet_handle)
+  COMPONENT_VIEWER_SPRITESHEET_PATH(default_spritesheet_handle)
   COMPONENT_VIEWER_BOOL(should_play)
+  COMPONENT_VIEWER_BOOL(is_looping)
+  COMPONENT_VIEWER_BOOL(return_to_default)
   COMPONENT_VIEWER_END(Animator)
 
 

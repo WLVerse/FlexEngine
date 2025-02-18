@@ -119,11 +119,11 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    bool should_play;
-    bool should_stop;
-    bool is_looping;
+    FlexECS::Scene::StringIndex audio_file = FLX_STRING_NEW("");
+    bool should_play = true;
+    bool should_stop = false;
+    bool is_looping = false;
     bool change_mode = false; // For tagging to flip
-    FlexECS::Scene::StringIndex audio_file;
   };
 
   /*!***************************************************************************
@@ -155,8 +155,8 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex spritesheet_handle;
-    FlexECS::Scene::StringIndex default_spritesheet_handle;
+    FlexECS::Scene::StringIndex spritesheet_handle = FLX_STRING_NEW("");
+    FlexECS::Scene::StringIndex default_spritesheet_handle = FLX_STRING_NEW("");
     bool should_play = true;
     bool is_looping = true;
     bool return_to_default = true;
@@ -349,9 +349,10 @@ namespace FlexEngine
 
   class __FLX_API Healthbar
   {
-    FLX_REFL_SERIALIZABLE
-
+      FLX_REFL_SERIALIZABLE
   public:
+    int pixelLength = 140;
+    Vector3 original_position = Vector3::One;
     Vector3 original_scale = Vector3::One;
   };
 

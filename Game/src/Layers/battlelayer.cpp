@@ -68,7 +68,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = is_player_turn;
+    bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -207,205 +207,211 @@ namespace Game
   }
 
 #pragma endregion
-
+  
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mewhenibattle.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
 
-#pragma region Load Battle Data
+  #pragma region Load Battle Data
 
-    // load the battle
-    Internal_ParseBattle(R"(/data/debug.flxbattle)");
+      // load the battle
+      Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
-    // init non-loaded values
-    // these values are used internally for the battle system and are not saved
-    for (auto& character : battle.drifters)
-    {
-      battle.drifters_and_enemies.push_back(&character);
-      battle.speed_bar.push_back(&character);
-      battle.drifter_alive_count++;
-    }
-    for (auto& character : battle.enemies)
-    {
-      battle.drifters_and_enemies.push_back(&character);
-      battle.speed_bar.push_back(&character);
-      battle.enemy_alive_count++;
-    }
-
-    for (auto character : battle.speed_bar)
-    {
-      character->current_health = character->health;
-      character->current_speed = character->speed;
-      character->is_alive = true;
-    }
-
-    // cache the slot positions
-    // this is purely just so that the editor can actually position the slots
-    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
-    {
-      auto& character_slot = *entity.GetComponent<CharacterSlot>();
-      battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
-    }
-    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
-    {
-      auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
-      battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
-    }
-
-    // create entities for the characters using the battle data
-    // note that the system doesn’t deal with duplicates
-    // dupes break the targetting system and anything that uses GetEntityByName
-    int index = 0;
-    FlexECS::Entity e;
-    auto scene = FlexECS::Scene::GetActiveScene();
-    
-    //projected_character icon creation
-    battle.projected_character = scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
-    battle.projected_character.AddComponent<Transform>({});
-    battle.projected_character.AddComponent<Position>({});
-    battle.projected_character.AddComponent<Rotation>({});
-    battle.projected_character.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)")});
-    battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
-    battle.projected_character.AddComponent<ZIndex>({ 21 });
-    battle.projected_character.GetComponent<Transform>()->is_active = false;
-
-    for (auto& character : battle.drifters)
-    {
-      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
-      e.AddComponent<Transform>({});
-      e.AddComponent<Character>({});
-      e.AddComponent<Drifter>({});
-
-      // find the slot position
-      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
-
-      switch (character.character_id)
+      // init non-loaded values
+      // these values are used internally for the battle system and are not saved
+      for (auto& character : battle.drifters)
       {
-      case 1:
-        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
-        e.AddComponent<Animator>(
-          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
-        );
-        break;
-      case 2:
-        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
-        e.AddComponent<Animator>(
-          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
-        );
-        break;
+        battle.drifters_and_enemies.push_back(&character);
+        battle.speed_bar.push_back(&character);
+        battle.drifter_alive_count++;
+      }
+      for (auto& character : battle.enemies)
+      {
+        battle.drifters_and_enemies.push_back(&character);
+        battle.speed_bar.push_back(&character);
+        battle.enemy_alive_count++;
       }
 
-      e.AddComponent<ZIndex>({ 25 + index++ });
-    }
-
-    index = 0;
-    for (auto& character : battle.enemies)
-    {
-      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
-      e.AddComponent<Transform>({});
-      e.AddComponent<Character>({});
-      e.AddComponent<Enemy>({});
-
-      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
-      ); // offset by 2 for enemy slots, and offset the position
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
-
-      switch (character.character_id)
+      for (auto character : battle.speed_bar)
       {
-      case 3:
-        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
-        e.AddComponent<Animator>(
-          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
-        );
-        break;
-      case 4:
-        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
-        e.AddComponent<Animator>(
-          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
-        );
-        break;
-      case 5:
-        e.AddComponent<Scale>({ Vector3(1, 1, 0) });
-        e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
-                                   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
-        );
-        break;
+        character->current_health = character->health;
+        character->current_speed = character->speed;
+        character->is_alive = true;
       }
 
-      e.AddComponent<ZIndex>({ 21 + index++ });
-    }
+      // cache the slot positions
+      // this is purely just so that the editor can actually position the slots
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
+      {
+        auto& character_slot = *entity.GetComponent<CharacterSlot>();
+        battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+      }
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
+      {
+        auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
+        battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+      }
 
-    // create the healthbars
-    for (auto& character : battle.drifters)
-    {
-      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
-      e.AddComponent<Healthbar>({});
-      e.AddComponent<Transform>({});
-      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+      // create entities for the characters using the battle data
+      // note that the system doesnï¿½t deal with duplicates
+      // dupes break the targetting system and anything that uses GetEntityByName
+      int index = 0;
+      FlexECS::Entity e;
+      auto scene = FlexECS::Scene::GetActiveScene();
 
-      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+      //projected_character icon creation
+      battle.projected_character = scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
+      battle.projected_character.AddComponent<Transform>({});
+      battle.projected_character.AddComponent<Position>({});
+      battle.projected_character.AddComponent<Rotation>({});
+      battle.projected_character.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)")});
+      battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
+      battle.projected_character.AddComponent<ZIndex>({ 21 });
+      battle.projected_character.GetComponent<Transform>()->is_active = false;
 
-      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
-      e.AddComponent<ZIndex>({ 35 });
+      // Spawn characters
+      for (auto& character : battle.drifters)
+      {
+        e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+        e.AddComponent<Transform>({});
+        e.AddComponent<Character>({});
+        e.AddComponent<Drifter>({});
 
-      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
-      e.AddComponent<Transform>({});
-      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(-30, -100, 0) });
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-      e.AddComponent<ZIndex>({ 3 });
-      e.AddComponent<Text>({
-        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-        FLX_STRING_NEW(R"(Itches)"),
-        Vector3(1.0f, 1.0, 1.0f),
-        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-        {                            600,                              320 }
-      });
-    }
-    for (auto& character : battle.enemies)
-    {
-      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
-      e.AddComponent<Healthbar>({});
-      e.AddComponent<Transform>({});
-      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
-      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
-      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
-      e.AddComponent<ZIndex>({ 35 });
+        // find the slot position
+        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Sprite>({  });//FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
 
-      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
-      e.AddComponent<Transform>({});
-      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-105, -100, 0) });
-      e.AddComponent<Rotation>({});
-      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-      e.AddComponent<ZIndex>({ 3 });
-      e.AddComponent<Text>({
-        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-        FLX_STRING_NEW(R"(Itches)"),
-        Vector3(1.0f, 1.0, 1.0f),
-        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-        {                            600,                              320 }
-      });
-    }
+        switch (character.character_id)
+        {
+        case 1:
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+          e.AddComponent<Animator>(
+            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+          );
+          break;
+        case 2:
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+          e.AddComponent<Animator>(
+            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+          );
+          break;
+        }
 
-#pragma endregion
+        e.AddComponent<ZIndex>({ 25 + index++ });
+      }
+
+      // Spawn enemies
+      index = 0;
+      for (auto& character : battle.enemies)
+      {
+        e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+        e.AddComponent<Transform>({});
+        e.AddComponent<Character>({});
+        e.AddComponent<Enemy>({});
+
+        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
+        ); // offset by 2 for enemy slots, and offset the position
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
+
+        switch (character.character_id)
+        {
+        case 3:
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+          e.AddComponent<Animator>(
+            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
+          );
+          break;
+        case 4:
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+          e.AddComponent<Animator>(
+            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
+          );
+          break;
+        case 5:
+          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+          e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
+                                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
+          );
+          break;
+        }
+
+        e.AddComponent<ZIndex>({ 21 + index++ });
+      }
+
+      // create the healthbars
+      for (auto& character : battle.drifters)
+      {
+        e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+        e.AddComponent<Healthbar>({});
+        e.AddComponent<Transform>({});
+        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
+        e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+
+        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
+        e.AddComponent<ZIndex>({ 35 });
+
+        e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+        e.AddComponent<Transform>({});
+        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(-30, -100, 0) });
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+        e.AddComponent<ZIndex>({ 3 });
+        e.AddComponent<Text>({
+          FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+          FLX_STRING_NEW(R"(Itches)"),
+          Vector3(1.0f, 1.0, 1.0f),
+          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+          {                            600,                              320 }
+        });
+      }
+      for (auto& character : battle.enemies)
+      {
+        e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+        e.AddComponent<Healthbar>({});
+        e.AddComponent<Transform>({});
+        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
+        e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
+        e.AddComponent<ZIndex>({ 35 });
+
+        e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+        e.AddComponent<Transform>({});
+        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-105, -100, 0) });
+        e.AddComponent<Rotation>({});
+        e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+        e.AddComponent<ZIndex>({ 3 });
+        e.AddComponent<Text>({
+          FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+          FLX_STRING_NEW(R"(Itches)"),
+          Vector3(1.0f, 1.0, 1.0f),
+          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+          {                            600,                              320 }
+        });
+      }
+
+  #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
+
+    // Just set some random shit as the target for the start of game lmao
+    battle.target = 1;
   }
 
   void BattleLayer::OnDetach()
@@ -416,6 +422,10 @@ namespace Game
 
   void BattleLayer::Update()
   {
+    bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
+    bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
+    bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
+
     // check for escape key
     // this goes back to the main menu
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -435,31 +445,31 @@ namespace Game
     // return if the battle is over
     if (battle.is_win || battle.is_lose) return;
 
-      // start of the battle system
-      //
-      // Battle System Preparation
-      // - return when playing animations (disable_input_timer > 0)
-      // - get the current character from the speed bar
-      //
-      // AI Move
-      // - if it's not the player's turn, do the AI move and skip the player input code
-      //
-      // Player Input
-      // - if it's the player's turn, skip the AI move and check for input
-      // - if the player has selected a target, check for input for the move
-      // - if the player has selected a move, apply the move and update the speed
-      // - play the animations and disable input for the duration of the move animation
-      //
-      // Resolve Game State
-      // - resolve speed bar
-      //
-      // Update Displays
-      // - update the targeting display
-      // - update the speed bar display
-      //
-      // end of the battle system
+    // start of the battle system
+    //
+    // Battle System Preparation
+    // - return when playing animations (disable_input_timer > 0)
+    // - get the current character from the speed bar
+    //
+    // AI Move
+    // - if it's not the player's turn, do the AI move and skip the player input code
+    //
+    // Player Input
+    // - if it's the player's turn, skip the AI move and check for input
+    // - if the player has selected a target, check for input for the move
+    // - if the player has selected a move, apply the move and update the speed
+    // - play the animations and disable input for the duration of the move animation
+    //
+    // Resolve Game State
+    // - resolve speed bar
+    //
+    // Update Displays
+    // - update the targeting display
+    // - update the speed bar display
+    //
+    // end of the battle system
 
-#pragma region Battle System Preparation
+  #pragma region Battle System Preparation
 
     // current active character
     _Character* current_character = battle.speed_bar.front();
@@ -505,14 +515,25 @@ namespace Game
       current_character_entity.GetComponent<Position>()->position.x += 100;
 #endif
 
+    // Just swapped from enemy phase to player phase
     if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
     {
       // Plays sound if swap from enemy phase to player phase
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
         FLX_STRING_NEW(R"(/audio/start turn.mp3)");
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-      Log::Info("Player Turn Start");
-      battle.prev_state = true;
+
+      // Defaults target selection
+      for (int i{0}; i < battle.enemy_slots.size(); ++i)
+      {
+        if (battle.enemy_slots[i]->is_alive && battle.enemy_slots[i] != nullptr)
+        {
+          battle.target = i + 1;
+          break;
+        }
+      }
+
+      battle.prev_state = true; // dont forget to reset, of course...
     }
 
 
@@ -639,6 +660,7 @@ namespace Game
       else if (Input::GetKeyDown(GLFW_KEY_5))
         battle.target = 5;
 
+      // Unselect illegal choices
       if (battle.target != 0)
       {
         // if targeting nothing, untarget
@@ -653,13 +675,13 @@ namespace Game
 #pragma endregion
 
 #pragma region Moves
-
-
-    if (battle.is_player_turn && battle.target != 0 && current_character->current_selected_move > 0)
+    // Executes if player turn and target is selected and some move is already selected
+    if (battle.is_player_turn && battle.target != 0)
     {
       _Move* current_move = nullptr;
 
-      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1)
+      if (move_one_click
+        || (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1))
       {
         current_move = &current_character->move_one;
 
@@ -682,7 +704,8 @@ namespace Game
         }
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
+      if (move_two_click
+        || Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
       {
         current_move = &current_character->move_two;
 
@@ -706,7 +729,8 @@ namespace Game
       }
 
       // Ultimate move
-      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
+      if (move_three_click
+        || Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
       {
         current_move = &current_character->move_three;
 
@@ -803,12 +827,14 @@ namespace Game
 
         battle.projected_character.GetComponent<Transform>()->is_active = false;
         battle.projected_speed = 0;
+        battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
       }
     }
 
+    // Sets the description for the current character and locks the current selected move for the next loop to consume
     if (battle.is_player_turn && current_character->current_speed <= 0)
     {
-      if (Input::GetKeyDown(GLFW_KEY_Z))
+      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
       {
         current_character->current_selected_move = 1;
         std::string& description = FLX_STRING_GET(
@@ -819,7 +845,7 @@ namespace Game
         //calculate projected_icon's speed
         battle.projected_speed = current_character->speed + current_character->move_one.speed;
       }
-      if (Input::GetKeyDown(GLFW_KEY_X))
+      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
       {
         current_character->current_selected_move = 2;
         std::string& description = FLX_STRING_GET(
@@ -831,7 +857,7 @@ namespace Game
         battle.projected_speed = current_character->speed + current_character->move_two.speed + 15;
         //Log::Info(std::to_string(current_character->move_two.speed));
       }
-      if (Input::GetKeyDown(GLFW_KEY_C))
+      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
       {
         current_character->current_selected_move = 3;
         std::string& description = FLX_STRING_GET(
@@ -1051,11 +1077,17 @@ namespace Game
       // guard
       if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
-      // get the character's current health
-      float health_percentage = (float)character->current_health / (float)character->health;
+      auto* scale = entity.GetComponent<Scale>();
+      auto* healthbar = entity.GetComponent<Healthbar>();
+      auto* position = entity.GetComponent<Position>();
 
-      // update the scale
-      entity.GetComponent<Scale>()->scale = entity.GetComponent<Healthbar>()->original_scale * health_percentage;
+      // Calculate the health percentage and new scale.
+      float health_percentage = static_cast<float>(character->current_health) / static_cast<float>(character->health);
+      // Update Scale
+      scale->scale.x = healthbar->original_scale.x * health_percentage;
+
+      // Update Position
+      position->position.x = healthbar->original_position.x - static_cast<float>(healthbar->pixelLength/2) * (1.0-health_percentage);
 
       entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
 
@@ -1067,12 +1099,6 @@ namespace Game
 
       // update the scale
       entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
-
-      // update the position
-      // keep it left-aligned, it's centered by default
-      // entity.GetComponent<Position>()->position.x =
-      //  battle.healthbar_slot_positions[character->current_slot + (character->character_id < 2) ? 0 : 2].x +
-      //  (entity.GetComponent<Healthbar>()->original_scale.x - entity.GetComponent<Scale>()->scale.x) / 2;
     }
 
 #pragma endregion

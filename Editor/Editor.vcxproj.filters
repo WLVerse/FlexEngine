@@ -78,6 +78,9 @@
     <ClCompile Include="src\Layers\camerasystemlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layers\profilelayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -154,6 +157,9 @@
       <Filter>src\Editor</Filter>
     </ClInclude>
     <ClInclude Include="src\Layers\camerasystemlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\profilelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>

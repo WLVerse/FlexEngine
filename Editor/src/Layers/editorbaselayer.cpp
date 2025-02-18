@@ -17,19 +17,12 @@
 
 namespace Editor
 {
-
     void EditorBaseLayer::OnAttach()
     {
-
         #pragma region Create the entities
         #if 1
         {
             auto scene = FlexECS::Scene::CreateScene();
-            {
-                //FlexECS::Entity entity = scene->CreateEntity("Save Test 00000000000000000000000000000000000000000");
-                //entity.AddComponent<Transform>({});
-                //entity.AddComponent<Sprite>({ FLX_STRING_NEW("") });
-            }
             {
                 FlexECS::Entity entity = scene->CreateEntity("Empty Box");
                 entity.AddComponent<Position>({ {600, 600, 0} });
@@ -64,9 +57,10 @@ namespace Editor
                   { 1, 1, 1 }
                 });
                 entity.AddComponent<Transform>({});
-                entity.AddComponent<Audio>({ true, false, false, false, FLX_STRING_NEW(R"(/audio/generic attack.mp3)") });
+                entity.AddComponent<Audio>({ FLX_STRING_NEW(R"(/audio/generic attack.mp3)")});
                 entity.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)") });
-                entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"), true, 0.f });
+                entity.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"),
+                  FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)")});
                 entity.AddComponent<Script>({ FLX_STRING_NEW("PlayAnimation") });
             }
             // Camera Test
@@ -191,6 +185,8 @@ namespace Editor
 
         // add camera service layer
         FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<CameraSystemLayer>());
+
+        FLX_COMMAND_ADD_WINDOW_LAYER("Editor", std::make_shared<ProfilerLayer>());
     }
 
     void EditorBaseLayer::OnDetach()
@@ -199,6 +195,7 @@ namespace Editor
 
     void EditorBaseLayer::Update()
     {
+      Profiler::StartCounter("Editor");
       // Always remember to set the context before using ImGui
       FLX_IMGUI_ALIGNCONTEXT();
 
@@ -210,95 +207,96 @@ namespace Editor
       dockspace_main_id = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockspace_flags);
 
       Editor::GetInstance().Update();
-
       
-        // For IMGUI
-        FunctionQueue function_queue;
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("New", "Ctrl+N"))
-                {
-                    function_queue.Insert({ [this]()
-                                            {
-                        // Clear the scene and reset statics
-                        Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
-                        FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
-                        current_save_name = default_save_name;
-                      } });
-                }
+      // For IMGUI
+      FunctionQueue function_queue;
+      if (ImGui::BeginMainMenuBar())
+      {
+          if (ImGui::BeginMenu("File"))
+          {
+              if (ImGui::MenuItem("New", "Ctrl+N"))
+              {
+                  function_queue.Insert({ [this]()
+                                          {
+                      // Clear the scene and reset statics
+                      Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
+                      FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
+                      current_save_name = default_save_name;
+                    } });
+              }
 
-                if (ImGui::MenuItem("Open", "Ctrl+O"))
-                {
-                    function_queue.Insert({ [this]()
-                                            {
-                                              FileList files = FileList::Browse(
-                                                "Open Scene", Path::current("saves"), "default.flxscene",
-                                                L"FlexScene Files (*.flxscene)\0"
-                                                L"*.flxscene\0",
-                                                // L"All Files (*.*)\0" L"*.*\0",
-                                                false, false
-                                              );
+              if (ImGui::MenuItem("Open", "Ctrl+O"))
+              {
+                  function_queue.Insert({ [this]()
+                                          {
+                                            FileList files = FileList::Browse(
+                                              "Open Scene", Path::current("saves"), "default.flxscene",
+                                              L"FlexScene Files (*.flxscene)\0"
+                                              L"*.flxscene\0",
+                                              // L"All Files (*.*)\0" L"*.*\0",
+                                              false, false
+                                            );
 
-                                              // cancel if no files were selected
-                                              if (files.empty()) return;
+                                            // cancel if no files were selected
+                                            if (files.empty()) return;
 
-                                              // open the scene
-                                              File& file = File::Open(files[0]);
+                                            // open the scene
+                                            File& file = File::Open(files[0]);
 
-                                              // update the current save directory and name
-                                              current_save_directory = file.path.parent_path();
-                                              current_save_name = file.path.stem().string();
+                                            // update the current save directory and name
+                                            current_save_directory = file.path.parent_path();
+                                            current_save_name = file.path.stem().string();
 
-                                              // load the scene
-                                              Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
-                                              FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
-                                            } });
-                }
+                                            // load the scene
+                                            Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
+                                            FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+                                          } });
+              }
 
-                if (ImGui::MenuItem("Save As", "Ctrl+Shift+S"))
-                {
-                    function_queue.Insert({ [this]()
-                                            {
-                                              FileList files = FileList::Browse(
-                                                "Save Scene", current_save_directory, current_save_name + ".flxscene",
-                                                L"FlexScene Files (*.flxscene)\0"
-                                                L"*.flxscene\0"
-                                                L"All Files (*.*)\0"
-                                                L"*.*\0",
-                                                true
-                                              );
+              if (ImGui::MenuItem("Save As", "Ctrl+Shift+S"))
+              {
+                  function_queue.Insert({ [this]()
+                                          {
+                                            FileList files = FileList::Browse(
+                                              "Save Scene", current_save_directory, current_save_name + ".flxscene",
+                                              L"FlexScene Files (*.flxscene)\0"
+                                              L"*.flxscene\0"
+                                              L"All Files (*.*)\0"
+                                              L"*.*\0",
+                                              true
+                                            );
 
-                                              // cancel if no files were selected
-                                              if (files.empty()) return;
+                                            // cancel if no files were selected
+                                            if (files.empty()) return;
 
-                                              // sanitize the file extension
-                                              std::string file_path = files[0];
-                                              auto it = file_path.find_last_of(".");
-                                              if (it != std::string::npos) file_path = file_path.substr(0, it);
-                                              file_path += ".flxscene";
+                                            // sanitize the file extension
+                                            std::string file_path = files[0];
+                                            auto it = file_path.find_last_of(".");
+                                            if (it != std::string::npos) file_path = file_path.substr(0, it);
+                                            file_path += ".flxscene";
 
-                                              // open the file
-                                              File& file = File::Open(Path(file_path));
+                                            // open the file
+                                            File& file = File::Open(Path(file_path));
 
-                                              // save the scene
-                                              FlexECS::Scene::SaveActiveScene(file);
-                                              Log::Info("Saved scene to: " + file.path.string());
+                                            // save the scene
+                                            FlexECS::Scene::SaveActiveScene(file);
+                                            Log::Info("Saved scene to: " + file.path.string());
 
-                                              // update the current save directory and name
-                                              current_save_directory = file.path.parent_path();
-                                              current_save_name = file.path.stem().string();
-                                            } });
-                }
+                                            // update the current save directory and name
+                                            current_save_directory = file.path.parent_path();
+                                            current_save_name = file.path.stem().string();
+                                          } });
+              }
 
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
+              ImGui::EndMenu();
+          }
+          ImGui::EndMainMenuBar();
+      }
 
-        // Execute the function queue
-        function_queue.Flush();
+      // Execute the function queue
+      function_queue.Flush();
+
+      Profiler::EndCounter("Editor");
     }
 
 } // namespace Editor
