@@ -403,6 +403,10 @@ namespace Game
 
   void BattleLayer::Update()
   {
+    bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
+    bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
+    bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
+
     // check for escape key
     // this goes back to the main menu
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -641,13 +645,13 @@ namespace Game
 #pragma endregion
 
 #pragma region Moves
-
-
-    if (battle.is_player_turn && battle.target != 0 && current_character->current_selected_move > 0)
+    // Executes if player turn and target is selected and some move is already selected
+    if (battle.is_player_turn && battle.target != 0)
     {
       _Move* current_move = nullptr;
 
-      if (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1)
+      if (move_one_click
+        || (Input::GetKeyDown(GLFW_KEY_Z) && current_character->current_selected_move == 1))
       {
         current_move = &current_character->move_one;
 
@@ -670,7 +674,8 @@ namespace Game
         }
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
+      if (move_two_click
+        || Input::GetKeyDown(GLFW_KEY_X) && current_character->current_selected_move == 2)
       {
         current_move = &current_character->move_two;
 
@@ -694,7 +699,8 @@ namespace Game
       }
 
       // Ultimate move
-      if (Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
+      if (move_three_click
+        || Input::GetKeyDown(GLFW_KEY_C) && current_character->current_selected_move == 3)
       {
         current_move = &current_character->move_three;
 
@@ -791,9 +797,10 @@ namespace Game
       }
     }
 
+    // Sets the description for the current character and locks the current selected move for the next loop to consume
     if (battle.is_player_turn && current_character->current_speed <= 0)
     {
-      if (Input::GetKeyDown(GLFW_KEY_Z))
+      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
       {
         current_character->current_selected_move = 1;
         std::string& description = FLX_STRING_GET(
@@ -801,7 +808,7 @@ namespace Game
         );
         description = current_character->move_one.description;
       }
-      if (Input::GetKeyDown(GLFW_KEY_X))
+      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
       {
         current_character->current_selected_move = 2;
         std::string& description = FLX_STRING_GET(
@@ -809,7 +816,7 @@ namespace Game
         );
         description = current_character->move_two.description;
       }
-      if (Input::GetKeyDown(GLFW_KEY_C))
+      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
       {
         current_character->current_selected_move = 3;
         std::string& description = FLX_STRING_GET(
