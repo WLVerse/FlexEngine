@@ -147,6 +147,8 @@ namespace Game
      // render all sprites
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
       {
+        if (!element.GetComponent<Transform>()->is_active) continue;
+
         Sprite& sprite = *element.GetComponent<Sprite>();
         Renderer2DProps props;
 

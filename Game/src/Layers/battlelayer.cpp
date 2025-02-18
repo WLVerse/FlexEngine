@@ -201,12 +201,12 @@ namespace Game
   }
 
 #pragma endregion
-
+  
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mewhenibattle.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -626,6 +626,7 @@ namespace Game
       else if (Input::GetKeyDown(GLFW_KEY_5))
         battle.target = 5;
 
+      // Unselect illegal choices
       if (battle.target != 0)
       {
         // if targeting nothing, untarget
