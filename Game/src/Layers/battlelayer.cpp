@@ -62,7 +62,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = is_player_turn;
+    bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -393,6 +393,9 @@ namespace Game
   #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
+
+    // Just set some random shit as the target for the start of game lmao
+    battle.target = 1;
   }
 
   void BattleLayer::OnDetach()
@@ -496,14 +499,25 @@ namespace Game
       current_character_entity.GetComponent<Position>()->position.x += 100;
 #endif
 
+    // Just swapped from enemy phase to player phase
     if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
     {
       // Plays sound if swap from enemy phase to player phase
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
         FLX_STRING_NEW(R"(/audio/start turn.mp3)");
       FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-      Log::Info("Player Turn Start");
-      battle.prev_state = true;
+
+      // Defaults target selection
+      for (int i{0}; i < battle.enemy_slots.size(); ++i)
+      {
+        if (battle.enemy_slots[i]->is_alive && battle.enemy_slots[i] != nullptr)
+        {
+          battle.target = i + 1;
+          break;
+        }
+      }
+
+      battle.prev_state = true; // dont forget to reset, of course...
     }
 
 
@@ -794,6 +808,8 @@ namespace Game
         move1 = "";
         move2 = "";
         move3 = "";
+
+        battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
       }
     }
 
