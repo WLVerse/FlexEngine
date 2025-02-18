@@ -17,7 +17,7 @@ namespace Game
 {
   void TownLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/townscene.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     // Trigger music to start
@@ -34,15 +34,31 @@ namespace Game
 
   void TownLayer::Update()
   {
-    /*
+    
 #pragma region Camera Follow System
 
     // move camera to follow main character
-    FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
+    FlexECS::Entity camera = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera, Position>()[0];
+    FlexECS::Entity main_character, main_enemy;
+    auto characters = FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Position, Rigidbody>();
+    for (auto& c : characters) {
+      if (c.GetComponent<Rigidbody>()->is_static) main_enemy = c;
+      else main_character = c;
+    }
+
     camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
+    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -880.f, 710.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 880.f);
 
 #pragma endregion
-
+#pragma region Scene Transition
+   if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
+   {
+     // transition lorhhhhhhhh
+     Application::MessagingSystem::Send("Enter Battle", true);
+   }
+#pragma endregion
+    /*
 #pragma region Renko X Barrel z-index resolver
 
     //// resolve z-index of renko and barrel
@@ -55,11 +71,7 @@ namespace Game
 #pragma endregion
 
 
-    if (area_to_transition.GetComponent<BoundingBox2D>()->is_colliding)
-    {
-      // transition lorhhhhhhhh
-      Application::MessagingSystem::Send("Enter Battle", true);
-    }
+    
     */
   }
 } // namespace Game
