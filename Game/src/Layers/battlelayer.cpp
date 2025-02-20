@@ -68,6 +68,10 @@ namespace Game
     int enemy_alive_count = 0;
     bool is_win = false;
     bool is_lose = false;
+
+    // Return to original position
+    FlexECS::Entity previous_character_entity = FlexECS::Entity::Null;
+    _Character* previous_character = nullptr;
   };
 
   _Battle battle;
@@ -206,7 +210,7 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v2.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -410,6 +414,12 @@ namespace Game
     bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
     bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
 
+    bool target_one_click = Application::MessagingSystem::Receive<bool>("TargetOne clicked");
+    bool target_two_click = Application::MessagingSystem::Receive<bool>("TargetTwo clicked");
+    bool target_three_click = Application::MessagingSystem::Receive<bool>("TargetThree clicked");
+    bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
+    bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");
+
     // check for escape key
     // this goes back to the main menu
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
@@ -482,6 +492,12 @@ namespace Game
       return;
     }
 
+    if (battle.previous_character != nullptr) {
+      Vector3 previous_position = (battle.previous_character->character_id <= 2) ?
+        battle.sprite_slot_positions[battle.previous_character->current_slot] : 
+        battle.sprite_slot_positions[2 + battle.previous_character->current_slot];
+      battle.previous_character_entity.GetComponent<Position>()->position = previous_position;
+    }
     // hide or display the move UI
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
       entity.GetComponent<Transform>()->is_active = battle.is_player_turn;
@@ -552,6 +568,11 @@ namespace Game
           break;
       }
 
+      // Temporarily move the character
+      battle.previous_character = current_character;
+      battle.previous_character_entity = current_character_entity;
+      current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[target_character->current_slot];
+      
       // apply the move
       target_character->current_health -= move->damage;
       target_character->current_speed += move->damage;
@@ -633,15 +654,15 @@ namespace Game
     // TODO: support multi-targeting patterns
     if (battle.is_player_turn)
     {
-      if (Input::GetKeyDown(GLFW_KEY_1))
+      if (Input::GetKeyDown(GLFW_KEY_1) || target_one_click)
         battle.target = 1;
-      else if (Input::GetKeyDown(GLFW_KEY_2))
+      else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
         battle.target = 2;
-      else if (Input::GetKeyDown(GLFW_KEY_3))
+      else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
         battle.target = 3;
-      else if (Input::GetKeyDown(GLFW_KEY_4))
+      else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
         battle.target = 4;
-      else if (Input::GetKeyDown(GLFW_KEY_5))
+      else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
         battle.target = 5;
 
       // Unselect illegal choices
@@ -747,6 +768,11 @@ namespace Game
           Log::Error("Target not found.");
           return;
         }
+
+        // temporarily move character
+        battle.previous_character = current_character;
+        battle.previous_character_entity = current_character_entity;
+        current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[2 + target_character->current_slot];
 
         // apply the move
         target_character->current_health -= current_move->damage;
