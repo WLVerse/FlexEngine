@@ -27,6 +27,11 @@
     <ClCompile Include="src\movetwo.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
     <ClCompile Include="src\playermovement.cpp" />
+    <ClCompile Include="src\targetfive.cpp" />
+    <ClCompile Include="src\targetfour.cpp" />
+    <ClCompile Include="src\targetone.cpp" />
+    <ClCompile Include="src\targetthree.cpp" />
+    <ClCompile Include="src\targettwo.cpp" />
     <ClCompile Include="src\testbutton.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

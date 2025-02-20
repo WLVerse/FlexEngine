@@ -210,7 +210,7 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v2.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -413,6 +413,12 @@ namespace Game
     bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
     bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
     bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
+
+    bool target_one_click = Application::MessagingSystem::Receive<bool>("TargetOne clicked");
+    bool target_two_click = Application::MessagingSystem::Receive<bool>("TargetTwo clicked");
+    bool target_three_click = Application::MessagingSystem::Receive<bool>("TargetThree clicked");
+    bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
+    bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");
 
     // check for escape key
     // this goes back to the main menu
@@ -648,15 +654,15 @@ namespace Game
     // TODO: support multi-targeting patterns
     if (battle.is_player_turn)
     {
-      if (Input::GetKeyDown(GLFW_KEY_1))
+      if (Input::GetKeyDown(GLFW_KEY_1) || target_one_click)
         battle.target = 1;
-      else if (Input::GetKeyDown(GLFW_KEY_2))
+      else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
         battle.target = 2;
-      else if (Input::GetKeyDown(GLFW_KEY_3))
+      else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
         battle.target = 3;
-      else if (Input::GetKeyDown(GLFW_KEY_4))
+      else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
         battle.target = 4;
-      else if (Input::GetKeyDown(GLFW_KEY_5))
+      else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
         battle.target = 5;
 
       // Unselect illegal choices
