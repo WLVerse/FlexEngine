@@ -68,6 +68,10 @@ namespace Game
     int enemy_alive_count = 0;
     bool is_win = false;
     bool is_lose = false;
+
+    // Return to original position
+    FlexECS::Entity previous_character_entity = FlexECS::Entity::Null;
+    _Character* previous_character = nullptr;
   };
 
   _Battle battle;
@@ -482,6 +486,12 @@ namespace Game
       return;
     }
 
+    if (battle.previous_character != nullptr) {
+      Vector3 previous_position = (battle.previous_character->character_id <= 2) ?
+        battle.sprite_slot_positions[battle.previous_character->current_slot] : 
+        battle.sprite_slot_positions[2 + battle.previous_character->current_slot];
+      battle.previous_character_entity.GetComponent<Position>()->position = previous_position;
+    }
     // hide or display the move UI
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
       entity.GetComponent<Transform>()->is_active = battle.is_player_turn;
@@ -552,6 +562,11 @@ namespace Game
           break;
       }
 
+      // Temporarily move the character
+      battle.previous_character = current_character;
+      battle.previous_character_entity = current_character_entity;
+      current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[target_character->current_slot];
+      
       // apply the move
       target_character->current_health -= move->damage;
       target_character->current_speed += move->damage;
@@ -747,6 +762,11 @@ namespace Game
           Log::Error("Target not found.");
           return;
         }
+
+        // temporarily move character
+        battle.previous_character = current_character;
+        battle.previous_character_entity = current_character_entity;
+        current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[2 + target_character->current_slot];
 
         // apply the move
         target_character->current_health -= current_move->damage;
