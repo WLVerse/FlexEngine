@@ -41,6 +41,7 @@ int main(int, char**)
   // Enable run-time memory check for debug builds.
   #ifdef _DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+  //int* leak = new int;
   #endif
 
   // Ensure that the FreeQueue is run at the end of the program.
