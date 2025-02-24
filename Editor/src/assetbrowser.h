@@ -14,6 +14,7 @@
 #pragma once
 
 #include "FlexEngine.h"
+#include "FlexEngine/assetdropmanager.h"
 #include "editorpanel.h"
 #include <unordered_map>
 #include <string>
@@ -82,6 +83,11 @@ namespace Editor
 		void DeleteFilePopup(std::filesystem::path& file);
 		void RenderDeleteConfirmationPopup();
 
+
+		//Drag file from windows to editor
+		void OnFileDropped(const std::vector<std::string>& file_list);
+
+
 		const std::filesystem::path m_root_directory = "../../assets";
 
 		char m_text_input[128] = "";	//create file name, search...
@@ -97,6 +103,7 @@ namespace Editor
 
 		//Additional tracking of certain file types
 		//For things such as font dropdown menus.
+		//first = font name, second = filepath
 		std::unordered_map<std::string, std::string> m_font_paths;
 	};
 

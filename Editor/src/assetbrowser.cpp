@@ -15,12 +15,15 @@
 #include "assetbrowser.h"
 #include "editorgui.h"
 #include <filesystem>
+#include <functional>
+#include <filesystem>
 
 namespace Editor
 {
 	void AssetBrowser::Init()
 	{
 		LoadAllDirectories();
+		Application::GetCurrentWindow()->m_dropmanager.RegisterFileDropCallback(std::bind(&AssetBrowser::OnFileDropped, this, std::placeholders::_1));
 	}
 
 	void AssetBrowser::Update()
@@ -347,4 +350,26 @@ namespace Editor
 		}
 		ImGui::End();
 	}
+
+	void AssetBrowser::OnFileDropped(const std::vector<std::string>& file_list)
+	{
+
+		for (auto file : file_list)
+		{
+			std::cout << file << "\n";
+			std::filesystem::path src(file);
+			std::filesystem::path dest = std::filesystem::path(m_root_directory) / src.filename();
+
+			if (!CopyFileA(src.string().c_str(), dest.string().c_str(), FALSE))
+			{
+				Log::Error("Failed to copy file.");
+			}
+			else
+			{
+				Log::Info("Successfully copied file.");
+			}
+		}
+		LoadAllDirectories();
+	}
+
 }

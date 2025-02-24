@@ -210,6 +210,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\prefabeditor.h" />
     <ClInclude Include="src\sceneview.h" />
     <ClInclude Include="src\selectionsystem.h" />
+    <ClInclude Include="src\testshit.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\flexengine\flexengine-256.ico" />
