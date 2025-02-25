@@ -33,5 +33,20 @@
     <ClCompile Include="src\movetwo.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\targettwo.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\targetthree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\targetfour.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\targetfive.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\targetone.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
