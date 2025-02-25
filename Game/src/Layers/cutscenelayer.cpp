@@ -118,13 +118,16 @@ namespace Game
         #endif
 
         // --- Input Handling for skipping ---
-        if (Input::GetKey(GLFW_KEY_ESCAPE))
+        if (Input::GetKeyDown(GLFW_KEY_SPACE))
         {
-            // Immediately initiate a pre-transition.
+            if (m_TransitionPhase == TransitionPhase::PreTransition)
+                SwapShots();
+            // Time to start the pre-transition.
             m_TransitionPhase = TransitionPhase::PreTransition;
             m_TransitionElapsedTime = 0.0f;
+            
         }
-        else if (Input::GetKey(GLFW_KEY_SPACE))
+        else if (Input::GetKey(GLFW_KEY_ESCAPE))
         {
             // Stop the cutscene.
             StopCutscene();
