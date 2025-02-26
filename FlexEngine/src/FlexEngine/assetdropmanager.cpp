@@ -29,6 +29,9 @@ HRESULT DropManager::QueryInterface(REFIID riid, void** ppvObject)
 // occurs when we drag files into our applications view
 HRESULT DropManager::DragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
+	UNREFERENCED_PARAMETER(pDataObj);
+	UNREFERENCED_PARAMETER(grfKeyState);
+
 	// TODO: check whether we can handle this type of object at all and set *pdwEffect &= DROPEFFECT_NONE if not;
 
 	// Simulate left mouse button down
@@ -51,6 +54,8 @@ HRESULT DropManager::DragLeave()
 // occurs when we drag the mouse over our applications view whilst carrying files (post Enter, pre Leave)
 HRESULT DropManager::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
+	UNREFERENCED_PARAMETER(grfKeyState);
+
 	// trigger MouseMove within ImGui, position is within pt.x and pt.y
 	// grfKeyState contains flags for control, alt, shift etc
 
@@ -65,6 +70,7 @@ HRESULT DropManager::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 // occurs when we release the mouse button to finish the drag-drop operation
 HRESULT DropManager::Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
+	UNREFERENCED_PARAMETER(grfKeyState);
 
 	// trigger MouseUp for button 1 within ImGui
 	// Simulate releasing the left mouse button

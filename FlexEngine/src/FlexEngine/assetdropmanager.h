@@ -36,7 +36,7 @@ public:
 	HRESULT Drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
 
-	HWND m_hwnd;
+	HWND m_hwnd{};
 
 
 	//Observer interface (mostly for editor) (if i need more then i make more)

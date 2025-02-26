@@ -663,7 +663,6 @@ namespace Editor
 			{
 				std::string payload(file.generic_string());
 				payload.insert(0, "/");	//to fit the AssetKey format
-				std::string extension = file.extension().string();
 
 				//hardcode for now
 				if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
