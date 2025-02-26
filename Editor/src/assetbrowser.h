@@ -128,6 +128,9 @@ namespace Editor
 
 		const std::filesystem::path m_shader_image = "../../Editor/resources/assetbrowser_shader.png";
 		const std::filesystem::path m_shader_image_key = "/assetbrowser_shader.png";
+
+		const std::filesystem::path m_font_image = "../../Editor/resources/assetbrowser_font.png";
+		const std::filesystem::path m_font_image_key = "/assetbrowser_font.png";
 		#pragma endregion
 	};
 

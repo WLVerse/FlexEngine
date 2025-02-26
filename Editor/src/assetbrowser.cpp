@@ -25,12 +25,16 @@ namespace Editor
 	void AssetBrowser::Init()
 	{
 		LoadAllDirectories();
+		
+		m_root_folder.name = "Assets";
+		
 		Application::GetCurrentWindow()->m_dropmanager.RegisterFileDropCallback(std::bind(&AssetBrowser::OnFileDropped, this, std::placeholders::_1));
 
 		AssetManager::LoadFileFromPath(m_audio_image);
 		AssetManager::LoadFileFromPath(m_folder_image);
 		AssetManager::LoadFileFromPath(m_flxprefab_image);
 		AssetManager::LoadFileFromPath(m_shader_image);
+		AssetManager::LoadFileFromPath(m_font_image);
 	}
 
 	void AssetBrowser::Update()
@@ -392,10 +396,12 @@ namespace Editor
 		// Left Panel: Fixed width child window for the folder dropdown.
 		// ImVec2(width, height): width is fixed (e.g., 200), height 0 makes it fill the available vertical space.
 		ImGui::BeginChild("LeftPanel", ImVec2(left_panel_width, 0), true);
-		for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
-		{
-			RenderFolderDropdown(*subfolder);
-		}
+		//for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
+		//{
+		//	RenderFolderDropdown(*subfolder);
+		//}
+		RenderFolderDropdown(m_root_folder);
+
 		ImGui::EndChild();
 
 
@@ -464,6 +470,57 @@ namespace Editor
 			items_per_row = 1;
 
 		int item_index = 0;
+		
+		//Folders before files
+		for (auto& [directory_path, p_folder] : folder.subfolders)
+		{
+			ImGui::PushID(directory_path.string().c_str());
+
+			// Group the thumbnail and its label together
+			ImGui::BeginGroup();
+
+			Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_folder_image_key.string());
+			
+			bool isSelected = (m_selected_file == directory_path);
+			if (isSelected)
+			{
+				EditorGUI::StyleColorPush_Selected();
+			}
+
+			if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+			{
+				m_selected_file = directory_path;
+			}
+
+
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			{
+				m_selected_folder = p_folder; // set the selected folder
+			}
+
+			if (isSelected)
+			{
+				EditorGUI::StyleColorPop_Selected();
+			}
+
+			// Get the filename and truncate it if necessary to fit thumbnail width.
+			std::string directory_name = directory_path.filename().string();
+			std::string displayname = TruncateTextToWidth(directory_name, cell_size + padding);
+
+			// Render the text on a single line (without wrapping).
+			ImGui::Text("%s", displayname.c_str());
+			ImGui::EndGroup();
+
+			ImGui::PopID();
+
+			// Place the item on the same row if it's not the last in the row.
+			if ((item_index + 1) % items_per_row != 0)
+			{
+				ImGui::SameLine(0, padding);
+			}
+			item_index++;
+		}
+		
 		for (auto& file : folder.files)
 		{
 			ImGui::PushID(file.string().c_str());
@@ -478,47 +535,62 @@ namespace Editor
 
 			if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
 			{
+				found_texture = true;
+			}
+			else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
+			{
+				assetkey = m_shader_image_key.string();
+				found_texture = true;
+			}
+			else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
+			{
+				assetkey = m_audio_image_key.string();
+				found_texture = true;
+			}
+			else if (extension == ".flxprefab")
+			{
+				assetkey = m_flxprefab_image_key.string();
+				found_texture = true;
+			}
+			else if (extension == ".ttf")
+			{
+				assetkey = m_font_image_key.string();
+				//Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_font_image_key.string());
+				//if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+				//{
+				//	m_selected_file = file;
+				//}
+				found_texture = true;
+			}
+
+
+			bool isSelected = (m_selected_file == file);
+			if (isSelected)
+			{
+				EditorGUI::StyleColorPush_Selected();
+			}
+
+			if (found_texture)
+			{
 				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(assetkey);
 				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
 				{
 					m_selected_file = file;
 				}
-				found_texture = true;
+				ImGui::SetItemTooltip(file.filename().string().c_str());
 			}
-			else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
-			{
-				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_shader_image_key.string());
-				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
-				{
-					m_selected_file = file;
-				}
-				found_texture = true;
-			}
-			else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
-			{
-				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_audio_image_key.string());
-				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
-				{
-					m_selected_file = file;
-				}
-				found_texture = true;
-			}
-			else if (extension == ".flxprefab")
-			{
-				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_flxprefab_image_key.string());
-				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
-				{
-					m_selected_file = file;
-				}
-				found_texture = true;
-			}
-
-			if (!found_texture)
+			else
 			{
 				if (ImGui::ImageButton((ImTextureID)0, ImVec2(thumbnail_size, thumbnail_size)))
 				{
 					m_selected_file = file;
 				}
+				ImGui::SetItemTooltip(file.filename().string().c_str());
+			}
+
+			if (isSelected)
+			{
+				EditorGUI::StyleColorPop_Selected();
 			}
 
 
@@ -528,8 +600,7 @@ namespace Editor
 				std::string payload(file.generic_string());
 				payload.insert(0, "/");	//to fit the AssetKey format
 				std::string extension = file.extension().string();
-				//std::cout << payload << "\n";
-				//std::cout << assetkey << "\n";
+
 				//hardcode for now
 				if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
 				{
