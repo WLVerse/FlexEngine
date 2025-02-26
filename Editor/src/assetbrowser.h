@@ -108,6 +108,15 @@ namespace Editor
 		std::unordered_map<std::filesystem::path, Folder> m_directories;
 		Folder m_root_folder;	//Need to know what's inside the root folder is so we know where to start displaying
 
+		float m_left_panel_width = 320.0f;
+		
+		struct PanelRect
+		{
+			ImVec2 min;
+			ImVec2 max;
+		};
+		PanelRect m_right_panel_rect;
+		
 		//Additional tracking of certain file types
 		//For things such as font dropdown menus.
 		//first = font name, second = filepath
@@ -117,6 +126,8 @@ namespace Editor
 		const std::filesystem::path m_root_directory = "../../assets";
 
 		#pragma region -.-
+		const std::filesystem::path m_resources_root = "../../Editor/resources";
+
 		const std::filesystem::path m_audio_image = "../../Editor/resources/assetbrowser_audio.png";
 		const std::filesystem::path m_audio_image_key = "/assetbrowser_audio.png";
 

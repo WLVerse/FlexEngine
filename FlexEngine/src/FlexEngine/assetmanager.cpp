@@ -199,11 +199,11 @@ namespace FlexEngine
     }
   }
 
-  void AssetManager::LoadFileFromPath(Path path)
+  void AssetManager::LoadFileFromPath(Path path, Path _default_directory)
   {
     File file = File::Open(path);
 
-    std::size_t default_directory_length = default_directory.string().length();
+    std::size_t default_directory_length = _default_directory.string().length();
 
     auto file_extension = file.path.extension();
 

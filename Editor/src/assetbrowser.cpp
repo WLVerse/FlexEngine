@@ -18,7 +18,6 @@
 #include <functional>
 #include <filesystem>
 
-float left_panel_width = 320.0f;
 
 namespace Editor
 {
@@ -27,14 +26,15 @@ namespace Editor
 		LoadAllDirectories();
 		
 		m_root_folder.name = "Assets";
+		//m_root_folder.path = m_root_directory;
 		
 		Application::GetCurrentWindow()->m_dropmanager.RegisterFileDropCallback(std::bind(&AssetBrowser::OnFileDropped, this, std::placeholders::_1));
 
-		AssetManager::LoadFileFromPath(m_audio_image);
-		AssetManager::LoadFileFromPath(m_folder_image);
-		AssetManager::LoadFileFromPath(m_flxprefab_image);
-		AssetManager::LoadFileFromPath(m_shader_image);
-		AssetManager::LoadFileFromPath(m_font_image);
+		AssetManager::LoadFileFromPath(m_audio_image, m_resources_root);
+		AssetManager::LoadFileFromPath(m_folder_image, m_resources_root);
+		AssetManager::LoadFileFromPath(m_flxprefab_image, m_resources_root);
+		AssetManager::LoadFileFromPath(m_shader_image, m_resources_root);
+		AssetManager::LoadFileFromPath(m_font_image, m_resources_root);
 	}
 
 	void AssetBrowser::Update()
@@ -48,7 +48,12 @@ namespace Editor
 				std::filesystem::remove(m_file_to_delete);
 				m_should_delete_file = false;
 				m_file_to_delete.clear();
+
+
+				//save the path, so we can navigate back to the folder after refreshing directory structure
+				std::filesystem::path old_selected_folder_path = m_selected_folder->path;
 				LoadAllDirectories();
+				m_selected_folder = &m_directories[old_selected_folder_path];
 			}
 		}
 	}
@@ -70,6 +75,7 @@ namespace Editor
 		m_root_folder.subfolders.clear();
 		m_font_paths.clear();
 		m_directories.clear();
+		m_selected_folder = nullptr;
 
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(m_root_directory))
 		{
@@ -318,8 +324,9 @@ namespace Editor
 	void AssetBrowser::EditorUI()
 	{
 		EditorUI2();
-		return;
 
+		//My intention is to create settings/options that allow you to swap "styles/layout"
+		#if 0
 		ImGui::Begin("Asset Browser");
 		if (ImGui::Button("Refresh"))
 		{
@@ -383,6 +390,8 @@ namespace Editor
 			DeleteFilePopup(file);
 		}
 		ImGui::End();
+
+		#endif
 	}
 
 
@@ -392,14 +401,11 @@ namespace Editor
 	void AssetBrowser::EditorUI2()
 	{
 		ImGui::Begin("Asset Browser");
-		
+
 		// Left Panel: Fixed width child window for the folder dropdown.
-		// ImVec2(width, height): width is fixed (e.g., 200), height 0 makes it fill the available vertical space.
-		ImGui::BeginChild("LeftPanel", ImVec2(left_panel_width, 0), true);
-		//for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
-		//{
-		//	RenderFolderDropdown(*subfolder);
-		//}
+		ImGui::BeginChild("LeftPanel", ImVec2(m_left_panel_width, 0), true);
+		
+
 		RenderFolderDropdown(m_root_folder);
 
 		ImGui::EndChild();
@@ -412,6 +418,9 @@ namespace Editor
 
 		// Right Panel: Child window that takes up the remaining space (width=0 means auto-fill)
 		ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
+		m_right_panel_rect.min = ImGui::GetWindowPos();
+		m_right_panel_rect.max = { m_right_panel_rect.min.x + ImGui::GetWindowSize().x,
+															m_right_panel_rect.min.y + ImGui::GetWindowSize().y };
 
 
 		std::string current_path_to_folder;
@@ -424,7 +433,58 @@ namespace Editor
 			current_path_to_folder = "No folder selected.";
 		}
 
-		ImGui::Text(current_path_to_folder.c_str());
+		ImGui::Text(("Current Folder:   " + current_path_to_folder).c_str());
+
+		//File Creation
+		static bool s_openAddFilePopup = false;
+		if (ImGui::BeginPopupContextWindow("AssetBrowserContextMenu", ImGuiMouseButton_Right | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			if (ImGui::MenuItem("Create File"))
+			{
+				s_openAddFilePopup = true;
+				memset(m_text_input, 0, sizeof(m_text_input));
+			}
+			ImGui::EndPopup();
+		}
+		if (s_openAddFilePopup)
+		{
+			ImGui::OpenPopup("AddFilePopup");
+			s_openAddFilePopup = false;
+		}
+		if (ImGui::BeginPopup("AddFilePopup"))
+		{
+			if (m_selected_folder)
+			{
+				ImGui::Text("Create new file in folder: %s", m_selected_folder->name.c_str());
+			}
+			else
+			{
+				ImGui::Text("No folder selected. Using root folder.");
+				m_selected_folder = &m_root_folder;
+			}
+
+			ImGui::Separator();
+			ImGui::InputText("File Name", m_text_input, IM_ARRAYSIZE(m_text_input));
+
+			if (ImGui::Button("Create"))
+			{
+				if (std::strlen(m_text_input) > 0)
+				{
+					std::filesystem::path new_file_path = m_root_directory / m_selected_folder->path / m_text_input;
+					std::ofstream new_file(new_file_path);
+					new_file.close();
+
+					//save the path, so we can navigate back to the folder after refreshing directory structure
+					std::filesystem::path old_selected_folder_path = m_selected_folder->path;
+					LoadAllDirectories();
+					m_selected_folder = &m_directories[old_selected_folder_path];
+				}
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
@@ -435,6 +495,10 @@ namespace Editor
 			RenderThumbnails(*m_selected_folder);
 		}
 
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsAnyItemHovered())
+		{
+			m_selected_file.clear();
+		}
 		
 
 		ImGui::EndChild();
@@ -464,7 +528,7 @@ namespace Editor
 		float cell_size = thumbnail_size + padding;
 
 		// Determine how many thumbnails can fit in one row
-		float available_width = ImGui::GetContentRegionAvail().x - left_panel_width;
+		float available_width = ImGui::GetContentRegionAvail().x - m_left_panel_width;
 		int items_per_row = static_cast<int>(available_width / (cell_size + padding/2));
 		if (items_per_row < 1)
 			items_per_row = 1;
@@ -665,7 +729,6 @@ namespace Editor
 		}
 	}
 
-
 	void AssetBrowser::RenderFolderDropdown2(Folder& folder)
 	{
 		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
@@ -694,30 +757,55 @@ namespace Editor
 	}
 
 
-
-
-
-
-
-
 	void AssetBrowser::OnFileDropped(const std::vector<std::string>& file_list)
 	{
+
+		ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+		// Check if the mouse is over the right panel.
+		if (mouse_pos.x < m_right_panel_rect.min.x || mouse_pos.x > m_right_panel_rect.max.x ||
+				mouse_pos.y < m_right_panel_rect.min.y || mouse_pos.y > m_right_panel_rect.max.y)
+		{
+			//Dropped file outside of panel
+			return;
+		}
+
+		//Check folder to put file in
+		std::filesystem::path destination = m_root_directory;
+		if (m_selected_folder)
+		{
+			destination /= std::filesystem::path(m_selected_folder->path);
+		}
+		else
+		{
+			return;
+		}
+
+		//save the path, so we can navigate back to the folder after refreshing directory structure
+		std::filesystem::path old_selected_folder_path = m_selected_folder->path;
 
 		for (auto file : file_list)
 		{
 			std::filesystem::path src(file);
-			std::filesystem::path dest = std::filesystem::path(m_root_directory) / src.filename();
 
-			if (!CopyFileA(src.string().c_str(), dest.string().c_str(), FALSE))
+			destination /= src.filename();
+
+			if (!CopyFileA(src.string().c_str(), destination.string().c_str(), FALSE))
 			{
 				Log::Error("Failed to copy file.");
 			}
 			else
 			{
 				Log::Info("Successfully copied file.");
+				//Create assetkey
+				std::filesystem::path assetkey_dest = "../../assets";
+				assetkey_dest /= std::filesystem::path(m_selected_folder->path);
+				assetkey_dest /= src.filename();
+
+				AssetManager::LoadFileFromPath(assetkey_dest, m_root_directory);
 			}
 		}
 		LoadAllDirectories();
+		m_selected_folder = &m_directories[old_selected_folder_path];
 	}
 }
 
