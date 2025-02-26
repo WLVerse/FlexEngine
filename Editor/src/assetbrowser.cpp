@@ -18,12 +18,19 @@
 #include <functional>
 #include <filesystem>
 
+float left_panel_width = 320.0f;
+
 namespace Editor
 {
 	void AssetBrowser::Init()
 	{
 		LoadAllDirectories();
 		Application::GetCurrentWindow()->m_dropmanager.RegisterFileDropCallback(std::bind(&AssetBrowser::OnFileDropped, this, std::placeholders::_1));
+
+		AssetManager::LoadFileFromPath(m_audio_image);
+		AssetManager::LoadFileFromPath(m_folder_image);
+		AssetManager::LoadFileFromPath(m_flxprefab_image);
+		AssetManager::LoadFileFromPath(m_shader_image);
 	}
 
 	void AssetBrowser::Update()
@@ -51,6 +58,7 @@ namespace Editor
 	{
 		return m_font_paths;
 	}
+
 
 	void AssetBrowser::LoadAllDirectories()
 	{
@@ -129,27 +137,47 @@ namespace Editor
 
 	void AssetBrowser::RenderFolderDropdown(Folder& folder)
 	{
-		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		//ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		
+		ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+		if (folder.subfolders.empty())
+			node_flags |= ImGuiTreeNodeFlags_Leaf;
+		else
+		{
+			node_flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+		}
+
 
 		// Highlight the selected folder
 		if (m_selected_folder == &folder)
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 
-		// Render folder node
-		if (ImGui::TreeNodeEx((folder.name + "##" + folder.path.string()).c_str(), node_flags))
+		bool node_open = ImGui::TreeNodeEx((folder.name + "##" + folder.path.string()).c_str(), node_flags);
+		
+		// Check for clicks on the tree node itself because imgui default behaviour bad
+		if (ImGui::IsItemClicked())
 		{
-			// Check if the folder is clicked
-			if (ImGui::IsItemClicked())
-			{
-				m_selected_folder = &folder; // Set the selected folder
-			}
+			// Get the rectangle of the tree node
+			ImVec2 node_min = ImGui::GetItemRectMin();
+			// Approximate arrow region width by the frame height
+			float arrow_width = ImGui::GetFrameHeight();
 
+			// If the mouse is clicked beyond the arrow region...
+			if (ImGui::GetIO().MousePos.x > node_min.x + arrow_width)
+			{
+				m_selected_folder = &folder; // Register as a body click
+			}
+			// Else, the click was likely(ESTIMATED) on the arrow;
+		}
+
+		// Render folder node
+		if (node_open)
+		{
 			// Render subfolders recursively
 			for (auto& [subfolder_path, subfolder] : folder.subfolders)
 			{
 				RenderFolderDropdown(*subfolder);
 			}
-
 			ImGui::TreePop();
 		}
 	}
@@ -285,8 +313,10 @@ namespace Editor
 
 	void AssetBrowser::EditorUI()
 	{
-		ImGui::Begin("Asset Browser");
+		EditorUI2();
+		return;
 
+		ImGui::Begin("Asset Browser");
 		if (ImGui::Button("Refresh"))
 		{
 			AssetManager::Unload();
@@ -351,12 +381,259 @@ namespace Editor
 		ImGui::End();
 	}
 
+
+	/*************************
+	***Below lies version 2***
+	*************************/
+	void AssetBrowser::EditorUI2()
+	{
+		ImGui::Begin("Asset Browser");
+		
+		// Left Panel: Fixed width child window for the folder dropdown.
+		// ImVec2(width, height): width is fixed (e.g., 200), height 0 makes it fill the available vertical space.
+		ImGui::BeginChild("LeftPanel", ImVec2(left_panel_width, 0), true);
+		for (auto& [subfolder_path, subfolder] : m_root_folder.subfolders)
+		{
+			RenderFolderDropdown(*subfolder);
+		}
+		ImGui::EndChild();
+
+
+		ImGui::SameLine();
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+		ImGui::SameLine();
+
+
+		// Right Panel: Child window that takes up the remaining space (width=0 means auto-fill)
+		ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
+
+
+		std::string current_path_to_folder;
+		if (m_selected_folder)
+		{
+			current_path_to_folder = m_selected_folder->path.string();
+		}
+		else
+		{
+			current_path_to_folder = "No folder selected.";
+		}
+
+		ImGui::Text(current_path_to_folder.c_str());
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+
+		if (m_selected_folder)
+		{
+			RenderThumbnails(*m_selected_folder);
+		}
+
+		
+
+		ImGui::EndChild();
+		
+		
+		ImGui::End();
+	}
+
+	std::string TruncateTextToWidth(const std::string& text, float maxWidth) {
+		// First, check if the text already fits.
+		if (ImGui::CalcTextSize(text.c_str()).x <= maxWidth)
+			return text;
+
+		std::string truncated = text;
+		const std::string ellipsis = "...";
+		// Remove characters until the text with ellipsis fits.
+		while (!truncated.empty() && ImGui::CalcTextSize((truncated + ellipsis).c_str()).x > maxWidth)
+			truncated.pop_back();
+		return truncated + ellipsis;
+	}
+
+	void AssetBrowser::RenderThumbnails(Folder& folder)
+	{
+		// Define thumbnail size and padding
+		const float thumbnail_size = 64.0f;
+		const float padding = 15.0f;
+		float cell_size = thumbnail_size + padding;
+
+		// Determine how many thumbnails can fit in one row
+		float available_width = ImGui::GetContentRegionAvail().x - left_panel_width;
+		int items_per_row = static_cast<int>(available_width / (cell_size + padding/2));
+		if (items_per_row < 1)
+			items_per_row = 1;
+
+		int item_index = 0;
+		for (auto& file : folder.files)
+		{
+			ImGui::PushID(file.string().c_str());
+
+			// Group the thumbnail and its label together
+			ImGui::BeginGroup();
+
+			bool found_texture = false;
+			std::string extension = file.extension().string();
+			std::string assetkey = file.generic_string();
+			assetkey.insert(0, "/");
+
+			if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(assetkey);
+				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+				{
+					m_selected_file = file;
+				}
+				found_texture = true;
+			}
+			else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_shader_image_key.string());
+				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+				{
+					m_selected_file = file;
+				}
+				found_texture = true;
+			}
+			else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_audio_image_key.string());
+				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+				{
+					m_selected_file = file;
+				}
+				found_texture = true;
+			}
+			else if (extension == ".flxprefab")
+			{
+				Asset::Texture& texture = AssetManager::Get<Asset::Texture>(m_flxprefab_image_key.string());
+				if (ImGui::ImageButton(texture.GetTextureImGui(), ImVec2(thumbnail_size, thumbnail_size)))
+				{
+					m_selected_file = file;
+				}
+				found_texture = true;
+			}
+
+			if (!found_texture)
+			{
+				if (ImGui::ImageButton((ImTextureID)0, ImVec2(thumbnail_size, thumbnail_size)))
+				{
+					m_selected_file = file;
+				}
+			}
+
+
+			//Drag and drop assets
+			if (ImGui::BeginDragDropSource())
+			{
+				std::string payload(file.generic_string());
+				payload.insert(0, "/");	//to fit the AssetKey format
+				std::string extension = file.extension().string();
+				//std::cout << payload << "\n";
+				//std::cout << assetkey << "\n";
+				//hardcode for now
+				if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+				{
+					EditorGUI::StartPayload(PayloadTags::IMAGE, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".flxspritesheet")
+				{
+					EditorGUI::StartPayload(PayloadTags::SPRITESHEET, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".glsl" || extension == ".hlsl" || extension == ".frag" || extension == ".vert")
+				{
+					payload = payload.substr(0, payload.find_last_of('.')); //to fit the AssetKey::Shader format
+					EditorGUI::StartPayload(PayloadTags::SHADER, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
+				{
+					EditorGUI::StartPayload(PayloadTags::AUDIO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".flxprefab")
+				{
+					EditorGUI::StartPayload(PayloadTags::PREFAB, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".ttf")
+				{
+					EditorGUI::StartPayload(PayloadTags::FONT, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else
+				{
+					//Find rocky if you want your filetype supported
+					ImGui::Text("Unsupported file type: %s", extension.c_str());
+					EditorGUI::EndPayload();
+				}
+			}
+
+
+			// Get the filename and truncate it if necessary to fit thumbnail width.
+			std::string filename = file.filename().string();
+			std::string displayname = TruncateTextToWidth(filename, cell_size + padding);
+
+			// Render the text on a single line (without wrapping).
+			ImGui::Text("%s", displayname.c_str());
+			ImGui::EndGroup();
+
+
+			DeleteFilePopup(file);
+
+
+			ImGui::PopID();
+
+			// Place the item on the same row if it's not the last in the row.
+			if ((item_index + 1) % items_per_row != 0)
+			{
+				ImGui::SameLine(0, padding);
+			}
+			item_index++;
+		}
+	}
+
+
+	void AssetBrowser::RenderFolderDropdown2(Folder& folder)
+	{
+		ImGuiTreeNodeFlags node_flags = (folder.subfolders.size() < 1) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+		// Highlight the selected folder
+		if (m_selected_folder == &folder)
+			node_flags |= ImGuiTreeNodeFlags_Selected;
+
+		// Render folder node
+		if (ImGui::TreeNodeEx((folder.name + "##" + folder.path.string()).c_str(), node_flags))
+		{
+			// Check if the folder is clicked
+			if (ImGui::IsItemClicked())
+			{
+				m_selected_folder = &folder; // Set the selected folder
+			}
+
+			// Render subfolders recursively
+			for (auto& [subfolder_path, subfolder] : folder.subfolders)
+			{
+				RenderFolderDropdown(*subfolder);
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+
+
+
+
+
+
+
 	void AssetBrowser::OnFileDropped(const std::vector<std::string>& file_list)
 	{
 
 		for (auto file : file_list)
 		{
-			std::cout << file << "\n";
 			std::filesystem::path src(file);
 			std::filesystem::path dest = std::filesystem::path(m_root_directory) / src.filename();
 
@@ -371,5 +648,11 @@ namespace Editor
 		}
 		LoadAllDirectories();
 	}
-
 }
+
+
+
+
+
+
+

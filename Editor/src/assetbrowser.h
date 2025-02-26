@@ -47,6 +47,7 @@ namespace Editor
 		const std::unordered_map<std::string, std::string>& GetLoadedFontsList() const;
 
 	private:
+
 		/*!***************************************************************************
 		* @brief
 		* This function renders each folder, and its contents
@@ -84,11 +85,17 @@ namespace Editor
 		void RenderDeleteConfirmationPopup();
 
 
+		/*
+		* Editor display 2
+		*/
+		void EditorUI2();
+		void RenderFolderDropdown2(Folder& folder);
+		void RenderThumbnails(Folder& folder);
+
+
+
 		//Drag file from windows to editor
 		void OnFileDropped(const std::vector<std::string>& file_list);
-
-
-		const std::filesystem::path m_root_directory = "../../assets";
 
 		char m_text_input[128] = "";	//create file name, search...
 		std::filesystem::path m_selected_file = "";
@@ -105,6 +112,23 @@ namespace Editor
 		//For things such as font dropdown menus.
 		//first = font name, second = filepath
 		std::unordered_map<std::string, std::string> m_font_paths;
+
+
+		const std::filesystem::path m_root_directory = "../../assets";
+
+		#pragma region -.-
+		const std::filesystem::path m_audio_image = "../../Editor/resources/assetbrowser_audio.png";
+		const std::filesystem::path m_audio_image_key = "/assetbrowser_audio.png";
+
+		const std::filesystem::path m_folder_image = "../../Editor/resources/assetbrowser_folder.png";
+		const std::filesystem::path m_folder_image_key = "/assetbrowser_folder.png";
+
+		const std::filesystem::path m_flxprefab_image = "../../Editor/resources/assetbrowser_flxprefab.png";
+		const std::filesystem::path m_flxprefab_image_key = "/assetbrowser_flxprefab.png";
+
+		const std::filesystem::path m_shader_image = "../../Editor/resources/assetbrowser_shader.png";
+		const std::filesystem::path m_shader_image_key = "/assetbrowser_shader.png";
+		#pragma endregion
 	};
 
 
