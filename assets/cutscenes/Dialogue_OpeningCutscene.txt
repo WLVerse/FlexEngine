@@ -1,0 +1,55 @@
+[Cutscene_01_WakingUp]
+I gasped awake, blinded by the white light surrounding me.
+
+[Cutscene_01]
+Girl: “You’re finally awake.”
+???: “Who are you people? What am I doing here?”
+
+[Cutscene_02]
+Boy: “Did he lose his memories? It’s not going to be permanent, is it?”
+
+[Cutscene_03]
+Girl: “Don’t say that... I am Grace, and this is Ash. Do you at least remember your name?”
+Renko: “My name is… Renko.”
+
+[Cutscene_04]
+Grace: “That’s a relief.”
+
+[Cutscene_03]
+Grace: “As for why you are here… you are a Drifter who travels back in time to record the past. You were recalled from the past timestream to the present time due to an emergency.”
+Renko: “An emergency?”
+Grace: “A rogue Drifter interfered with the course of history, causing our timeline to collapse. If we don’t go back in time to undo their mistake… the world will come to a cataclysmic end.”
+Renko: “How do you know what will happen if it hasn’t happened yet?”
+Out of nowhere, the facility began shaking, throwing me onto the floor. I barely had time to register what happened before something came hurtling down at me.
+The grate fell, stopping inches before my face. I watched as it seemed to defy gravity, traveling backwards and lodging itself back onto the vent above.
+Grace: “That was close. If I hadn’t rewinded time using my Chrono Gear, you may have ended up with another brain injury.”
+Powers that defied logic. Suddenly, I felt a lot more compelled to believe the insanity she was spewing, not that I felt she was lying to me.
+
+[Cutscene_05]
+Grace: “Speaking of which, your Chrono Gear is in a terrible state. How did you even manage to get it like that?”
+
+[Cutscene_02_RenkoWatch]
+She pointed to a watch-like object on my wrist, which I hadn’t even felt or noticed before. I must have worn it for an exceedingly long time to get used to the feel of it, like it's a natural part of my body. She was right however, it looked a bit charred around the edges, unlike hers. I tapped my head, before giving a nonchalant shrug.
+
+[Cutscene_06]
+Grace: “Right, you’re an amnesiac. Gotta remember that. Ash, go fetch a new Chrono Gear from the storeroom.”
+
+[Cutscene_03_AshLeaving]
+Ash gave an affirmative chirp, before disappearing through two large metal sliding doors.
+
+[Cutscene_07]
+Renko: “So, you just have multiple of these time bending trinkets lying around? Does that mean anyone can go back in time?”
+Grace: “No, you have to be compatible with it. That’s why Drifters were in decline… Nevermind. What matters is we focus on our task ahead.”
+
+[Cutscene_08]
+Grace: “It will be quite the ordeal, but the fate of the world rests in our hands.”
+
+[Cutscene_04_RobotsEntering]
+The sound of metal door parting distracts me from the growing unease in my heart.
+Renko: “Is Ash back already? But he just left…”
+Grace: “No, this is something else.”
+Two robots entered the room, the lights of their display flashing erratically.
+
+[Cutscene_09]
+Grace: “Renko, prepare for combat. Don’t worry, I’ll be here to guide you through it.”
+

@@ -235,6 +235,9 @@
     <ClCompile Include="src\FlexEngine\Assets\move.cpp">
       <Filter>src\FlexEngine\Assets</Filter>
     </ClCompile>
+    <ClCompile Include="src\FlexEngine\Assets\dialogue.cpp">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\pch.h">
@@ -445,6 +448,9 @@
       <Filter>src\FlexEngine\Assets</Filter>
     </ClInclude>
     <ClInclude Include="src\FlexEngine\Assets\move.h">
+      <Filter>src\FlexEngine\Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FlexEngine\Assets\dialogue.h">
       <Filter>src\FlexEngine\Assets</Filter>
     </ClInclude>
   </ItemGroup>
