@@ -177,8 +177,16 @@ namespace FlexEngine
         {
             // create an asset key
             AssetKey key = file.path.string().substr(default_directory_length);
+            // load dialogue
+            assets.emplace(key, Asset::Dialogue(file));
+            Log::Info("Dialogue file: " + key);
+        }
+        else if (file_extension.string() == ".flxcutscene")
+        {
+            // create an asset key
+            AssetKey key = file.path.string().substr(default_directory_length);
             // load move
-            Asset::Dialogue test = Asset::Dialogue(file);
+            Asset::Cutscene test = Asset::Cutscene(file);
             assets.emplace(key, test);
             Log::Info("Dialogue file: " + key);
         }

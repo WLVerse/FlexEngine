@@ -25,6 +25,7 @@
 #include "Assets/character.h"
 #include "Assets/move.h"
 #include "Assets/dialogue.h"
+#include "Assets/cutscene.h"
 #include "Renderer/OpenGL/openglmodel.h"
 #include "Renderer/OpenGL/openglshader.h"
 #include "Renderer/OpenGL/openglspritesheet.h"
@@ -46,7 +47,7 @@ namespace FlexEngine
   // Variant of all asset types
   using AssetVariant = std::variant<
     Asset::Texture, Asset::Spritesheet, Asset::Shader, Asset::Model, Asset::Sound, Asset::Font, Asset::Battle,
-    Asset::Character, Asset::Move, Asset::Dialogue>;
+    Asset::Character, Asset::Move, Asset::Dialogue, Asset::Cutscene>;
 
   // Helper macro to get an asset by its key.
   // Deprecation warning: This macro is deprecated and will be removed in the future.

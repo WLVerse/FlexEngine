@@ -26,10 +26,14 @@ namespace Game
     //A basic auto Carousel typed cutscene layer -> TODO develop functionality for dialogue
     class CutsceneLayer : public FlexEngine::Layer
     {
+        FlexECS::Scene::StringIndex m_currDialogueFile;
+        FlexECS::Scene::StringIndex  m_currCutsceneFile;
+
         // A container for storing image strings
         std::vector<FlexECS::Scene::StringIndex> m_CutsceneImages;
 
-        size_t m_currIndex = 0;
+        size_t m_currSectionIndex = 0; // Current section of the cutscene -> keeps track of which portion of the vector of dialogue is currently on play
+        size_t m_currFrameIndex = 0; // Current frame of section of the cutscene
 
         FlexECS::Entity m_currShot;
         FlexECS::Entity m_nextShot;
@@ -37,6 +41,8 @@ namespace Game
         // Timing and phase management.
         float m_ElapsedTime = 0.0f;           // Time spent in normal (non-transition) phase.
         float m_ImageDuration = 0.6f;         // How long to display each image (in seconds).
+        float m_PerFrameDuration = 0.0f;      // Duration for each individual frame in the current section.
+        int m_frameCount=1;
 
         // Transition phase (for effects like fade out/in).
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
@@ -58,6 +64,9 @@ namespace Game
         virtual void OnDetach() override;
         virtual void Update() override;
 
+        void loadCutscene(FlexECS::Scene::StringIndex dialogue_file, FlexECS::Scene::StringIndex cutscene_file);
+        void UpdateTimings(bool toNextSection = false);
+        
         // Control functions (could be called externally)
         void StartCutscene();
         void StopCutscene();
