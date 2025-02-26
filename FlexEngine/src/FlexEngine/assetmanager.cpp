@@ -173,12 +173,13 @@ namespace FlexEngine
           assets.emplace(key, Asset::Move(file));
           Log::Info("Loaded move: " + key);
         }
-        else if (file_extension.string() == ".txt")
+        else if (file_extension.string() == ".flxdialogue")
         {
             // create an asset key
             AssetKey key = file.path.string().substr(default_directory_length);
             // load move
-            assets.emplace(key, Asset::Dialogue(file));
+            Asset::Dialogue test = Asset::Dialogue(file);
+            assets.emplace(key, test);
             Log::Info("Dialogue file: " + key);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }

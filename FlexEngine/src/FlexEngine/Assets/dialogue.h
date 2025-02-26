@@ -9,12 +9,20 @@ namespace FlexEngine
 {
   namespace Asset
   {
+    // A single cutscene frame entry, which may have multiple dialogue blocks.
+    struct DialogueEntry
+    {
+        std::string cutsceneName;
+        // Each block is a vector of dialogue lines.
+        std::vector<std::vector<std::string>> blocks;
+    };
+
     struct __FLX_API Dialogue
     {
       File& metadata;
 
-      std::string name = "None";
-      std::vector<std::string> text;
+      // Vector to preserve the order of cutscene frames as they appear in the text file.
+      std::vector<DialogueEntry> dialogues;
 
       Dialogue(File& _metadata);
     };
