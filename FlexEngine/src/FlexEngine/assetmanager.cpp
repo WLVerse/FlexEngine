@@ -97,6 +97,7 @@ namespace FlexEngine
         // - battles
         // - characters
         // - moves
+        // - animator events
 
         auto file_extension = file.path.extension();
 
@@ -171,6 +172,14 @@ namespace FlexEngine
           // load move
           assets.emplace(key, Asset::Move(file));
           Log::Info("Loaded move: " + key);
+        }
+        else if (file_extension.string() == ".flxanimatorevent")
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load animator event
+          assets.emplace(key, Asset::AnimatorEventData(file));
+          Log::Info("Loaded animator event: " + key);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }
       }
