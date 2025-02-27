@@ -26,23 +26,32 @@ namespace Game
     //A basic auto Carousel typed cutscene layer -> TODO develop functionality for dialogue
     class CutsceneLayer : public FlexEngine::Layer
     {
-        FlexECS::Scene::StringIndex m_currDialogueFile;
+        FlexECS::Scene::StringIndex  m_currDialogueFile;
         FlexECS::Scene::StringIndex  m_currCutsceneFile;
 
         // A container for storing image strings
         std::vector<FlexECS::Scene::StringIndex> m_CutsceneImages;
+        std::vector<std::vector<FlexECS::Scene::StringIndex>> m_CutsceneDialogue;
 
         size_t m_currSectionIndex = 0; // Current section of the cutscene -> keeps track of which portion of the vector of dialogue is currently on play
         size_t m_currFrameIndex = 0; // Current frame of section of the cutscene
-
+        size_t m_currDialogueIndex = 0; // Current dialogue of section of the cutscene
+        
         FlexECS::Entity m_currShot;
         FlexECS::Entity m_nextShot;
+        FlexECS::Entity m_dialoguebox;
+        FlexECS::Entity m_shadowdialoguebox;
 
         // Timing and phase management.
         float m_ElapsedTime = 0.0f;           // Time spent in normal (non-transition) phase.
         float m_ImageDuration = 0.6f;         // How long to display each image (in seconds).
         float m_PerFrameDuration = 0.0f;      // Duration for each individual frame in the current section.
         int m_frameCount=1;
+
+        float m_dialogueTimer = 0.0f;               // Accumulates time for text animation.
+        float m_dialogueTextRate = 30.0f;           // Characters per second to animate.
+
+        bool is_autoplay = false;
 
         // Transition phase (for effects like fade out/in).
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
