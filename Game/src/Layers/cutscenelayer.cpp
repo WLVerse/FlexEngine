@@ -327,7 +327,7 @@ namespace Game
                     size_t currentChars = static_cast<size_t>(m_dialogueTimer * m_dialogueTextRate);
 
                     // If SPACE is pressed, override the auto-run hold.
-                    if (Input::GetKeyDown(GLFW_KEY_SPACE))
+                    if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
                     {
                         if (currentChars < totalChars)
                         {
@@ -494,7 +494,7 @@ namespace Game
             // ===================================================
             // 2. Input Handling for Dialogue Advancement
             // ===================================================
-            if (Input::GetKeyDown(GLFW_KEY_SPACE))
+            if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
             {
                 // In either section mode, SPACE is used to finish the current dialogue line or advance to the next.
                 if (m_currSectionIndex < m_CutsceneDialogue.size())
