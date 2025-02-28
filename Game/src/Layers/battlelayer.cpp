@@ -703,13 +703,17 @@ namespace Game
 #pragma region AI Move
 
     // enemy AI
-    if (!battle.is_player_turn)
+    if (!battle.is_player_turn && battle.current_character->stun_debuff_duration == 0)
     {
       // randomly pick a target
         //battle.current_move = nullptr;
 
         // randomly pick a move
       // TODO: not yet
+        battle.current_move = nullptr;
+        battle.initial_target = nullptr;
+        battle.target = 0;
+
         int move_num = Range<int>(0, 2).Get();
         switch (move_num)
         {
@@ -724,7 +728,7 @@ namespace Game
             break;
         }
 
-      while (battle.initial_target == nullptr) battle.initial_target = battle.drifter_slots[Range<int>(0, 1).Get()];
+      while (battle.initial_target == nullptr || !battle.initial_target->is_alive) battle.initial_target = battle.drifter_slots[Range<int>(0, 1).Get()];
 
       // Temporarily move the character
       battle.previous_character = battle.current_character;
@@ -739,6 +743,18 @@ namespace Game
       // update the character's speed
       battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
 
+          if (battle.current_character->attack_buff_duration > 0)
+              battle.current_character->attack_buff_duration -= 1;
+
+          if (battle.current_character->attack_debuff_duration > 0)
+              battle.current_character->attack_debuff_duration -= 1;
+
+          if (battle.current_character->shield_buff_duration > 0)
+              battle.current_character->shield_buff_duration -= 1;
+
+          if (battle.current_character->protect_buff_duration > 0)
+              battle.current_character->protect_buff_duration -= 1;
+
       std::vector<_Character*> targets;
       for (int i = 0; i < battle.current_move->effect.size(); i++) {
           if (battle.current_move->target[i] == "ALL_ENEMIES")
@@ -751,7 +767,7 @@ namespace Game
                   }
               }
           }
-          else if (battle.current_move->target[i] == "ADJ_ENEMIES")
+          else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
           {
               for (auto character : battle.drifters_and_enemies)
               {
@@ -827,7 +843,7 @@ namespace Game
           }
           else if (battle.current_move->target[i] == "SELF")
           {
-              targets.push_back(battle.current_character);
+                  targets.push_back(battle.current_character);
           }
 
           if (battle.current_move->effect[i] == "Damage")
@@ -910,6 +926,7 @@ namespace Game
               for (auto character : targets)
               {
                   character->shield_buff_duration += battle.current_move->value[i];
+                  Log::Warning(std::to_string(character->shield_buff_duration));
               }
           }
           else if (battle.current_move->effect[i] == "Protect")
@@ -936,6 +953,7 @@ namespace Game
                   character->stun_debuff_duration = 0;
               }
           }
+          targets.clear();
       }
 
       // play the animation
@@ -1112,16 +1130,16 @@ namespace Game
         battle.current_character->stun_debuff_duration--;
 
         if (battle.current_character->attack_buff_duration > 0)
-            battle.current_character->attack_buff_duration--;
+            battle.current_character->attack_buff_duration -= 1;
 
         if (battle.current_character->attack_debuff_duration > 0)
-            battle.current_character->attack_debuff_duration--;
+            battle.current_character->attack_debuff_duration -= 1;
 
         if (battle.current_character->shield_buff_duration > 0)
-            battle.current_character->shield_buff_duration--;
+            battle.current_character->shield_buff_duration -= 1;
 
         if (battle.current_character->protect_buff_duration > 0)
-            battle.current_character->protect_buff_duration--;
+            battle.current_character->protect_buff_duration -= 1;
 
         battle.current_character->current_speed = battle.current_character->speed + 10;
 
@@ -1239,7 +1257,7 @@ namespace Game
                     }
                 }
             }
-            else if (battle.current_move->target[i] == "ADJ_ENEMIES")
+            else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
             {
                 for (auto character : battle.drifters_and_enemies)
                 {
@@ -1399,6 +1417,7 @@ namespace Game
                 for (auto character : targets)
                 {
                     character->shield_buff_duration += battle.current_move->value[i];
+                    Log::Warning(std::to_string(character->shield_buff_duration));
                 }
             }
             else if (battle.current_move->effect[i] == "Protect")
