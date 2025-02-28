@@ -6,4 +6,4 @@ Target: ALL_ENEMIES
 Effect: Speed_Up
 Value: 5
 Target: NEXT_ALLY
-Description: Deal 6 damage to all enemies and decrease speed of your next ally by 5 [Total Speed: 12].
+Description: Deal 6 damage to all enemies and decrease speed of your next ally by 5. --- Total Speed: 12

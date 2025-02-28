@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Attack_Down
 Value: 3
 Target: SINGLE_ENEMY
-Description: Deal 5 damage to target enemy and decreases their attack for 3 turns.  [Total Speed: 17]
+Description: Deal 5 damage to target enemy and decreases their attack for 3 turns. --- Total Speed: 17

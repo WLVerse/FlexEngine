@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Stun
 Value: 1
 Target: SINGLE_ENEMY
-Description: Deal 7 damage to target enemy and stun them for 1 turn.  [Total Speed: 27]
+Description: Deal 7 damage to target enemy and stun them for 1 turn. --- Total Speed: 27

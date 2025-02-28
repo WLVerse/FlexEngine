@@ -1,6 +1,6 @@
 CharacterName: EnemyOneAlt
 CharacterID: 3
-Health: 40
+Health: 20
 Speed: 5
 MoveOne: /data/Shield_Barrage.flxmove
 MoveTwo: /data/Shield_Barrage.flxmove

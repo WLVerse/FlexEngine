@@ -6,4 +6,4 @@ Target: ALL_ENEMIES
 Effect: Damage
 Value: 10
 Target: ALL_ENEMIES
-Description: Strip all enemies' buffs and deal 10 damage to them [Total Speed: 18].
+Description: Strip all enemies' buffs and deal 10 damage to them. --- Total Speed: 18
