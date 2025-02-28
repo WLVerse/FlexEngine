@@ -17,7 +17,7 @@ namespace Game
   // intermediary oop data structure to store the battle data
   // we're doing this because our team is struggling with the ECS system
 
-#pragma region Battle Data
+  #pragma region Battle Data
 
   struct _Move
   {
@@ -69,7 +69,7 @@ namespace Game
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
     bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the
-                                      // player takes a turn and still their turn next
+    // player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -211,7 +211,45 @@ namespace Game
     FLX_ASSERT(battle.enemy_slots.size() > 0, "Enemy slots cannot be empty.");
   }
 
-#pragma endregion
+  #pragma endregion
+
+  #pragma region Animator Events
+
+  enum AnimatorEventType : int
+  {
+    AnimatorEventType_None = 0,
+
+    AnimatorEventType_Animation = 1,
+    AnimatorEventType_Sound = 2,
+
+    AnimatorEventType_Count
+  };
+
+  class _AnimatorEvent
+  {
+  public:
+    int trigger_frame = 0;
+    AnimatorEventType type = AnimatorEventType_None;
+    std::string target_entity = "None";
+    
+    // shared
+    FlexECS::Scene::StringIndex asset_handle = 0;
+    bool is_looping = false;
+    
+    // animation
+    bool return_to_default = false;
+  };
+
+  std::map<std::string, std::vector<_AnimatorEvent>> animator_events = {
+    { "Entity",
+      {
+        _AnimatorEvent{ 0, AnimatorEventType_Animation, "TargetEntity", FLX_STRING_NEW("path"), false, false }
+      }
+    }
+  };
+
+  #pragma endregion
+
 
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
@@ -222,7 +260,7 @@ namespace Game
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
 
-#pragma region Load Battle Data
+    #pragma region Load Battle Data
 
     // load the battle
     Internal_ParseBattle(R"(/data/debug.flxbattle)");
@@ -414,13 +452,13 @@ namespace Game
       });
     }
 
-#pragma endregion
+    #pragma endregion
 
-#pragma region Hardcode Load Animator Events
+    #pragma region Hardcode Load Animator Events
 
 
 
-#pragma endregion
+    #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
 
@@ -472,33 +510,33 @@ namespace Game
     // return if the battle is over
     if (battle.is_win || battle.is_lose) return;
 
-      // start of the battle system
-      //
-      // Battle System Preparation
-      // - return when playing animations (disable_input_timer > 0)
-      // - get the current character from the speed bar
-      //
-      // AI Move
-      // - if it's not the player's turn, do the AI move and skip the player input code
-      //
-      // Player Input
-      // - if it's the player's turn, skip the AI move and check for input
-      // - if the player has selected a target, check for input for the move
-      // - if the player has selected a move, apply the move and update the speed
-      // - play the animations and disable input for the duration of the move animation
-      //
-      // Resolve Game State
-      // - resolve speed bar
-      //
-      // Update Displays
-      // - update the targeting display
-      // - update the speed bar display
-      //
-      // end of the battle system
+    // start of the battle system
+    //
+    // Battle System Preparation
+    // - return when playing animations (disable_input_timer > 0)
+    // - get the current character from the speed bar
+    //
+    // AI Move
+    // - if it's not the player's turn, do the AI move and skip the player input code
+    //
+    // Player Input
+    // - if it's the player's turn, skip the AI move and check for input
+    // - if the player has selected a target, check for input for the move
+    // - if the player has selected a move, apply the move and update the speed
+    // - play the animations and disable input for the duration of the move animation
+    //
+    // Resolve Game State
+    // - resolve speed bar
+    //
+    // Update Displays
+    // - update the targeting display
+    // - update the speed bar display
+    //
+    // end of the battle system
 
-#pragma region Battle System Preparation
+    #pragma region Battle System Preparation
 
-    // current active character
+        // current active character
     _Character* current_character = battle.speed_bar.front();
     auto current_character_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(current_character->name);
     auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
@@ -528,15 +566,15 @@ namespace Game
     if (battle.previous_character != nullptr)
     {
       Vector3 previous_position = (battle.previous_character->character_id <= 2)
-                                  ? battle.sprite_slot_positions[battle.previous_character->current_slot]
-                                  : battle.sprite_slot_positions[2 + battle.previous_character->current_slot];
+        ? battle.sprite_slot_positions[battle.previous_character->current_slot]
+        : battle.sprite_slot_positions[2 + battle.previous_character->current_slot];
       battle.previous_character_entity.GetComponent<Position>()->position = previous_position;
     }
     // hide or display the move UI
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
       entity.GetComponent<Transform>()->is_active = battle.is_player_turn;
 
-#if 0
+    #if 0
     // lock characters to their slots
     for (auto character : battle.drifters)
     {
@@ -547,280 +585,107 @@ namespace Game
     if (battle.is_player_turn)
     {
       current_character_entity.GetComponent<Position>()->position.x += 100;
-#endif
+      #endif
 
-    // Just swapped from enemy phase to player phase
-    if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
-    {
-      // Plays sound if swap from enemy phase to player phase
-      FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-        FLX_STRING_NEW(R"(/audio/start turn.mp3)");
-      FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-
-      // Defaults target selection
-      for (int i{ 0 }; i < battle.enemy_slots.size(); ++i)
+      // Just swapped from enemy phase to player phase
+      if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
       {
-        if (battle.enemy_slots[i]->is_alive && battle.enemy_slots[i] != nullptr)
-        {
-          battle.target = i + 1;
-          break;
-        }
-      }
-
-      battle.prev_state = true; // dont forget to reset, of course...
-    }
-
-
-#pragma endregion
-
-
-#pragma region AI Move
-
-    // enemy AI
-    if (!battle.is_player_turn)
-    {
-      // randomly pick a target
-      _Character* target_character = nullptr;
-      while (target_character == nullptr) target_character = battle.drifter_slots[Range<int>(0, 1).Get()];
-
-      // randomly pick a move
-      // TODO: not yet
-      int move_num = Range<int>(0, 2).Get();
-
-      _Move* move = &current_character->move_one;
-
-      switch (move_num)
-      {
-      case 0:
-        move = &current_character->move_one;
-        break;
-      case 1:
-        move = &current_character->move_two;
-        break;
-      case 2:
-        move = &current_character->move_three;
-        break;
-      }
-
-      // Temporarily move the character
-      battle.previous_character = current_character;
-      battle.previous_character_entity = current_character_entity;
-      current_character_entity.GetComponent<Position>()->position =
-        battle.sprite_slot_positions[target_character->current_slot];
-
-      // apply the move
-      target_character->current_health -= move->damage;
-      target_character->current_speed += move->damage;
-
-      // update the character's speed
-      current_character->current_speed += current_character->speed + move->speed;
-
-      // reset the target
-      battle.target = 0;
-
-      // play the animation
-#pragma region Animation
-
-      switch (current_character->character_id)
-      {
-      case 3:
-        current_character_animator.spritesheet_handle =
-          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
+        // Plays sound if swap from enemy phase to player phase
         FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
+          FLX_STRING_NEW(R"(/audio/start turn.mp3)");
         FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-        break;
-      case 4:
-        current_character_animator.spritesheet_handle =
-          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-        break;
-      case 5:
-        // current_character_animator.spritesheet_handle =
-        //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
-        // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-        // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-        // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-        break;
-      }
-      float animation_time =
-        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-          .total_frame_time;
-      current_character_animator.should_play = true;
-      current_character_animator.is_looping = false;
-      current_character_animator.return_to_default = true;
-      current_character_animator.frame_time = 0.f;
-      current_character_animator.current_frame = 0;
 
-      auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
-      auto& target_animator = *target_entity.GetComponent<Animator>();
-      switch (target_character->character_id)
-      {
-      case 1:
-        target_animator.spritesheet_handle =
-          FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
-        break;
-      case 2:
-        target_animator.spritesheet_handle =
-          FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-        break;
-      }
-      target_animator.should_play = true;
-      target_animator.is_looping = false;
-      target_animator.return_to_default = true;
-      target_animator.frame_time = 0.f;
-      target_animator.current_frame = 0;
-
-#pragma endregion
-
-      // disable input for the duration of the move animation
-      battle.disable_input_timer += animation_time + 1.f;
-    }
-
-#pragma endregion
-
-
-#pragma region Player Input
-
-#pragma region Targeting
-
-    // TODO: support multi-targeting patterns
-    if (battle.is_player_turn)
-    {
-      if (Input::GetKeyDown(GLFW_KEY_1) || target_one_click)
-        battle.target = 1;
-      else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
-        battle.target = 2;
-      else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
-        battle.target = 3;
-      else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
-        battle.target = 4;
-      else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
-        battle.target = 5;
-
-      // Unselect illegal choices
-      if (battle.target != 0)
-      {
-        // if targeting nothing, untarget
-        if (battle.enemy_slots[battle.target - 1] == nullptr) battle.target = 0;
-
-        // if targeting dead enemy, untarget
-        if (battle.enemy_slots[battle.target - 1] != nullptr && !battle.enemy_slots[battle.target - 1]->is_alive)
-          battle.target = 0;
-      }
-    }
-
-#pragma endregion
-
-#pragma region Moves
-    // Executes if player turn and target is selected and some move is already selected
-    if (battle.is_player_turn && battle.target != 0)
-    {
-      _Move* current_move = nullptr;
-
-      if ((Input::GetKeyDown(GLFW_KEY_Z) || move_one_click) && current_character->current_selected_move == 1)
-      {
-        current_move = &current_character->move_one;
-
-        switch (current_character->character_id)
+        // Defaults target selection
+        for (int i{ 0 }; i < battle.enemy_slots.size(); ++i)
         {
+          if (battle.enemy_slots[i]->is_alive && battle.enemy_slots[i] != nullptr)
+          {
+            battle.target = i + 1;
+            break;
+          }
+        }
+
+        battle.prev_state = true; // dont forget to reset, of course...
+      }
+
+
+      #pragma endregion
+
+
+      #pragma region AI Move
+
+      // enemy AI
+      if (!battle.is_player_turn)
+      {
+        // randomly pick a target
+        _Character* target_character = nullptr;
+        while (target_character == nullptr) target_character = battle.drifter_slots[Range<int>(0, 1).Get()];
+
+        // randomly pick a move
+        // TODO: not yet
+        int move_num = Range<int>(0, 2).Get();
+
+        _Move* move = &current_character->move_one;
+
+        switch (move_num)
+        {
+        case 0:
+          move = &current_character->move_one;
+          break;
         case 1:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          move = &current_character->move_two;
           break;
         case 2:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          move = &current_character->move_three;
           break;
         }
-      }
 
-      if ((Input::GetKeyDown(GLFW_KEY_X) || move_two_click) && current_character->current_selected_move == 2)
-      {
-        current_move = &current_character->move_two;
-
-        switch (current_character->character_id)
-        {
-        case 1:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        case 2:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        }
-      }
-
-      // Ultimate move
-      if ((Input::GetKeyDown(GLFW_KEY_C) || move_three_click) && current_character->current_selected_move == 3)
-      {
-        current_move = &current_character->move_three;
-
-        switch (current_character->character_id)
-        {
-        case 1:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        case 2:
-          current_character_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-            FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        }
-      }
-
-      // if a move is selected, resolve the move
-      if (current_move != nullptr)
-      {
-        // get the target character
-        _Character* target_character = battle.enemy_slots[battle.target - 1];
-        if (target_character == nullptr)
-        {
-          Log::Error("Target not found.");
-          return;
-        }
-
-        // temporarily move character
+        // Temporarily move the character
         battle.previous_character = current_character;
         battle.previous_character_entity = current_character_entity;
         current_character_entity.GetComponent<Position>()->position =
-          battle.sprite_slot_positions[2 + target_character->current_slot];
+          battle.sprite_slot_positions[target_character->current_slot];
 
         // apply the move
-        target_character->current_health -= current_move->damage;
-        target_character->current_speed += current_move->damage;
+        target_character->current_health -= move->damage;
+        target_character->current_speed += move->damage;
 
         // update the character's speed
-        current_character->current_speed += current_character->speed + current_move->speed;
+        current_character->current_speed += current_character->speed + move->speed;
 
         // reset the target
         battle.target = 0;
 
         // play the animation
+        #pragma region Animation
+
+        switch (current_character->character_id)
+        {
+        case 3:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        case 4:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        case 5:
+          // current_character_animator.spritesheet_handle =
+          //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+          // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        }
         float animation_time =
           FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-            .total_frame_time;
+          .total_frame_time;
         current_character_animator.should_play = true;
         current_character_animator.is_looping = false;
         current_character_animator.return_to_default = true;
@@ -831,16 +696,13 @@ namespace Game
         auto& target_animator = *target_entity.GetComponent<Animator>();
         switch (target_character->character_id)
         {
-        case 3:
+        case 1:
           target_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
           break;
-        case 4:
+        case 2:
           target_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
-          break;
-        case 5:
-          // special case, the screen will flash red
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
           break;
         }
         target_animator.should_play = true;
@@ -849,108 +711,425 @@ namespace Game
         target_animator.frame_time = 0.f;
         target_animator.current_frame = 0;
 
+        #pragma endregion
+
         // disable input for the duration of the move animation
         battle.disable_input_timer += animation_time + 1.f;
-
-        // Reset move selection, as well as description
-        current_character->current_selected_move = 0;
-        std::string& description = FLX_STRING_GET(
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
-        );
-        std::string& move1 =
-          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
-        std::string& move2 =
-          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
-        std::string& move3 =
-          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
-        description = "";
-        move1 = "";
-        move2 = "";
-        move3 = "";
-
-        battle.projected_character.GetComponent<Transform>()->is_active = false;
-        battle.projected_speed = 0;
-        battle.prev_state =
-          false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
-      }
-    }
-
-    // Sets the description for the current character and locks the current selected move for the next loop to consume
-    if (battle.is_player_turn && current_character->current_speed <= 0)
-    {
-      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
-      {
-        current_character->current_selected_move = 1;
-        std::string& description = FLX_STRING_GET(
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
-        );
-        description = current_character->move_one.description;
-
-        // calculate projected_icon's speed
-        battle.projected_speed = current_character->speed + current_character->move_one.speed;
-      }
-      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
-      {
-        current_character->current_selected_move = 2;
-        std::string& description = FLX_STRING_GET(
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
-        );
-        description = current_character->move_two.description;
-
-        // calculate projected_icon's speed, artifically inflated to show how different values affect position in turn
-        // bar
-        battle.projected_speed = current_character->speed + current_character->move_two.speed + 15;
-        // Log::Info(std::to_string(current_character->move_two.speed));
-      }
-      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
-      {
-        current_character->current_selected_move = 3;
-        std::string& description = FLX_STRING_GET(
-          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
-        );
-        description = current_character->move_three.description;
-
-        // calculate projected_icon's speed, artifically inflated to show how different values affect position in turn
-        // bar
-        battle.projected_speed = current_character->speed + current_character->move_three.speed + 55;
       }
 
-      int slot_number = -1; // will always be bigger than first element (itself), account for +1 for slot 0.
-      if (battle.projected_speed > 0)
+      #pragma endregion
+
+
+      #pragma region Player Input
+
+      #pragma region Targeting
+
+      // TODO: support multi-targeting patterns
+      if (battle.is_player_turn)
       {
-        battle.projected_character.GetComponent<Transform>()->is_active = true;
-        for (auto character : battle.speed_bar)
+        if (Input::GetKeyDown(GLFW_KEY_1) || target_one_click)
+          battle.target = 1;
+        else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
+          battle.target = 2;
+        else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
+          battle.target = 3;
+        else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
+          battle.target = 4;
+        else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
+          battle.target = 5;
+
+        // Unselect illegal choices
+        if (battle.target != 0)
         {
-          if (battle.projected_speed < character->current_speed)
+          // if targeting nothing, untarget
+          if (battle.enemy_slots[battle.target - 1] == nullptr) battle.target = 0;
+
+          // if targeting dead enemy, untarget
+          if (battle.enemy_slots[battle.target - 1] != nullptr && !battle.enemy_slots[battle.target - 1]->is_alive)
+            battle.target = 0;
+        }
+      }
+
+      #pragma endregion
+
+      #pragma region Moves
+      // Executes if player turn and target is selected and some move is already selected
+      if (battle.is_player_turn && battle.target != 0)
+      {
+        _Move* current_move = nullptr;
+
+        if ((Input::GetKeyDown(GLFW_KEY_Z) || move_one_click) && current_character->current_selected_move == 1)
+        {
+          current_move = &current_character->move_one;
+
+          switch (current_character->character_id)
           {
-            // if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0
-            // + offset to the right, between slot 0 and slot 1
+          case 1:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          case 2:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
             break;
           }
-          else { slot_number++; }
         }
 
-        bool checkFirst = true; // grabs current character's icon, slot 0
-        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
+        if ((Input::GetKeyDown(GLFW_KEY_X) || move_two_click) && current_character->current_selected_move == 2)
         {
-          if (checkFirst)
+          current_move = &current_character->move_two;
+
+          switch (current_character->character_id)
           {
-            battle.projected_character.GetComponent<Sprite>()->sprite_handle =
-              entity.GetComponent<Sprite>()->sprite_handle;
-            checkFirst = false;
-          }
-          if (slot_number == 0)
-          {
-            battle.projected_character.GetComponent<Position>()->position =
-              entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
+          case 1:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          case 2:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
             break;
           }
+        }
+
+        // Ultimate move
+        if ((Input::GetKeyDown(GLFW_KEY_C) || move_three_click) && current_character->current_selected_move == 3)
+        {
+          current_move = &current_character->move_three;
+
+          switch (current_character->character_id)
+          {
+          case 1:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          case 2:
+            current_character_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+              FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          }
+        }
+
+        // if a move is selected, resolve the move
+        if (current_move != nullptr)
+        {
+          // get the target character
+          _Character* target_character = battle.enemy_slots[battle.target - 1];
+          if (target_character == nullptr)
+          {
+            Log::Error("Target not found.");
+            return;
+          }
+
+          // temporarily move character
+          battle.previous_character = current_character;
+          battle.previous_character_entity = current_character_entity;
+          current_character_entity.GetComponent<Position>()->position =
+            battle.sprite_slot_positions[2 + target_character->current_slot];
+
+          // apply the move
+          target_character->current_health -= current_move->damage;
+          target_character->current_speed += current_move->damage;
+
+          // update the character's speed
+          current_character->current_speed += current_character->speed + current_move->speed;
+
+          // reset the target
+          battle.target = 0;
+
+          // play the animation
+          float animation_time =
+            FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
+            .total_frame_time;
+          current_character_animator.should_play = true;
+          current_character_animator.is_looping = false;
+          current_character_animator.return_to_default = true;
+          current_character_animator.frame_time = 0.f;
+          current_character_animator.current_frame = 0;
+
+          auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
+          auto& target_animator = *target_entity.GetComponent<Animator>();
+          switch (target_character->character_id)
+          {
+          case 3:
+            target_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+            break;
+          case 4:
+            target_animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+            break;
+          case 5:
+            // special case, the screen will flash red
+            break;
+          }
+          target_animator.should_play = true;
+          target_animator.is_looping = false;
+          target_animator.return_to_default = true;
+          target_animator.frame_time = 0.f;
+          target_animator.current_frame = 0;
+
+          // disable input for the duration of the move animation
+          battle.disable_input_timer += animation_time + 1.f;
+
+          // Reset move selection, as well as description
+          current_character->current_selected_move = 0;
+          std::string& description = FLX_STRING_GET(
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+          );
+          std::string& move1 =
+            FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
+          std::string& move2 =
+            FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
+          std::string& move3 =
+            FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+          description = "";
+          move1 = "";
+          move2 = "";
+          move3 = "";
+
+          battle.projected_character.GetComponent<Transform>()->is_active = false;
+          battle.projected_speed = 0;
+          battle.prev_state =
+            false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
+        }
+      }
+
+      // Sets the description for the current character and locks the current selected move for the next loop to consume
+      if (battle.is_player_turn && current_character->current_speed <= 0)
+      {
+        if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
+        {
+          current_character->current_selected_move = 1;
+          std::string& description = FLX_STRING_GET(
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+          );
+          description = current_character->move_one.description;
+
+          // calculate projected_icon's speed
+          battle.projected_speed = current_character->speed + current_character->move_one.speed;
+        }
+        if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
+        {
+          current_character->current_selected_move = 2;
+          std::string& description = FLX_STRING_GET(
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+          );
+          description = current_character->move_two.description;
+
+          // calculate projected_icon's speed, artifically inflated to show how different values affect position in turn
+          // bar
+          battle.projected_speed = current_character->speed + current_character->move_two.speed + 15;
+          // Log::Info(std::to_string(current_character->move_two.speed));
+        }
+        if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
+        {
+          current_character->current_selected_move = 3;
+          std::string& description = FLX_STRING_GET(
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+          );
+          description = current_character->move_three.description;
+
+          // calculate projected_icon's speed, artifically inflated to show how different values affect position in turn
+          // bar
+          battle.projected_speed = current_character->speed + current_character->move_three.speed + 55;
+        }
+
+        int slot_number = -1; // will always be bigger than first element (itself), account for +1 for slot 0.
+        if (battle.projected_speed > 0)
+        {
+          battle.projected_character.GetComponent<Transform>()->is_active = true;
+          for (auto character : battle.speed_bar)
+          {
+            if (battle.projected_speed < character->current_speed)
+            {
+              // if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0
+              // + offset to the right, between slot 0 and slot 1
+              break;
+            }
+            else { slot_number++; }
+          }
+
+          bool checkFirst = true; // grabs current character's icon, slot 0
+          for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
+          {
+            if (checkFirst)
+            {
+              battle.projected_character.GetComponent<Sprite>()->sprite_handle =
+                entity.GetComponent<Sprite>()->sprite_handle;
+              checkFirst = false;
+            }
+            if (slot_number == 0)
+            {
+              battle.projected_character.GetComponent<Position>()->position =
+                entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
+              break;
+            }
+            else
+            {
+              slot_number--; // counts backwards to the slot it's supposed to be
+            }
+          }
+        }
+
+        // update the character id in the slot based on the speed bar order
+        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+        {
+          auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
+
+          if (speed_bar_slot.slot_number <= battle.speed_bar.size())
+            speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
           else
+            speed_bar_slot.character = 0;
+        }
+
+        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
+          "[Z] " + current_character->move_one.name;
+        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
+          "[X] " + current_character->move_two.name;
+        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
+          "[C] " + current_character->move_three.name;
+
+        FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+        FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+        FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+        FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      }
+
+      #pragma endregion
+
+      #pragma endregion
+
+
+      #pragma region Resolve Game State
+
+      #pragma region Alive/Dead Resolution
+
+      for (auto character : battle.drifters_and_enemies)
+      {
+        // check if any characters are dead
+        if (character->is_alive && character->current_health <= 0)
+        {
+          // update state
+          character->is_alive = false;
+          character->current_health = 0;
+
+          // remove from speed bar
+          battle.speed_bar.erase(
+            std::remove(battle.speed_bar.begin(), battle.speed_bar.end(), character), battle.speed_bar.end()
+          );
+
+          // update alive count
+          if (character->character_id <= 2)
+            battle.drifter_alive_count--;
+          else
+            battle.enemy_alive_count--;
+
+          // play death animation
+          auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name);
+          auto& animator = *entity.GetComponent<Animator>();
+          switch (character->character_id)
           {
-            slot_number--; // counts backwards to the slot it's supposed to be
+          case 1:
+            animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Death_Anim_Sheet.flxspritesheet)");
+            break;
+          case 2:
+            animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Death_Anim_Sheet.flxspritesheet)");
+            break;
+          case 3:
+            animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
+            // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+            // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          case 4:
+            animator.spritesheet_handle =
+              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
+            // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+            // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            break;
+          case 5:
+            // goto jack death cutscene
+            break;
           }
+          animator.should_play = true;
+          animator.is_looping = false;
+          animator.return_to_default = false;
+          animator.frame_time = 0.f;
+          animator.current_frame = 0;
         }
       }
+
+      #pragma endregion
+
+      #pragma region Game Over Resolution
+
+      // insta win/lose
+      if (Input::GetKeyDown(GLFW_KEY_9)) battle.enemy_alive_count = 0;
+      if (Input::GetKeyDown(GLFW_KEY_0)) battle.drifter_alive_count = 0;
+
+      // check if the battle is over
+      if (battle.enemy_alive_count == 0 && !battle.is_win)
+      {
+        battle.is_win = true;
+        // load win layer
+        FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+      }
+      else if (battle.drifter_alive_count == 0 && !battle.is_lose)
+      {
+        battle.is_lose = true;
+        // load lose layer
+        FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
+      }
+
+      #pragma endregion
+
+      #pragma region Speed Bar Resolution
+
+      // sort the speed bar slots
+      // 0 is the fastest so use < instead of >
+      std::sort(
+        battle.speed_bar.begin(), battle.speed_bar.end(),
+        [](const _Character* a, const _Character* b)
+      {
+        return a->current_speed < b->current_speed;
+      }
+      );
+
+      // resolve the speed bar (just minus the speed by the value of the first character)
+      int first_speed = battle.speed_bar[0]->current_speed;
+      if (first_speed > 0)
+        for (auto character : battle.speed_bar) character->current_speed -= first_speed;
 
       // update the character id in the slot based on the speed bar order
       for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
@@ -963,275 +1142,54 @@ namespace Game
           speed_bar_slot.character = 0;
       }
 
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
-        "[Z] " + current_character->move_one.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
-        "[X] " + current_character->move_two.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
-        "[C] " + current_character->move_three.name;
+      #pragma endregion
 
-      FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
-      FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
-      FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
-      FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
-        (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-    }
-
-#pragma endregion
-
-#pragma endregion
+      #pragma endregion
 
 
-#pragma region Resolve Game State
+      #pragma region Resolve Internal Systems
 
-#pragma region Alive/Dead Resolution
+      #pragma region Process Animator Events
 
-    for (auto character : battle.drifters_and_enemies)
-    {
-      // check if any characters are dead
-      if (character->is_alive && character->current_health <= 0)
+      // process animator events
+      // check if any of the animators are triggering any events
+      // 
+      for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
       {
-        // update state
-        character->is_alive = false;
-        character->current_health = 0;
-
-        // remove from speed bar
-        battle.speed_bar.erase(
-          std::remove(battle.speed_bar.begin(), battle.speed_bar.end(), character), battle.speed_bar.end()
-        );
-
-        // update alive count
-        if (character->character_id <= 2)
-          battle.drifter_alive_count--;
-        else
-          battle.enemy_alive_count--;
-
-        // play death animation
-        auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name);
+        std::string& entity_name = FLX_STRING_GET(*entity.GetComponent<EntityName>());
         auto& animator = *entity.GetComponent<Animator>();
-        switch (character->character_id)
+
+        if (animator_events.count(entity_name) == 0) continue;
+
+        for (auto& event : animator_events[entity_name])
         {
-        case 1:
-          animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Death_Anim_Sheet.flxspritesheet)");
-          break;
-        case 2:
-          animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Death_Anim_Sheet.flxspritesheet)");
-          break;
-        case 3:
-          animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        case 4:
-          animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-          //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-          break;
-        case 5:
-          // goto jack death cutscene
-          break;
+          if (animator.current_frame == event.trigger_frame)
+          {
+            // play animation
+            if (event.type == AnimatorEventType_Animation)
+            {
+              animator.spritesheet_handle = event.asset_handle;
+              animator.should_play = true;
+              animator.is_looping = event.is_looping;
+              animator.return_to_default = event.return_to_default;
+              animator.frame_time = 0.f;
+              animator.current_frame = 0;
+            }
+            // play sound
+            else if (event.type == AnimatorEventType_Sound)
+            {
+              auto& audio = *FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>();
+              audio.audio_file = event.asset_handle;
+              audio.is_looping = false;
+              audio.should_play = true;
+            }
+          }
         }
-        animator.should_play = true;
-        animator.is_looping = false;
-        animator.return_to_default = false;
-        animator.frame_time = 0.f;
-        animator.current_frame = 0;
       }
-    }
 
-#pragma endregion
+      #pragma endregion
 
-#pragma region Game Over Resolution
-
-    // insta win/lose
-    if (Input::GetKeyDown(GLFW_KEY_9)) battle.enemy_alive_count = 0;
-    if (Input::GetKeyDown(GLFW_KEY_0)) battle.drifter_alive_count = 0;
-
-    // check if the battle is over
-    if (battle.enemy_alive_count == 0 && !battle.is_win)
-    {
-      battle.is_win = true;
-      // load win layer
-      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
-    }
-    else if (battle.drifter_alive_count == 0 && !battle.is_lose)
-    {
-      battle.is_lose = true;
-      // load lose layer
-      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
-    }
-
-#pragma endregion
-
-#pragma region Speed Bar Resolution
-
-    // sort the speed bar slots
-    // 0 is the fastest so use < instead of >
-    std::sort(
-      battle.speed_bar.begin(), battle.speed_bar.end(),
-      [](const _Character* a, const _Character* b)
-      {
-        return a->current_speed < b->current_speed;
-      }
-    );
-
-    // resolve the speed bar (just minus the speed by the value of the first character)
-    int first_speed = battle.speed_bar[0]->current_speed;
-    if (first_speed > 0)
-      for (auto character : battle.speed_bar) character->current_speed -= first_speed;
-
-    // update the character id in the slot based on the speed bar order
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
-    {
-      auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
-
-      if (speed_bar_slot.slot_number <= battle.speed_bar.size())
-        speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
-      else
-        speed_bar_slot.character = 0;
-    }
-
-#pragma endregion
-
-#pragma endregion
-
-
-#pragma region Update Displays
-
-#pragma region Process Animator Events
-
-    // process animator events
-    // check if any of the animators are triggering any events
-    // 
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator>())
-    {
-      auto& animator = *entity.GetComponent<Animator>();
-
-    }
-
-#pragma endregion
-
-#pragma region Healthbar Display
-
-    // update the healthbar display
-    // loop through each healthbar and update the scale based on the current health
-    // there is the healthbarslot, the actual healthbar entity, and the character entity that are all needed
-    for (auto character : battle.drifters_and_enemies)
-    {
-      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Healthbar");
-
-      // guard
-      if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
-
-      auto* scale = entity.GetComponent<Scale>();
-      auto* healthbar = entity.GetComponent<Healthbar>();
-      auto* position = entity.GetComponent<Position>();
-
-      // Calculate the health percentage and new scale.
-      float health_percentage = static_cast<float>(character->current_health) / static_cast<float>(character->health);
-      // Update Scale
-      scale->scale.x = healthbar->original_scale.x * health_percentage;
-
-      // Update Position
-      position->position.x =
-        healthbar->original_position.x - static_cast<float>(healthbar->pixelLength / 2) * (1.0 - health_percentage);
-
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
-
-      // guard
-      if (!entity && !entity.HasComponent<Text>()) continue;
-
-      // get the character's current health
-      std::string stats = "HP: " + std::to_string(character->current_health) + " / " +
-                          std::to_string(character->health) + " , " +
-                          "SPD: " + std::to_string(character->current_speed);
-
-      // update the scale
-      entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
-    }
-
-#pragma endregion
-
-#pragma region Targeting Display
-
-    // show the target
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
-    {
-      auto& transform = *entity.GetComponent<Transform>();
-      auto& character_slot = *entity.GetComponent<CharacterSlot>();
-
-      // +2 to offset the slot number to the enemy slots
-      // only target slots that have a character in them
-      if (battle.target != 0)
-        transform.is_active = (character_slot.slot_number == (battle.target + 2));
-      else
-        transform.is_active = false;
-    }
-
-#pragma endregion
-
-#pragma region Speed Bar Display
-
-    // update the sprite based on what character is in the slot
-    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
-    {
-      auto& sprite = *entity.GetComponent<Sprite>();
-      auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
-
-      // sprite handles
-      static FlexECS::Scene::StringIndex _empty =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)");
-      static FlexECS::Scene::StringIndex _renko =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Renko.png)");
-      static FlexECS::Scene::StringIndex _grace =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Grace.png)");
-      static FlexECS::Scene::StringIndex _enemy1 =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En1.png)");
-      static FlexECS::Scene::StringIndex _enemy2 =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En2.png)");
-      static FlexECS::Scene::StringIndex _jack =
-        FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_Jack.png)");
-
-      // get the character in the slot
-      switch (speed_bar_slot.character)
-      {
-      case 0:
-        sprite.sprite_handle = _empty;
-        break;
-      case 1:
-        sprite.sprite_handle = _renko;
-        break;
-      case 2:
-        sprite.sprite_handle = _grace;
-        break;
-      case 3:
-        sprite.sprite_handle = _enemy1;
-        break;
-      case 4:
-        sprite.sprite_handle = _enemy2;
-        break;
-      case 5:
-        sprite.sprite_handle = _jack;
-        break;
-      }
-    }
-
-#pragma endregion
-
-#pragma endregion
+      #pragma endregion
   }
 
 } // namespace Game

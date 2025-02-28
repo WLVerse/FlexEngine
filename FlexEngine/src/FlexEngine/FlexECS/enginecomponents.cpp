@@ -186,4 +186,13 @@ namespace FlexEngine
   FLX_REFL_REGISTER_PROPERTY(character)
   FLX_REFL_REGISTER_END;
 
+  FLX_REFL_REGISTER_START(MoveOneComponent)
+  FLX_REFL_REGISTER_END;
+
+  FLX_REFL_REGISTER_START(MoveTwoComponent)
+    FLX_REFL_REGISTER_END;
+
+  FLX_REFL_REGISTER_START(MoveThreeComponent)
+    FLX_REFL_REGISTER_END;
+
 } // namespace FlexEngine

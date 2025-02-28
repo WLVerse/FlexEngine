@@ -395,6 +395,35 @@ namespace FlexEngine
 
 #pragma endregion
 
+  /**************
+ * Script-Component Pairs
+ **************/
+
+  #pragma region Moves
+
+  class __FLX_API MoveOneComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveTwoComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API MoveThreeComponent
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  #pragma endregion
+
 #pragma endregion
 
 } // namespace FlexEngine

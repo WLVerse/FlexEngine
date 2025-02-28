@@ -178,7 +178,7 @@ namespace FlexEngine
           // create an asset key
           AssetKey key = file.path.string().substr(default_directory_length);
           // load animator event
-          assets.emplace(key, Asset::AnimatorEventData(file));
+          assets.emplace(key, Asset::AnimatorEvent(file));
           Log::Info("Loaded animator event: " + key);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }
