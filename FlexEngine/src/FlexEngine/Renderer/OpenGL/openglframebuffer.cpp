@@ -67,7 +67,6 @@ namespace FlexEngine
 
   void OpenGLFrameBuffer::Bind() const 
   {
-    //Log::Info("Bind framebuffer with ID: " + std::to_string(framebuffer));
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     GET_OPENGL_ERROR()
   }
@@ -89,5 +88,13 @@ namespace FlexEngine
   GLuint OpenGLFrameBuffer::GetColorAttachment() const 
   {
     return colorAttachment;
+  }
+
+  void OpenGLFrameBuffer::Clear() const
+  {
+    Bind();
+    glClearColor(0.1f, 0.2f, 0.3f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Unbind();
   }
 } // namespace FlexEngine
