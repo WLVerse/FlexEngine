@@ -48,10 +48,11 @@ namespace Game
         float m_PerFrameDuration = 0.0f;      // Duration for each individual frame in the current section.
         int m_frameCount=1;
 
-        float m_dialogueTimer = 0.0f;               // Accumulates time for text animation.
-        float m_dialogueTextRate = 30.0f;           // Characters per second to animate.
-
-        bool is_autoplay = false;
+        float m_dialogueTimer = 0.0f;           // Accumulates time for text animation.
+        float m_dialogueHoldTimer = 0.0f;       // Accumulates time after text is fully revealed.
+        float m_dialogueTextRate = 30.0f;       // Characters per second.
+        float m_dialogueHoldDuration = 1.0f;    // Time (in seconds) to hold after a dialogue line is fully revealed before advancing.
+        bool is_autoplay = true;
 
         // Transition phase (for effects like fade out/in).
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
