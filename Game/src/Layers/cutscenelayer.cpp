@@ -169,7 +169,7 @@ namespace Game
         m_dialoguebox.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(
-            R"("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")"
+            R"("")"
           ),
           Vector3(1.0f, 1.0, 1.0f),
           { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
@@ -185,7 +185,7 @@ namespace Game
         m_shadowdialoguebox.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(
-            R"("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")"
+            R"("")"
           ),
           Vector3(0.05f, 0.05f, 0.05f),
           { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
@@ -430,6 +430,15 @@ namespace Game
                             {
                                 m_TransitionPhase = TransitionPhase::PreTransition;
                                 m_TransitionElapsedTime = 0.0f;
+
+                                // Calculate how many frames have not been played in this section. For mashing inside multiple frames section
+                                size_t remainingFrames = (m_frameCount > m_currFrameIndex) ? (m_frameCount - m_currFrameIndex) - 1 : 0;
+                                if (remainingFrames > 0 && m_CutsceneImages.size() >= remainingFrames)
+                                {
+                                    m_CutsceneImages.erase(m_CutsceneImages.begin(), m_CutsceneImages.begin() + remainingFrames);
+                                }
+                                m_currShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[0];
+                                m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[1];
                             }
                         }
                     }
