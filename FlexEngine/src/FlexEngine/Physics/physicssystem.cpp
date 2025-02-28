@@ -243,7 +243,7 @@ namespace FlexEngine
 	void PhysicsSystem::UpdatePhysicsSystem()
 	{
     // Update physics system based on the number of steps
-    for (unsigned int step = 0; step < Application::GetCurrentWindow()->GetFramerateController().GetNumberOfSteps(); ++step)
+    // for (unsigned int step = 0; step < Application::GetCurrentWindow()->GetFramerateController().GetNumberOfSteps(); ++step)
     {
       UpdatePositions();
       UpdateBounds();
