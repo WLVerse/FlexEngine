@@ -13,7 +13,7 @@ namespace FlexEngine
 
     // TODO: use the flxfmt formatter
     // TODO: save any changes to file
-    struct __FLX_API AnimatorEventData
+    struct __FLX_API AnimatorEvent
     {
       File& metadata;
 
@@ -22,7 +22,7 @@ namespace FlexEngine
       int event_type = 0; // animation = 1, sound = 2
       AssetKey value;     // animation name or sound file path
 
-      AnimatorEventData(File& _metadata);
+      AnimatorEvent(File& _metadata);
     };
 
   } // namespace Asset

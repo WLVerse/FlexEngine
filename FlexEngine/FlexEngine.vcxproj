@@ -181,7 +181,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClCompile Include="src\FlexEngine\assetmanager.cpp" />
     <ClCompile Include="src\FlexEngine\Assets\battle.cpp" />
     <ClCompile Include="src\FlexEngine\Assets\character.cpp" />
-    <ClCompile Include="src\FlexEngine\Assets\animatoreventdata.cpp" />
+    <ClCompile Include="src\FlexEngine\Assets\animatorevent.cpp" />
     <ClCompile Include="src\FlexEngine\Assets\move.cpp" />
     <ClCompile Include="src\FlexEngine\DataStructures\filelist.cpp" />
     <ClCompile Include="src\FlexEngine\DataStructures\freequeue.cpp" />
@@ -247,7 +247,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClInclude Include="src\FlexEngine\assetmanager.h" />
     <ClInclude Include="src\FlexEngine\Assets\battle.h" />
     <ClInclude Include="src\FlexEngine\Assets\character.h" />
-    <ClInclude Include="src\FlexEngine\Assets\animatoreventdata.h" />
+    <ClInclude Include="src\FlexEngine\Assets\animatorevent.h" />
     <ClInclude Include="src\FlexEngine\Assets\move.h" />
     <ClInclude Include="src\FlexEngine\DataStructures\filelist.h" />
     <ClInclude Include="src\FlexEngine\DataStructures\freequeue.h" />

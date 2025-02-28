@@ -395,17 +395,6 @@ namespace FlexEngine
 
 #pragma endregion
 
-  class __FLX_API AnimatorEvent
-  {
-    FLX_REFL_SERIALIZABLE
-
-  public:
-    int trigger_frame = 0;
-    FlexECS::EntityID target_entity;
-    int event_type = 0;                // animation = 1, sound = 2
-    FlexECS::Scene::StringIndex value; // animation name or sound file path
-  };
-
 #pragma endregion
 
 } // namespace FlexEngine

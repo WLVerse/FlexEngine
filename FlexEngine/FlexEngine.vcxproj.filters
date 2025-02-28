@@ -238,7 +238,7 @@
     <ClCompile Include="src\FlexEngine\fsm.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\FlexEngine\Assets\animatoreventdata.cpp">
+    <ClCompile Include="src\FlexEngine\Assets\animatorevent.cpp">
       <Filter>src\FlexEngine\Assets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -456,7 +456,7 @@
     <ClInclude Include="src\FlexEngine\fsm.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
-    <ClInclude Include="src\FlexEngine\Assets\animatoreventdata.h">
+    <ClInclude Include="src\FlexEngine\Assets\animatorevent.h">
       <Filter>src\FlexEngine\Assets</Filter>
     </ClInclude>
   </ItemGroup>

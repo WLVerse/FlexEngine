@@ -1,12 +1,12 @@
 #include "pch.h"
 
-#include "animatoreventdata.h"
+#include "animatorevent.h"
 
 namespace FlexEngine
 {
   namespace Asset
   {
-    AnimatorEventData::AnimatorEventData(File& _metadata)
+    AnimatorEvent::AnimatorEvent(File& _metadata)
       : metadata(_metadata)
     {
       // parse the file

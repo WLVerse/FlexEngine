@@ -186,11 +186,4 @@ namespace FlexEngine
   FLX_REFL_REGISTER_PROPERTY(character)
   FLX_REFL_REGISTER_END;
 
-  FLX_REFL_REGISTER_START(AnimatorEvent)
-  FLX_REFL_REGISTER_PROPERTY(trigger_frame)
-  FLX_REFL_REGISTER_PROPERTY(target_entity)
-  FLX_REFL_REGISTER_PROPERTY(event_type)
-  FLX_REFL_REGISTER_PROPERTY(value)
-  FLX_REFL_REGISTER_END;
-
 } // namespace FlexEngine
