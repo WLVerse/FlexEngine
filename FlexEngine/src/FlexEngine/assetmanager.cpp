@@ -217,6 +217,90 @@ namespace FlexEngine
     }
   }
 
+  void AssetManager::LoadFileFromPath(Path path, Path _default_directory)
+  {
+    File file = File::Open(path);
+
+    std::size_t default_directory_length = _default_directory.string().length();
+
+    auto file_extension = file.path.extension();
+
+    if (file_extension.string() == ".jpg" || file_extension.string() == ".jpeg" ||
+        file_extension.string() == ".png")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+
+      // load texture
+      assets.emplace(key, Asset::Texture());
+      Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
+      texture.Load(file.path);
+      Log::Info("Loaded texture: " + key);
+    }
+    else if (file_extension.string() == ".flxshader")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+
+      // load shader
+      assets.emplace(key, Asset::Shader());
+      Asset::Shader& shader = std::get<Asset::Shader>(assets[key]);
+      shader.Load(file.path);
+      Log::Info("Loaded shader: " + key);
+    }
+    else if (file_extension.string() == ".mp3" || file_extension.string() == ".wav")
+    {
+      FLX_FLOW_BEGINSCOPE();
+      AssetKey key = file.path.string().substr(default_directory_length);
+      assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
+      Log::Info("Loaded sound path: " + key);
+      FLX_FLOW_ENDSCOPE();
+    }
+    else if (file_extension.string() == ".ttf")
+    {
+      FLX_FLOW_BEGINSCOPE();
+      AssetKey key = file.path.string().substr(default_directory_length);
+      assets[key] = Asset::Font{ key };
+      FLX_FLOW_ENDSCOPE();
+      Log::Info("Loaded font path: " + key);
+    }
+    else if (file_extension.string() == ".flxspritesheet")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+
+      // load spritesheet
+      assets.emplace(key, Asset::Spritesheet(file));
+      Log::Info("Loaded spritesheet: " + key);
+    }
+    else if (file_extension.string() == ".flxbattle")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+      // load battle
+      assets.emplace(key, Asset::Battle(file));
+      Log::Info("Loaded battle: " + key);
+    }
+    else if (file_extension.string() == ".flxcharacter")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+      // load character
+      assets.emplace(key, Asset::Character(file));
+      Log::Info("Loaded character: " + key);
+    }
+    else if (file_extension.string() == ".flxmove")
+    {
+      // create an asset key
+      AssetKey key = file.path.string().substr(default_directory_length);
+      // load move
+      assets.emplace(key, Asset::Move(file));
+      Log::Info("Loaded move: " + key);
+    }
+    else { Log::Warning("Unsupported file type: " + file.path.string()); }
+  
+  }
+
   AssetVariant* AssetManager::Internal_Get(AssetKey key)
   {
     std::replace(key.begin(), key.end(), '/', Path::separator);

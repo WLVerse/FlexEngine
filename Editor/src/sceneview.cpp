@@ -835,7 +835,7 @@ namespace Editor
 			FlexECS::Entity new_entity = scene->CreateEntity(path.filename().string());
 			new_entity.AddComponent<Position>({ position });
 			new_entity.AddComponent<Rotation>({});
-			new_entity.AddComponent<Scale>({ Vector2::One * 100.0f });
+			new_entity.AddComponent<Scale>({ Vector2::One });
 			new_entity.AddComponent<Transform>({});
 			new_entity.AddComponent<Sprite>({ FlexECS::Scene::GetActiveScene()->Internal_StringStorage_New(image_key) });
 			EditorGUI::EndPayloadReceiver();
@@ -886,14 +886,15 @@ namespace Editor
 			//Camera zooming
 			float baseAspectRatio = Editor::GetInstance().m_editorCamera.GetOrthoWidth() / Editor::GetInstance().m_editorCamera.GetOrthoHeight();  // Base aspect ratio (can be easily adjusted)
 			float zoomSpeed = 40.0f;      // Adjust this for faster/slower zoom
-			float minZoom = 100.0f;       // Minimum orthographic width
-			float maxZoom = 5000.0f;      // Maximum orthographic width
+			float minZoom = 50.0f;       // Minimum orthographic width
+			//float maxZoom = 5000.0f;      // Maximum orthographic width
 
 			ImGuiIO& io = ImGui::GetIO();
 			if (io.MouseWheel != 0.0f)
 			{
 				float zoomDelta = io.MouseWheel * zoomSpeed;
-				float new_right = std::clamp(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom, maxZoom);
+				//float new_right = std::clamp(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom, maxZoom);
+				float new_right = std::max(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom);
 				float new_top = new_right / baseAspectRatio;
 				Editor::GetInstance().m_editorCamera.SetOrthographic(-new_right/2, new_right / 2, -new_top / 2, new_top / 2);
 				Editor::GetInstance().m_editorCamera.Update();

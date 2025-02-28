@@ -16,11 +16,14 @@ public:
 
   void OnMouseEnter() override
   {
-    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
+    Application::MessagingSystem::Send("MoveTwo hovered", true);
+    FLX_STRING_GET(self.GetComponent<Sprite>()->sprite_handle) = "/images/battle ui/Battle_UI_Skill_Selected.png";
   }
 
   void OnMouseStay() override
   {
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = true;
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = true;
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
       Application::MessagingSystem::Send("MoveTwo clicked", true);
@@ -29,7 +32,9 @@ public:
 
   void OnMouseExit() override
   {
-    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)");
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
+    FLX_STRING_GET(self.GetComponent<Sprite>()->sprite_handle) = "/images/battle ui/Battle_UI_Skill_Unselected.png";
   }
 };
 

@@ -222,6 +222,7 @@ namespace Editor
                       Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
                       FlexECS::Scene::SetActiveScene(FlexECS::Scene::CreateScene());
                       current_save_name = default_save_name;
+                      Window::FrameBufferManager.GetFrameBuffer("Scene")->Clear();
                     } });
               }
 
@@ -250,6 +251,7 @@ namespace Editor
                                             // load the scene
                                             Editor::GetInstance().GetSystem<SelectionSystem>()->ClearSelection();
                                             FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+                                            Window::FrameBufferManager.GetFrameBuffer("Scene")->Clear();
                                           } });
               }
 
@@ -285,6 +287,8 @@ namespace Editor
                                             // update the current save directory and name
                                             current_save_directory = file.path.parent_path();
                                             current_save_name = file.path.stem().string();
+
+                                            Window::FrameBufferManager.GetFrameBuffer("Scene")->Clear();
                                           } });
               }
 
