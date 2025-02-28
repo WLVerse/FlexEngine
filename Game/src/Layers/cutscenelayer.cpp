@@ -229,21 +229,44 @@ namespace Game
 
     void CutsceneLayer::RestartCutscene()
     {
-        // Reset indices and timers.
+
+        // Reload the cutscene assets.
+        loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
+                     FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
+
+        // Reset all indices and timers.
+        m_currSectionIndex = 0;
         m_currFrameIndex = 0;
+        m_currDialogueIndex = 0;
         m_ElapsedTime = 0.0f;
         m_TransitionElapsedTime = 0.0f;
+        m_dialogueTimer = 0.0f;
         m_TransitionPhase = TransitionPhase::None;
 
-        // Set up the current shot with the first image.
-        m_currShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
-        // Set up the next shot with the second image if available.
-        if (m_currFrameIndex + 1 < m_CutsceneImages.size())
-            m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex + 1];
-        else
-            m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
+        // Update the sprite components for the current and next shots.
+        auto* currSprite = m_currShot.GetComponent<Sprite>();
+        auto* nextSprite = m_nextShot.GetComponent<Sprite>();
 
+        // If there are cutscene images available, assign the first image to the current shot
+        // and the second image (if available) to the next shot.
+        if (!m_CutsceneImages.empty())
+        {
+            currSprite->sprite_handle = m_CutsceneImages[0];
+            nextSprite->sprite_handle = (m_CutsceneImages.size() > 1) ? m_CutsceneImages[1] : 0;
+        }
+        else
+        {
+            currSprite->sprite_handle = 0;
+            nextSprite->sprite_handle = 0;
+        }
+
+        // Reset opacities to ensure full visibility.
+        currSprite->opacity = 1.0f;
+        nextSprite->opacity = 1.0f;
+
+        // Mark the cutscene as active and restart it.
         m_CutsceneActive = true;
+        StartCutscene();
     }
 
     void CutsceneLayer::Update()
@@ -257,6 +280,9 @@ namespace Game
 
         if (!m_CutsceneActive)
             return;
+
+        if (Input::GetKeyDown(GLFW_KEY_R))
+            RestartCutscene();
 
         // Debug output for transition phases.
         #if 0
@@ -349,25 +375,6 @@ namespace Game
             }
         }
         #else //User controlled dialogue
-        // --- Input Handling for skipping ---
-        if (Input::GetKeyDown(GLFW_KEY_SPACE))
-        {
-            // TODO: //BREAKS WITH NEW CUTSCENE LAYOUT
-
-            // If already in a transition, swap immediately.
-            //if (m_TransitionPhase == TransitionPhase::PreTransition)
-            //{
-            //    SwapShots();
-            //}
-            //// Force the pre-transition phase.
-            //m_TransitionPhase = TransitionPhase::PreTransition;
-            //m_TransitionElapsedTime = 0.0f;
-        }
-        else if (Input::GetKey(GLFW_KEY_ESCAPE))
-        {
-            StopCutscene();
-            return;
-        }
 
         float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
@@ -503,7 +510,9 @@ namespace Game
                 // Transition complete; prepare for next section.
                 m_TransitionPhase = TransitionPhase::None;
                 m_ElapsedTime = 0.0f;
+
                 UpdateTimings(true); // Pops old images, resets m_currFrameIndex, and updates m_frameCount and m_PerFrameDuration.
+
                 // Reset dialogue indices for the new section.
                 m_currDialogueIndex = 0;
                 m_dialogueTimer = 0.0f;
