@@ -97,6 +97,7 @@ namespace FlexEngine
         // - battles
         // - characters
         // - moves
+        // - dialogues
 
         auto file_extension = file.path.extension();
 
@@ -171,6 +172,23 @@ namespace FlexEngine
           // load move
           assets.emplace(key, Asset::Move(file));
           Log::Info("Loaded move: " + key);
+        }
+        else if (file_extension.string() == ".flxdialogue")
+        {
+            // create an asset key
+            AssetKey key = file.path.string().substr(default_directory_length);
+            // load dialogue
+            assets.emplace(key, Asset::Dialogue(file));
+            Log::Info("Dialogue file: " + key);
+        }
+        else if (file_extension.string() == ".flxcutscene")
+        {
+            // create an asset key
+            AssetKey key = file.path.string().substr(default_directory_length);
+            // load move
+            Asset::Cutscene test = Asset::Cutscene(file);
+            assets.emplace(key, test);
+            Log::Info("Dialogue file: " + key);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }
       }

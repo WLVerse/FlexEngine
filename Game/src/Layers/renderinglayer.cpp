@@ -212,7 +212,7 @@ namespace Game
         sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
                                         static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
         sample.m_textboxDimensions = textComponent->textboxDimensions;
-
+        sample.m_linespacing = 12.0f;
         game_queue.Insert({ [sample]()
                             {
                               OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
