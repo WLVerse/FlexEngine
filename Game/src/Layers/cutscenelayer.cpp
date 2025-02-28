@@ -83,13 +83,6 @@ namespace Game
         // If moving to the next section, update section and reset the current frame index.
         if (toNextSection)
         {
-            // Remove the images for the finished section.
-            // m_currSectionFrameCount is assumed to be set from the previous section.
-            if (m_frameCount > 0 && m_CutsceneImages.size() >= static_cast<size_t>(m_frameCount))
-            {
-                m_CutsceneImages.erase(m_CutsceneImages.begin(),
-                                       m_CutsceneImages.begin() + m_frameCount);
-            }
             // Advance to the next section and reset the frame index.
             m_currSectionIndex++;
             m_currFrameIndex = 0;
@@ -168,7 +161,7 @@ namespace Game
         m_nextShot.AddComponent<ZIndex>({ 9 });
 
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->CreateEntity("Normal Dialogue Box");
-        m_dialoguebox.AddComponent<Position>({ Vector3(0,-380.0f,0) });
+        m_dialoguebox.AddComponent<Position>({ Vector3(0,-390.0f,0) });
         m_dialoguebox.AddComponent<Rotation>({});
         m_dialoguebox.AddComponent<Scale>({ Vector3::One });
         m_dialoguebox.AddComponent<Transform>({});
@@ -179,12 +172,12 @@ namespace Game
             R"("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")"
           ),
           Vector3(1.0f, 1.0, 1.0f),
-          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Top },
+          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
             Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f)
         });
 
         m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->CreateEntity("Shadow Dialogue Box");
-        m_shadowdialoguebox.AddComponent<Position>({ Vector3(1.5f,-383.0f,0) });
+        m_shadowdialoguebox.AddComponent<Position>({ Vector3(1.5f,-393.0f,0) });
         m_shadowdialoguebox.AddComponent<Rotation>({});
         m_shadowdialoguebox.AddComponent<Scale>({ Vector3::One });
         m_shadowdialoguebox.AddComponent<Transform>({});
@@ -195,7 +188,7 @@ namespace Game
             R"("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")"
           ),
           Vector3(0.05f, 0.05f, 0.05f),
-          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Top },
+          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
             Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f)
         });
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
@@ -501,9 +494,9 @@ namespace Game
         else if (m_TransitionPhase == TransitionPhase::PostTransition)
         {
             m_TransitionElapsedTime += dt;
-            float progress = m_TransitionElapsedTime / m_PostTransitionDuration;
-            float newOpacity = FlexMath::Lerp(0.0f, 1.0f, progress);
-            m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
+            //float progress = m_TransitionElapsedTime / m_PostTransitionDuration;
+            //float newOpacity = FlexMath::Lerp(0.0f, 1.0f, progress);
+            //m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
 
             if (m_TransitionElapsedTime >= m_PostTransitionDuration)
             {
@@ -523,25 +516,28 @@ namespace Game
 
     void CutsceneLayer::SwapShots()
     {
-        if (m_currFrameIndex >= m_CutsceneImages.size() + 1)
+        // If there is only one (or zero) image left, we have reached the end.
+        if (m_CutsceneImages.size() <= 1)
         {
             StopCutscene();
             return;
         }
 
-        // The next shot becomes the current shot.
+        // Remove the current frame from the front of the vector.
+        m_CutsceneImages.erase(m_CutsceneImages.begin());
+
+        // Now, update the current shot to the new first element.
         m_currShot.GetComponent<Sprite>()->sprite_handle = m_nextShot.GetComponent<Sprite>()->sprite_handle;
         m_currShot.GetComponent<Sprite>()->opacity = 1.0f;
         m_currFrameIndex++;
 
-        // Prepare the next shot with the subsequent image, if available.
-        if (m_currFrameIndex < m_CutsceneImages.size())
-        {
-            m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
-        }
+        // Update the next shot if there is another frame.
+        if (m_CutsceneImages.size() > 1)
+            m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[1];
         else
-        {
             m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
-        }
+
+        std::string txt = FLX_STRING_GET(m_currShot.GetComponent<Sprite>()->sprite_handle);
+        std::string txt2 = FLX_STRING_GET(m_nextShot.GetComponent<Sprite>()->sprite_handle);
     }
 }
