@@ -2,6 +2,6 @@ CharacterName: Renko
 CharacterID: 1
 Health: 10
 Speed: 2
-MoveOne: /data/Strike.flxmove
-MoveTwo: /data/Revolution.flxmove
-MoveThree: /data/Hour_Of_Reckoning.flxmove
+MoveOne: /data/Ultimate.flxmove
+MoveTwo: /data/Ultimate.flxmove
+MoveThree: /data/Ultimate.flxmove

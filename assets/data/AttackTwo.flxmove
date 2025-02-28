@@ -1,4 +1,6 @@
-Name: Revolution
-Damage: 5
-Speed: 4
-Description: Deal 5 damage to an enemy. Costs 4 Move Speed.
+Name: AttackTwo
+Speed: 5
+Effect: Damage
+Value: 1
+Target: SINGLE_ENEMY
+Description: Deal 5 damage to an enemy.

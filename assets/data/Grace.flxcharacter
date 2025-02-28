@@ -2,6 +2,6 @@ CharacterName: Grace
 CharacterID: 2
 Health: 10
 Speed: 1
-MoveOne: /data/Discipline.flxmove
-MoveTwo: /data/Timeout.flxmove
-MoveThree: /data/Verdict_Guilty.flxmove
+MoveOne: /data/AttackOne.flxmove
+MoveTwo: /data/AttackOne.flxmove
+MoveThree: /data/AttackOne.flxmove

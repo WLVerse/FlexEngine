@@ -1,0 +1,6 @@
+Name: AttackOne
+Speed: 5
+Effect: Heal
+Value: 1
+Target: ALL_ALLIES
+Description: Heal 5 HP to all allies.
