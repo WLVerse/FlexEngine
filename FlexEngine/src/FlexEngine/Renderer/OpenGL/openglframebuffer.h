@@ -38,8 +38,6 @@ namespace FlexEngine
 
     GLuint GetColorAttachment() const;
 
-    void Clear() const;
-
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
 

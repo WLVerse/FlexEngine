@@ -18,7 +18,6 @@
 #include "window.h"
 
 #include "application.h"
-#include "assetdropmanager.h"
 
 #ifndef IMGUI_DISABLE
 #include "imguiwrapper.h"
@@ -26,11 +25,6 @@
 
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
-
-#ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32  //to expose glfwGetWin32Window
-#include <GLFW/glfw3native.h>
-#endif
 
 //#include "FMOD/FMODWrapper.h"
 
@@ -109,7 +103,6 @@ namespace FlexEngine
 
     // create window
     m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
-
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);
 
@@ -127,25 +120,6 @@ namespace FlexEngine
     glfwSetWindowFocusCallback(m_glfwwindow, WindowFocusCallBack); // For now only audio requires this, but someone else should handle this centrally.
     //glfwSetCharCallback(m_glfwwindow, CharCallback);
     //glfwSetDropCallback(m_glfwwindow, DropCallback);
-
-    //Register this window as a drag drop target
-    HRESULT result = OleInitialize(NULL);
-
-    if (!SUCCEEDED(result))
-    {
-      Log::Error("OleInitialize failed!");
-    }
-    m_dropmanager.Initialize(glfwGetWin32Window(m_glfwwindow));
-
-
-    result = RegisterDragDrop(m_dropmanager.m_hwnd, &m_dropmanager);
-    if (!SUCCEEDED(result))
-    {
-      Log::Error("RegisterDragDrop failed!");
-    }
-
-
-
 
     // functions below require is_init to be true
     is_init = true;
@@ -177,8 +151,6 @@ namespace FlexEngine
     #endif
 
     Application::Internal_SetCurrentWindow(nullptr);
-    
-    OleUninitialize();
 
     glfwDestroyWindow(m_glfwwindow);
     m_glfwwindow = nullptr;

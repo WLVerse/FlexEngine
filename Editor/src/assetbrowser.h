@@ -14,7 +14,6 @@
 #pragma once
 
 #include "FlexEngine.h"
-#include "FlexEngine/assetdropmanager.h"
 #include "editorpanel.h"
 #include <unordered_map>
 #include <string>
@@ -47,7 +46,6 @@ namespace Editor
 		const std::unordered_map<std::string, std::string>& GetLoadedFontsList() const;
 
 	private:
-
 		/*!***************************************************************************
 		* @brief
 		* This function renders each folder, and its contents
@@ -84,18 +82,7 @@ namespace Editor
 		void DeleteFilePopup(std::filesystem::path& file);
 		void RenderDeleteConfirmationPopup();
 
-
-		/*
-		* Editor display 2
-		*/
-		void EditorUI2();
-		void RenderFolderDropdown2(Folder& folder);
-		void RenderThumbnails(Folder& folder);
-
-
-
-		//Drag file from windows to editor
-		void OnFileDropped(const std::vector<std::string>& file_list);
+		const std::filesystem::path m_root_directory = "../../assets";
 
 		char m_text_input[128] = "";	//create file name, search...
 		std::filesystem::path m_selected_file = "";
@@ -108,41 +95,9 @@ namespace Editor
 		std::unordered_map<std::filesystem::path, Folder> m_directories;
 		Folder m_root_folder;	//Need to know what's inside the root folder is so we know where to start displaying
 
-		float m_left_panel_width = 320.0f;
-		
-		struct PanelRect
-		{
-			ImVec2 min;
-			ImVec2 max;
-		};
-		PanelRect m_right_panel_rect;
-		
 		//Additional tracking of certain file types
 		//For things such as font dropdown menus.
-		//first = font name, second = filepath
 		std::unordered_map<std::string, std::string> m_font_paths;
-
-
-		const std::filesystem::path m_root_directory = "../../assets";
-
-		#pragma region -.-
-		const std::filesystem::path m_resources_root = "../../Editor/resources";
-
-		const std::filesystem::path m_audio_image = "../../Editor/resources/assetbrowser_audio.png";
-		const std::filesystem::path m_audio_image_key = "/assetbrowser_audio.png";
-
-		const std::filesystem::path m_folder_image = "../../Editor/resources/assetbrowser_folder.png";
-		const std::filesystem::path m_folder_image_key = "/assetbrowser_folder.png";
-
-		const std::filesystem::path m_flxprefab_image = "../../Editor/resources/assetbrowser_flxprefab.png";
-		const std::filesystem::path m_flxprefab_image_key = "/assetbrowser_flxprefab.png";
-
-		const std::filesystem::path m_shader_image = "../../Editor/resources/assetbrowser_shader.png";
-		const std::filesystem::path m_shader_image_key = "/assetbrowser_shader.png";
-
-		const std::filesystem::path m_font_image = "../../Editor/resources/assetbrowser_font.png";
-		const std::filesystem::path m_font_image_key = "/assetbrowser_font.png";
-		#pragma endregion
 	};
 
 

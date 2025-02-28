@@ -12,9 +12,10 @@
 **************************************************************************/
 
 #pragma once
-#include "FlexEngine.h"
 
-#include <FlexEngine/Renderer/Camera/camera.h>
+
+#include "FlexEngine.h"
+using namespace FlexEngine;
 
 #include "editorpanel.h"
 #include "editorsystem.h"
@@ -32,8 +33,6 @@
 #include <memory>
 #include <typeindex>
 #include <typeinfo>
-
-using namespace FlexEngine;
 
 namespace Editor
 {
@@ -85,6 +84,9 @@ namespace Editor
 		GameView m_gameview;
 
 		SelectionSystem m_selection;
+
+		//Selection system to be done
+		FlexEngine::FlexECS::Entity m_selected_entity = FlexEngine::FlexECS::Entity::Null;	//Which entity the inspector panel should focus on.
 
 		std::unordered_map<std::type_index, EditorPanel*> m_panels;
 		std::unordered_map<std::type_index, EditorSystem*> m_systems;

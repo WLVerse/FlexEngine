@@ -48,10 +48,6 @@ namespace FlexEngine
 {
 class __FLX_API FMODWrapper
 {
-  // Supported channel groups
-  static FMOD::ChannelGroup* bgm_group;
-  static FMOD::ChannelGroup* sfx_group;
-  
 public:
 
   // This class extends usage for middle level to call from.
@@ -60,26 +56,19 @@ public:
     static std::map<std::string, FMOD::Channel*> channels; // Stores all instances of channels in existence
 
   public:
-    // Enum of channel groups that it can be a part of. To create a channel, add to this enum
-    enum CHANNELGROUP
-    {
-      BGM = 0,
-      SFX = 1,
-    };
-
     /*!
       \brief Plays the sound. Usage: FMODWrapper::Core::PlaySound("mario", FLX_ASSET_GET(Asset::Sound, AssetKey("/audio/test.mp3")));
       \param identifier The identifier of the sound for controlling
       \param sound The sound to play
     */
-    static void PlaySound(std::string const&, Asset::Sound const&, CHANNELGROUP channelGroup = CHANNELGROUP::SFX);
+    static void PlaySound(std::string const&, Asset::Sound const&);
 
     /*!
     \brief Plays a sound which loops automatically. Usage: FMODWrapper::Core::PlayLoopingSound("mario", FLX_ASSET_GET(Asset::Sound, AssetKey("/audio/test.mp3")));
     \param identifier The identifier of the sound for controlling
     \param sound The sound to play
     */
-    static void PlayLoopingSound(std::string const& identifier, Asset::Sound const& asset, CHANNELGROUP channelGroup = CHANNELGROUP::BGM);
+    static void PlayLoopingSound(std::string const& identifier, Asset::Sound const& asset);
 
     /*
       \brief Stops playing a sound. Usage: FMODWrapper::Core::StopSound("mario2");
@@ -90,13 +79,9 @@ public:
     // Function to support GLFW callback
     static void WindowFocusCallback(GLFWwindow* window, int focused);
 
-    // Stops playing all sounds
     static void ForceStop();
 
     static void ChangeLoopProperty(std::string const&, bool);
-
-    // Adjusts the volume of the group belonging to the channelgroup.
-    static void AdjustGroupVolume(CHANNELGROUP channelGroup, float volPercent);
 
   private:
     // The below 2 functions are used for manually silencing FMOD. This is meant for things like alt tabbing.

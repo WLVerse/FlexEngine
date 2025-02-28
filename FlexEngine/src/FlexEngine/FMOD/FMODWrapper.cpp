@@ -20,14 +20,10 @@
 
 namespace FlexEngine
 {
-// Static initialization for wrapper
+// Static initialization
 FMOD::System* FMODWrapper::fmod_system = NULL;
 FMOD::Studio::System* FMODWrapper::fmod_studio_system = NULL;
 FMOD_RESULT FMODWrapper::result;
-FMOD::ChannelGroup* FMODWrapper::bgm_group = nullptr;
-FMOD::ChannelGroup* FMODWrapper::sfx_group = nullptr;
-
-// Static initialization for core
 std::map<std::string, FMOD::Channel*> FMODWrapper::Core::channels;
 
 // Callback function which calls stop sound when the sound is done playing
@@ -63,9 +59,6 @@ void FMODWrapper::Load()
   FMOD_ASSERT(FMOD::Studio::System::create(&fmod_studio_system));
   FMOD_ASSERT(fmod_studio_system->initialize(512, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr));
   FMOD_ASSERT(fmod_studio_system->getCoreSystem(&fmod_system));
-
-  fmod_system->createChannelGroup("BGM", &FMODWrapper::bgm_group);
-  fmod_system->createChannelGroup("SFX", &FMODWrapper::sfx_group);
 }
 
 /*!
@@ -85,25 +78,13 @@ void FMODWrapper::Update()
   FMOD_ASSERT(fmod_studio_system->update()); // Invokes fmod core's update as well...
 }
 
-void FMODWrapper::Core::PlaySound(std::string const& identifier, Asset::Sound const& asset, CHANNELGROUP cg)
+void FMODWrapper::Core::PlaySound(std::string const& identifier, Asset::Sound const& asset)
 {
   // Play the sound given a sound handle and a channel...
   if (channels.find(identifier) == channels.end()) // not already used identifier
   {
     FMOD::Channel* channel;
     FMOD_ASSERT(fmod_system->playSound(asset.sound, nullptr, false, &channel));
-
-    if (channel)
-    {
-      if (cg == CHANNELGROUP::BGM)
-      {
-        channel->setChannelGroup(FMODWrapper::bgm_group);
-      }
-      else if (cg == CHANNELGROUP::SFX)
-      {
-        channel->setChannelGroup(FMODWrapper::sfx_group);
-      }
-    }
 
     // Set it to automatically remove from list when done
     std::string* id = new std::string(identifier);
@@ -120,7 +101,7 @@ void FMODWrapper::Core::PlaySound(std::string const& identifier, Asset::Sound co
   }
 }
 
-void FMODWrapper::Core::PlayLoopingSound(std::string const& identifier, Asset::Sound const& asset, CHANNELGROUP cg)
+void FMODWrapper::Core::PlayLoopingSound(std::string const& identifier, Asset::Sound const& asset)
 {
   // Play the sound given a sound handle and a channel...
   if (channels.find(identifier) == channels.end()) // not already used identifier
@@ -128,18 +109,6 @@ void FMODWrapper::Core::PlayLoopingSound(std::string const& identifier, Asset::S
     FMOD::Channel* channel;
     FMOD_ASSERT(fmod_system->playSound(asset.sound, nullptr, false, &channel));
     channel->setMode(FMOD_LOOP_NORMAL); 
-
-    if (channel)
-    {
-      if (cg == CHANNELGROUP::BGM)
-      {
-        channel->setChannelGroup(FMODWrapper::bgm_group);
-      }
-      else if (cg == CHANNELGROUP::SFX)
-      {
-        channel->setChannelGroup(FMODWrapper::sfx_group);
-      }
-    }
 
     // Set it to automatically remove from list when done
     std::string* id = new std::string(identifier);
@@ -221,18 +190,6 @@ void FMODWrapper::Core::ChangeLoopProperty(std::string const& identifier, bool i
   
   // Slightly hacky but should always work
   //channels[identifier]->setLoopCount(0);
-}
-
-void FMODWrapper::Core::AdjustGroupVolume(CHANNELGROUP channelGroup, float volPercent)
-{
-  if (channelGroup == CHANNELGROUP::BGM)
-  {
-    FMODWrapper::bgm_group->setVolume(volPercent);
-  }
-  else if (channelGroup == CHANNELGROUP::SFX)
-  {
-    FMODWrapper::sfx_group->setVolume(volPercent);
-  }
 }
 
 }// namespace FlexEngine

@@ -99,15 +99,6 @@ namespace Editor
 
 		static void SpritesheetPath(std::string& path, std::string title = "Spritesheet");
 
-
-		/*!***************************************************************************
-		* @brief
-		* Styling presets
-		******************************************************************************/
-		static void StyleColorPush_Selected();
-		static void StyleColorPop_Selected();
-
-
 		/*!***************************************************************************
 		* @brief payloads
 		******************************************************************************/

@@ -70,8 +70,6 @@ namespace FlexEngine
     // Frees OpenGL textures and shaders
     static void Unload();
 
-    static void LoadFileFromPath(Path path, Path _default_directory);
-
     #pragma region Getter
 
   public:

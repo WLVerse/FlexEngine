@@ -88,71 +88,23 @@ namespace Editor
       transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
     }
     #pragma endregion 
-    
+
     #pragma region Animator System
 
-      // animator system updates the time for all animators
-      // TODO: move this to a different layer
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Sprite>())
+    // animator system updates the time for all animators
+    // TODO: move this to a different layer
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Sprite>())
+    {
+      Animator& animator = *element.GetComponent<Animator>();
+
+      if (animator.should_play)
       {
-        Animator& animator = *element.GetComponent<Animator>();
-
-        if (!animator.should_play) continue;
-
-        animator.frame_time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
-
-        // calculate the total frames
-        if (animator.total_frames != asset_spritesheet.columns * asset_spritesheet.rows)
-          animator.total_frames = asset_spritesheet.columns * asset_spritesheet.rows;
-
-        // TODO: debug why this is happening
-        if (animator.current_frame >= asset_spritesheet.frame_times.size()) animator.current_frame = 0;
-
-        // get the current frame time
-        animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
-
-        // handling of animations
-        // move to the next frame
-        // loop if looping
-        // stop if not looping
-        // return to default and continue looping if return_to_default is true
-        if (animator.frame_time >= animator.current_frame_time)
-        {
-          // skip frames if needed
-          while (animator.frame_time >= animator.current_frame_time)
-          {
-            animator.current_frame++;
-            animator.frame_time -= animator.current_frame_time;
-          }
-
-          // loop
-          if (animator.is_looping && animator.current_frame >= animator.total_frames)
-          {
-            animator.current_frame = 0;
-          }
-
-          // not looping
-          if (!animator.is_looping && animator.current_frame >= animator.total_frames)
-          {
-            // return to default and continue looping
-            if (animator.return_to_default)
-            {
-              animator.spritesheet_handle = animator.default_spritesheet_handle;
-              animator.is_looping = true;
-            }
-            // stop at the last frame
-            else
-            {
-              animator.current_frame = animator.total_frames - 1;
-              animator.should_play = false;
-            }
-          }
-        }
+        // TODO: reset time somewhere?
+        animator.time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
       }
+    }
 
-  #pragma endregion
+    #pragma endregion
 
     #pragma region Sprite Renderer System
     FunctionQueue editor_queue, game_queue;

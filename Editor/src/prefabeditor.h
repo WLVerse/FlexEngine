@@ -15,7 +15,6 @@
 #include "FlexEngine.h"
 #include "editorpanel.h"
 
-using namespace FlexEngine;
 
 namespace Editor
 {
