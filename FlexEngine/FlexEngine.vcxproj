@@ -178,6 +178,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
   <ItemGroup>
     <ClCompile Include="..\third_party\src\glad\glad.c" />
     <ClCompile Include="src\FlexEngine\application.cpp" />
+    <ClCompile Include="src\FlexEngine\assetdropmanager.cpp" />
     <ClCompile Include="src\FlexEngine\assetmanager.cpp" />
     <ClCompile Include="src\FlexEngine\Assets\battle.cpp" />
     <ClCompile Include="src\FlexEngine\Assets\character.cpp" />
@@ -205,6 +206,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClCompile Include="src\FlexEngine\FMOD\FMODWrapper.cpp" />
     <ClCompile Include="src\FlexEngine\FMOD\Sound.cpp" />
     <ClCompile Include="src\FlexEngine\frameratecontroller.cpp" />
+    <ClCompile Include="src\FlexEngine\fsm.cpp" />
     <ClCompile Include="src\FlexEngine\imguiwrapper.cpp" />
     <ClCompile Include="src\FlexEngine\input.cpp" />
     <ClCompile Include="src\FlexEngine\Layer\layerstack.cpp" />
@@ -241,6 +243,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
   <ItemGroup>
     <ClInclude Include="src\entrypoint.h" />
     <ClInclude Include="src\FlexEngine\application.h" />
+    <ClInclude Include="src\FlexEngine\assetdropmanager.h" />
     <ClInclude Include="src\FlexEngine\assetkey.h" />
     <ClInclude Include="src\FlexEngine\assetmanager.h" />
     <ClInclude Include="src\FlexEngine\Assets\battle.h" />
@@ -273,6 +276,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClInclude Include="src\FlexEngine\FMOD\FMODWrapper.h" />
     <ClInclude Include="src\FlexEngine\FMOD\Sound.h" />
     <ClInclude Include="src\FlexEngine\frameratecontroller.h" />
+    <ClInclude Include="src\FlexEngine\fsm.h" />
     <ClInclude Include="src\FlexEngine\imguiwrapper.h" />
     <ClInclude Include="src\FlexEngine\input.h" />
     <ClInclude Include="src\FlexEngine\Layer\ilayer.h" />

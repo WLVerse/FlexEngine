@@ -68,7 +68,12 @@ namespace Game
     std::array<_Character*, 2> drifter_slots = { nullptr, nullptr };
     std::array<_Character*, 5> enemy_slots = { nullptr, nullptr, nullptr, nullptr, nullptr };
     std::vector<_Character*> speed_bar = {};
-    int target = 0; // 0-4, pointing out which enemy slot is the target
+
+    //projected_icon and the speed for it
+    FlexECS::Entity projected_character;
+    int projected_speed = 0;
+
+    int target = 0; // 1-5, pointing out which enemy slot is the target
     std::array<Vector3, 7> sprite_slot_positions = {};
     // std::array<Vector3, 7> speedbar_slot_positions; // needed for animated speed bar
     std::array<Vector3, 7> healthbar_slot_positions = {};
@@ -87,6 +92,8 @@ namespace Game
     int enemy_alive_count = 0;
     bool is_win = false;
     bool is_lose = false;
+
+    bool is_key_input = false;
 
     // Return to original position
     FlexECS::Entity previous_character_entity = FlexECS::Entity::Null;
@@ -268,7 +275,7 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene_v3.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v4.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -314,11 +321,21 @@ namespace Game
       }
 
       // create entities for the characters using the battle data
-      // note that the system doesn’t deal with duplicates
+      // note that the system doesnï¿½t deal with duplicates
       // dupes break the targetting system and anything that uses GetEntityByName
       int index = 0;
       FlexECS::Entity e;
       auto scene = FlexECS::Scene::GetActiveScene();
+
+      //projected_character icon creation
+      battle.projected_character = scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
+      battle.projected_character.AddComponent<Transform>({});
+      battle.projected_character.AddComponent<Position>({});
+      battle.projected_character.AddComponent<Rotation>({});
+      battle.projected_character.AddComponent<Sprite>({FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)")});
+      battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
+      battle.projected_character.AddComponent<ZIndex>({ 21 });
+      battle.projected_character.GetComponent<Transform>()->is_active = false;
 
       // Spawn characters
       for (auto& character : battle.drifters)
@@ -561,9 +578,17 @@ namespace Game
     std::string& current_fps = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("FPS Display").GetComponent<Text>()->text);
     current_fps = "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
 
+    if (Input::GetKeyDown(GLFW_KEY_F3)) {
+      FlexECS::Scene::GetActiveScene()->GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
+    }
+
     bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
     bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
     bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
+
+    bool move_one_hovered = Application::MessagingSystem::Receive<bool>("MoveOne hovered");
+    bool move_two_hovered = Application::MessagingSystem::Receive<bool>("MoveTwo hovered");
+    bool move_three_hovered = Application::MessagingSystem::Receive<bool>("MoveThree hovered");
 
     bool target_one_click = Application::MessagingSystem::Receive<bool>("TargetOne clicked");
     bool target_two_click = Application::MessagingSystem::Receive<bool>("TargetTwo clicked");
@@ -642,6 +667,8 @@ namespace Game
       // hide the move UI during the animation
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
         entity.GetComponent<Transform>()->is_active = false;
+
+      FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
 
       return;
     }
@@ -1131,6 +1158,54 @@ namespace Game
 
         if (battle.current_character->attack_buff_duration > 0)
             battle.current_character->attack_buff_duration -= 1;
+      if (current_character->current_selected_move == 0) {
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
+      }
+
+      if (Input::GetKeyDown(GLFW_KEY_Z) || Input::GetKeyDown(GLFW_KEY_X) || Input::GetKeyDown(GLFW_KEY_C)) {
+        if (!battle.is_key_input) {
+          current_character->current_selected_move = 0;
+
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = true;
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = true;
+
+          battle.is_key_input ^= true;
+        }
+      }
+
+      if (Input::GetMousePositionDelta().x > 0.f || Input::GetMousePositionDelta().y > 0.f) {
+        if (battle.is_key_input) {
+          FlexECS::Entity tempMove = FlexECS::Entity::Null;
+          switch (current_character->current_selected_move) {
+          case 1:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+            break;
+          case 2:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+            break;
+          case 3:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+            break;
+          }
+          if (tempMove != FlexECS::Entity::Null) {
+            FLX_STRING_GET(tempMove.GetComponent<Sprite>()->sprite_handle) = "/images/battle ui/Battle_UI_Skill_Unselected.png";
+          }
+
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
+
+          current_character->current_selected_move = 0;
+          battle.is_key_input ^= true;
+        }
+      }
+
+      _Move* current_move = nullptr;
+
+      if (((Input::GetKeyDown(GLFW_KEY_Z) && battle.is_key_input) ||
+        (move_one_click && !battle.is_key_input)) && current_character->current_selected_move == 1)
+      {
+        current_move = &current_character->move_one;
 
         if (battle.current_character->attack_debuff_duration > 0)
             battle.current_character->attack_debuff_duration -= 1;
@@ -1174,7 +1249,14 @@ namespace Game
                 break;
             }
         }
-        if (battle.current_move == &battle.current_character->move_two)
+      }
+
+      if (((Input::GetKeyDown(GLFW_KEY_X) && battle.is_key_input) ||
+        (move_two_click && !battle.is_key_input)) && current_character->current_selected_move == 2)
+      {
+        current_move = &current_character->move_two;
+
+        switch (current_character->character_id)
         {
             switch (battle.current_character->character_id)
             {
@@ -1194,7 +1276,15 @@ namespace Game
                 break;
             }
         }
-        if (battle.current_move == &battle.current_character->move_three)
+      }
+
+      // Ultimate move
+      if (((Input::GetKeyDown(GLFW_KEY_C) && battle.is_key_input) ||
+        (move_three_click && !battle.is_key_input)) && current_character->current_selected_move == 3)
+      {
+        current_move = &current_character->move_three;
+
+        switch (current_character->character_id)
         {
             switch (battle.current_character->character_id)
             {
@@ -1486,34 +1576,134 @@ namespace Game
         battle.disable_input_timer += animation_time + 1.f;
 
         // Reset move selection, as well as description
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
-        battle.is_player_turn = false;
+        current_character->current_selected_move = 0;
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
+        std::string& move1 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text);
+        std::string& move2 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text);
+        std::string& move3 =
+          FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text);
+        description = "";
+        move1 = "";
+        move2 = "";
+        move3 = "";
+
+        FlexECS::Entity tempMove = FlexECS::Entity::Null;
+
+        for (int i = 0; i < 2; i++) {
+          switch (i) {
+          case 0:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+            break;
+          case 1:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+            break;
+          case 2:
+            tempMove = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+            break;
+          }
+          FLX_STRING_GET(tempMove.GetComponent<Sprite>()->sprite_handle) = "/images/battle ui/Battle_UI_Skill_Unselected.png";
+        }
+
+        battle.projected_character.GetComponent<Transform>()->is_active = false;
+        battle.projected_speed = 0;
         battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
     }
 
     // Sets the description for the current character and locks the current selected move for the next loop to consume
     if (battle.is_player_turn)
     {
-      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_click)
+      if (Input::GetKeyDown(GLFW_KEY_Z) || move_one_hovered)
       {
         battle.current_move = &battle.current_character->move_one;
         FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
             battle.current_character->move_one.description;
+        current_character->current_selected_move = 1;
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
+        description = current_character->move_one.description;
+
+        //calculate projected_icon's speed
+        battle.projected_speed = current_character->speed + current_character->move_one.speed;
       }
-      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_click)
+      if (Input::GetKeyDown(GLFW_KEY_X) || move_two_hovered)
       {
-        battle.current_move = &battle.current_character->move_two;
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) =  
-            battle.current_character->move_two.description;
+        current_character->current_selected_move = 2;
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
+        description = current_character->move_two.description;
+
+        //calculate projected_icon's speed, artifically inflated to show how different values affect position in turn bar
+        battle.projected_speed = current_character->speed + current_character->move_two.speed + 15;
+        //Log::Info(std::to_string(current_character->move_two.speed));
       }
-      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_click)
+      if (Input::GetKeyDown(GLFW_KEY_C) || move_three_hovered)
       {
-        battle.current_move = &battle.current_character->move_three;
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
-            battle.current_character->move_three.description;
+        current_character->current_selected_move = 3;
+        std::string& description = FLX_STRING_GET(
+          FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text
+        );
+        description = current_character->move_three.description;
+
+        //calculate projected_icon's speed, artifically inflated to show how different values affect position in turn bar
+        battle.projected_speed = current_character->speed + current_character->move_three.speed + 55;
+      }
+
+      int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+      if (battle.projected_speed > 0 && FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active)
+      {
+        battle.projected_character.GetComponent<Transform>()->is_active = true;
+        for (auto character : battle.speed_bar)
+        {
+          if (battle.projected_speed < character->current_speed)
+          {
+            //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+            break;
+          }
+          else
+          {
+            slot_number++;
+          }
+        }
+
+        bool checkFirst = true; //grabs current character's icon, slot 0
+        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
+        {
+          if (checkFirst)
+          {
+            battle.projected_character.GetComponent<Sprite>()->sprite_handle = entity.GetComponent<Sprite>()->sprite_handle;
+            checkFirst = false;
+          }
+          if (slot_number == 0)
+          {
+            battle.projected_character.GetComponent<Position>()->position = entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
+            break;
+          }
+          else
+          {
+            slot_number--; //counts backwards to the slot it's supposed to be
+          }
+        }
+      }
+      else {
+        // To hide the projected speed slot when move description not displayed
+        battle.projected_character.GetComponent<Transform>()->is_active = false;
+      }
+
+      // update the character id in the slot based on the speed bar order
+      for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+      {
+          auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
+
+          if (speed_bar_slot.slot_number <= battle.speed_bar.size())
+              speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
+          else
+              speed_bar_slot.character = 0;
       }
 
       //button text
@@ -1524,19 +1714,20 @@ namespace Game
       FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
         "[C] " + battle.current_character->move_three.name;
 
-      //button UI
-      FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
-      FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
-      FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
-      FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_one) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_two) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
-      FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_three) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-                                                        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      if (battle.is_key_input) {
+        FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+        FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+        FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+        FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 2) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
+          (current_character->current_selected_move == 3) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+      }
     }
 
 #pragma endregion
