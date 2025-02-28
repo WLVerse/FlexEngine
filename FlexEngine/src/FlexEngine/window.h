@@ -30,6 +30,8 @@
 #include <imgui.h> // ImGuiContext
 #endif
 
+#include "assetdropmanager.h"
+
 #include <string>
 #include <vector>
 #include <memory> // std::shared_ptr
@@ -277,6 +279,12 @@ namespace FlexEngine
     static OpenGLFrameBufferManager FrameBufferManager;
 
     #endif
+
+    #pragma endregion
+
+    #pragma region OLE Drag & Drop 
+  public:
+    DropManager m_dropmanager;
 
     #pragma endregion
 
