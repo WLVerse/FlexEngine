@@ -315,7 +315,7 @@ namespace Game
             }
 
             // ===================================================
-            // 2. Auto–advance Dialogue Lines After a Hold Duration
+            // 2. Dialogue Advancement: Auto–run with SPACE Override
             // ===================================================
             if (m_currSectionIndex < m_CutsceneDialogue.size())
             {
@@ -326,54 +326,92 @@ namespace Game
                     size_t totalChars = fullText.size();
                     size_t currentChars = static_cast<size_t>(m_dialogueTimer * m_dialogueTextRate);
 
-                    // If the dialogue line is fully revealed, start a hold timer.
-                    if (currentChars >= totalChars)
+                    // If SPACE is pressed, override the auto-run hold.
+                    if (Input::GetKeyDown(GLFW_KEY_SPACE))
                     {
-                        m_dialogueHoldTimer += dt;
-                        if (m_dialogueHoldTimer >= m_dialogueHoldDuration)
+                        if (currentChars < totalChars)
                         {
-                            // Auto–advance to the next dialogue line.
+                            // Skip the animation: instantly show full text.
+                            m_dialogueTimer = totalChars / m_dialogueTextRate;
+                            FlexECS::Scene::StringIndex txt = FLX_STRING_NEW(fullText);
+                            m_dialoguebox.GetComponent<Text>()->text = txt;
+                            m_shadowdialoguebox.GetComponent<Text>()->text = txt;
+                        }
+                        else
+                        {
+                            // If fully revealed, immediately advance to next line.
                             m_currDialogueIndex++;
                             m_dialogueTimer = 0.0f;
                             m_dialogueHoldTimer = 0.0f;
-
-                            // If we've exhausted the dialogue block for this section,
-                            // start the transition (and, if needed, pop remaining frames).
+                            // If we've exhausted the dialogue block, trigger section transition.
                             if (m_currDialogueIndex >= dialogueBlock.size())
                             {
                                 if (m_TransitionPhase == TransitionPhase::None)
                                 {
-                                    // Remove unplayed frames in this section.
+                                    // Skip any unplayed frames in this section.
                                     size_t remainingFrames = (m_frameCount > m_currFrameIndex) ? (m_frameCount - m_currFrameIndex) - 1 : 0;
                                     if (remainingFrames > 0 && m_CutsceneImages.size() >= remainingFrames)
                                     {
-                                        m_CutsceneImages.erase(m_CutsceneImages.begin(),
-                                                               m_CutsceneImages.begin() + remainingFrames);
+                                        m_CutsceneImages.erase(m_CutsceneImages.begin(), m_CutsceneImages.begin() + remainingFrames);
                                     }
-                                    // Update the current and next shot sprites.
                                     m_currShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[0];
                                     if (m_CutsceneImages.size() > 1)
                                         m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[1];
                                     else
                                         m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
 
-                                    // Begin the transition phase.
+                                    // Start the pre–transition phase while the new dialogue begins.
                                     m_TransitionPhase = TransitionPhase::PreTransition;
                                     m_TransitionElapsedTime = 0.0f;
                                 }
                             }
                         }
                     }
+                    else // No SPACE pressed: auto–advance after a hold duration.
+                    {
+                        if (currentChars >= totalChars)
+                        {
+                            m_dialogueHoldTimer += dt;
+                            if (m_dialogueHoldTimer >= m_dialogueHoldDuration)
+                            {
+                                m_currDialogueIndex++;
+                                m_dialogueTimer = 0.0f;
+                                m_dialogueHoldTimer = 0.0f;
+                                if (m_currDialogueIndex >= dialogueBlock.size())
+                                {
+                                    if (m_TransitionPhase == TransitionPhase::None)
+                                    {
+                                        size_t remainingFrames = (m_frameCount > m_currFrameIndex) ? (m_frameCount - m_currFrameIndex) - 1 : 0;
+                                        if (remainingFrames > 0 && m_CutsceneImages.size() >= remainingFrames)
+                                        {
+                                            m_CutsceneImages.erase(m_CutsceneImages.begin(), m_CutsceneImages.begin() + remainingFrames);
+                                        }
+                                        m_currShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[0];
+                                        if (m_CutsceneImages.size() > 1)
+                                            m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[1];
+                                        else
+                                            m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
+
+                                        m_TransitionPhase = TransitionPhase::PreTransition;
+                                        m_TransitionElapsedTime = 0.0f;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            else if (Input::GetKey(GLFW_KEY_ESCAPE))
+            {
+                StopCutscene();
+                return;
             }
 
             // ===================================================
             // 3. Image Frame Updates (for multi–frame sections)
             // ===================================================
-            // (This section remains similar to the manual version.)
             if (m_frameCount > 1)
             {
-                // Only auto–advance images if not in a transition.
                 if (m_TransitionPhase == TransitionPhase::None)
                 {
                     m_ElapsedTime += dt;
@@ -385,9 +423,8 @@ namespace Game
                             m_ElapsedTime = 0.0f;
                         }
                     }
-                    else // On the last frame of this multi–frame section.
+                    else // On the last frame.
                     {
-                        // Trigger transition after the last frame has been shown for its duration.
                         if (m_ElapsedTime >= m_PerFrameDuration && m_TransitionPhase == TransitionPhase::None)
                         {
                             m_TransitionPhase = TransitionPhase::PreTransition;
@@ -396,7 +433,6 @@ namespace Game
                     }
                 }
             }
-            // In single–frame sections (m_frameCount <= 1), the image remains static until dialogue triggers a transition.
 
             // ===================================================
             // 4. Transition Phase Updates (common to both modes)
@@ -410,7 +446,6 @@ namespace Game
 
                 if (m_TransitionElapsedTime >= m_PreTransitionDuration)
                 {
-                    // Fade–out complete; swap the shot (this swap happens only once).
                     SwapShots();
                     m_TransitionPhase = TransitionPhase::PostTransition;
                     m_TransitionElapsedTime = 0.0f;
@@ -419,20 +454,11 @@ namespace Game
             else if (m_TransitionPhase == TransitionPhase::PostTransition)
             {
                 m_TransitionElapsedTime += dt;
-                // (Optional: you could fade back in by uncommenting below.)
-                // float progress = m_TransitionElapsedTime / m_PostTransitionDuration;
-                // float newOpacity = FlexMath::Lerp(0.0f, 1.0f, progress);
-                // m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
-
                 if (m_TransitionElapsedTime >= m_PostTransitionDuration)
                 {
-                    // Transition complete; prepare for next section.
                     m_TransitionPhase = TransitionPhase::None;
                     m_ElapsedTime = 0.0f;
-
-                    UpdateTimings(true); // Pops out old images, resets m_currFrameIndex, and updates m_frameCount & m_PerFrameDuration.
-
-                    // Reset dialogue indices for the new section.
+                    UpdateTimings(true); // Load next section.
                     m_currDialogueIndex = 0;
                     m_dialogueTimer = 0.0f;
                     m_dialogueHoldTimer = 0.0f;
