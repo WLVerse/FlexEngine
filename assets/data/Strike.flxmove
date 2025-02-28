@@ -1,4 +1,9 @@
 Name: Strike
-Damage: 3
-Speed: 2
-Description: Deal 3 damage to an enemy. Costs 2 Move Speed.
+Speed: 8
+Effect: Damage
+Value: 8
+Target: SINGLE_ENEMY
+Effect: Speed_Up
+Value: 5
+Target: SELF
+Description: Deal 8 damage to target enemy and decrease speed of self by 5. --- Total Speed: 7

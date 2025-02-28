@@ -1,0 +1,9 @@
+Name: Hour_of_Reckoning
+Speed: 14
+Effect: Strip
+Value: 0
+Target: ALL_ENEMIES
+Effect: Damage
+Value: 10
+Target: ALL_ENEMIES
+Description: Strip all enemies' buffs and deal 10 damage to them. --- Total Speed: 18

@@ -1,4 +1,9 @@
 Name: Timeout
-Damage: 7
-Speed: 7
-Description: Deal 7 damage to an enemy. Costs 7 Move Speed.
+Speed: 8
+Effect: Stun
+Value: 1
+Target: SINGLE_ENEMY
+Effect: Attack_Down
+Value: 2
+Target: ADJACENT_ENEMIES
+Description: Stun an enemy and decrease attack of adjacent enemies for 2 turns. --- Total Speed: 12

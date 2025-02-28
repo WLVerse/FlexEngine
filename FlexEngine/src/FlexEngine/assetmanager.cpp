@@ -111,7 +111,7 @@ namespace FlexEngine
           assets.emplace(key, Asset::Texture());
           Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
           texture.Load(file.path);
-          Log::Info("Loaded texture: " + key);
+          //Log::Info("Loaded texture: " + key);
         }
         else if (file_extension.string() == ".flxshader")
         {
@@ -122,14 +122,14 @@ namespace FlexEngine
           assets.emplace(key, Asset::Shader());
           Asset::Shader& shader = std::get<Asset::Shader>(assets[key]);
           shader.Load(file.path);
-          Log::Info("Loaded shader: " + key);
+          //Log::Info("Loaded shader: " + key);
         }
         else if (file_extension.string() == ".mp3" || file_extension.string() == ".wav")
         {
           FLX_FLOW_BEGINSCOPE();
           AssetKey key = file.path.string().substr(default_directory_length);
           assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
-          Log::Info("Loaded sound path: " + key);
+          //Log::Info("Loaded sound path: " + key);
           FLX_FLOW_ENDSCOPE();
         }
         else if (file_extension.string() == ".ttf")
@@ -138,7 +138,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           assets[key] = Asset::Font{ key };
           FLX_FLOW_ENDSCOPE();
-          Log::Info("Loaded font path: " + key);
+          //Log::Info("Loaded font path: " + key);
         }
         else if (file_extension.string() == ".flxspritesheet")
         {
@@ -147,7 +147,7 @@ namespace FlexEngine
 
           // load spritesheet
           assets.emplace(key, Asset::Spritesheet(file));
-          Log::Info("Loaded spritesheet: " + key);
+          //Log::Info("Loaded spritesheet: " + key);
         }
         else if (file_extension.string() == ".flxbattle")
         {
@@ -155,7 +155,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           // load battle
           assets.emplace(key, Asset::Battle(file));
-          Log::Info("Loaded battle: " + key);
+          //Log::Info("Loaded battle: " + key);
         }
         else if (file_extension.string() == ".flxcharacter")
         {
@@ -163,7 +163,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           // load character
           assets.emplace(key, Asset::Character(file));
-          Log::Info("Loaded character: " + key);
+          //Log::Info("Loaded character: " + key);
         }
         else if (file_extension.string() == ".flxmove")
         {
@@ -171,7 +171,7 @@ namespace FlexEngine
           AssetKey key = file.path.string().substr(default_directory_length);
           // load move
           assets.emplace(key, Asset::Move(file));
-          Log::Info("Loaded move: " + key);
+          //Log::Info("Loaded move: " + key);
         }
         else if (file_extension.string() == ".flxdialogue")
         {
@@ -179,7 +179,7 @@ namespace FlexEngine
             AssetKey key = file.path.string().substr(default_directory_length);
             // load dialogue
             assets.emplace(key, Asset::Dialogue(file));
-            Log::Info("Dialogue file: " + key);
+            //Log::Info("Dialogue file: " + key);
         }
         else if (file_extension.string() == ".flxcutscene")
         {
@@ -188,7 +188,7 @@ namespace FlexEngine
             // load move
             Asset::Cutscene test = Asset::Cutscene(file);
             assets.emplace(key, test);
-            Log::Info("Dialogue file: " + key);
+            //Log::Info("Dialogue file: " + key);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }
       }

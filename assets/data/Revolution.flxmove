@@ -1,4 +1,9 @@
 Name: Revolution
-Damage: 5
-Speed: 4
-Description: Deal 5 damage to an enemy. Costs 4 Move Speed.
+Speed: 8
+Effect: Damage
+Value: 6
+Target: ALL_ENEMIES
+Effect: Speed_Up
+Value: 5
+Target: NEXT_ALLY
+Description: Deal 6 damage to all enemies and decrease speed of your next ally by 5. --- Total Speed: 12

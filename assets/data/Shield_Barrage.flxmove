@@ -1,0 +1,9 @@
+Name: Shield_Barrage
+Speed: 10
+Effect: Damage
+Value: 5
+Target: ALL_ENEMIES
+Effect: Shield
+Value: 1
+Target: SELF
+Description: Deal 5 damage to all enemies and shield self from damage for 1 turn. [Total Speed: 15]

@@ -1,4 +1,9 @@
 Name: Discipline
-Damage: 4
-Speed: 4
-Description: Deal 4 damage to an enemy. Costs 4 Move Speed.
+Speed: 5
+Effect: Damage
+Value: 5
+Target: SINGLE_ENEMY
+Effect: Attack_Up
+Value: 3
+Target: NEXT_ALLY
+Description: Deal 5 damage to target enemy and increase attack of next ally for 2 turns. \n[Total Speed: 9]
