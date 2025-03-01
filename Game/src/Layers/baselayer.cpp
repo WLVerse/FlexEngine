@@ -76,17 +76,6 @@ namespace Game
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
 
-    //// Test to switch to town layer
-    //if (Application::MessagingSystem::Receive<bool>("Start Game") && cutsceneLayer != nullptr)
-    //{
-    //  FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", cutsceneLayer);
-    //  cutsceneLayer = nullptr;
-    //  menuLayer = nullptr;
-
-    //  townLayer = std::make_shared<TownLayer>();
-    //  FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
-    //}
-
     // Town to Battle layer
     if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
     {
@@ -97,8 +86,7 @@ namespace Game
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
-    // Battle to menu layer
-    if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && battleLayer != nullptr)
+    if (Application::MessagingSystem::Receive<bool>("Game win to menu"))
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
       battleLayer = nullptr;
@@ -106,5 +94,24 @@ namespace Game
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
+
+    if (Application::MessagingSystem::Receive<bool>("Game lose to menu"))
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+      battleLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
+
+    //// Battle to menu layer
+    //if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && battleLayer != nullptr)
+    //{
+    //  FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+    //  battleLayer = nullptr;
+
+    //  menuLayer = std::make_shared<MenuLayer>();
+    //  FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    //}
   }
 } // namespace Game
