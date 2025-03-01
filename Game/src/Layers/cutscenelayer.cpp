@@ -19,6 +19,8 @@ namespace Game
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
 
+        auto scene = FlexECS::Scene::CreateScene();
+
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
 
@@ -84,6 +86,8 @@ namespace Game
     void CutsceneLayer::OnDetach()
     {
         // Cleanup code, if needed.
+        auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
+        font.SetFontSize(50);
     }
 
     void CutsceneLayer::StartCutscene()
