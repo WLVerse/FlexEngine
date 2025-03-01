@@ -272,10 +272,13 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene_v3.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v4.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
+
+    // Start battle music by default on scene load
+    FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
 
   #pragma region Load Battle Data
 
