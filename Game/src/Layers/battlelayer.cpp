@@ -594,15 +594,17 @@ namespace Game
     {
       // set the main camera
       CameraManager::SetMainGameCameraID(main_camera);
-
-      // unload lose layer
-      auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
-      if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
     }
     
     if (battle.is_win && Input::AnyKeyDown())
     {
       Application::MessagingSystem::Send("Game win to menu", true);
+    }
+
+    if (battle.is_lose && Input::GetKeyDown(GLFW_KEY_R))
+    {
+      // TODO: Retry or something
+      Application::MessagingSystem::Send("Game lose to menu", true);
     }
 
     // return if the battle is over
@@ -1707,8 +1709,12 @@ namespace Game
     else if (battle.drifter_alive_count == 0 && !battle.is_lose)
     {
       battle.is_lose = true;
-      // load lose layer
-      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
+      
+      FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
 #pragma endregion
