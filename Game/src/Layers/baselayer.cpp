@@ -97,6 +97,15 @@ namespace Game
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
+    if (Application::MessagingSystem::Receive<bool>("Game win to menu"))
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+      battleLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
+
     // Battle to menu layer
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && battleLayer != nullptr)
     {

@@ -272,7 +272,7 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene_v4.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v5.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -595,13 +595,14 @@ namespace Game
       // set the main camera
       CameraManager::SetMainGameCameraID(main_camera);
 
-      // unload win layer
-      auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
-      if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
-
       // unload lose layer
       auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
       if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
+    }
+    
+    if (battle.is_win && Input::AnyKeyDown())
+    {
+      Application::MessagingSystem::Send("Game win to menu", true);
     }
 
     // return if the battle is over
@@ -1691,8 +1692,17 @@ namespace Game
     if (battle.enemy_alive_count == 0 && !battle.is_win)
     {
       battle.is_win = true;
-      // load win layer
-      FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+
+      // A bit lame, but need to find by name to set, like the old Unity days
+      FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg dealt").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Win base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Player Stats").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
     else if (battle.drifter_alive_count == 0 && !battle.is_lose)
     {
