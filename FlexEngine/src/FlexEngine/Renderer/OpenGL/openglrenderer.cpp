@@ -11,6 +11,7 @@ namespace FlexEngine
   // static member initialization
   uint32_t OpenGLRenderer::m_draw_calls = 0;
   uint32_t OpenGLRenderer::m_draw_calls_last_frame = 0;
+  uint32_t OpenGLRenderer::m_maxInstances = 3000; //Should be more than enough
   bool OpenGLRenderer::m_depth_test = false;
   bool OpenGLRenderer::m_blending = false;
 
@@ -77,6 +78,7 @@ namespace FlexEngine
     m_draw_calls++;
   }
   
+  #pragma region Sprite Rendering
   // TODO: cache the vao and vbo
   // Draws to default camera
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
@@ -84,258 +86,6 @@ namespace FlexEngine
     if (!CameraManager::has_main_camera) return;
 
     DrawTexture2D(props, *CameraManager::GetMainGameCamera());
-  }
-
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
-  {
-    if (!CameraManager::has_main_camera) return;
-
-    static GLuint vao = 0, vbo = 0;
-
-    if (vao == 0)
-    {
-        // Configure VAO/VBO for text quads
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW); // 6 vertices per quad
-
-        // Configure vertex attributes
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        FreeQueue::Push(
-          [=]()
-        {
-            glDeleteVertexArrays(1, &vao);
-            glDeleteBuffers(1, &vbo);
-        }
-        );
-    }
-
-    // guard
-    if (vao == 0 || text.m_shader == "") return;
-
-    if (text.m_fonttype.empty())
-    {
-        Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
-        return;
-    }
-
-    auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
-    asset_shader.Use();
-
-    asset_shader.SetUniform_vec3("u_color", text.m_color);
-    asset_shader.SetUniform_mat4("u_model", text.m_transform);
-    asset_shader.SetUniform_mat4("projection", CameraManager::GetMainGameCamera()->GetProjViewMatrix());
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(vao);
-    auto& asset_font = FLX_ASSET_GET(Asset::Font, text.m_fonttype);
-
-    // Lambda to render a single glyph
-    auto renderGlyph = [&](const Asset::Glyph& glyph, const Vector3& position) 
-    {
-        glBindTexture(GL_TEXTURE_2D, glyph.textureID);
-
-        float xpos = position.x + glyph.bearing.x;
-        float ypos = position.y - (glyph.bearing.y - glyph.size.y);
-        float w = glyph.size.x;
-        float h = -glyph.size.y;
-
-        float quadVertices[6][4] = 
-        {
-            {xpos, -ypos - h, 0.0f, 0.0f}, 
-            {xpos, -ypos, 0.0f, 1.0f}, 
-            {xpos + w, -ypos, 1.0f, 1.0f},
-            {xpos, -ypos - h, 0.0f, 0.0f}, 
-            {xpos + w, -ypos, 1.0f, 1.0f}, 
-            {xpos + w, -ypos - h, 1.0f, 0.0f}
-        };
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quadVertices), quadVertices);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        m_draw_calls++;
-    };
-
-    // Function to calculate text box dimensions
-    auto calculateTextBoxDimensions = [&](const std::string& words) -> std::pair<float, float>
-    {
-        float totalHeight = 0.0f, maxLineHeight = asset_font.GetGlyph('A').size.y;
-        float maxWidth = 0.0f, currentLineWidth = 0.0f;
-
-        for (char c : words)
-        {
-            if (c == '\n')  // Handle explicit line breaks
-            {
-                maxWidth = std::max(maxWidth, currentLineWidth);
-                totalHeight += maxLineHeight;
-                currentLineWidth = 0.0f;
-                maxLineHeight = asset_font.GetGlyph('A').size.y; // Reset line height for new line
-                continue;
-            }
-
-            const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-
-            // Update line width and max line height for the current line
-            currentLineWidth += glyph.advance + static_cast<int>(text.m_letterspacing);
-            maxLineHeight = std::max(maxLineHeight, glyph.size.y);
-
-            // Check if the current line exceeds the max width of the text box
-            if (currentLineWidth > text.m_textboxDimensions.x)
-            {
-                maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
-                totalHeight += maxLineHeight;
-                currentLineWidth = static_cast<float>(glyph.advance) + text.m_letterspacing; // Start new line
-                maxLineHeight = glyph.size.y; // Reset line height for the new line
-
-                // Check if total height exceeds the maximum allowed height
-                if (totalHeight + maxLineHeight > text.m_textboxDimensions.y)
-                {
-                    totalHeight -= maxLineHeight; // Remove the extra line's height
-                    break;
-                }
-            }
-        }
-
-        // Account for the last line's dimensions
-        if (currentLineWidth > 0)
-        {
-            maxWidth = std::max(maxWidth, currentLineWidth);
-            totalHeight += maxLineHeight;
-        }
-
-        // Ensure dimensions do not exceed the max text box constraints
-        return { std::min(maxWidth, text.m_textboxDimensions.x), std::min(totalHeight, text.m_textboxDimensions.y) };
-    };
-
-    // Function to set alignment
-    auto getAlignmentOffset = [&](std::pair<Renderer2DText::AlignmentX, Renderer2DText::AlignmentY> alignment, const std::string& words) -> Vector2 
-    {
-        auto [lineWidth, totalHeight] = calculateTextBoxDimensions(words);
-
-        float alignXOffset = (alignment.first == Renderer2DText::Alignment_Center) ? -lineWidth / 2.0f :
-            (alignment.first == Renderer2DText::Alignment_Right) ? -lineWidth : 0.0f;
-
-        float alignYOffset = (alignment.second == Renderer2DText::Alignment_Middle) ? -totalHeight / 2.0f :
-            (alignment.second == Renderer2DText::Alignment_Bottom) ? -totalHeight : 0.0f;
-
-        return { alignXOffset, alignYOffset };
-    };
-
-    // Lambda to categorize and process words
-    auto splitIntoWords = [&](const std::string& input) -> std::vector<std::string> 
-    {
-        std::vector<std::string> words;
-        std::string currentWord;
-        for (char c : input) 
-        {
-            if (c == ' ' || c == '\n') 
-            {
-                if (!currentWord.empty()) 
-                {
-                    words.push_back(currentWord);
-                    currentWord.clear();
-                }
-                if (c == '\n') 
-                    words.push_back("\n"); // Explicit newline
-            }
-            else 
-                currentWord += c;
-        }
-        if (!currentWord.empty()) 
-            words.push_back(currentWord);
-
-        return words;
-    };
-
-    // Refactored logic -> Primitive Text Scrolling
-    #if 1
-    {
-        auto words = splitIntoWords(text.m_words);
-        Vector2 pen_pos = getAlignmentOffset(text.m_alignment, text.m_words); // Initial alignment offset
-        float lineWidth = 0.0f, totalHeight = 0.0f, maxLineHeight = 0.0f;
-        const Asset::Glyph& space = asset_font.GetGlyph(' ');
-        std::string currentLine;
-
-        auto renderLine = [&](const std::string& line) 
-        {
-            pen_pos.x = getAlignmentOffset(text.m_alignment, line).x;
-            for (char c : line) 
-            {
-                const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-                renderGlyph(glyph, pen_pos);
-                pen_pos.x += glyph.advance + text.m_letterspacing;
-            }
-        };
-
-        for (const auto& word : words) 
-        {
-            if (word == "\n") // Handle explicit line break
-            { 
-                renderLine(currentLine);
-
-                // Move to the next line
-                pen_pos.y += maxLineHeight + text.m_linespacing;
-                lineWidth = 0.0f;
-                maxLineHeight = 0.0f;
-                currentLine.clear();
-                continue;
-            }
-
-            float wordWidth = 0.0f;
-            float wordHeight = 0.0f;
-            for (char c : word) 
-            {
-                const Asset::Glyph& glyph = asset_font.GetGlyph(c);
-                wordWidth += glyph.advance + text.m_letterspacing;
-                wordHeight = std::max(wordHeight, glyph.size.y);
-            }
-
-            // Check if the word fits in the current line
-            if (lineWidth + wordWidth > text.m_textboxDimensions.x)
-            {
-                renderLine(currentLine);
-
-                // Move to the next line
-                pen_pos.y += maxLineHeight + text.m_linespacing;
-                totalHeight += maxLineHeight + text.m_linespacing;
-                lineWidth = 0.0f;
-                maxLineHeight = 0.0f;
-
-                // Stop rendering if vertical overflow occurs
-                if (totalHeight + wordHeight > text.m_textboxDimensions.y)
-                {
-                    currentLine.clear();
-                    break;
-                }
-
-                // Start a new line
-                currentLine = word;
-                lineWidth = wordWidth;
-                maxLineHeight = wordHeight;
-            }
-            else // Add the word & space to the current line 
-            {
-                if (!currentLine.empty()) currentLine += " ";
-                currentLine += word;
-                lineWidth += wordWidth + space.advance + text.m_letterspacing;
-                maxLineHeight = std::max(maxLineHeight, wordHeight);
-            }
-        }
-
-        // Render the last line
-        if (!currentLine.empty()) renderLine(currentLine);
-    }
-    #endif
-
-    // Cleanup
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData)
@@ -505,6 +255,507 @@ namespace FlexEngine
 
     // free
     FreeQueue::RemoveAndExecute("Free UV buffer");
+  }
+
+  /*!***************************************************************************
+ * \brief
+ * Draws a batch of 2D textures using the specified properties and batch data.
+ *
+ * \param props The rendering properties, including shaders, textures, and transformations.
+ * \param data The batch instance data including transformation and color information.
+ *****************************************************************************/
+  void OpenGLRenderer::DrawBatchTexture2D(const Renderer2DProps& props, const Renderer2DSpriteBatch& data, const Camera& cameraData)
+  {
+      // unit square
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
+           0.5f, -0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
+           0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+           0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+          -0.5f,  0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
+          -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      static std::vector<GLuint> m_batchSSBOs;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+          //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          //glEnableVertexAttribArray(1);
+          //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+      if (m_batchSSBOs.empty())
+      {
+          // Set up the SSBO for instance data
+          GLuint t_tempSSBO;
+          //Transformation
+          glGenBuffers(1, &t_tempSSBO);
+          m_batchSSBOs.emplace_back(t_tempSSBO);
+          glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
+          glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(Matrix4x4), nullptr, GL_DYNAMIC_DRAW);
+          glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, t_tempSSBO);
+          //Uv - animation
+          glGenBuffers(1, &t_tempSSBO);
+          m_batchSSBOs.emplace_back(t_tempSSBO);
+          glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
+          glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(Vector4), nullptr, GL_DYNAMIC_DRAW);
+          glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, t_tempSSBO);
+          //Opacity
+          glGenBuffers(1, &t_tempSSBO);
+          m_batchSSBOs.emplace_back(t_tempSSBO);
+          glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
+          glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+          glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, t_tempSSBO);
+
+          //Color_to_add
+          //glGenBuffers(1, &t_tempSSBO);
+          //m_batchSSBOs.emplace_back(t_tempSSBO);
+          //glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
+          //glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(Vector3), nullptr, GL_DYNAMIC_DRAW);
+          //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, t_tempSSBO);
+          //Color_to_multiply
+          //glGenBuffers(1, &t_tempSSBO);
+          //m_batchSSBOs.emplace_back(t_tempSSBO);
+          //glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
+          //glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(Vector3), nullptr, GL_DYNAMIC_DRAW);
+          //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, t_tempSSBO);
+
+
+          FreeQueue::Push(
+          [=]()
+          {
+              for (GLuint iter : m_batchSSBOs)
+                  glDeleteBuffers(1, &iter);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0) return; // hey, might need to check if scale is 0 because thats what the old code does idk
+
+      // Guard
+      if (data.m_transformationData.size() != data.m_opacity.size() ||
+          data.m_opacity.size() != data.m_UVmap.size())
+      {
+          Log::Fatal("Instance batch data block is invalid (Check if all vectors are of same size)");
+      }
+      else if (data.m_transformationData.size() < 1)
+      {
+          Log::Debug("Instance batch data block is empty. Should not run render on this texture");
+          return;
+      }
+
+      GLsizei dataSize = (GLsizei)data.m_transformationData.size();
+
+      // Bind all
+      glBindVertexArray(vao);
+
+      // Apply Shader
+      auto& asset_shader = AssetManager::Get<Asset::Shader>(data.m_shader);
+
+      asset_shader.Use();
+
+      // Apply Texture
+      if (props.asset != "")
+      {
+          asset_shader.SetUniform_bool("u_use_texture", true);
+          auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
+          asset_texture.Bind(asset_shader, "u_texture", 0);
+      }
+      else
+      {
+          asset_shader.SetUniform_bool("u_use_texture", false);
+      }
+
+      //Apply SSBOs
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[0]);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Matrix4x4), data.m_transformationData.data());
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[1]);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(Vector4), data.m_UVmap.data());
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[2]);
+      glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, dataSize * sizeof(float), data.m_opacity.data());
+      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+      // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
+      asset_shader.SetUniform_mat4("u_projection_view", cameraData.GetProjViewMatrix());
+      // Draw
+      glDrawArraysInstanced(GL_TRIANGLES, 0, 6, dataSize);
+      m_draw_calls++;
+
+      glBindVertexArray(0);
+  }
+
+  void OpenGLRenderer::DrawSimpleTexture2D(
+    const Asset::Texture& texture,
+    const Vector2& position,
+    const Vector2& scale,
+    const Vector2& window_size,
+    Renderer2DProps::Alignment alignment
+  )
+  {
+      // unit square
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+           0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+          -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0 || scale == Vector2::Zero) return;
+
+      // bind all
+      glBindVertexArray(vao);
+
+      // jank optimization to run once
+      static Asset::Shader texture_shader;
+      static bool texture_shader_loaded = false;
+      if (!texture_shader_loaded)
+      {
+          texture_shader.Load(Path::current("assets/shaders/texture.flxshader"));
+          texture_shader_loaded = true;
+      }
+      texture_shader.Use();
+
+      texture_shader.SetUniform_bool("u_use_texture", true);
+      texture.Bind(texture_shader, "u_texture", 0);
+
+      // set default values even though they are not used
+      texture_shader.SetUniform_vec3("u_color", Vector3(1.0f, 1.0f, 1.0f));
+      texture_shader.SetUniform_vec3("u_color_to_add", Vector3(0.0f, 0.0f, 0.0f));
+      texture_shader.SetUniform_vec3("u_color_to_multiply", Vector3(1.0f, 1.0f, 1.0f)); // this is the important one
+
+      // alignment
+      Vector2 m_position = Vector2(position.x, position.y);
+      switch (alignment)
+      {
+      case Renderer2DProps::Alignment_TopLeft:
+          m_position += scale * 0.5f;
+          break;
+      case Renderer2DProps::Alignment_Center:
+      default:
+          break;
+      }
+
+      // model matrix
+      Matrix4x4 model = Matrix4x4::Identity;
+      texture_shader.SetUniform_mat4("u_model", model.Translate(Vector3(m_position.x, m_position.y, 0.0f)).Scale(Vector3(scale.x, scale.y, 1.0f)));
+
+      // proj view matrix TODO
+      Matrix4x4 proj_view = Matrix4x4::Orthographic(0.0f, window_size.x, 0.0f, window_size.y, -1.0f, 1.0f);
+      texture_shader.SetUniform_mat4("u_projection_view", proj_view);
+
+      // draw
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+
+      glBindVertexArray(0);
+  }
+  #pragma endregion
+  #pragma region Text Rendering
+  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
+  {
+      if (!CameraManager::has_main_camera) return;
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          // Configure VAO/VBO for text quads
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW); // 6 vertices per quad
+
+          // Configure vertex attributes
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+          glBindBuffer(GL_ARRAY_BUFFER, 0);
+          glBindVertexArray(0);
+
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteVertexArrays(1, &vao);
+              glDeleteBuffers(1, &vbo);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0 || text.m_shader == "") return;
+
+      if (text.m_fonttype.empty())
+      {
+          Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
+          return;
+      }
+
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
+      asset_shader.Use();
+
+      asset_shader.SetUniform_vec3("u_color", text.m_color);
+      asset_shader.SetUniform_mat4("u_model", text.m_transform);
+      asset_shader.SetUniform_mat4("projection", CameraManager::GetMainGameCamera()->GetProjViewMatrix());
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindVertexArray(vao);
+      auto& asset_font = FLX_ASSET_GET(Asset::Font, text.m_fonttype);
+
+      // Lambda to render a single glyph
+      auto renderGlyph = [&](const Asset::Glyph& glyph, const Vector3& position)
+      {
+          glBindTexture(GL_TEXTURE_2D, glyph.textureID);
+
+          float xpos = position.x + glyph.bearing.x;
+          float ypos = position.y - (glyph.bearing.y - glyph.size.y);
+          float w = glyph.size.x;
+          float h = -glyph.size.y;
+
+          float quadVertices[6][4] =
+          {
+              {xpos, -ypos - h, 0.0f, 0.0f},
+              {xpos, -ypos, 0.0f, 1.0f},
+              {xpos + w, -ypos, 1.0f, 1.0f},
+              {xpos, -ypos - h, 0.0f, 0.0f},
+              {xpos + w, -ypos, 1.0f, 1.0f},
+              {xpos + w, -ypos - h, 1.0f, 0.0f}
+          };
+
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quadVertices), quadVertices);
+          glDrawArrays(GL_TRIANGLES, 0, 6);
+          m_draw_calls++;
+      };
+
+      // Function to calculate text box dimensions
+      auto calculateTextBoxDimensions = [&](const std::string& words) -> std::pair<float, float>
+      {
+          float totalHeight = 0.0f, maxLineHeight = asset_font.GetGlyph('A').size.y;
+          float maxWidth = 0.0f, currentLineWidth = 0.0f;
+
+          for (char c : words)
+          {
+              if (c == '\n')  // Handle explicit line breaks
+              {
+                  maxWidth = std::max(maxWidth, currentLineWidth);
+                  totalHeight += maxLineHeight;
+                  currentLineWidth = 0.0f;
+                  maxLineHeight = asset_font.GetGlyph('A').size.y; // Reset line height for new line
+                  continue;
+              }
+
+              const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+
+              // Update line width and max line height for the current line
+              currentLineWidth += glyph.advance + static_cast<int>(text.m_letterspacing);
+              maxLineHeight = std::max(maxLineHeight, glyph.size.y);
+
+              // Check if the current line exceeds the max width of the text box
+              if (currentLineWidth > text.m_textboxDimensions.x)
+              {
+                  maxWidth = std::max(maxWidth, currentLineWidth - glyph.advance); // Exclude overflow
+                  totalHeight += maxLineHeight;
+                  currentLineWidth = static_cast<float>(glyph.advance) + text.m_letterspacing; // Start new line
+                  maxLineHeight = glyph.size.y; // Reset line height for the new line
+
+                  // Check if total height exceeds the maximum allowed height
+                  if (totalHeight + maxLineHeight > text.m_textboxDimensions.y)
+                  {
+                      totalHeight -= maxLineHeight; // Remove the extra line's height
+                      break;
+                  }
+              }
+          }
+
+          // Account for the last line's dimensions
+          if (currentLineWidth > 0)
+          {
+              maxWidth = std::max(maxWidth, currentLineWidth);
+              totalHeight += maxLineHeight;
+          }
+
+          // Ensure dimensions do not exceed the max text box constraints
+          return { std::min(maxWidth, text.m_textboxDimensions.x), std::min(totalHeight, text.m_textboxDimensions.y) };
+      };
+
+      // Function to set alignment
+      auto getAlignmentOffset = [&](std::pair<Renderer2DText::AlignmentX, Renderer2DText::AlignmentY> alignment, const std::string& words) -> Vector2
+      {
+          auto [lineWidth, totalHeight] = calculateTextBoxDimensions(words);
+
+          float alignXOffset = (alignment.first == Renderer2DText::Alignment_Center) ? -lineWidth / 2.0f :
+              (alignment.first == Renderer2DText::Alignment_Right) ? -lineWidth : 0.0f;
+
+          float alignYOffset = (alignment.second == Renderer2DText::Alignment_Middle) ? -totalHeight / 2.0f :
+              (alignment.second == Renderer2DText::Alignment_Bottom) ? -totalHeight : 0.0f;
+
+          return { alignXOffset, alignYOffset };
+      };
+
+      // Lambda to categorize and process words
+      auto splitIntoWords = [&](const std::string& input) -> std::vector<std::string>
+      {
+          std::vector<std::string> words;
+          std::string currentWord;
+          for (char c : input)
+          {
+              if (c == ' ' || c == '\n')
+              {
+                  if (!currentWord.empty())
+                  {
+                      words.push_back(currentWord);
+                      currentWord.clear();
+                  }
+                  if (c == '\n')
+                      words.push_back("\n"); // Explicit newline
+              }
+              else
+                  currentWord += c;
+          }
+          if (!currentWord.empty())
+              words.push_back(currentWord);
+
+          return words;
+      };
+
+      // Refactored logic -> Primitive Text Scrolling
+      #if 1
+      {
+          auto words = splitIntoWords(text.m_words);
+          Vector2 pen_pos = getAlignmentOffset(text.m_alignment, text.m_words); // Initial alignment offset
+          float lineWidth = 0.0f, totalHeight = 0.0f, maxLineHeight = 0.0f;
+          const Asset::Glyph& space = asset_font.GetGlyph(' ');
+          std::string currentLine;
+
+          auto renderLine = [&](const std::string& line)
+          {
+              pen_pos.x = getAlignmentOffset(text.m_alignment, line).x;
+              for (char c : line)
+              {
+                  const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+                  renderGlyph(glyph, pen_pos);
+                  pen_pos.x += glyph.advance + text.m_letterspacing;
+              }
+          };
+
+          for (const auto& word : words)
+          {
+              if (word == "\n") // Handle explicit line break
+              {
+                  renderLine(currentLine);
+
+                  // Move to the next line
+                  pen_pos.y += maxLineHeight + text.m_linespacing;
+                  lineWidth = 0.0f;
+                  maxLineHeight = 0.0f;
+                  currentLine.clear();
+                  continue;
+              }
+
+              float wordWidth = 0.0f;
+              float wordHeight = 0.0f;
+              for (char c : word)
+              {
+                  const Asset::Glyph& glyph = asset_font.GetGlyph(c);
+                  wordWidth += glyph.advance + text.m_letterspacing;
+                  wordHeight = std::max(wordHeight, glyph.size.y);
+              }
+
+              // Check if the word fits in the current line
+              if (lineWidth + wordWidth > text.m_textboxDimensions.x)
+              {
+                  renderLine(currentLine);
+
+                  // Move to the next line
+                  pen_pos.y += maxLineHeight + text.m_linespacing;
+                  totalHeight += maxLineHeight + text.m_linespacing;
+                  lineWidth = 0.0f;
+                  maxLineHeight = 0.0f;
+
+                  // Stop rendering if vertical overflow occurs
+                  if (totalHeight + wordHeight > text.m_textboxDimensions.y)
+                  {
+                      currentLine.clear();
+                      break;
+                  }
+
+                  // Start a new line
+                  currentLine = word;
+                  lineWidth = wordWidth;
+                  maxLineHeight = wordHeight;
+              }
+              else // Add the word & space to the current line 
+              {
+                  if (!currentLine.empty()) currentLine += " ";
+                  currentLine += word;
+                  lineWidth += wordWidth + space.advance + text.m_letterspacing;
+                  maxLineHeight = std::max(maxLineHeight, wordHeight);
+              }
+          }
+
+          // Render the last line
+          if (!currentLine.empty()) renderLine(currentLine);
+      }
+      #endif
+
+      // Cleanup
+      glBindVertexArray(0);
+      glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const Camera& cameraData)
@@ -763,103 +1014,7 @@ namespace FlexEngine
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
+  #pragma endregion
 
-  void OpenGLRenderer::DrawSimpleTexture2D(
-    const Asset::Texture& texture,
-    const Vector2& position,
-    const Vector2& scale,
-    const Vector2& window_size,
-    Renderer2DProps::Alignment alignment
-  )
-  {
-    // unit square
-    static const float vertices[] = {
-      // Position           // TexCoords
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-       0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
-    };
-
-    static GLuint vao = 0, vbo = 0;
-
-    if (vao == 0)
-    {
-      glGenVertexArrays(1, &vao);
-      glGenBuffers(1, &vbo);
-
-      glBindVertexArray(vao);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-      glBindVertexArray(0);
-
-      // free in freequeue
-      FreeQueue::Push(
-        [=]()
-        {
-          glDeleteBuffers(1, &vbo);
-          glDeleteVertexArrays(1, &vao);
-        }
-      );
-    }
-
-    // guard
-    if (vao == 0 || scale == Vector2::Zero) return;
-
-    // bind all
-    glBindVertexArray(vao);
-
-    // jank optimization to run once
-    static Asset::Shader texture_shader;
-    static bool texture_shader_loaded = false;
-    if (!texture_shader_loaded)
-    {
-      texture_shader.Load(Path::current("assets/shaders/texture.flxshader"));
-      texture_shader_loaded = true;
-    }
-    texture_shader.Use();
-
-    texture_shader.SetUniform_bool("u_use_texture", true);
-    texture.Bind(texture_shader, "u_texture", 0);
-
-    // set default values even though they are not used
-    texture_shader.SetUniform_vec3("u_color", Vector3(1.0f, 1.0f, 1.0f));
-    texture_shader.SetUniform_vec3("u_color_to_add", Vector3(0.0f, 0.0f, 0.0f));
-    texture_shader.SetUniform_vec3("u_color_to_multiply", Vector3(1.0f, 1.0f, 1.0f)); // this is the important one
-
-    // alignment
-    Vector2 m_position = Vector2(position.x, position.y);
-    switch (alignment)
-    {
-    case Renderer2DProps::Alignment_TopLeft:
-      m_position += scale * 0.5f;
-      break;
-    case Renderer2DProps::Alignment_Center:
-    default:
-      break;
-    }
-
-    // model matrix
-    Matrix4x4 model = Matrix4x4::Identity;
-    texture_shader.SetUniform_mat4("u_model", model.Translate(Vector3(m_position.x, m_position.y, 0.0f)).Scale(Vector3(scale.x, scale.y, 1.0f)));
-
-    // proj view matrix TODO
-    Matrix4x4 proj_view = Matrix4x4::Orthographic(0.0f, window_size.x, 0.0f, window_size.y, -1.0f, 1.0f);
-    texture_shader.SetUniform_mat4("u_projection_view", proj_view);
-
-    // draw
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    m_draw_calls++;
-
-    glBindVertexArray(0);
-  }
 
 }

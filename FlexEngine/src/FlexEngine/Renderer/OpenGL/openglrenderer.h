@@ -70,10 +70,46 @@ namespace FlexEngine
       Vector2 m_textboxDimensions = { 500.0f ,500.0f };   /*!< Dimensions of text box */
   };
 
+  /*!***************************************************************************
+  * \struct Renderer2DSpriteBatch
+  * \brief
+  * Holds data for batching multiple sprite instances, including transformation
+  * and color data for each instance.
+  *****************************************************************************/
+  struct __FLX_API Renderer2DSpriteBatch
+  {
+      std::string m_shader = R"(/shaders/batchtexture.flxshader)";  /*!< Path to the shader for text rendering */
+   
+      //GLuint m_vboid = 0;
+      std::vector<int> m_zindex; // Ignore, to be used and checked with in rendering later
+      std::vector<Matrix4x4> m_transformationData;
+      //std::vector<Vector3> m_colorAddData, m_colorMultiplyData;
+
+      //For animation
+      std::vector<Vector4> m_UVmap;
+
+      //For Opacity
+      std::vector<float> m_opacity; // might have problem with sizing of SSBO, check pls
+  };
+
+  /*!***************************************************************************
+  * \struct Renderer2DTextBatch
+  * \brief
+  * Holds data for batching multiple text instances.
+  *****************************************************************************/
+  struct __FLX_API Renderer2DTextBatch
+  {
+      GLuint m_vboid = 0;
+      std::vector<int> m_zindex;
+      std::vector<Matrix4x4> m_transformationData;
+      //std::vector<Vector3> m_colorAddData, m_colorMultiplyData;
+  };
+
   class __FLX_API OpenGLRenderer
   {
     static uint32_t m_draw_calls;
     static uint32_t m_draw_calls_last_frame;
+    static uint32_t m_maxInstances;
     static bool m_depth_test;
     static bool m_blending;
   public:
@@ -107,6 +143,9 @@ namespace FlexEngine
     // Draw with no usage of a camera entity
     static void DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData);
     static void DrawTexture2D(const Renderer2DText& text, const Camera& cameraData);
+
+    // Draw batch instances with no usage of a camera entity
+    static void DrawBatchTexture2D(const Renderer2DProps& props, const Renderer2DSpriteBatch& data, const Camera& cameraData);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

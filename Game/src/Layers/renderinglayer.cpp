@@ -27,6 +27,55 @@ namespace Game
     OpenGLRenderer::DisableBlending();
   }
 
+  #pragma region Batch helper
+  void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch)
+  {
+      if (!batch.m_zindex.empty())
+      {
+          Renderer2DProps props;
+          props.asset = texture;
+          //props.vbo_id = vbo_id;
+          // Send camera data as parameter instead of ID.
+          queue.Insert({ [props, batch]() { OpenGLRenderer::DrawBatchTexture2D(props, batch, *CameraManager::GetMainGameCamera()); }, "", batch.m_zindex.back() });
+      }
+  }
+
+  void RenderingLayer::AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch)
+  {
+      auto z_index = entity.HasComponent<ZIndex>() ? entity.GetComponent<ZIndex>()->z : 0;
+      batch.m_zindex.push_back(z_index);
+      batch.m_transformationData.push_back(entity.GetComponent<Transform>()->transform);
+      batch.m_opacity.push_back(entity.GetComponent<Sprite>()->opacity);
+
+      //Checks for other components present that would influence batch
+      //Color has been removed as it was not added in sprite component
+      //Vector3 colorAdd, colorMul;
+      //colorMul = Vector3::One;
+      //if (entity.HasComponent<Button>())
+      //{
+      //    colorAdd += entity.GetComponent<Button>()->finalColorAdd;
+      //    colorMul *= entity.GetComponent<Button>()->finalColorMul;
+      //}
+      
+      if (entity.HasComponent<Animator>() && FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle) != "")
+      {
+          auto anim = entity.GetComponent<Animator>();
+
+          //batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
+          //batch.m_colorMultiplyData.push_back(colorMul * anim->color_to_multiply);
+          auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle));
+          batch.m_UVmap.push_back(asset_spritesheet.GetUV(anim->current_frame)); //No choice, must do here, cannot be in engine
+      }
+      else
+      {
+          auto sprite = entity.GetComponent<Sprite>();
+          //batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
+          //batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
+          batch.m_UVmap.push_back(Vector4(0,0,1,1)); // Basic sprite UV
+      }
+  }
+  #pragma endregion
+
   void RenderingLayer::Update()
   {
     OpenGLFrameBuffer::Unbind();
@@ -142,8 +191,9 @@ namespace Game
 
    FunctionQueue game_queue;
 
+   #if 0
   #pragma region Sprite Renderer System
-
+   
      // render all sprites
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
       {
@@ -178,8 +228,53 @@ namespace Game
 
         game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
       }
-
   #pragma endregion
+
+   #else
+  #pragma region Batch Sprite Renderer System
+    
+      FunctionQueue batch_render_queue;
+      std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
+      //Sprite
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale, ZIndex>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
+
+          if (entity.HasComponent<Animator>())
+              sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle), entity);
+          else
+              sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Sprite>()->sprite_handle), entity);
+      }
+
+      // TODO CHECK IF ALL ENTITIES AUTO HAVE Z-INDEX, SYSTEM CURRENTLY ASSUMES ALL ENTITIES HAVE Z-INDEX
+      //SORT
+      std::sort(sortedEntities.begin(), sortedEntities.end(),
+          [](auto& a, auto& b) {
+          int zA = a.second.GetComponent<ZIndex>()->z;
+          int zB = b.second.GetComponent<ZIndex>()->z;
+          return zA < zB; // Compare z-index
+      });
+
+      //QUEUE
+      Renderer2DSpriteBatch currentBatch;
+      std::string currentTexture = "";
+
+      for (auto& [batchKey, entity] : sortedEntities)
+      {
+          if (batchKey != currentTexture)
+          {
+              AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+              currentBatch = Renderer2DSpriteBatch(); // Reset the batch
+              currentTexture = batchKey;
+          }
+          AddEntityToBatch(entity, currentBatch);
+      }
+      // Add the last batch to the queue
+      AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+
+      batch_render_queue.Flush();
+   #pragma endregion
+   #endif
 
   #pragma region Text Renderer System
 
