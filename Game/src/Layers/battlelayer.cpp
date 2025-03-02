@@ -418,7 +418,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
         e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
 
@@ -443,7 +443,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-110, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -452,7 +452,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-70, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -461,7 +461,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-30, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -470,7 +470,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -479,7 +479,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(50, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -491,7 +491,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] } );
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
         e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
@@ -515,7 +515,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-80, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -524,7 +524,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-50, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -533,7 +533,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-20, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -542,7 +542,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(10, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -551,7 +551,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(40, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -1837,7 +1837,7 @@ namespace Game
       scale->scale.x = healthbar->original_scale.x * health_percentage;
 
       // Update Position
-      position->position.x = healthbar->original_position.x - static_cast<float>(healthbar->pixelLength/2) * (1.0-health_percentage);
+      position->position.x = healthbar->original_position.x - healthbar->pixelLength/2.f * (1.0f -health_percentage);
 
       entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
 
