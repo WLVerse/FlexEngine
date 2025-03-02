@@ -127,6 +127,9 @@ namespace FlexEngine
             int rowWidth = 0;
             int rowHeight = 0;
 
+            // Define padding in pixels to add around each glyph.
+            const int padding = 1;
+
             // Load each glyph, create an individual texture, and store temporary bitmap data.
             for (unsigned char c = 0; c < 128; ++c)
             {
@@ -182,15 +185,19 @@ namespace FlexEngine
                 std::memcpy(tg.buffer.data(), g->bitmap.buffer, tg.width * tg.height);
                 tempGlyphs[c] = tg;
 
+                // Compute padded dimensions.
+                int paddedWidth = tg.width + 2 * padding;
+                int paddedHeight = tg.height + 2 * padding;
+
                 // Update atlas packing measurements.
-                if (rowWidth + tg.width > atlasWidth)
+                if (rowWidth + paddedWidth > atlasWidth)
                 {
                     atlasHeight += rowHeight;
                     rowWidth = 0;
                     rowHeight = 0;
                 }
-                rowWidth += tg.width;
-                rowHeight = std::max(rowHeight, tg.height);
+                rowWidth += paddedWidth;
+                rowHeight = std::max(rowHeight, paddedHeight);
             }
             // Add the final row height.
             atlasHeight += rowHeight;
@@ -210,28 +217,37 @@ namespace FlexEngine
                     continue;
 
                 TempGlyph& tg = tempGlyphs[c];
-                if (x + tg.width > atlasWidth)
+                int paddedWidth = tg.width + 2 * padding;
+                int paddedHeight = tg.height + 2 * padding;
+                if (x + paddedWidth > atlasWidth)
                 {
                     y += rowHeight;
                     x = 0;
                     rowHeight = 0;
                 }
-                // Copy bitmap data for the glyph into the atlas buffer.
+                // Copy bitmap data for the glyph into the atlas buffer,
+                // leaving a padding border around it.
                 for (int row = 0; row < tg.height; ++row)
                 {
                     for (int col = 0; col < tg.width; ++col)
                     {
-                        atlasBuffer[(y + row) * atlasWidth + (x + col)] = tg.buffer[row * tg.width + col];
+                        // Destination offset includes padding.
+                        int destX = x + col + padding;
+                        int destY = y + row + padding;
+                        atlasBuffer[destY * atlasWidth + destX] = tg.buffer[row * tg.width + col];
                     }
                 }
                 // Compute normalized UV coordinates for this glyph.
-                Vector2 uvOffset(static_cast<float>(x) / atlasWidth, static_cast<float>(y) / atlasHeight);
-                Vector2 uvSize(static_cast<float>(tg.width) / atlasWidth, static_cast<float>(tg.height) / atlasHeight);
+                // The glyph's UV region excludes the padding.
+                Vector2 uvOffset(static_cast<float>(x + padding) / atlasWidth,
+                                 static_cast<float>(y + padding) / atlasHeight);
+                Vector2 uvSize(static_cast<float>(tg.width) / atlasWidth,
+                               static_cast<float>(tg.height) / atlasHeight);
                 m_glyphs[c].uvOffset = uvOffset;
                 m_glyphs[c].uvSize = uvSize;
 
-                x += tg.width;
-                rowHeight = std::max(rowHeight, tg.height);
+                x += paddedWidth;
+                rowHeight = std::max(rowHeight, paddedHeight);
             }
 
             // Generate the atlas texture.
@@ -254,6 +270,7 @@ namespace FlexEngine
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
+
 
         #pragma endregion
 

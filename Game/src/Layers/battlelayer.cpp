@@ -319,7 +319,7 @@ namespace Game
       }
 
       // create entities for the characters using the battle data
-      // note that the system doesn�t deal with duplicates
+      // note that the system doesnt deal with duplicates
       // dupes break the targetting system and anything that uses GetEntityByName
       int index = 0;
       FlexECS::Entity e;

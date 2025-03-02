@@ -102,6 +102,42 @@ namespace FlexEngine
       glUniformMatrix4fv(glGetUniformLocation(m_shader_program, name), 1, GL_FALSE, matrix.data);
     }
 
+    void Shader::SetUniform_int_array(const char* name, const int* array, int count)
+    {
+        Use();
+        GLint location = glGetUniformLocation(m_shader_program, name);
+        glUniform1iv(location, count, array);
+    }
+
+    void Shader::SetUniformGlyphMetrics(const char* name, const Asset::GlyphMetric* metrics, int count)
+    {
+        Use();
+        for (int i = 0; i < count; ++i)
+        {
+            // Build the base name for the i-th element: e.g. "u_glyphs[0]"
+            std::string baseName = std::string(name) + "[" + std::to_string(i) + "]";
+
+            // Upload 'advance'
+            GLint locAdvance = glGetUniformLocation(m_shader_program, (baseName + ".advance").c_str());
+            glUniform1f(locAdvance, metrics[i].advance);
+
+            // Upload 'size' (vec2)
+            GLint locSize = glGetUniformLocation(m_shader_program, (baseName + ".size").c_str());
+            glUniform2fv(locSize, 1, metrics[i].size);
+
+            // Upload 'bearing' (vec2)
+            GLint locBearing = glGetUniformLocation(m_shader_program, (baseName + ".bearing").c_str());
+            glUniform2fv(locBearing, 1, metrics[i].bearing);
+
+            // Upload 'uvOffset' (vec2)
+            GLint locUVOffset = glGetUniformLocation(m_shader_program, (baseName + ".uvOffset").c_str());
+            glUniform2fv(locUVOffset, 1, metrics[i].uvOffset);
+
+            // Upload 'uvSize' (vec2)
+            GLint locUVSize = glGetUniformLocation(m_shader_program, (baseName + ".uvSize").c_str());
+            glUniform2fv(locUVSize, 1, metrics[i].uvSize);
+        }
+    }
     #pragma endregion
 
     unsigned int Shader::Get() const

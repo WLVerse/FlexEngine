@@ -29,6 +29,16 @@ namespace FlexEngine
             Vector2 uvSize;  // uvSize: width and height of the glyph region relative to the atlas size.
         };
 
+        //Helper struct to pass glyph information to shader
+        struct GlyphMetric
+        {
+            float advance;
+            float size[2];
+            float bearing[2];
+            float uvOffset[2];
+            float uvSize[2];
+        };
+
         /*!************************************************************************
         * \class Font
         * \brief

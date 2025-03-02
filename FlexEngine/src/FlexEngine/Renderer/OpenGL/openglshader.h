@@ -16,12 +16,11 @@
 
 #include "Utilities/file.h"
 #include "FlexMath/matrix4x4.h"
-
+#include "openglfont.h"
 namespace FlexEngine
 {
   namespace Asset
   {
-
     // Helper class for building and compiling shaders
     // TODO: Rework to have a .flxshader file that stores the shader paths
     // TODO: use the flxfmt formatter
@@ -87,6 +86,8 @@ namespace FlexEngine
       void SetUniform_vec2(const char* name, const Vector2& vector);
       void SetUniform_vec3(const char* name, const Vector3& vector);
       void SetUniform_mat4(const char* name, const Matrix4x4& matrix);
+      void SetUniform_int_array(const char* name, const int* array, int count);
+      void SetUniformGlyphMetrics(const char* name, const Asset::GlyphMetric* metrics, int count);
 
       #pragma endregion
 
