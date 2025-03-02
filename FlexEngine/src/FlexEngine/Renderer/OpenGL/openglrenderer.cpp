@@ -112,7 +112,7 @@ namespace FlexEngine
       glBindBuffer(GL_ARRAY_BUFFER, vbo);
       glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-      glEnableVertexAttribArray(0);
+      glad_glEnableVertexAttribArray(0);
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
       //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
       //glEnableVertexAttribArray(1);
@@ -269,12 +269,12 @@ namespace FlexEngine
       // unit square
       static const float vertices[] = {
           // Position           // TexCoords
-          -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
-           0.5f, -0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
-           0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-           0.5f,  0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-          -0.5f,  0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
-          -0.5f, -0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+           0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+           0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top-right
+          -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, // Top-left
+          -0.5f, -0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
       };
 
       static GLuint vao = 0, vbo = 0;
@@ -290,10 +290,9 @@ namespace FlexEngine
           glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
           glEnableVertexAttribArray(0);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-          //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-          //glEnableVertexAttribArray(1);
-          //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
           glBindVertexArray(0);
 
@@ -327,7 +326,7 @@ namespace FlexEngine
           m_batchSSBOs.emplace_back(t_tempSSBO);
           glBindBuffer(GL_SHADER_STORAGE_BUFFER, t_tempSSBO);
           glBufferData(GL_SHADER_STORAGE_BUFFER, m_maxInstances * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-          glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, t_tempSSBO);
+          glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, t_tempSSBO);
 
           //Color_to_add
           //glGenBuffers(1, &t_tempSSBO);
@@ -377,17 +376,31 @@ namespace FlexEngine
 
       asset_shader.Use();
 
+      bool is_spritesheet = props.texture_index >= 0;
       // Apply Texture
       if (props.asset != "")
       {
-          asset_shader.SetUniform_bool("u_use_texture", true);
-          auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
-          asset_texture.Bind(asset_shader, "u_texture", 0);
+          if (!is_spritesheet)
+          {
+              asset_shader.SetUniform_bool("u_use_texture", true);
+              auto& asset_texture = FLX_ASSET_GET(Asset::Texture, props.asset);
+              asset_texture.Bind(asset_shader, "u_texture", 0);
+          }
+          else
+          {
+              asset_shader.SetUniform_bool("u_use_texture", true);
+              auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, props.asset);
+              auto& asset_texture = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+              asset_texture.Bind(asset_shader, "u_texture", 0);
+          }
       }
       else
       {
           asset_shader.SetUniform_bool("u_use_texture", false);
       }
+
+      asset_shader.SetUniform_vec3("u_color_to_add", Vector3::Zero);
+      asset_shader.SetUniform_vec3("u_color_to_multiply", Vector3::One);
 
       //Apply SSBOs
       glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_batchSSBOs[0]);
@@ -403,6 +416,13 @@ namespace FlexEngine
       // Draw
       glDrawArraysInstanced(GL_TRIANGLES, 0, 6, dataSize);
       m_draw_calls++;
+
+      // error checking
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+          Log::Fatal("OpenGL Error: " + std::to_string(error));
+      }
 
       glBindVertexArray(0);
   }
