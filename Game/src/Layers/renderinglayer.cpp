@@ -230,6 +230,45 @@ namespace Game
       }
   #pragma endregion
 
+      #pragma region Text Renderer System
+
+      // Text
+      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+      {
+          if (!element.GetComponent<Transform>()->is_active) continue;
+
+          const auto textComponent = element.GetComponent<Text>();
+
+          Renderer2DText sample;
+          sample.m_window_size = Vector2(
+            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+          );
+
+          int index = 0;
+          if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+          sample.m_words = FLX_STRING_GET(textComponent->text);
+          sample.m_color = textComponent->color;
+          sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+          // TODO: Need to convert text to similar to camera class
+          // Temp
+          sample.m_transform = Matrix4x4(
+            element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
+            0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
+            element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
+          );
+          sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                          static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+          sample.m_textboxDimensions = textComponent->textboxDimensions;
+          sample.m_linespacing = 12.0f;
+          game_queue.Insert({ [sample]()
+                              {
+                                OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+                              },
+                              "", index });
+      }
+      #pragma endregion
    #else
   #pragma region Batch Sprite Renderer System
     
@@ -275,46 +314,6 @@ namespace Game
       batch_render_queue.Flush();
    #pragma endregion
    #endif
-
-  #pragma region Text Renderer System
-
-      // Text
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
-      {
-        if (!element.GetComponent<Transform>()->is_active) continue;
-
-        const auto textComponent = element.GetComponent<Text>();
-
-        Renderer2DText sample;
-        sample.m_window_size = Vector2(
-          static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-          static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
-        );
-
-        int index = 0;
-        if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
-
-        sample.m_words = FLX_STRING_GET(textComponent->text);
-        sample.m_color = textComponent->color;
-        sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
-        // TODO: Need to convert text to similar to camera class
-        // Temp
-        sample.m_transform = Matrix4x4(
-          element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
-          0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
-          element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
-        );
-        sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
-                                        static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
-        sample.m_textboxDimensions = textComponent->textboxDimensions;
-        sample.m_linespacing = 12.0f;
-        game_queue.Insert({ [sample]()
-                            {
-                              OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
-                            },
-                            "", index });
-      }
-  #pragma endregion
 
     game_queue.Flush();
 

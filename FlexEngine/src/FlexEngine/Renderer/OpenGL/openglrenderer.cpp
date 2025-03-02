@@ -525,6 +525,7 @@ namespace FlexEngine
       glBindVertexArray(0);
   }
   #pragma endregion
+
   #pragma region Text Rendering
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
@@ -1034,6 +1035,18 @@ namespace FlexEngine
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
+
+  /*!***************************************************************************
+  * \brief
+  * Draws a batch of 2D textures using the specified properties and batch data.
+  *
+  * \param props The rendering properties, including shaders, textures, and transformations.
+  * \param data The batch instance data including transformation and color information.
+  *****************************************************************************/
+  //void OpenGLRenderer::DrawBatchTexture2D(const Renderer2DText& props, const Renderer2DTextBatch& data, const Camera& cameraData)
+  //{
+  //    
+  //}
   #pragma endregion
 
 

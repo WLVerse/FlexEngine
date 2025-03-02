@@ -99,10 +99,19 @@ namespace FlexEngine
   *****************************************************************************/
   struct __FLX_API Renderer2DTextBatch
   {
-      GLuint m_vboid = 0;
-      std::vector<int> m_zindex;
-      std::vector<Matrix4x4> m_transformationData;
-      //std::vector<Vector3> m_colorAddData, m_colorMultiplyData;
+      //std::string m_shader = R"(/shaders/batchtext.flxshader)";  /*!< Path to the shader for text batch rendering */
+
+      //// For ordering if needed
+      //std::vector<int> m_zindex;
+
+      //// Per-glyph transformation (position, scale, rotation, etc.)
+      //std::vector<Matrix4x4> m_transformationData;
+
+      //// UV mapping from the font atlas for each glyph (vec4: uv_min, uv_max)
+      //std::vector<Vector4> m_UVmap;
+
+      //// Opacity per glyph (allows for fading individual glyphs)
+      //std::vector<float> m_opacity;
   };
 
   class __FLX_API OpenGLRenderer
