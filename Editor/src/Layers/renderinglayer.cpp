@@ -68,8 +68,8 @@ namespace Editor
         auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
         auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
 
-        model.Scale(Vector3(sprite_info.GetWidth() / asset_spritesheet.columns,
-                            sprite_info.GetHeight() / asset_spritesheet.rows,
+        model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()) / asset_spritesheet.columns,
+                            static_cast<float>(sprite_info.GetHeight()) / asset_spritesheet.rows,
                             1));
 
         sprite->model_matrix = model;
@@ -77,7 +77,7 @@ namespace Editor
       else if (FLX_STRING_GET(sprite->sprite_handle) != "")
       {
         auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
-        model.Scale(Vector3(sprite_info.GetWidth(), sprite_info.GetHeight(), 1));
+        model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()), static_cast<float>(sprite_info.GetHeight()), 1));
         sprite->model_matrix = model;
       }
 
@@ -170,7 +170,6 @@ namespace Editor
       if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
       {
         Animator& animator = *element.GetComponent<Animator>();
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
         props.asset = FLX_STRING_GET(animator.spritesheet_handle);
         props.texture_index = animator.current_frame;
@@ -191,8 +190,8 @@ namespace Editor
       props.alignment = Renderer2DProps::Alignment_TopLeft;
       props.world_transform = element.GetComponent<Transform>()->transform;
 
-      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
-      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, Editor::GetInstance().m_editorCamera); }, "", index });
+      game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index});
+      editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, props); }, "", index });
     }
 
     #pragma endregion
@@ -229,8 +228,8 @@ namespace Editor
                                       static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
       sample.m_textboxDimensions = textComponent->textboxDimensions;
 
-      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID()); }, "", index });
-      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(sample, Editor::GetInstance().m_editorCamera); }, "", index });
+      game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample); }, "", index });
+      editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
     }
     #pragma endregion
     

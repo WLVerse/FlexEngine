@@ -176,7 +176,7 @@ namespace Game
         props.alignment = Renderer2DProps::Alignment_TopLeft;
         props.world_transform = element.GetComponent<Transform>()->transform;
 
-        game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+        game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
       }
 
   #pragma endregion
@@ -215,7 +215,7 @@ namespace Game
         sample.m_linespacing = 12.0f;
         game_queue.Insert({ [sample]()
                             {
-                              OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+                              OpenGLRenderer::DrawTexture2D(sample, *CameraManager::GetMainGameCamera());
                             },
                             "", index });
       }

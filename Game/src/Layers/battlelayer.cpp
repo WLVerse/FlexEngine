@@ -29,10 +29,6 @@ namespace Game
     std::vector<int> value;
     std::vector<std::string> target;
 
-    //std::string effect = "";
-    //int value = 0;
-    //std::string target = "";
-
     std::string description = "";
   };
 

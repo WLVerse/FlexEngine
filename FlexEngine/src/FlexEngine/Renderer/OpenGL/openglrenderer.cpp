@@ -79,14 +79,12 @@ namespace FlexEngine
   
   // TODO: cache the vao and vbo
   // Draws to default camera
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
   {
-    if (!CameraManager::has_main_camera) return;
-
-    DrawTexture2D(props, *CameraManager::GetMainGameCamera());
+    DrawTexture2D(props, cam);
   }
 
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DText& text)
   {
     if (!CameraManager::has_main_camera) return;
 
@@ -130,7 +128,7 @@ namespace FlexEngine
 
     asset_shader.SetUniform_vec3("u_color", text.m_color);
     asset_shader.SetUniform_mat4("u_model", text.m_transform);
-    asset_shader.SetUniform_mat4("projection", CameraManager::GetMainGameCamera()->GetProjViewMatrix());
+    asset_shader.SetUniform_mat4("projection", cam.GetProjViewMatrix());
 
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(vao);
