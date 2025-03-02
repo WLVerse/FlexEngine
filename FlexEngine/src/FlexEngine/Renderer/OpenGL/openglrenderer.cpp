@@ -529,7 +529,7 @@ namespace FlexEngine
   #pragma region Text Rendering
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
-      #if 0
+      #if 0 //RE_ENABLE THIS TO REUSE OLD TEXT CODE
       if (!CameraManager::has_main_camera) return;
 
       DrawTexture2D(text, *CameraManager::GetMainGameCamera()); //Don't forget to switch the shader file name
@@ -537,6 +537,11 @@ namespace FlexEngine
       return;
       #endif
 
+      //Current Known issues
+      // 1. Words are being unnecessarily cut to new lines compared to old code in moves during combat
+      // 2. Glyphs have some artifacts, presumably due to how the data is being stored and used in GPU
+      // let me know if there are any more issues
+      
       // Early-out if missing main camera, shader, or font.
       if (!CameraManager::has_main_camera ||
           text.m_shader == "" ||
@@ -661,22 +666,33 @@ namespace FlexEngine
                   {
                       if (lastSpaceIndex != -1)
                       {
+                          // Ensure lastSpaceIndex is within the bounds of currentLine.
+                          int safeIndex = std::min(lastSpaceIndex, static_cast<int>(currentLine.size()));
                           // Break the line at the last space.
-                          std::string lineToPush = currentLine.substr(0, lastSpaceIndex);
+                          std::string lineToPush = currentLine.substr(0, safeIndex);
                           float lineWidth = widthAtLastSpace;
                           lines.push_back({ lineToPush, lineWidth });
+
                           // Start the new line with the word after the space.
-                          std::string remaining = currentLine.substr(lastSpaceIndex + 1);
+                          std::string remaining = "";
+                          if (safeIndex + 1 < (int)currentLine.size())
+                              remaining = currentLine.substr(safeIndex + 1);
                           currentLine = remaining;
+
                           // Recalculate currentWidth from the remaining word.
                           currentWidth = 0.0f;
                           for (char rc : remaining)
                           {
                               currentWidth += asset_font.GetGlyph(rc).advance + text.m_letterspacing;
                           }
+
                           // Then add the current character.
                           currentLine.push_back(c);
                           currentWidth += advance;
+
+                          // Reset space tracking.
+                          lastSpaceIndex = -1;
+                          widthAtLastSpace = 0.0f;
                       }
                       else
                       {
@@ -1009,6 +1025,8 @@ namespace FlexEngine
     *
     * \param props The rendering properties, including shaders, textures, and transformations.
     * \param data The batch instance data including transformation and color information.
+    * 
+    * TEST THE CURRENT NEW TEXT LINE CODE FIRST BEFORE THIS
     *****************************************************************************/
   //void OpenGLRenderer::DrawBatchTexture2D(const Renderer2DText& props, const Renderer2DTextBatch& data, const Camera& cameraData)
   //{

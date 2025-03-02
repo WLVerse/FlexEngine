@@ -191,7 +191,7 @@ namespace Game
 
    FunctionQueue game_queue;
 
-   #if 1
+   #if 0
      #pragma region Sprite Renderer System
    
      // render all sprites
@@ -286,8 +286,14 @@ namespace Game
           else
               sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Sprite>()->sprite_handle), entity);
       }
+      //Text
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Text, Position, Rotation, Scale>())
+      {
+          if (!entity.GetComponent<Transform>()->is_active) continue;
 
-      // TODO CHECK IF ALL ENTITIES AUTO HAVE Z-INDEX, SYSTEM CURRENTLY ASSUMES ALL ENTITIES HAVE Z-INDEX
+          sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Text>()->fonttype), entity);
+      }
+
       //SORT
       std::sort(sortedEntities.begin(), sortedEntities.end(),
           [](auto& a, auto& b) {
@@ -302,6 +308,42 @@ namespace Game
 
       for (auto& [batchKey, entity] : sortedEntities)
       {
+          // Exception: Text -> To be done at later date (Remove this portion once properly implemented in future
+          {
+              if (entity.HasComponent<Text>())
+              {
+                  const auto textComponent = entity.GetComponent<Text>();
+
+                  Renderer2DText sample;
+                  sample.m_window_size = Vector2(
+                    static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+                    static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+                  );
+
+                  int index = 0;
+                  if (entity.HasComponent<ZIndex>()) index = entity.GetComponent<ZIndex>()->z;
+                  sample.m_words = FLX_STRING_GET(textComponent->text);
+                  sample.m_color = textComponent->color;
+                  sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+
+                  sample.m_transform = Matrix4x4(
+                    entity.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.y, 0.00,
+                    0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.z, 0.00, entity.GetComponent<Position>()->position.x,
+                    entity.GetComponent<Position>()->position.y, entity.GetComponent<Position>()->position.z, 1.00
+                  );
+                  sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                                  static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+                  sample.m_textboxDimensions = textComponent->textboxDimensions;
+                  sample.m_linespacing = 12.0f;
+                  batch_render_queue.Insert({ [sample]()
+                                      {
+                                        OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
+                                      },
+                                      "", index });
+                  continue;
+              }
+          }
+
           if (batchKey != currentTexture)
           {
               AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
