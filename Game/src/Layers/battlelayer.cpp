@@ -29,10 +29,6 @@ namespace Game
     std::vector<int> value;
     std::vector<std::string> target;
 
-    //std::string effect = "";
-    //int value = 0;
-    //std::string target = "";
-
     std::string description = "";
   };
 
@@ -85,7 +81,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
+    bool prev_state = false; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -422,7 +418,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
         e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
 
@@ -447,7 +443,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-110, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -456,7 +452,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-70, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -465,7 +461,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-30, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -474,7 +470,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -483,7 +479,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(50, 0, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05, .05, 0) });
+        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -495,7 +491,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] } );
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1, .1, 0) });
+        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
         e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
         e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
@@ -519,7 +515,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-80, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -528,7 +524,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-50, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -537,7 +533,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-20, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -546,7 +542,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(10, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -555,7 +551,7 @@ namespace Game
         e.AddComponent<Transform>({});
         e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(40, 15, 0) });
         e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025, .025, 0) });
+        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
         e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
         e.AddComponent<ZIndex>({ 36 });
@@ -564,9 +560,6 @@ namespace Game
   #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
-
-    // Just set some random shit as the target for the start of game lmao
-    //battle.target = 1;
   }
 
   void BattleLayer::OnDetach()
@@ -577,7 +570,7 @@ namespace Game
 
   void BattleLayer::Update()
   {
-    std::string& current_fps = FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("FPS Display").GetComponent<Text>()->text);
+    std::string& current_fps = FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text);
     current_fps = "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
 
     bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
@@ -597,8 +590,8 @@ namespace Game
     // If there is no selected move
     if (!battle.is_player_turn) {
       // Set the transform component to false so that it does not render in scene
-      FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
-      FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
+      FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
+      FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
     }
 
     // check for escape key
@@ -654,11 +647,15 @@ namespace Game
     //_Character current_character
     battle.current_character = battle.speed_bar.front();
 
-    auto current_character_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.current_character->name);
-    auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
-
+    #ifdef _DEBUG
     FLX_ASSERT(battle.current_character != nullptr, "Current character is null.");
     FLX_ASSERT(battle.current_character->is_alive, "Current character is dead.");
+    #else
+    if (battle.current_character == nullptr || !battle.current_character->is_alive) return;
+    #endif
+
+    auto current_character_entity = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+    auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
 
     // determine if it's the player's turn
     // player is 1-2, enemy is 3-5
@@ -693,14 +690,10 @@ namespace Game
     // lock characters to their slots
     for (auto character : battle.drifters)
     {
-      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
+      auto entity = FlexECS::Scene::GetEntityByName(character.name);
       entity.GetComponent<Position>()->position = battle.sprite_slot_positions[character.current_slot];
     }
-    // offset current player character to the right a bit
-    if (battle.is_player_turn)
-    {
-        current_character_entity.GetComponent<Position>()->position.x += 100;
-    }
+    
 #endif
 
     // Just swapped from enemy phase to player phase
@@ -708,9 +701,12 @@ namespace Game
     {
       // Plays sound if swap from enemy phase to player phase
         std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
+        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
         //FLX_STRING_NEW(R"(/audio/start turn.mp3)");
-      FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+
+      // offset current player character to the right a bit
+      current_character_entity.GetComponent<Position>()->position.x += 100;
 
       /*
       // Defaults target selection
@@ -997,23 +993,23 @@ namespace Game
       case 3:
         current_character_animator.spritesheet_handle =
           FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       case 4:
         current_character_animator.spritesheet_handle =
           FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/robot shooting.mp3)");
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       case 5:
         // current_character_animator.spritesheet_handle =
         //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
-        // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
         // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-        // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
         break;
       }
       float animation_time =
@@ -1025,7 +1021,7 @@ namespace Game
       current_character_animator.frame_time = 0.f;
       current_character_animator.current_frame = 0;
 
-      auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.initial_target->name);
+      auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
       auto& target_animator = *target_entity.GetComponent<Animator>();
       switch (battle.initial_target->character_id)
       {
@@ -1178,10 +1174,10 @@ namespace Game
         battle.current_character->current_speed = battle.current_character->speed + 10;
 
         // Reset move selection, as well as description
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
 
         battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
     }
@@ -1196,16 +1192,16 @@ namespace Game
             case 1:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 2:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             }
         }
@@ -1216,16 +1212,16 @@ namespace Game
             case 1:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 2:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             }
         }
@@ -1236,16 +1232,16 @@ namespace Game
             case 1:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 2:
                 current_character_animator.spritesheet_handle =
                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                     FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             }
         }
@@ -1495,7 +1491,7 @@ namespace Game
         current_character_animator.frame_time = 0.f;
         current_character_animator.current_frame = 0;
 
-        auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.initial_target->name);
+        auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
         auto& target_animator = *target_entity.GetComponent<Animator>();
         switch (battle.initial_target->character_id)
         {
@@ -1521,10 +1517,10 @@ namespace Game
         battle.disable_input_timer += animation_time + 1.f;
 
         // Reset move selection, as well as description
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
 
         battle.current_move = nullptr;
 
@@ -1570,7 +1566,7 @@ namespace Game
         (move_one_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_one;
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
             battle.current_character->move_one.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
@@ -1578,7 +1574,7 @@ namespace Game
         (move_two_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_two;
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) =  
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =  
             battle.current_character->move_two.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
@@ -1586,7 +1582,7 @@ namespace Game
         (move_three_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_three;
-        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
             battle.current_character->move_three.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
@@ -1640,11 +1636,11 @@ namespace Game
       }
 
       //button text
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
         "[Z] " + battle.current_character->move_one.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
         "[X] " + battle.current_character->move_two.name;
-      FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
         "[C] " + battle.current_character->move_three.name;
 
       //button UI
@@ -1693,7 +1689,7 @@ namespace Game
           battle.enemy_alive_count--;
 
         // play death animation
-        auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name);
+        auto entity = FlexECS::Scene::GetEntityByName(character->name);
         auto& animator = *entity.GetComponent<Animator>();
         switch (character->character_id)
         {
@@ -1708,16 +1704,16 @@ namespace Game
         case 3:
           animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+          // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
           //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 4:
           animator.spritesheet_handle =
             FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+          // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
           //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-          // FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
           break;
         case 5:
           // goto jack death cutscene
@@ -1810,7 +1806,7 @@ namespace Game
     // there is the healthbarslot, the actual healthbar entity, and the character entity that are all needed
     for (auto character : battle.drifters_and_enemies)
     {
-      auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Healthbar");
+      auto entity = FlexECS::Scene::GetEntityByName(character->name + " Healthbar");
 
       // guard
       if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
@@ -1825,9 +1821,9 @@ namespace Game
       scale->scale.x = healthbar->original_scale.x * health_percentage;
 
       // Update Position
-      position->position.x = healthbar->original_position.x - static_cast<float>(healthbar->pixelLength/2) * (1.0-health_percentage);
+      position->position.x = healthbar->original_position.x - healthbar->pixelLength/2.f * (1.0f -health_percentage);
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stats");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Stats");
 
       // guard
       if (!entity && !entity.HasComponent<Text>()) continue;
@@ -1837,7 +1833,7 @@ namespace Game
       entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Attack_Buff");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Attack_Buff");
 
       // guard
       if (!entity) continue;
@@ -1848,7 +1844,7 @@ namespace Game
       else entity.GetComponent<Transform>()->is_active = false;
 
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Attack_Debuff");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Attack_Debuff");
 
       // guard
       if (!entity) continue;
@@ -1859,7 +1855,7 @@ namespace Game
       else entity.GetComponent<Transform>()->is_active = false;
 
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Stun_Debuff");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Stun_Debuff");
 
       // guard
       if (!entity) continue;
@@ -1870,7 +1866,7 @@ namespace Game
       else entity.GetComponent<Transform>()->is_active = false;
 
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Shield_Buff");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Shield_Buff");
 
       // guard
       if (!entity) continue;
@@ -1881,7 +1877,7 @@ namespace Game
       else entity.GetComponent<Transform>()->is_active = false;
 
 
-      entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character->name + " Protect_Buff");
+      entity = FlexECS::Scene::GetEntityByName(character->name + " Protect_Buff");
 
       // guard
       if (!entity) continue;
@@ -1970,7 +1966,7 @@ namespace Game
 #pragma region Move Selection Displays
     Vector3 new_position = current_character_entity.GetComponent<Position>()->position;
     new_position.x += 200;
-    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position = new_position;
+    FlexECS::Scene::GetEntityByName("Move Accent").GetComponent<Position>()->position = new_position;
 
     new_position.x -= 30;
     new_position.y -= 10;
@@ -1980,13 +1976,13 @@ namespace Game
       new_position.y -= 30; // Vertical Difference: 30
       switch (i) {
       case 0:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 1 Text");
         break;
       case 1:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 2 Text");
         break;
       case 2:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 3 Text");
         break;
       }
       tempMoveUI.GetComponent<Position>()->position = new_position;
@@ -1997,13 +1993,13 @@ namespace Game
     for (int i = 0; i < 3; i++) {
       switch (i) {
       case 0:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 3");
         break;
       case 1:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 2");
         break;
       case 2:
-        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+        tempMoveUI = FlexECS::Scene::GetEntityByName("Move 1");
         break;
       }
       tempMoveUI.GetComponent<Position>()->position = new_position;
@@ -2012,12 +2008,12 @@ namespace Game
 
     new_position.x += 350;
     new_position.y -= 50;
-    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Position>()->position = new_position;
+    FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Position>()->position = new_position;
 
-    new_position = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Position>()->position;
+    new_position = FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Position>()->position;
     new_position.x -= 190;
     new_position.y += 70;
-    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Position>()->position = new_position;
+    FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Position>()->position = new_position;
 
 #pragma endregion
 
