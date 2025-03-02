@@ -529,7 +529,15 @@ namespace FlexEngine
   #pragma region Text Rendering
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const FlexECS::EntityID camID)
   {
-      // Early-out if no main camera or missing shader/font.
+      #if 0
+      if (!CameraManager::has_main_camera) return;
+
+      DrawTexture2D(text, *CameraManager::GetMainGameCamera()); //Don't forget to switch the shader file name
+
+      return;
+      #endif
+
+      // Early-out if missing main camera, shader, or font.
       if (!CameraManager::has_main_camera ||
           text.m_shader == "" ||
           text.m_fonttype.empty())
@@ -544,7 +552,6 @@ namespace FlexEngine
       if (!initialized)
       {
           // Define a unit quad in normalized space [0,1] for each character.
-          // (Two triangles covering a rectangle.)
           float quadVertices[] = {
               // positions (x,y)
               0.0f, 0.0f,
@@ -561,14 +568,13 @@ namespace FlexEngine
           glBindVertexArray(vao);
           glBindBuffer(GL_ARRAY_BUFFER, vbo);
           glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-          // We only supply a vec2 per vertex (the base quad coordinates)
           glEnableVertexAttribArray(0);
           glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
           glBindBuffer(GL_ARRAY_BUFFER, 0);
           glBindVertexArray(0);
           initialized = true;
 
-          // Optionally, push a free callback to delete vao/vbo on shutdown.
+          // Push a free callback to delete vao/vbo on shutdown.
           FreeQueue::Push([=]()
           {
               glDeleteVertexArrays(1, &vao);
@@ -595,28 +601,15 @@ namespace FlexEngine
       asset_shader.SetUniform_float("u_textboxWidth", text.m_textboxDimensions.x);
       asset_shader.SetUniform_float("u_textboxHeight", text.m_textboxDimensions.y);
 
-      // Map your text alignment enum to floats:
-      // Left = 0.0, Center = 0.5, Right = 1.0 (for X) and Top = 0.0, Middle = 0.5, Bottom = 1.0 (for Y)
+      // Map text alignment enums to floats:
+      // Left = 0.0, Center = 0.5, Right = 1.0 (for X)
+      // Top = 0.0, Middle = 0.5, Bottom = 1.0 (for Y)
       float alignX = (text.m_alignment.first == Renderer2DText::Alignment_Center) ? 0.5f :
           (text.m_alignment.first == Renderer2DText::Alignment_Right) ? 1.0f : 0.0f;
       float alignY = (text.m_alignment.second == Renderer2DText::Alignment_Middle) ? 0.5f :
           (text.m_alignment.second == Renderer2DText::Alignment_Bottom) ? 1.0f : 0.0f;
-      asset_shader.SetUniform_float("u_alignX", alignX);
-      asset_shader.SetUniform_float("u_alignY", alignY);
-
-      // --- Pass the entire text string as an array of ints ---
-      const int maxTextLength = 256; // maximum supported
-      int textLength = static_cast<int>(text.m_words.size());
-      asset_shader.SetUniform_int("u_textLength", textLength);
-      int textArray[maxTextLength] = { 0 };
-      for (int i = 0; i < textLength && i < maxTextLength; i++)
-      {
-          textArray[i] = static_cast<int>(text.m_words[i]);
-      }
-      asset_shader.SetUniform_int_array("u_text", textArray, maxTextLength);
 
       // --- Pass glyph metrics for ASCII characters (0-127) ---
-      // We create a simple struct on CPU that matches the GLSL struct.
       Asset::GlyphMetric glyphMetrics[128];
       for (int i = 0; i < 128; i++)
       {
@@ -633,19 +626,135 @@ namespace FlexEngine
       }
       asset_shader.SetUniformGlyphMetrics("u_glyphs", const_cast<const Asset::GlyphMetric*>(glyphMetrics), 128);
 
-      // --- Issue an instanced draw call ---
-      glBindVertexArray(vao);
-      // 6 vertices per instance; one instance per character.
-      glDrawArraysInstanced(GL_TRIANGLES, 0, 6, textLength);
-      m_draw_calls++;
+      // --- CPU-side text splitting ---
+      // Use a lambda (without any custom struct) to split the text into lines.
+      // Each element in the resulting vector is a pair: (line text, line width).
+      auto splitLines = [&]() -> std::vector<std::pair<std::string, float>> {
+          std::vector<std::pair<std::string, float>> lines;
+          std::string currentLine;
+          float currentWidth = 0.0f;
+          int lastSpaceIndex = -1;
+          float widthAtLastSpace = 0.0f;
+          for (size_t i = 0; i < text.m_words.size(); i++)
+          {
+              char c = text.m_words[i];
+              if (c == '\n')
+              {
+                  // Push the current line as-is.
+                  lines.push_back({ currentLine, currentWidth });
+                  currentLine = "";
+                  currentWidth = 0.0f;
+                  lastSpaceIndex = -1;
+                  widthAtLastSpace = 0.0f;
+              }
+              else
+              {
+                  float advance = asset_font.GetGlyph(c).advance + text.m_letterspacing;
+                  // If a space, record its position.
+                  if (c == ' ')
+                  {
+                      lastSpaceIndex = (int)currentLine.size();
+                      widthAtLastSpace = currentWidth;
+                  }
+                  // If adding this character exceeds the textbox width (and current line isn’t empty):
+                  if (!currentLine.empty() && (currentWidth + advance > text.m_textboxDimensions.x))
+                  {
+                      if (lastSpaceIndex != -1)
+                      {
+                          // Break the line at the last space.
+                          std::string lineToPush = currentLine.substr(0, lastSpaceIndex);
+                          float lineWidth = widthAtLastSpace;
+                          lines.push_back({ lineToPush, lineWidth });
+                          // Start the new line with the word after the space.
+                          std::string remaining = currentLine.substr(lastSpaceIndex + 1);
+                          currentLine = remaining;
+                          // Recalculate currentWidth from the remaining word.
+                          currentWidth = 0.0f;
+                          for (char rc : remaining)
+                          {
+                              currentWidth += asset_font.GetGlyph(rc).advance + text.m_letterspacing;
+                          }
+                          // Then add the current character.
+                          currentLine.push_back(c);
+                          currentWidth += advance;
+                      }
+                      else
+                      {
+                          // No space was found; break immediately.
+                          lines.push_back({ currentLine, currentWidth });
+                          currentLine = "";
+                          currentWidth = 0.0f;
+                          currentLine.push_back(c);
+                          currentWidth += advance;
+                      }
+                      // Reset space tracking.
+                      lastSpaceIndex = -1;
+                      widthAtLastSpace = 0.0f;
+                  }
+                  else
+                  {
+                      // Append the character.
+                      currentLine.push_back(c);
+                      currentWidth += advance;
+                  }
+              }
+          }
+          if (!currentLine.empty())
+              lines.push_back({ currentLine, currentWidth });
+          return lines;
+      };
 
-      // Cleanup bindings.
+      auto lines = splitLines();
+
+      // --- Compute vertical layout ---
+      // Use the glyph for 'A' as the baseline line height.
+      float lineHeight = asset_font.GetGlyph('A').size.y;
+      int numLines = (int)lines.size();
+      // Total text block height: line heights plus line spacing between lines.
+      float totalTextHeight = numLines * lineHeight + (numLines - 1) * text.m_linespacing;
+      // Compute vertical offset based on alignment:
+      // For top (0.0) we use 0, for middle (0.5) we shift by half the total height,
+      // for bottom (1.0) we shift by the total height.
+      float verticalOffset = (alignY == 0.5f) ? totalTextHeight * 0.5f : (alignY == 1.0f ? totalTextHeight : 0.0f);
+
+      // --- Render each line separately ---
+      glBindVertexArray(vao);
+      float currentBaseline = verticalOffset;
+      const int maxTextLength = 256; // maximum supported per line
+      for (size_t i = 0; i < lines.size(); i++)
+      {
+          const std::string& lineText = lines[i].first;
+          float lineWidth = lines[i].second;
+          // Compute horizontal alignment offset:
+          float lineOffsetX = (alignX == 0.5f) ? -lineWidth * 0.5f : (alignX == 1.0f ? -lineWidth : 0.0f);
+          // Set per-line offset uniform ("u_lineOffset" should be declared as vec2 in your shader).
+          asset_shader.SetUniform_vec2("u_lineOffset", { lineOffsetX, currentBaseline });
+
+          // Prepare the text array for this line.
+          int lineLength = static_cast<int>(lineText.size());
+          asset_shader.SetUniform_int("u_textLength", lineLength);
+          int textArray[maxTextLength] = { 0 };
+          for (int j = 0; j < lineLength && j < maxTextLength; j++)
+          {
+              textArray[j] = static_cast<int>(lineText[j]);
+          }
+          asset_shader.SetUniform_int_array("u_text", textArray, maxTextLength);
+
+          // Draw the line.
+          glDrawArraysInstanced(GL_TRIANGLES, 0, 6, lineLength);
+          m_draw_calls++;
+
+          // Move the baseline down for the next line.
+          currentBaseline -= (lineHeight + text.m_linespacing);
+      }
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DText& text, const Camera& cameraData)
   {
+      if (!CameraManager::has_main_camera) return;
+
       static GLuint vao = 0, vbo = 0;
 
       if (vao == 0)
@@ -680,13 +789,6 @@ namespace FlexEngine
           Log::Info("Text Renderer: Unknown font type! Please check what you wrote!");
           return;
       }
-      //if (text.m_words.empty() ||
-      //    (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_gameFBO) && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID) ||
-      //    (OpenGLFrameBuffer::CheckSameFrameBuffer(OpenGLFrameBuffer::m_editorFBO) && m_CamM_Instance->GetEditorCamera() == INVALID_ENTITY_ID))
-      //    return;
-
-      //if (followcam && m_CamM_Instance->GetMainCamera() == INVALID_ENTITY_ID)
-      //    followcam = false;
 
       auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
       asset_shader.Use();

@@ -192,7 +192,7 @@ namespace Game
    FunctionQueue game_queue;
 
    #if 1
-  #pragma region Sprite Renderer System
+     #pragma region Sprite Renderer System
    
      // render all sprites
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
@@ -228,7 +228,7 @@ namespace Game
 
         game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
       }
-  #pragma endregion
+      #pragma endregion
 
       #pragma region Text Renderer System
 
@@ -268,6 +268,8 @@ namespace Game
                               },
                               "", index });
       }
+
+      game_queue.Flush();
       #pragma endregion
    #else
   #pragma region Batch Sprite Renderer System
@@ -314,8 +316,6 @@ namespace Game
       batch_render_queue.Flush();
    #pragma endregion
    #endif
-
-    game_queue.Flush();
 
     OpenGLFrameBuffer::Unbind();
   }
