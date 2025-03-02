@@ -68,7 +68,7 @@ namespace Game
       }
       else
       {
-          auto sprite = entity.GetComponent<Sprite>();
+          //auto sprite = entity.GetComponent<Sprite>();
           //batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
           //batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
           batch.m_UVmap.push_back(Vector4(0,0,1,1)); // Basic sprite UV
@@ -191,7 +191,7 @@ namespace Game
 
    FunctionQueue game_queue;
 
-   #if 1
+   #if 0
   #pragma region Sprite Renderer System
    
      // render all sprites

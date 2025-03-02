@@ -376,7 +376,7 @@ namespace FlexEngine
 
       asset_shader.Use();
 
-      bool is_spritesheet = props.texture_index >= 0;
+      bool is_spritesheet = data.m_UVmap[0] != Vector4(0,0,1,1);
       // Apply Texture
       if (props.asset != "")
       {
