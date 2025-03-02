@@ -1013,20 +1013,6 @@ namespace FlexEngine
       glBindVertexArray(0);
       glBindTexture(GL_TEXTURE_2D, 0);
   }
-
-  /*!***************************************************************************
-    * \brief
-    * Draws a batch of 2D textures using the specified properties and batch data.
-    *
-    * \param props The rendering properties, including shaders, textures, and transformations.
-    * \param data The batch instance data including transformation and color information.
-    * 
-    * TEST THE CURRENT NEW TEXT LINE CODE FIRST BEFORE THIS
-    *****************************************************************************/
-  //void OpenGLRenderer::DrawBatchTexture2D(const Renderer2DText& props, const Renderer2DTextBatch& data, const Camera& cameraData)
-  //{
-  //    
-  //}
   #pragma endregion
 
 

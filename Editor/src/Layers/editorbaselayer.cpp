@@ -19,10 +19,11 @@ namespace Editor
 {
     void EditorBaseLayer::OnAttach()
     {
+        auto scene = FlexECS::Scene::CreateScene();
+
         #pragma region Create the entities
-        #if 1
+        #if 0
         {
-            auto scene = FlexECS::Scene::CreateScene();
             {
                 FlexECS::Entity entity = scene->CreateEntity("Empty Box");
                 entity.AddComponent<Position>({ {600, 600, 0} });
