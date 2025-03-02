@@ -81,11 +81,9 @@ namespace FlexEngine
   #pragma region Sprite Rendering
   // TODO: cache the vao and vbo
   // Draws to default camera
-  void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const FlexECS::EntityID camID)
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const Renderer2DProps& props)
   {
-    if (!CameraManager::has_main_camera) return;
-
-    DrawTexture2D(props, *CameraManager::GetMainGameCamera());
+    DrawTexture2D(props, cam);
   }
 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData)
