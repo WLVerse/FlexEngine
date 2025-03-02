@@ -226,7 +226,7 @@ namespace Game
         props.alignment = Renderer2DProps::Alignment_TopLeft;
         props.world_transform = element.GetComponent<Transform>()->transform;
 
-        game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+        game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
       }
       #pragma endregion
 
@@ -312,7 +312,7 @@ namespace Game
           {
               if (entity.HasComponent<Text>())
               {
-                  // Flush the current sprite batch if it isn’t empty.
+                  // Flush the current sprite batch if it isnï¿½t empty.
                   if (!currentBatch.m_zindex.empty())
                   {
                       AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);

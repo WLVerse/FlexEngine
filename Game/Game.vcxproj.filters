@@ -43,12 +43,6 @@
     <ClInclude Include="src\Layers\assetlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\loselayer.h">
-      <Filter>src\Layers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Layers\winlayer.h">
-      <Filter>src\Layers</Filter>
-    </ClInclude>
     <ClInclude Include="src\Battle\character.h">
       <Filter>src\Battle</Filter>
     </ClInclude>
@@ -91,12 +85,6 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\assetlayer.cpp">
-      <Filter>src\Layers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Layers\loselayer.cpp">
-      <Filter>src\Layers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Layers\winlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\camerasystemlayer.cpp">
