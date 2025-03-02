@@ -19,8 +19,8 @@ namespace Game
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
 
+        //TO DO CREATE A FLX SCENE FOR THIS LOL
         auto scene = FlexECS::Scene::CreateScene();
-        FlexECS::Scene::SetActiveScene(scene);
         
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;

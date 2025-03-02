@@ -539,7 +539,6 @@ namespace FlexEngine
 
       //Current Known issues
       // 1. Words are being unnecessarily cut to new lines compared to old code in moves during combat
-      // 2. Glyphs have some artifacts, presumably due to how the data is being stored and used in GPU
       // let me know if there are any more issues
       
       // Early-out if missing main camera, shader, or font.

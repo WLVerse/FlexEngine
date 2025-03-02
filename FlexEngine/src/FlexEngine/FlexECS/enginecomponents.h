@@ -228,8 +228,8 @@ namespace FlexEngine
       float lifetime = 5.0f;
       float start_speed = 100.0f;
       float end_speed = 100.0f;
-      float start_size = 100.0f;
-      float end_size = 100.0f;
+      float start_size = 1.0f;
+      float end_size = 1.0f;
       Vector3 start_color = Vector3::One;
       Vector3 end_color = Vector3::One;
       float simulation_speed = 1.0f;
