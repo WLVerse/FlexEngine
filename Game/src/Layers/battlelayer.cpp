@@ -1983,6 +1983,60 @@ namespace Game
 
 #pragma endregion
 
+#pragma region Move Selection Displays
+    Vector3 new_position = current_character_entity.GetComponent<Position>()->position;
+    new_position.x += 200;
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Accent").GetComponent<Position>()->position = new_position;
+
+    new_position.x -= 30;
+    new_position.y -= 10;
+
+    FlexECS::Entity tempMoveUI = FlexECS::Entity::Null;
+    for (int i = 0; i < 3; i++) {
+      new_position.y -= 30; // Vertical Difference: 30
+      switch (i) {
+      case 0:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text");
+        break;
+      case 1:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text");
+        break;
+      case 2:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3 Text");
+        break;
+      }
+      tempMoveUI.GetComponent<Position>()->position = new_position;
+    }
+
+    new_position.x += 80;
+    new_position.y += 10;
+    for (int i = 0; i < 3; i++) {
+      switch (i) {
+      case 0:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
+        break;
+      case 1:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
+        break;
+      case 2:
+        tempMoveUI = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
+        break;
+      }
+      tempMoveUI.GetComponent<Position>()->position = new_position;
+      new_position.y += 30; // Vertical Difference: 30
+    }
+
+    new_position.x += 350;
+    new_position.y -= 50;
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Position>()->position = new_position;
+
+    new_position = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Position>()->position;
+    new_position.x -= 190;
+    new_position.y += 70;
+    FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Position>()->position = new_position;
+
+#pragma endregion
+
 #pragma endregion
   }
 
