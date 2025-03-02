@@ -285,7 +285,7 @@ namespace Editor
             {
                 if (entity.HasComponent<Text>())
                 {
-                    // Flush the current sprite batch if it isn�t empty.
+                    // Flush the current sprite batch if it isnt empty.
                     if (!currentBatch.m_zindex.empty())
                     {
                         AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);

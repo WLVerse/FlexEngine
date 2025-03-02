@@ -98,7 +98,7 @@ namespace FlexEngine
    * \class Parent
    * \brief
    * This class represents the parent entity of an entity, enabling hierarchical
-   * transformations where a child entity inherits its parent�s transformation
+   * transformations where a child entity inherits its parents transformation
    * matrix. It supports complex scene graph structures.
    ******************************************************************************/
   class __FLX_API Parent

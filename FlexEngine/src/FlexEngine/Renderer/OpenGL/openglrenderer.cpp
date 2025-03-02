@@ -910,7 +910,7 @@ namespace FlexEngine
                       lastSpaceIndex = (int)currentLine.size();
                       widthAtLastSpace = currentWidth;
                   }
-                  // If adding this character exceeds the textbox width (and current line isn�t empty):
+                  // If adding this character exceeds the textbox width (and current line isnt empty):
                   if (!currentLine.empty() && (currentWidth + advance > text.m_textboxDimensions.x))
                   {
                       if (lastSpaceIndex != -1)
