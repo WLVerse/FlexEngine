@@ -20,7 +20,8 @@ namespace Game
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
 
         auto scene = FlexECS::Scene::CreateScene();
-
+        FlexECS::Scene::SetActiveScene(scene);
+        
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
 

@@ -312,6 +312,14 @@ namespace Game
           {
               if (entity.HasComponent<Text>())
               {
+                  // Flush the current sprite batch if it isn’t empty.
+                  if (!currentBatch.m_zindex.empty())
+                  {
+                      AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+                      currentBatch = Renderer2DSpriteBatch(); // Reset the batch
+                      currentTexture = ""; // Reset current texture key (or a default value)
+                  }
+
                   const auto textComponent = entity.GetComponent<Text>();
 
                   Renderer2DText sample;
