@@ -18,13 +18,16 @@ namespace Game
     {
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
-
-        //TO DO CREATE A FLX SCENE FOR THIS LOL
-        auto scene = FlexECS::Scene::CreateScene();
         
+        //Check with yew chong why below code crash
+        //File& file = File::Open(Path::current("assets/saves/cutscene.flxscene"));
+        //FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+        auto scene = FlexECS::Scene::CreateScene();
+
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
 
+        #if 1
         // Create the current shot entity.
         // Intentionally setting sprite handle to 0.
         m_currShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Current Cinematic Shot");
@@ -46,6 +49,17 @@ namespace Game
             m_nextShot.AddComponent<Sprite>({ 0 });
         m_nextShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
         m_nextShot.AddComponent<ZIndex>({ 9 });
+        #else
+        // Create the current shot entity.
+       // Intentionally setting sprite handle to 0.
+        m_currShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Current Shot");
+
+        // Create the next shot entity and assign the image if available.
+        m_nextShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Next Shot");
+        if (m_currFrameIndex + 1 < m_CutsceneImages.size())
+            m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
+        #endif
+
 
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->CreateEntity("Normal Dialogue Box");
         m_dialoguebox.AddComponent<Position>({ Vector3(0,-390.0f,0) });

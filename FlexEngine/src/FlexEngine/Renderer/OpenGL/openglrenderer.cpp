@@ -538,7 +538,7 @@ namespace FlexEngine
       #endif
 
       //Current Known issues
-      // 1. Words are being unnecessarily cut to new lines compared to old code in moves during combat
+      // 1. Words are being unnecessarily cut to new lines compared to old code in moves (Hour Of Reckoning) during combat -> pls extend your textbox size slightly
       // let me know if there are any more issues
       
       // Early-out if missing main camera, shader, or font.
