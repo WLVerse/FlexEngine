@@ -38,58 +38,18 @@ namespace Editor
         OpenGLRenderer::DisableBlending();
     }
 
-    #pragma region Batch helper
-    void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch)
-    {
-        if (!batch.m_zindex.empty())
-        {
-            Renderer2DProps props;
-            props.asset = texture;
-            //props.vbo_id = vbo_id;
-            // Send camera data as parameter instead of ID.
-            queue.Insert({ [props, batch]() { OpenGLRenderer::DrawBatchTexture2D(props, batch, *CameraManager::GetMainGameCamera()); }, "", batch.m_zindex.back() });
-        }
-    }
-
-    void RenderingLayer::AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch)
-    {
-        auto z_index = entity.HasComponent<ZIndex>() ? entity.GetComponent<ZIndex>()->z : 0;
-        batch.m_zindex.push_back(z_index);
-        batch.m_transformationData.push_back(entity.GetComponent<Transform>()->transform);
-        batch.m_opacity.push_back(entity.GetComponent<Sprite>()->opacity);
-
-        //Checks for other components present that would influence batch
-        //Color has been removed as it was not added in sprite component
-        //Vector3 colorAdd, colorMul;
-        //colorMul = Vector3::One;
-        //if (entity.HasComponent<Button>())
-        //{
-        //    colorAdd += entity.GetComponent<Button>()->finalColorAdd;
-        //    colorMul *= entity.GetComponent<Button>()->finalColorMul;
-        //}
-
-        if (entity.HasComponent<Animator>() && FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle) != "")
-        {
-            auto anim = entity.GetComponent<Animator>();
-
-            //batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
-            //batch.m_colorMultiplyData.push_back(colorMul * anim->color_to_multiply);
-            auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle));
-            batch.m_UVmap.push_back(asset_spritesheet.GetUV(anim->current_frame)); //No choice, must do here, cannot be in engine
-        }
-        else
-        {
-            //auto sprite = entity.GetComponent<Sprite>();
-            //batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
-            //batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
-            batch.m_UVmap.push_back(Vector4(0, 0, 1, 1)); // Basic sprite UV
-        }
-    }
-    #pragma endregion
-
     void RenderingLayer::Update()
     {
         OpenGLFrameBuffer::Unbind();
+
+        if (!CameraManager::has_main_camera) return;
+
+        Profiler::StartCounter("Graphics");
+
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+        OpenGLRenderer::ClearFrameBuffer();
 
         #pragma region Transformation Calculations
         // Update Transform component to obtain the true world representation of the entity
@@ -111,17 +71,16 @@ namespace Editor
                 auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
                 auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
 
-                model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth() / asset_spritesheet.columns),
-                    static_cast<float>(sprite_info.GetHeight() / asset_spritesheet.rows),
-                    1.f));
+                model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()) / asset_spritesheet.columns,
+                    static_cast<float>(sprite_info.GetHeight()) / asset_spritesheet.rows,
+                    1));
+
                 sprite->model_matrix = model;
             }
             else if (FLX_STRING_GET(sprite->sprite_handle) != "")
             {
                 auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
-                model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()),
-                    static_cast<float>(sprite_info.GetHeight()),
-                    1.f));
+                model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()), static_cast<float>(sprite_info.GetHeight()), 1));
                 sprite->model_matrix = model;
             }
 
@@ -132,8 +91,6 @@ namespace Editor
             transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
         }
         #pragma endregion 
-
-        if (!CameraManager::has_main_camera) return;
 
         #pragma region Animator System
 
@@ -200,17 +157,18 @@ namespace Editor
 
         #pragma endregion
 
-        FunctionQueue game_queue;
+        #if 1
+        FunctionQueue editor_queue, game_queue;
 
-        #if 0
         #pragma region Sprite Renderer System
-
+        
         // render all sprites
         for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
         {
             if (!element.GetComponent<Transform>()->is_active) continue;
 
             Sprite& sprite = *element.GetComponent<Sprite>();
+
             Renderer2DProps props;
 
             // overload for animator
@@ -237,10 +195,14 @@ namespace Editor
             props.alignment = Renderer2DProps::Alignment_TopLeft;
             props.world_transform = element.GetComponent<Transform>()->transform;
 
-            game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(props, CameraManager::GetMainGameCameraID()); }, "", index });
+            game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+            editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, props); }, "", index });
         }
         #pragma endregion
 
+        #pragma region Text Renderer System
+
+        // Text
         #pragma region Text Renderer System
 
         // Text
@@ -252,8 +214,8 @@ namespace Editor
 
             Renderer2DText sample;
             sample.m_window_size = Vector2(
-              static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-              static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+              static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoWidth()),
+              static_cast<float>(CameraManager::GetMainGameCamera()->GetOrthoHeight())
             );
 
             int index = 0;
@@ -272,14 +234,14 @@ namespace Editor
             sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
                                             static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
             sample.m_textboxDimensions = textComponent->textboxDimensions;
-            sample.m_linespacing = 12.0f;
-            game_queue.Insert({ [sample]()
-                                {
-                                  OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
-                                },
-                                "", index });
+
+            game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample); }, "", index });
+            editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
         }
 
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+        editor_queue.Flush();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
         game_queue.Flush();
         #pragma endregion
         #else
@@ -378,6 +340,57 @@ namespace Editor
         #pragma endregion
         #endif
 
-        OpenGLFrameBuffer::Unbind();
+        OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
+
+        Profiler::EndCounter("Graphics");
     }
-} // namespace Game
+
+    #pragma region Batch helper
+    void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch)
+    {
+        if (!batch.m_zindex.empty())
+        {
+            Renderer2DProps props;
+            props.asset = texture;
+            //props.vbo_id = vbo_id;
+            // Send camera data as parameter instead of ID.
+            queue.Insert({ [props, batch]() { OpenGLRenderer::DrawBatchTexture2D(props, batch, *CameraManager::GetMainGameCamera()); }, "", batch.m_zindex.back() });
+        }
+    }
+
+    void RenderingLayer::AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch)
+    {
+        auto z_index = entity.HasComponent<ZIndex>() ? entity.GetComponent<ZIndex>()->z : 0;
+        batch.m_zindex.push_back(z_index);
+        batch.m_transformationData.push_back(entity.GetComponent<Transform>()->transform);
+        batch.m_opacity.push_back(entity.GetComponent<Sprite>()->opacity);
+
+        //Checks for other components present that would influence batch
+        //Color has been removed as it was not added in sprite component
+        //Vector3 colorAdd, colorMul;
+        //colorMul = Vector3::One;
+        //if (entity.HasComponent<Button>())
+        //{
+        //    colorAdd += entity.GetComponent<Button>()->finalColorAdd;
+        //    colorMul *= entity.GetComponent<Button>()->finalColorMul;
+        //}
+
+        if (entity.HasComponent<Animator>() && FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle) != "")
+        {
+            auto anim = entity.GetComponent<Animator>();
+
+            //batch.m_colorAddData.push_back(colorAdd + anim->color_to_add);
+            //batch.m_colorMultiplyData.push_back(colorMul * anim->color_to_multiply);
+            auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle));
+            batch.m_UVmap.push_back(asset_spritesheet.GetUV(anim->current_frame)); //No choice, must do here, cannot be in engine
+        }
+        else
+        {
+            //auto sprite = entity.GetComponent<Sprite>();
+            //batch.m_colorAddData.push_back(colorAdd + sprite->color_to_add);
+            //batch.m_colorMultiplyData.push_back(colorMul * sprite->color_to_multiply);
+            batch.m_UVmap.push_back(Vector4(0, 0, 1, 1)); // Basic sprite UV
+        }
+    }
+    #pragma endregion
+} // namespace Editor
