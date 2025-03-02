@@ -23,8 +23,7 @@
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
-
-#include <Physics/physicssystem.h>
+#include "editor.h"
 
 namespace Editor
 {
@@ -157,9 +156,8 @@ namespace Editor
 
         #pragma endregion
 
-        #if 1
         FunctionQueue editor_queue, game_queue;
-
+        #if 0
         #pragma region Sprite Renderer System
         
         // render all sprites
@@ -203,9 +201,6 @@ namespace Editor
         #pragma region Text Renderer System
 
         // Text
-        #pragma region Text Renderer System
-
-        // Text
         for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
         {
             if (!element.GetComponent<Transform>()->is_active) continue;
@@ -239,15 +234,11 @@ namespace Editor
             editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
         }
 
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
-        editor_queue.Flush();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
-        game_queue.Flush();
         #pragma endregion
+
         #else
         #pragma region Batch Sprite Renderer System
 
-        FunctionQueue batch_render_queue;
         std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
         //Sprite
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
@@ -288,7 +279,8 @@ namespace Editor
                     // Flush the current sprite batch if it isnt empty.
                     if (!currentBatch.m_zindex.empty())
                     {
-                        AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+                        AddBatchToQueue(game_queue, currentTexture, currentBatch, false);
+                        AddBatchToQueue(editor_queue, currentTexture, currentBatch, true);
                         currentBatch = Renderer2DSpriteBatch(); // Reset the batch
                         currentTexture = ""; // Reset current texture key (or a default value)
                     }
@@ -316,29 +308,31 @@ namespace Editor
                                                     static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
                     sample.m_textboxDimensions = textComponent->textboxDimensions;
                     sample.m_linespacing = 12.0f;
-                    batch_render_queue.Insert({ [sample]()
-                                        {
-                                          OpenGLRenderer::DrawTexture2D(sample, CameraManager::GetMainGameCameraID());
-                                        },
-                                        "", index });
+                    game_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample); }, "", index });
+                    editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
                     continue;
                 }
             }
 
             if (batchKey != currentTexture)
             {
-                AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+                AddBatchToQueue(game_queue, currentTexture, currentBatch,false);
+                AddBatchToQueue(editor_queue, currentTexture, currentBatch, true);
                 currentBatch = Renderer2DSpriteBatch(); // Reset the batch
                 currentTexture = batchKey;
             }
             AddEntityToBatch(entity, currentBatch);
         }
         // Add the last batch to the queue
-        AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
-
-        batch_render_queue.Flush();
+        AddBatchToQueue(game_queue, currentTexture, currentBatch,false);
+        AddBatchToQueue(editor_queue, currentTexture, currentBatch, true);
         #pragma endregion
         #endif
+
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Scene");
+        editor_queue.Flush();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Game");
+        game_queue.Flush();
 
         OpenGLFrameBuffer::Unbind(); // Remember to unbind the framebuffer so we can perform swapbuffer calls with default framebuffer
 
@@ -346,7 +340,7 @@ namespace Editor
     }
 
     #pragma region Batch helper
-    void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch)
+    void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch, bool isEditor)
     {
         if (!batch.m_zindex.empty())
         {
@@ -354,7 +348,7 @@ namespace Editor
             props.asset = texture;
             //props.vbo_id = vbo_id;
             // Send camera data as parameter instead of ID.
-            queue.Insert({ [props, batch]() { OpenGLRenderer::DrawBatchTexture2D(props, batch, *CameraManager::GetMainGameCamera()); }, "", batch.m_zindex.back() });
+            queue.Insert({ [props, batch, isEditor]() { OpenGLRenderer::DrawBatchTexture2D(props, batch, (isEditor ? Editor::GetInstance().m_editorCamera : *CameraManager::GetMainGameCamera())); }, "", batch.m_zindex.back() });
         }
     }
 
