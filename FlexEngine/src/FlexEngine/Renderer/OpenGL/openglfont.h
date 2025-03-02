@@ -24,6 +24,19 @@ namespace FlexEngine
             Vector2 size;    // Size of glyph
             Vector2 bearing; // Offset from baseline to left/top of glyph
             unsigned int advance = 0;      // Horizontal offset to advance to next glyph
+
+            Vector2 uvOffset; // uvOffset: bottom-left corner of the glyph region in the atlas [0,1].
+            Vector2 uvSize;  // uvSize: width and height of the glyph region relative to the atlas size.
+        };
+
+        //Helper struct to pass glyph information to shader
+        struct GlyphMetric
+        {
+            float advance;
+            float size[2];
+            float bearing[2];
+            float uvOffset[2];
+            float uvSize[2];
         };
 
         /*!************************************************************************
@@ -43,6 +56,11 @@ namespace FlexEngine
             int m_fontSize = 50;          // Default font size
             bool m_hintingEnabled = true; // Hinting flag
             bool m_kerningEnabled = true; // Kerning flag
+
+            // Atlas texture handle and atlas dimensions (in pixels) - TODO in future have it function like sprite
+            unsigned int m_atlasTexture = 0;
+            int m_atlasWidth = 0;
+            int m_atlasHeight = 0;
         public:
             #pragma region Constructors
             Font() = delete; // TODO Change to default if needed.
@@ -139,6 +157,8 @@ namespace FlexEngine
             * \return True if kerning is enabled, false otherwise.
             *************************************************************************/
             bool IsKerningEnabled() const { return m_kerningEnabled; }
+
+            unsigned int GetAtlasTexture() const { return m_atlasTexture; }
             #pragma endregion
 
         };

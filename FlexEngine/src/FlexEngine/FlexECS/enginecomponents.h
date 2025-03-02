@@ -98,7 +98,7 @@ namespace FlexEngine
    * \class Parent
    * \brief
    * This class represents the parent entity of an entity, enabling hierarchical
-   * transformations where a child entity inherits its parent�s transformation
+   * transformations where a child entity inherits its parents transformation
    * matrix. It supports complex scene graph structures.
    ******************************************************************************/
   class __FLX_API Parent
@@ -228,8 +228,8 @@ namespace FlexEngine
       float lifetime = 5.0f;
       float start_speed = 100.0f;
       float end_speed = 100.0f;
-      float start_size = 100.0f;
-      float end_size = 100.0f;
+      float start_size = 1.0f;
+      float end_size = 1.0f;
       Vector3 start_color = Vector3::One;
       Vector3 end_color = Vector3::One;
       float simulation_speed = 1.0f;

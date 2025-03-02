@@ -19,10 +19,11 @@ namespace Editor
 {
     void EditorBaseLayer::OnAttach()
     {
+        auto scene = FlexECS::Scene::CreateScene();
+
         #pragma region Create the entities
-        #if 1
+        #if 0
         {
-            auto scene = FlexECS::Scene::CreateScene();
             {
                 FlexECS::Entity entity = scene->CreateEntity("Empty Box");
                 entity.AddComponent<Position>({ {600, 600, 0} });
@@ -121,25 +122,25 @@ namespace Editor
 
             //Particle System test
             {
-                //FlexECS::Entity emitter = scene->CreateEntity("Test Spawner");
-                //emitter.AddComponent<Position>({ Vector3(200.0f, -200.0f, 0.0f) });
-                //emitter.AddComponent<Rotation>({Vector3(0,0,180)}); //In radians ah
-                //emitter.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
-                //emitter.AddComponent<Transform>({});
-                //emitter.AddComponent<Sprite>({});
-                //emitter.AddComponent<ParticleSystem>({});
-                ////For particle systems no-choice easier to do this if manual -> too many variables
-                //emitter.GetComponent<ParticleSystem>()->particlesprite_handle = FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)");
-                //emitter.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Hemisphere;
+                FlexECS::Entity emitter = scene->CreateEntity("Test Spawner");
+                emitter.AddComponent<Position>({ Vector3(200.0f, -200.0f, 0.0f) });
+                emitter.AddComponent<Rotation>({Vector3(0,0,180)}); //In radians ah
+                emitter.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
+                emitter.AddComponent<Transform>({});
+                emitter.AddComponent<Sprite>({});
+                emitter.AddComponent<ParticleSystem>({});
+                //For particle systems no-choice easier to do this if manual -> too many variables
+                emitter.GetComponent<ParticleSystem>()->particlesprite_handle = FLX_STRING_NEW(R"(/images/chrono_drift_grace.png)");
+                emitter.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Hemisphere;
 
-                //FlexECS::Entity emitter2 = scene->CreateEntity("Test Spawner 2");
-                //emitter2.AddComponent<Position>({ Vector3(600.0f, -200.0f, 0.0f) });
-                //emitter2.AddComponent<Rotation>({ Vector3(0.0f,0.0f,90.0f)});
-                //emitter2.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
-                //emitter2.AddComponent<Transform>({});
-                //emitter2.AddComponent<Sprite>({});
-                //emitter2.AddComponent<ParticleSystem>({});
-                //emitter2.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Box;
+                FlexECS::Entity emitter2 = scene->CreateEntity("Test Spawner 2");
+                emitter2.AddComponent<Position>({ Vector3(600.0f, -200.0f, 0.0f) });
+                emitter2.AddComponent<Rotation>({ Vector3(0.0f,0.0f,90.0f)});
+                emitter2.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0.0f) });
+                emitter2.AddComponent<Transform>({});
+                emitter2.AddComponent<Sprite>({});
+                emitter2.AddComponent<ParticleSystem>({});
+                emitter2.GetComponent<ParticleSystem>()->particleEmissionShapeIndex = (int)ParticleEmitShape::Box;
 
             }
             //scene->DumpArchetypeIndex();
