@@ -614,7 +614,7 @@ namespace FlexEngine
       for (int i = 0; i < 128; i++)
       {
           const Asset::Glyph& g = asset_font.GetGlyph(static_cast<char>(i));
-          glyphMetrics[i].advance = g.advance;
+          glyphMetrics[i].advance = static_cast<float>(g.advance);
           glyphMetrics[i].size[0] = g.size.x;
           glyphMetrics[i].size[1] = g.size.y;
           glyphMetrics[i].bearing[0] = g.bearing.x;
