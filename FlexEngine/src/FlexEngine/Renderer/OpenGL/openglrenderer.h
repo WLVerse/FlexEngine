@@ -58,7 +58,7 @@ namespace FlexEngine
           Alignment_Bottom = 2,      /*!< Bottom alignment */
       };
 
-      std::string m_shader = R"(/shaders/freetypetext.flxshader)";  /*!< Path to the shader for text rendering */
+      std::string m_shader = R"(/shaders/freetypetext_GPU.flxshader)";  /*!< Path to the shader for text rendering */
       std::string m_fonttype = R"()";                     /*!< Font type to use for rendering; empty means an error will occur */
       std::string m_words;                                /*!< The actual text to render */
       Vector3 m_color = Vector3::Zero;                    /*!< Color of the text */

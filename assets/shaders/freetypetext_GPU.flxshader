@@ -1,0 +1,2 @@
+vertex: assets/shaders/freetypetext_GPU.vert
+fragment: assets/shaders/freetypetext_GPU.frag
