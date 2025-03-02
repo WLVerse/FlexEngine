@@ -81,7 +81,7 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = is_player_turn; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
+    bool prev_state = false; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -560,9 +560,6 @@ namespace Game
   #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
-
-    // Just set some random shit as the target for the start of game lmao
-    //battle.target = 1;
   }
 
   void BattleLayer::OnDetach()
@@ -650,11 +647,15 @@ namespace Game
     //_Character current_character
     battle.current_character = battle.speed_bar.front();
 
-    auto current_character_entity = FlexECS::Scene::GetEntityByName(battle.current_character->name);
-    auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
-
+    #ifdef _DEBUG
     FLX_ASSERT(battle.current_character != nullptr, "Current character is null.");
     FLX_ASSERT(battle.current_character->is_alive, "Current character is dead.");
+    #else
+    if (battle.current_character == nullptr || !battle.current_character->is_alive) return;
+    #endif
+
+    auto current_character_entity = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+    auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
 
     // determine if it's the player's turn
     // player is 1-2, enemy is 3-5
@@ -692,11 +693,7 @@ namespace Game
       auto entity = FlexECS::Scene::GetEntityByName(character.name);
       entity.GetComponent<Position>()->position = battle.sprite_slot_positions[character.current_slot];
     }
-    // offset current player character to the right a bit
-    if (battle.is_player_turn)
-    {
-        current_character_entity.GetComponent<Position>()->position.x += 100;
-    }
+    
 #endif
 
     // Just swapped from enemy phase to player phase
@@ -707,6 +704,9 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
         //FLX_STRING_NEW(R"(/audio/start turn.mp3)");
       FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+
+      // offset current player character to the right a bit
+      current_character_entity.GetComponent<Position>()->position.x += 100;
 
       /*
       // Defaults target selection
