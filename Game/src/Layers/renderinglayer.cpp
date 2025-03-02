@@ -191,7 +191,7 @@ namespace Game
 
    FunctionQueue game_queue;
 
-   #if 0
+   #if 1
   #pragma region Sprite Renderer System
    
      // render all sprites
@@ -236,7 +236,7 @@ namespace Game
       FunctionQueue batch_render_queue;
       std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
       //Sprite
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale, ZIndex>())
+      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
       {
           if (!entity.GetComponent<Transform>()->is_active) continue;
 
@@ -250,9 +250,9 @@ namespace Game
       //SORT
       std::sort(sortedEntities.begin(), sortedEntities.end(),
           [](auto& a, auto& b) {
-          int zA = a.second.GetComponent<ZIndex>()->z;
-          int zB = b.second.GetComponent<ZIndex>()->z;
-          return zA < zB; // Compare z-index
+          int zA = a.second.HasComponent<ZIndex>() ? a.second.GetComponent<ZIndex>()->z : 0;
+          int zB = b.second.HasComponent<ZIndex>() ? b.second.GetComponent<ZIndex>()->z : 0;
+          return zA < zB; // Compare based on z-index or default value
       });
 
       //QUEUE
