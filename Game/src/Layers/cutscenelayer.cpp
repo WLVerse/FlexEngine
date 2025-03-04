@@ -16,82 +16,31 @@ namespace Game
 
     void CutsceneLayer::OnAttach()
     {
+        File& file = File::Open(Path::current("assets/saves/cutscene.flxscene"));
+        FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
-        
-        //Check with yew chong why below code crash
-        //File& file = File::Open(Path::current("assets/saves/cutscene.flxscene"));
-        //FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
-        auto scene = FlexECS::Scene::CreateScene();
 
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
 
-        #if 1
-        // Create the current shot entity.
-        // Intentionally setting sprite handle to 0.
-        m_currShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Current Cinematic Shot");
-        m_currShot.AddComponent<Position>({});
-        m_currShot.AddComponent<Rotation>({});
-        m_currShot.AddComponent<Scale>({ Vector3::One });
-        m_currShot.AddComponent<Sprite>({ 0 });
-        m_currShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
-        m_currShot.AddComponent<ZIndex>({ 10 });
-
-        // Create the next shot entity and assign the image if available.
-        m_nextShot = FlexECS::Scene::GetActiveScene()->CreateEntity("Next Cinematic Shot");
-        m_nextShot.AddComponent<Position>({});
-        m_nextShot.AddComponent<Rotation>({});
-        m_nextShot.AddComponent<Scale>({ Vector3::One });
-        if (m_currFrameIndex + 1 < m_CutsceneImages.size())
-            m_nextShot.AddComponent<Sprite>({ m_CutsceneImages[m_currFrameIndex] });
-        else
-            m_nextShot.AddComponent<Sprite>({ 0 });
-        m_nextShot.AddComponent<Transform>({ Matrix4x4::Identity, true });
-        m_nextShot.AddComponent<ZIndex>({ 9 });
-        #else
         // Create the current shot entity.
        // Intentionally setting sprite handle to 0.
         m_currShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Current Shot");
+        m_currShot.GetComponent<Sprite>()->sprite_handle = 0;
 
         // Create the next shot entity and assign the image if available.
         m_nextShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Next Shot");
         if (m_currFrameIndex + 1 < m_CutsceneImages.size())
             m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
-        #endif
 
+        m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
+        m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
 
-        m_dialoguebox = FlexECS::Scene::GetActiveScene()->CreateEntity("Normal Dialogue Box");
-        m_dialoguebox.AddComponent<Position>({ Vector3(0,-390.0f,0) });
-        m_dialoguebox.AddComponent<Rotation>({});
-        m_dialoguebox.AddComponent<Scale>({ Vector3::One });
-        m_dialoguebox.AddComponent<Transform>({});
-        m_dialoguebox.AddComponent<ZIndex>({ 1000 });
-        m_dialoguebox.AddComponent<Text>({
-          FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
-          FLX_STRING_NEW(
-            R"("")"
-          ),
-          Vector3(1.0f, 1.0, 1.0f),
-          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
-            Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f)
-        });
+        m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
+        m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
 
-        m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->CreateEntity("Shadow Dialogue Box");
-        m_shadowdialoguebox.AddComponent<Position>({ Vector3(1.5f,-393.0f,0) });
-        m_shadowdialoguebox.AddComponent<Rotation>({});
-        m_shadowdialoguebox.AddComponent<Scale>({ Vector3::One });
-        m_shadowdialoguebox.AddComponent<Transform>({});
-        m_shadowdialoguebox.AddComponent<ZIndex>({ 999 });
-        m_shadowdialoguebox.AddComponent<Text>({
-          FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
-          FLX_STRING_NEW(
-            R"("")"
-          ),
-          Vector3(0.05f, 0.05f, 0.05f),
-          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Middle },
-            Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f)
-        });
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
 
