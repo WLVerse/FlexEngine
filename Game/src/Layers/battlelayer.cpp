@@ -1903,7 +1903,6 @@ namespace Game
       else entity.GetComponent<Transform>()->is_active = false;
     }
 
-
     //Damage Preview related stuff
     //Just turn off everything first,
     //Then turn on and adjust the people being targetted
@@ -1912,13 +1911,17 @@ namespace Game
       auto entity = FlexECS::Scene::GetEntityByName(character->name + " DamagePreview");
       entity.GetComponent<Transform>()->is_active = false;
     }
+    for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+    {
+      entity.GetComponent<Transform>()->is_active = false;
+    }
 
     if (battle.current_move && battle.is_player_turn)
     {
       std::vector<_Character*> targets;
       for (int i = 0; i < battle.current_move->effect.size(); i++) 
       {
-        if (battle.current_move->effect[i] != "Damage") continue;
+        //if (battle.current_move->effect[i] != "Damage") continue;
 
         if (battle.current_move->target[i] == "ALL_ENEMIES")
         {
@@ -1953,7 +1956,7 @@ namespace Game
           }
         }
        
-
+        //Draw damage preview bar
         for (auto target : targets)
         {
           auto entity = FlexECS::Scene::GetEntityByName(target->name + " DamagePreview");
@@ -1971,7 +1974,12 @@ namespace Game
           float right_edge_pos = (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage))
                                + (healthbar->pixelLength / 2.f * (current_health_percentage));
 
-          float damage_taken = battle.current_move->value[i];
+          float damage_taken = 0;
+          if (battle.current_move->effect[i] == "Damage")
+          {
+            damage_taken = battle.current_move->value[i];
+          }
+
           if (battle.current_character->attack_buff_duration > 0)
           {
             damage_taken += damage_taken / 2;
@@ -1987,8 +1995,37 @@ namespace Game
           scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
           position->position.x = right_edge_pos - (healthbar->pixelLength / 2 * percentage_damage_taken);
         }
+
+        //Draw Targetting icon over targetted enemy in speed bar
+        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+        {
+          int slot_number = entity.GetComponent<SpeedBarSlotTarget>()->slot_number;
+
+          int size = static_cast<int>(battle.speed_bar.size());
+        
+          if (slot_number > size)
+          {
+            entity.GetComponent<Transform>()->is_active = false;
+            continue;
+          }
+
+          //check if the character in the slot is being targetted.
+          _Character* character = battle.speed_bar[slot_number - 1];
+          for (_Character*& target : targets)
+          {
+            if (target == character)
+            {
+              entity.GetComponent<Transform>()->is_active = true;
+            }
+          }
+        }
+
         targets.clear();
       }
+    
+
+
+
     }
 
 #pragma endregion
