@@ -1959,6 +1959,8 @@ namespace Game
           auto entity = FlexECS::Scene::GetEntityByName(target->name + " DamagePreview");
           if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
+          if (target->shield_buff_duration > 0) continue;
+          
           entity.GetComponent<Transform>()->is_active = true;
 
           auto* scale = entity.GetComponent<Scale>();
@@ -1970,6 +1972,16 @@ namespace Game
                                + (healthbar->pixelLength / 2.f * (current_health_percentage));
 
           float damage_taken = battle.current_move->value[i];
+          if (battle.current_character->attack_buff_duration > 0)
+          {
+            damage_taken += damage_taken / 2;
+          }
+          if (battle.current_character->attack_debuff_duration < 0)
+          {
+            damage_taken -= damage_taken / 2;
+          }
+
+
           float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target->health);
           
           scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
@@ -1978,10 +1990,7 @@ namespace Game
         targets.clear();
       }
     }
-    else
-    {
-      std::cout << "No selected move\n";
-    }
+
 #pragma endregion
 
 #pragma region Targeting Display
