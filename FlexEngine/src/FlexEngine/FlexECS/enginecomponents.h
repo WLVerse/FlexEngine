@@ -390,6 +390,12 @@ namespace FlexEngine
     int character = 0;   // 1-5
   };
 
+  class __FLX_API SpeedBarSlotTarget
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    int slot_number = 0; // 1-7
+  };
 #pragma endregion
 
   /**************
