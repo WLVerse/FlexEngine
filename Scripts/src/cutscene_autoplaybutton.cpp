@@ -11,7 +11,7 @@ public:
 
   std::string GetName() const override
   {
-    return "Cutscene_Autoplay";
+    return "Cutscene_AutoplayBtn";
   }
 
   void Update() override

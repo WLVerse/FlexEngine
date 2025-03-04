@@ -223,18 +223,20 @@ namespace Game
         bool autoplaybtn_click = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn clicked");
         bool autoplaybtn_hover = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn hovered");
 
-        if (autoplaybtn_hover)
-        {
-            if (autoplaybtn_click)
-            {
-                // Swap the polarity of is_autoplay
-                is_autoplay = !is_autoplay;
+        if (autoplaybtn_hover || autoplaybtn_click)
+            enable_clickingreaction = false;
+        else
+            enable_clickingreaction = true;
 
-                // Change the symbols accordingly
-                m_autoplayText.GetComponent<Text>()->text = is_autoplay ? FLX_STRING_NEW("Playing") : FLX_STRING_NEW("Auto");
-                m_autoplaySymbolAuto.GetComponent<Transform>()->is_active = !is_autoplay;
-                m_autoplaySymbolPlaying.GetComponent<Transform>()->is_active = is_autoplay;
-            }
+        if (autoplaybtn_click)
+        {
+            // Swap the polarity of is_autoplay
+            is_autoplay = !is_autoplay;
+
+            // Change the symbols accordingly
+            m_autoplayText.GetComponent<Text>()->text = is_autoplay ? FLX_STRING_NEW("Playing") : FLX_STRING_NEW("Auto");
+            m_autoplaySymbolAuto.GetComponent<Transform>()->is_active = !is_autoplay;
+            m_autoplaySymbolPlaying.GetComponent<Transform>()->is_active = is_autoplay;
         }
     }
 
@@ -363,7 +365,7 @@ namespace Game
                 size_t totalChars = fullText.size();
                 size_t currentChars = static_cast<size_t>(m_dialogueTimer * m_dialogueTextRate);
 
-                if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+                if (Input::GetKeyDown(GLFW_KEY_SPACE) || (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && enable_clickingreaction))
                 {
                     if (currentChars < totalChars)
                     {
@@ -396,7 +398,7 @@ namespace Game
     {
         updateDialogueText(dt);
 
-        if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+        if (Input::GetKeyDown(GLFW_KEY_SPACE) || (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && enable_clickingreaction))
         {
             if (m_currSectionIndex < m_CutsceneDialogue.size())
             {

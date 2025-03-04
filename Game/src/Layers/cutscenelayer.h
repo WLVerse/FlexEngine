@@ -62,6 +62,7 @@ namespace Game
         float m_dialogueTextRate = 30.0f;// Characters per second.
         float m_dialogueHoldDuration = 1.0f; // Hold duration after full text reveal.
         bool is_autoplay = false;         // Determines if dialogue advances automatically.
+        bool enable_clickingreaction = true;   // Determines if cutscene should be clickable
 
         // Transition phase variables.
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
