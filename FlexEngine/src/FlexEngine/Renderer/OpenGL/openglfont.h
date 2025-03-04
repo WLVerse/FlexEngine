@@ -104,11 +104,6 @@ namespace FlexEngine
             *************************************************************************/
             void SetupLib();
 
-            /*!************************************************************************
-            * \brief
-            * Loads all ASCII glyphs for rendering.
-            *************************************************************************/
-            void LoadGlyphs();
             #pragma endregion
 
             #pragma region Set Functions

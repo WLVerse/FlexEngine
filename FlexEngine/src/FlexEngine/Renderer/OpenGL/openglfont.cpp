@@ -15,7 +15,7 @@ namespace FlexEngine
         GLuint Font::s_facesCount = 0;
 
         // Temporary structure to hold glyph bitmap data for atlas packing.
-        struct TempGlyph 
+        struct TempGlyph
         {
             std::vector<unsigned char> buffer;
             int width;
@@ -25,6 +25,7 @@ namespace FlexEngine
             int advance;
         };
 
+        #pragma region Constructors
         Font::Font(const std::string& key)
             : m_key(key), m_currentFontSize(50)
         {
@@ -32,7 +33,7 @@ namespace FlexEngine
 
             // Load the font face. Path::current builds the asset path.
             std::string fontPath = Path::current("assets" + key).string();
-            if (FT_New_Face(s_library, fontPath.c_str(), 0, &s_face)) 
+            if (FT_New_Face(s_library, fontPath.c_str(), 0, &s_face))
             {
                 Log::Fatal("Could not load font: " + fontPath);
             }
@@ -41,30 +42,70 @@ namespace FlexEngine
             // Load and cache glyphs for the default font size.
             LoadGlyphsForSize(m_currentFontSize);
         }
-
-        void Font::SetupLib() 
+        #pragma endregion
+        #pragma region Font Management Functions
+        void Font::SetupLib()
         {
-            if (s_library == nullptr) 
+            if (s_library == nullptr)
             {
-                if (FT_Init_FreeType(&s_library)) 
+                if (FT_Init_FreeType(&s_library))
                 {
                     Log::Fatal("Unable to initialize FreeType Library, check dll files.");
                 }
             }
         }
 
-        void Font::LoadGlyphsForSize(int size) 
+        void Font::Unload()
         {
-            // Primary Check: If data for this size exists, free its resources first.
-            auto it = m_sizeData.find(size);
-            if (it != m_sizeData.end()) 
+            // Free all cached font size data.
+            for (auto& pair : m_sizeData)
             {
-                FontSizeData& oldData = it->second;
-                for (auto& glyphPair : oldData.glyphs) 
+                FontSizeData& data = pair.second;
+                for (auto& glyphPair : data.glyphs)
                 {
                     glDeleteTextures(1, &glyphPair.second.textureID);
                 }
-                if (oldData.atlasTexture) 
+                data.glyphs.clear();
+
+                if (data.atlasTexture)
+                {
+                    glDeleteTextures(1, &data.atlasTexture);
+                    data.atlasTexture = 0;
+                }
+            }
+            m_sizeData.clear();
+
+            // Free the FreeType face.
+            if (s_face)
+            {
+                Log::Debug("Unloaded font: " + std::string(s_face->family_name) + " " +
+                           std::string(s_face->style_name));
+                FT_Done_Face(s_face);
+                s_face = nullptr;
+                --s_facesCount;
+            }
+
+            // Free the FreeType library if no faces remain.
+            if (s_facesCount <= 0 && s_library)
+            {
+                FT_Done_FreeType(s_library);
+                s_library = nullptr;
+                Log::Info("All fonts unloaded.");
+            }
+        }
+
+        void Font::LoadGlyphsForSize(int size)
+        {
+            // Primary Check: If data for this size exists, free its resources first.
+            auto it = m_sizeData.find(size);
+            if (it != m_sizeData.end())
+            {
+                FontSizeData& oldData = it->second;
+                for (auto& glyphPair : oldData.glyphs)
+                {
+                    glDeleteTextures(1, &glyphPair.second.textureID);
+                }
+                if (oldData.atlasTexture)
                 {
                     glDeleteTextures(1, &oldData.atlasTexture);
                 }
@@ -194,10 +235,11 @@ namespace FlexEngine
 
             m_sizeData[size] = data;
         }
-
-        void Font::SetFontSize(int size) 
+        #pragma endregion
+        #pragma region Set Functions
+        void Font::SetFontSize(int size)
         {
-            if (size <= 0) 
+            if (size <= 0)
             {
                 Log::Warning("Font size must be positive.");
                 return;
@@ -212,23 +254,24 @@ namespace FlexEngine
             m_currentFontSize = size;
         }
 
-        void Font::SetHinting(bool enabled) 
+        void Font::SetHinting(bool enabled)
         {
             m_hintingEnabled = enabled;
             // Regenerate glyphs for the current size with the updated hinting.
             LoadGlyphsForSize(m_currentFontSize);
         }
 
-        void Font::SetKerning(bool enabled) 
+        void Font::SetKerning(bool enabled)
         {
             m_kerningEnabled = enabled;
             // Kerning is typically applied during text layout rather than during glyph generation.
         }
-
-        const Glyph& Font::GetGlyph(char c) const 
+        #pragma endregion
+        #pragma region Get Functions
+        const Glyph& Font::GetGlyph(char c) const
         {
             auto it = m_sizeData.find(m_currentFontSize);
-            if (it != m_sizeData.end()) 
+            if (it != m_sizeData.end())
             {
                 auto glyphIt = it->second.glyphs.find(c);
                 if (glyphIt != it->second.glyphs.end())
@@ -238,50 +281,12 @@ namespace FlexEngine
             return defaultGlyph;
         }
 
-        unsigned int Font::GetAtlasTexture() const 
+        unsigned int Font::GetAtlasTexture() const
         {
             auto it = m_sizeData.find(m_currentFontSize);
             return (it != m_sizeData.end()) ? it->second.atlasTexture : 0;
         }
-
-        void Font::Unload() 
-        {
-            // Free all cached font size data.
-            for (auto& pair : m_sizeData) 
-            {
-                FontSizeData& data = pair.second;
-                for (auto& glyphPair : data.glyphs) 
-                {
-                    glDeleteTextures(1, &glyphPair.second.textureID);
-                }
-                data.glyphs.clear();
-
-                if (data.atlasTexture) 
-                {
-                    glDeleteTextures(1, &data.atlasTexture);
-                    data.atlasTexture = 0;
-                }
-            }
-            m_sizeData.clear();
-
-            // Free the FreeType face.
-            if (s_face) 
-            {
-                Log::Debug("Unloaded font: " + std::string(s_face->family_name) + " " +
-                           std::string(s_face->style_name));
-                FT_Done_Face(s_face);
-                s_face = nullptr;
-                --s_facesCount;
-            }
-
-            // Free the FreeType library if no faces remain.
-            if (s_facesCount <= 0 && s_library) 
-            {
-                FT_Done_FreeType(s_library);
-                s_library = nullptr;
-                Log::Info("All fonts unloaded.");
-            }
-        }
+        #pragma endregion
 
     }
 }
