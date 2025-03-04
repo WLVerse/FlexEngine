@@ -266,6 +266,129 @@ namespace Game
 
 #pragma endregion
   
+  #pragma region Animation Events
+
+  // the frame is when the event should trigger
+  // the callback is what should happen when the event triggers
+  // use the helper functions below to add events
+  struct _AnimationEvent
+  {
+    int frame;
+    std::function<void()> callback;
+  };
+
+  std::unordered_map<FlexECS::EntityID, std::vector<_AnimationEvent>> animation_event_registry = {};
+
+  #pragma region Helper Functions
+
+  // at frame X, play the sound Y
+  // example usage
+  // PlaySound(current_character_entity, 3, R"(/audio/generic attack.mp3)");
+  static void PlaySound(FlexECS::Entity entity, int frame, AssetKey asset_handle)
+  {
+    auto& registry = animation_event_registry[entity];
+    registry.push_back({ frame, [asset_handle]()
+                         {
+                           FlexECS::Entity audio_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX");
+                           // guard
+                           if (audio_entity == FlexECS::Entity::Null) return;
+                           auto& audio = *audio_entity.GetComponent<Audio>();
+                           audio.audio_file = FLX_STRING_NEW(asset_handle);
+                           audio.is_looping = false;
+                           audio.should_play = true;
+                         } });
+  }
+
+  // at frame X, play the animation Y on entity Z
+  // example usage
+  // PlayAnimation(
+  //   current_character_entity, 5, target_entity,
+  //   R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)"
+  // );
+  static void PlayAnimation(FlexECS::Entity entity, int frame, FlexECS::Entity target, AssetKey spritesheet_handle)
+  {
+    auto& registry = animation_event_registry[entity];
+    registry.push_back({ frame, [target, spritesheet_handle]()
+                         {
+                           FlexECS::Entity target_entity = target;
+                           if (!target_entity.HasComponent<Animator>()) return;
+
+                           auto& animator = *target_entity.GetComponent<Animator>();
+                           animator.spritesheet_handle = FLX_STRING_NEW(spritesheet_handle);
+                           animator.should_play = true;
+                           animator.is_looping = false;
+                           animator.return_to_default = true;
+                           animator.frame_time = 0.f;
+                           animator.current_frame = 0;
+                         } });
+  }
+
+  // process animator events
+  // check if any of the animators are triggering any events
+  // if they are, play the animation or sound
+  // then remove the event from the registry
+  static void ProcessAnimatorEvents()
+  {
+    // executed events will be removed
+    // deregister the entity if it empty event lists
+    FunctionQueue deferred_removal;
+
+    for (auto& pair : animation_event_registry)
+    {
+      FlexECS::Entity entity = pair.first; // Copy entity
+      auto& events = pair.second;          // Reference to events
+
+      // check if the entity is still alive
+      if (!entity.HasComponent<EntityName>())
+      {
+        deferred_removal.Insert({ [&entity, &events]()
+                                  {
+                                    animation_event_registry.erase(entity);
+                                  } });
+        continue;
+      }
+
+      // process the events
+      auto& animator = *entity.GetComponent<Animator>();
+      for (auto& event : events)
+        if (animator.current_frame == event.frame)
+        {
+          event.callback();
+
+          // remove the events that have been triggered
+          deferred_removal.Insert({ [&events, &event]()
+                                    {
+                                      events.erase(
+                                        std::remove_if(
+                                          events.begin(), events.end(),
+                                          [&event](const _AnimationEvent& e)
+                                          {
+                                            return e.frame == event.frame;
+                                          }
+                                        ),
+                                        events.end()
+                                      );
+                                    } });
+        }
+
+      // remove the entity if there are no more events
+      if (events.empty())
+      {
+        deferred_removal.Insert({ [&entity]()
+                                  {
+                                    animation_event_registry.erase(entity);
+                                  } });
+      }
+    }
+
+    // perform deferred removal
+    deferred_removal.Flush();
+  }
+
+  #pragma endregion
+
+  #pragma endregion
+
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
   void BattleLayer::OnAttach()
@@ -627,6 +750,12 @@ namespace Game
       // TODO: Retry or something
       Application::MessagingSystem::Send("Game lose to menu", true);
     }
+
+    #pragma region Animation Events
+
+    ProcessAnimatorEvents();
+
+    #pragma endregion
 
     // return if the battle is over
     if (battle.is_win || battle.is_lose) return;
