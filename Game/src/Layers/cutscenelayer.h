@@ -46,6 +46,11 @@ namespace Game
         FlexECS::Entity m_dialoguebox;
         FlexECS::Entity m_shadowdialoguebox;
         
+        FlexECS::Entity m_autoplayText;
+        FlexECS::Entity m_autoplayBtn;
+        FlexECS::Entity m_autoplaySymbolAuto;     // To show that auto playing isn't active
+        FlexECS::Entity m_autoplaySymbolPlaying;  // To show that auto playing is active
+
         // Timing and phase management.
         float m_ElapsedTime = 0.0f;      // Time in the normal (non-transition) phase.
         float m_ImageDuration = 0.6f;    // Duration for displaying each image.
@@ -57,6 +62,7 @@ namespace Game
         float m_dialogueTextRate = 30.0f;// Characters per second.
         float m_dialogueHoldDuration = 1.0f; // Hold duration after full text reveal.
         bool is_autoplay = false;         // Determines if dialogue advances automatically.
+        bool enable_clickingreaction = true;   // Determines if cutscene should be clickable
 
         // Transition phase variables.
         TransitionPhase m_TransitionPhase = TransitionPhase::None;
