@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\camerahandler.cpp" />
+    <ClCompile Include="src\cutscene_autoplaybutton.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\menubutton.cpp" />
     <ClCompile Include="src\moveone.cpp" />

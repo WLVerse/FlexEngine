@@ -41,6 +41,11 @@ namespace Game
         m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
         m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
 
+        m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
+        m_autoplayBtn = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay");
+        m_autoplaySymbolAuto = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Auto");
+        m_autoplaySymbolPlaying = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Playing");
+
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
 
@@ -214,6 +219,23 @@ namespace Game
             RestartCutscene();
         if (Input::GetKey(GLFW_KEY_ESCAPE))
             StopCutscene();
+
+        bool autoplaybtn_click = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn clicked");
+        bool autoplaybtn_hover = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn hovered");
+
+        if (autoplaybtn_hover)
+        {
+            if (autoplaybtn_click)
+            {
+                // Swap the polarity of is_autoplay
+                is_autoplay = !is_autoplay;
+
+                // Change the symbols accordingly
+                m_autoplayText.GetComponent<Text>()->text = is_autoplay ? FLX_STRING_NEW("Playing") : FLX_STRING_NEW("Auto");
+                m_autoplaySymbolAuto.GetComponent<Transform>()->is_active = !is_autoplay;
+                m_autoplaySymbolPlaying.GetComponent<Transform>()->is_active = is_autoplay;
+            }
+        }
     }
 
     void CutsceneLayer::UpdateTimings(bool toNextSection)
