@@ -180,10 +180,15 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(HealthbarSlot)
   FLX_REFL_REGISTER_PROPERTY(slot_number)
   FLX_REFL_REGISTER_END;
-
+  
   FLX_REFL_REGISTER_START(SpeedBarSlot)
   FLX_REFL_REGISTER_PROPERTY(slot_number)
   FLX_REFL_REGISTER_PROPERTY(character)
+  FLX_REFL_REGISTER_END;
+
+
+  FLX_REFL_REGISTER_START(SpeedBarSlotTarget)
+  FLX_REFL_REGISTER_PROPERTY(slot_number)
   FLX_REFL_REGISTER_END;
 
   // Script-Component Pairs
