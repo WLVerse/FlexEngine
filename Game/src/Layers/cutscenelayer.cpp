@@ -38,7 +38,7 @@ namespace Game
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
         m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
 
-        m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
+        m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Shadow Dialogue Box");
         m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
 
         m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
