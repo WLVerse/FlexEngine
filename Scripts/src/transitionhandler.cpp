@@ -135,7 +135,6 @@ namespace Game
 
     #pragma endregion
 
-
     class TransitionHandlerScript : public IScript 
     {
         std::unique_ptr<ITransitionEffect> m_currentTransition;
@@ -178,6 +177,7 @@ namespace Game
                 {
                     newTransition = std::make_unique<FadeTransition>(duration, 0.0f, 1.0f);
                 }
+                // Add more here.
                 else 
                 {
                     Log::Warning("TransitionHandlerScript: Invalid transition type received.");
