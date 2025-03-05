@@ -49,6 +49,9 @@ namespace Game
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
 
+        Application::MessagingSystem::Send("TransitionStart", 1);
+        Application::MessagingSystem::Send("TransitionStart", 2);
+        Application::MessagingSystem::Send("TransitionStart", 1);
         StartCutscene();
     }
 
