@@ -49,7 +49,7 @@ namespace Game
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
 
-        StartCutscene();
+        Application::MessagingSystem::Send("TransitionStart", std::pair<int,double>{ 1,1.0 });
     }
 
     void CutsceneLayer::OnDetach()
@@ -189,6 +189,14 @@ namespace Game
             Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
             return;
         }
+        
+        // Handles Transition Messages
+        int test = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        Log::Info(std::to_string(test));
+        if (test == 1)
+            StartCutscene();
+        else if (test == 2)
+            StopCutscene();
 
         if (!m_CutsceneActive)
             return;
@@ -218,7 +226,7 @@ namespace Game
         if (Input::GetKeyDown(GLFW_KEY_R))
             RestartCutscene();
         if (Input::GetKey(GLFW_KEY_ESCAPE))
-            StopCutscene();
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
 
         bool autoplaybtn_click = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn clicked");
         bool autoplaybtn_hover = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn hovered");
@@ -257,7 +265,7 @@ namespace Game
         // Ensure we haven't run past the dialogue entries.
         if (m_currSectionIndex >= dialogueAsset.dialogues.size())
         {
-            StopCutscene();
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
             return;
         }
 
@@ -487,7 +495,7 @@ namespace Game
         // If there is only one (or zero) image left, we have reached the end.
         if (m_CutsceneImages.size() <= 1)
         {
-            StopCutscene();
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });;
             return;
         }
 
