@@ -48,5 +48,14 @@
     <ClCompile Include="src\targetone.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\bgmslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfxslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\masterslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

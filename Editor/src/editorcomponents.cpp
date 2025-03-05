@@ -149,6 +149,9 @@ namespace Editor
   COMPONENT_VIEWER_START(Button)
   COMPONENT_VIEWER_END(Button)
 
+  COMPONENT_VIEWER_START(PauseUI)
+  COMPONENT_VIEWER_END(PauseUI)
+
   void RegisterComponents()
   {
     REGISTER_COMPONENT_VIEWER(Position);
@@ -171,5 +174,7 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(Script);
 
     REGISTER_COMPONENT_VIEWER(Button);
+
+    REGISTER_COMPONENT_VIEWER(PauseUI);
   }
 } // namespace Editor
