@@ -114,7 +114,7 @@ namespace Game
 
         TransitionType GetType() const override 
         {
-            return (m_targetAlpha > m_initialAlpha) ? TransitionType::FADE_IN : TransitionType::FADE_OUT;
+            return (m_targetAlpha < m_initialAlpha) ? TransitionType::FADE_IN : TransitionType::FADE_OUT;
         }
 
         void Stop() override 
@@ -138,10 +138,9 @@ namespace Game
 
     class TransitionHandlerScript : public IScript 
     {
-    private:
         std::unique_ptr<ITransitionEffect> m_currentTransition;
         std::queue<std::unique_ptr<ITransitionEffect>> m_transitionQueue; // Queue for stacking transitions.
-
+        bool m_completionNotified;  // Flag to ensure one notification per transition.
     public:
         TransitionHandlerScript() 
         {
@@ -162,28 +161,33 @@ namespace Game
         void Update() override 
         {
             // Listen for transition messages using int identifiers.
-            int transitionStartCommand = Application::MessagingSystem::Receive<int>("TransitionStart");
+            std::pair<int, double> transitionStartCommand = Application::MessagingSystem::Receive<std::pair<int, double>>("TransitionStart");
 
-            // Helper lambda to enqueue a new transition.
-            auto queueTransition = [this](TransitionType type) 
+            if (transitionStartCommand.first != 0 && transitionStartCommand.second > 0.0) 
             {
-                if (type == TransitionType::FADE_IN) 
-                {
-                    auto transition = std::make_unique<FadeTransition>(1.0f, 0.0f, 1.0f);
-                    m_transitionQueue.push(std::move(transition));
-                }
-                else if (type == TransitionType::FADE_OUT)
-                {
-                    auto transition = std::make_unique<FadeTransition>(1.0f, 1.0f, 0.0f);
-                    m_transitionQueue.push(std::move(transition));
-                }
-                Log::Info("TransitionHandlerScript: Queued transition " + std::to_string(static_cast<int>(type)));
-            };
+                TransitionType requestedType = static_cast<TransitionType>(transitionStartCommand.first);
+                float duration = static_cast<float>(transitionStartCommand.second);
 
-            // Enqueue transitions if messages were received.
-            if (transitionStartCommand != 0)
-            {
-                queueTransition(static_cast<TransitionType>(transitionStartCommand));
+                // Create the appropriate transition based on the type.
+                std::unique_ptr<ITransitionEffect> newTransition;
+                if (requestedType == TransitionType::FADE_IN) 
+                {
+                    newTransition = std::make_unique<FadeTransition>(duration, 1.0f, 0.0f);
+                }
+                else if (requestedType == TransitionType::FADE_OUT) 
+                {
+                    newTransition = std::make_unique<FadeTransition>(duration, 0.0f, 1.0f);
+                }
+                else 
+                {
+                    Log::Warning("TransitionHandlerScript: Invalid transition type received.");
+                }
+                if (newTransition) 
+                {
+                    m_transitionQueue.push(std::move(newTransition));
+                    Log::Info("TransitionHandlerScript: Queued transition " + std::to_string(static_cast<int>(requestedType)) +
+                              " with duration " + std::to_string(duration));
+                }
             }
 
             // If no transition is currently running, start the next one from the queue.
@@ -192,21 +196,31 @@ namespace Game
                 m_currentTransition = std::move(m_transitionQueue.front());
                 m_transitionQueue.pop();
                 m_currentTransition->Start();
+                m_completionNotified = false;
             }
 
-            // Update the current transition.
+            // Update the current transition if it exists.
             if (m_currentTransition) 
             {
                 float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
                 m_currentTransition->Update(dt);
 
-                // When complete, notify listeners and clear the current transition.
+                // When the transition is complete, send the notification once.
                 if (m_currentTransition->IsComplete()) 
                 {
-                    TransitionType completedType = m_currentTransition->GetType();
-                    Application::MessagingSystem::Send("TransitionCompleted", static_cast<int>(completedType));
-                    m_currentTransition->Stop();
-                    m_currentTransition.reset();
+                    if (!m_completionNotified) 
+                    {
+                        TransitionType completedType = m_currentTransition->GetType();
+                        Application::MessagingSystem::Send("TransitionCompleted", static_cast<int>(completedType));
+                        m_completionNotified = true;
+                    }
+                    // If a new transition is queued, clear the finished one and start the next.
+                    if (!m_transitionQueue.empty()) 
+                    {
+                        m_currentTransition->Stop();
+                        m_currentTransition.reset();
+                        m_completionNotified = false;
+                    }
                 }
             }
         }
