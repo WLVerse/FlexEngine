@@ -8,6 +8,7 @@ namespace Game
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
   std::shared_ptr<TownLayer> townLayer = nullptr;
   std::shared_ptr<BattleLayer> battleLayer = nullptr;
+  //std::shared_ptr<TutorialLayer> tutorialLayer = nullptr;
 
   std::shared_ptr<CameraSystemLayer> camSystemLayer = nullptr;
 
@@ -86,6 +87,16 @@ namespace Game
     //  townLayer = std::make_shared<TownLayer>();
     //  FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     //}
+
+    // Town to Battle layer
+    /*if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+        townLayer = nullptr;
+
+        tutorialLayer = std::make_shared<TutorialLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", tutorialLayer);
+    }*/
 
     // Town to Battle layer
     if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)

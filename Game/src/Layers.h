@@ -17,3 +17,4 @@
 #include "Layers/townlayer.h"
 #include "Layers/winlayer.h"
 #include "Layers/loselayer.h"
+#include "Layers/tutoriallayer.h"

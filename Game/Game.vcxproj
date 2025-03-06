@@ -163,6 +163,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\audiolayer.h" />
     <ClInclude Include="src\Layers\baselayer.h" />
     <ClInclude Include="src\Layers\battlelayer.h" />
+    <ClInclude Include="src\Layers\battlestuff.h" />
     <ClInclude Include="src\Layers\camerasystemlayer.h" />
     <ClInclude Include="src\Layers\cutscenelayer.h" />
     <ClInclude Include="src\Layers\gamelayer.h" />
@@ -172,6 +173,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\townlayer.h" />
+    <ClInclude Include="src\Layers\tutoriallayer.h" />
     <ClInclude Include="src\Layers\winlayer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +191,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\townlayer.cpp" />
+    <ClCompile Include="src\Layers\tutoriallayer.cpp" />
     <ClCompile Include="src\Layers\winlayer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
