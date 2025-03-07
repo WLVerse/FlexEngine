@@ -574,7 +574,8 @@ namespace Game
       }
 
   #pragma endregion
-  #pragma Load pause menu data
+
+  #pragma region Load pause menu data
     std::array<std::string, 9> slider_names = {
       "SFX Slider Background",
       "SFX Slider Fill",
