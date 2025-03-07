@@ -3,9 +3,11 @@
 #include <ctime>      // For std::time()
 #include <algorithm>  // For std::min and std::max
 
-namespace Game {
+namespace Game 
+{
 
-    CameraSystemLayer::CameraSystemLayer() : Layer("Camera System Layer") {
+    CameraSystemLayer::CameraSystemLayer() : Layer("Camera System Layer") 
+    {
         // Seed the random generator for shake offsets.
         std::srand(static_cast<unsigned>(std::time(nullptr)));
     }
@@ -141,7 +143,8 @@ namespace Game {
                 if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
                     currentOrthoWidth = cam->GetOrthoWidth();
             }
-            m_zoomEffect = ZoomEffect{
+            m_zoomEffect = ZoomEffect
+            {
                 0.0f, // 'duration' not used for auto-return zoom
                 0.0f,
                 targetOrthoWidth,
@@ -159,11 +162,13 @@ namespace Game {
         // Process active shake effects.
         // ----------------------------------------------------------------
         Vector3 cumulativeShake(0.0f);
-        for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i) {
+        for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i) 
+        {
             auto& effect = m_shakeEffects[i];
             effect.elapsed += deltaTime;
             float intensity = effect.intensity;
-            if (effect.lerp) {
+            if (effect.lerp) 
+            {
                 float progress = std::min(effect.elapsed / effect.duration, 1.0f);
                 // Ramp up then down.
                 float factor = (progress < 0.5f) ? (progress * 2.0f) : ((1.0f - progress) * 2.0f);
@@ -227,18 +232,21 @@ namespace Game {
         // ----------------------------------------------------------------
         // Apply shake and zoom effects to the main camera.
         // ----------------------------------------------------------------
-        if (m_mainCameraEntity) {
+        if (m_mainCameraEntity) 
+        {
             if (auto pos = m_mainCameraEntity.GetComponent<Position>())
                 pos->position = m_originalCameraPos + cumulativeShake;
             else
                 Log::Warning("Main camera Position component missing.");
 
-            if (auto cam = m_mainCameraEntity.GetComponent<Camera>()) {
+            if (auto cam = m_mainCameraEntity.GetComponent<Camera>()) 
+            {
                 cam->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
                                      -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
                 cam->Update();
             }
-            else {
+            else 
+            {
                 Log::Warning("Main camera Camera component missing.");
             }
         }

@@ -68,22 +68,5 @@ namespace Game
         Application::QueueCommand(Application::Command::QuitApplication);
       }
     }
-
-    if (Input::GetKey(GLFW_KEY_T))
-    {
-        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double,double>(1.0,100.0));
-    }
-    if (Input::GetKey(GLFW_KEY_U))
-    {
-        Application::MessagingSystem::Send("CameraZoomStart", std::pair<double, double>(5.0, 1000.0));
-    }
-    if (Input::GetKey(GLFW_KEY_J))
-    {
-        Application::MessagingSystem::Send("CameraShakeLerpStart", std::pair<double, double>(5.0, 10.0));
-    }
-    if (Input::GetKey(GLFW_KEY_L))
-    {
-        Application::MessagingSystem::Send("CameraZoomAutoReturnStart", std::tuple<double, double, double>(3.0, 3.0, 100.0));
-    }
   }
 }
