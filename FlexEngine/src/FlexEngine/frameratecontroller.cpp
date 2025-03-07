@@ -68,9 +68,9 @@ namespace FlexEngine
     m_frame_time_accumulator = std::max(0.0f, m_frame_time_accumulator);
 
     // Calculate remaining time to sleep
-    float remaining_time = target_frame_time - m_frame_time_accumulator;
-    if (remaining_time > 0.0f)
-      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(remaining_time * 1000.0f + 0.5f)));
+    //float remaining_time = target_frame_time - m_frame_time_accumulator;
+    //if (remaining_time > 0.0f)
+    //  std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(remaining_time * 1000.0f + 0.5f)));
   }
 
   float FramerateController::GetDeltaTime() const
