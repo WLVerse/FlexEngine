@@ -2122,9 +2122,53 @@ namespace Game
         //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
     }
 
+    void Set_Up_Pause_Menu() {
+      #pragma region Load pause menu data
+      std::array<std::string, 9> slider_names = {
+        "SFX Slider Background",
+        "SFX Slider Fill",
+        "SFX Knob",
+        "BGM Slider Background",
+        "BGM Slider Fill",
+        "BGM Knob",
+        "Master Slider Background",
+        "Master Slider Fill",
+        "Master Knob"
+      };
+      for (int i = 0; i < 9; i += 3) {
+        FlexECS::Entity tempEntity = FlexECS::Scene::GetEntityByName(slider_names[i]);
+
+        float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 25.f;
+        float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 25.f;
+
+        FlexECS::Entity sliderEntity = FlexECS::Scene::GetEntityByName(slider_names[i + 1]);
+        sliderEntity.AddComponent<Slider>({
+          min_value,
+          max_value,
+          max_value - min_value,
+          ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value),
+          sliderEntity.GetComponent<Scale>()->scale
+          });
+      }
+      // Temp Fix for now. Will actually add the component in the flxscene
+      FlexECS::Scene::GetEntityByName("Move Description").AddComponent<MoveUI>({});
+      #pragma endregion
+    }
+
+    void Pause_Functionality() {
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
+        bool& state_to_set = entity.GetComponent<Transform>()->is_active;
+        if (entity.HasComponent<PauseHoverUI>()) state_to_set = false;
+        else state_to_set ^= true;
+      }
+
+      battle.is_paused ^= true;
+    }
+    
     void BattleLayer::OnAttach()
     {
         Start_Of_Game();
+        Set_Up_Pause_Menu();
     }
 
     void BattleLayer::OnDetach()
@@ -2147,21 +2191,25 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
+        bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key
-        // this goes back to the main menu
-        if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
+        if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || resume_game)
         {
-            // set the main camera
-            //CameraManager::SetMainGameCameraID(*CameraManager::GetMainGameCamera());
+          // set the main camera
+          //CameraManager::SetMainGameCameraID(main_camera);
 
-            // unload win layer
-            auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
-            if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
+          //// unload win layer
+          //auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
+          //if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
 
-            // unload lose layer
-            auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
-            if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
+          //// unload lose layer
+          //auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
+          //if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
+
+          Pause_Functionality();
         }
+
+        if (battle.is_paused) return;
 
         // return if the battle is over
         if (battle.is_end) return;
