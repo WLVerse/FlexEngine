@@ -83,7 +83,7 @@ namespace Game
     }
     if (Input::GetKey(GLFW_KEY_L))
     {
-        Application::MessagingSystem::Send("CameraZoomAutoReturnStart", std::pair<double, double>(3.0, 100.0));
+        Application::MessagingSystem::Send("CameraZoomAutoReturnStart", std::tuple<double, double, double>(3.0, 3.0, 100.0));
     }
   }
 }

@@ -29,24 +29,37 @@ namespace Game {
     private:
         // Main camera entity and base parameters.
         FlexECS::Entity m_mainCameraEntity;
-        float m_zoomBase = 0.0f; //Original Ortho width of camera
+        float m_zoomBase = 0.0f; // Original ortho width of camera
         const float m_baseAspectRatio = 16.0f / 9.0f;
         const float m_minOrthoWidth = 1000.0f;
 
-        struct ShakeEffect 
+        struct ShakeEffect
         {
             float duration;   // Total duration of the effect.
             float elapsed;    // Time elapsed so far.
             float intensity;  // Base shake intensity.
             bool lerp;        // If true, intensity ramps up then down.
         };
-        struct ZoomEffect 
+
+        // Updated ZoomEffect:
+        // - For persistent zoom (non auto-return), 'duration' is used.
+        // - For auto-return zoom, we add lerpDuration (ramp up/down),
+        //   holdDuration (time at target zoom), and totalDuration = 2*lerpDuration + holdDuration.
+        struct ZoomEffect
         {
-            float duration;         // Total duration of the effect.
+            // Persistent zoom effect parameters.
+            float duration;         // Total duration for persistent zoom effect.
+
+            // Common parameters:
             float elapsed;          // Time elapsed so far.
             float targetOrthoWidth; // Desired target orthographic width.
             float initialOrthoWidth;// Starting orthographic width.
             bool autoReturn;        // If true, zoom will ramp in then return.
+
+            // Auto-return effect parameters (used when autoReturn is true):
+            float lerpDuration;     // Lerp duration for ramping up and down.
+            float holdDuration;     // Duration to hold at target zoom.
+            float totalDuration;    // Total duration (2*lerpDuration + holdDuration).
         };
 
         std::vector<ShakeEffect> m_shakeEffects;

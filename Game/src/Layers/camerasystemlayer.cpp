@@ -96,33 +96,64 @@ namespace Game {
             Log::Info("Queued lerp shake effect.");
         }
 
-        // Persistent zoom effect.
+        // Persistent zoom effect. *DISABLED, BUGGY*
         // Message: "CameraZoomStart"
         // Parameters:
         //   - Parameter 1 (double duration): Duration (in seconds) over which the zoom occurs.
         //   - Parameter 2 (double targetOrthoWidth): The target orthographic width to achieve by the end of the effect.
         // A new zoom message replaces any existing zoom effect.
-        if (auto zoomParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraZoomStart");
-            zoomParams.first > 0.0)
-        {
-            m_zoomEffect = ZoomEffect({ static_cast<float>(zoomParams.first), 0.0f,
-                                      static_cast<float>(zoomParams.second), m_zoomBase, false });
-            Log::Info("Queued persistent zoom effect.");
-        }
+        //if (auto zoomParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraZoomStart");
+        //    zoomParams.first > 0.0)
+        //{
+        //    // Use current camera ortho width as the starting point.
+        //    float currentOrthoWidth = m_zoomBase;
+        //    if (m_mainCameraEntity) 
+        //    {
+        //       currentOrthoWidth = m_mainCameraEntity.GetComponent<Camera>()->GetOrthoWidth();
+        //    }
+        //    m_zoomEffect = ZoomEffect{
+        //        static_cast<float>(zoomParams.first), // duration for persistent zoom
+        //        0.0f,
+        //        static_cast<float>(zoomParams.second), // target ortho width
+        //        currentOrthoWidth,                     // starting from current camera width
+        //        false,                                 // not auto-return
+        //        0.0f, 0.0f, 0.0f                       // auto-return parameters not used
+        //    };
+        //    Log::Info("Queued persistent zoom effect.");
+        //}
 
         // Auto-return zoom effect.
         // Message: "CameraZoomAutoReturnStart"
         // Parameters:
-        //   - Parameter 1 (double duration): Duration (in seconds) for the auto-return zoom effect.
-        //   - Parameter 2 (double targetOrthoWidth): The target orthographic width to reach before returning to the base width.
-        // A new zoom message replaces any existing zoom effect.
-        if (auto zoomAutoParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraZoomAutoReturnStart");
-            zoomAutoParams.first > 0.0)
+        //   - Parameter 1 (double lerp duration): Time for ramping to/from target.
+        //   - Parameter 2 (double hold duration): Time to hold at the target zoom.
+        //   - Parameter 3 (double targetOrthoWidth): The target orthographic width.
+        // The effect lerps from the current camera width to the target and then returns to the base.
+        if (auto zoomAutoParams = Application::MessagingSystem::Receive<std::tuple<double, double, double>>("CameraZoomAutoReturnStart");
+            std::get<0>(zoomAutoParams) > 0.0)
         {
-            m_zoomEffect = ZoomEffect({ static_cast<float>(zoomAutoParams.first), 0.0f,
-                                      static_cast<float>(zoomAutoParams.second), m_zoomBase, true });
+            float lerpDuration = static_cast<float>(std::get<0>(zoomAutoParams));
+            float holdDuration = static_cast<float>(std::get<1>(zoomAutoParams));
+            float targetOrthoWidth = static_cast<float>(std::get<2>(zoomAutoParams));
+            float currentOrthoWidth = m_zoomBase;
+            if (m_mainCameraEntity) 
+            {
+                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
+                    currentOrthoWidth = cam->GetOrthoWidth();
+            }
+            m_zoomEffect = ZoomEffect{
+                0.0f, // 'duration' not used for auto-return zoom
+                0.0f,
+                targetOrthoWidth,
+                currentOrthoWidth, // starting from current camera width
+                true,              // enable auto-return effect
+                lerpDuration,
+                holdDuration,
+                2 * lerpDuration + holdDuration // total duration for auto-return (ramp up + hold + ramp down)
+            };
             Log::Info("Queued auto-return zoom effect.");
         }
+
 
         // ----------------------------------------------------------------
         // Process active shake effects.
@@ -149,45 +180,65 @@ namespace Game {
         // ----------------------------------------------------------------
         // Process active zoom effect.
         // ----------------------------------------------------------------
-         m_zoomEffect.elapsed += deltaTime;
-         float progress = std::min(m_zoomEffect.elapsed / m_zoomEffect.duration, 1.0f);
-         float delta = 0.0f;
-         if (m_zoomEffect.autoReturn) 
-         {
-             float factor = (progress < 0.5f) ? (progress * 2.0f) : ((1.0f - progress) * 2.0f);
-             delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * factor;
-         }
-         else 
-         {
-             delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * progress;
-         }
-         if (m_zoomEffect.elapsed >= m_zoomEffect.duration)
-         {
-             Log::Info("Zoom effect completed.");
-             Application::MessagingSystem::Send("CameraZoomCompleted", 1);
-         }
-        
+        float delta = 0.0f;
+        if (m_zoomEffect.autoReturn) 
+        {
+            m_zoomEffect.elapsed += deltaTime;
+            if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration) 
+            {
+                // Ramp up phase: lerp from initial to target.
+                float t = m_zoomEffect.elapsed / m_zoomEffect.lerpDuration;
+                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * t;
+            }
+            else if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration) 
+            {
+                // Hold phase: fully at target zoom.
+                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth);
+            }
+            else if (m_zoomEffect.elapsed < m_zoomEffect.totalDuration) 
+            {
+                // Ramp down phase: lerp back to the initial (base) width.
+                float t = (m_zoomEffect.elapsed - (m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration)) / m_zoomEffect.lerpDuration;
+                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * (1.0f - t);
+            }
+            else 
+            {
+                // Auto-return effect completed.
+                delta = 0.0f;
+                Log::Info("Zoom effect completed.");
+                Application::MessagingSystem::Send("CameraZoomCompleted", 1);
+            }
+        }
+        else 
+        {
+            m_zoomEffect.elapsed += deltaTime;
+            float progress = std::min(m_zoomEffect.elapsed / m_zoomEffect.duration, 1.0f);
+            delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * progress;
+            if (m_zoomEffect.elapsed >= m_zoomEffect.duration)
+            {
+                Log::Info("Zoom effect completed.");
+                Application::MessagingSystem::Send("CameraZoomCompleted", 1);
+            }
+        }
+
         float effectiveOrthoWidth = std::max(m_zoomBase + delta, m_minOrthoWidth);
         float effectiveOrthoHeight = effectiveOrthoWidth / m_baseAspectRatio;
 
         // ----------------------------------------------------------------
         // Apply shake and zoom effects to the main camera.
         // ----------------------------------------------------------------
-        if (m_mainCameraEntity) 
-        {
+        if (m_mainCameraEntity) {
             if (auto pos = m_mainCameraEntity.GetComponent<Position>())
                 pos->position = m_originalCameraPos + cumulativeShake;
             else
                 Log::Warning("Main camera Position component missing.");
 
-            if (auto cam = m_mainCameraEntity.GetComponent<Camera>()) 
-            {
+            if (auto cam = m_mainCameraEntity.GetComponent<Camera>()) {
                 cam->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
                                      -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
                 cam->Update();
             }
-            else 
-            {
+            else {
                 Log::Warning("Main camera Camera component missing.");
             }
         }
@@ -195,19 +246,10 @@ namespace Game {
         // ----------------------------------------------------------------
         // Update all cameras in the scene.
         // ----------------------------------------------------------------
-        if (auto scene = FlexECS::Scene::GetActiveScene()) 
+        for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
         {
-            for (auto& elem : scene->CachedQuery<Position, Camera>())
-            {
-                if (auto pos = elem.GetComponent<Position>(); pos) 
-                {
-                    if (auto cam = elem.GetComponent<Camera>(); cam) 
-                    {
-                        cam->SetViewMatrix(pos->position);
-                        cam->Update();
-                    }
-                }
-            }
+            elem.GetComponent<Camera>()->SetViewMatrix(elem.GetComponent<Position>()->position);
+            elem.GetComponent<Camera>()->Update();
         }
     }
 
