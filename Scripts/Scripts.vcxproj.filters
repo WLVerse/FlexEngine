@@ -99,5 +99,8 @@
     <ClCompile Include="src\bgmbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\cutscene_autoplaybutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

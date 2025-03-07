@@ -26,6 +26,7 @@
     <ClCompile Include="src\camerahandler.cpp" />
     <ClCompile Include="src\creditsbutton.cpp" />
     <ClCompile Include="src\displaymodebutton.cpp" />
+    <ClCompile Include="src\cutscene_autoplaybutton.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\masterslider.cpp" />
     <ClCompile Include="src\mastervolbutton.cpp" />

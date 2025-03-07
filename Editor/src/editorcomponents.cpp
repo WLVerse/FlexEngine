@@ -145,7 +145,7 @@ namespace Editor
 
   /**************
    * UI
-   **************/
+   **************/  
   COMPONENT_VIEWER_START(Button)
   COMPONENT_VIEWER_END(Button)
 
@@ -154,6 +154,26 @@ namespace Editor
 
   COMPONENT_VIEWER_START(PauseHoverUI)
   COMPONENT_VIEWER_END(PauseHoverUI)
+
+   /**************
+   * Gameplay
+   **************/
+  COMPONENT_VIEWER_START(SpeedBarSlot)
+    COMPONENT_VIEWER_DRAG_INT(slot_number)
+    COMPONENT_VIEWER_DRAG_INT(character)
+  COMPONENT_VIEWER_END(SpeedBarSlot)
+
+  COMPONENT_VIEWER_START(SpeedBarSlotTarget)
+    COMPONENT_VIEWER_DRAG_INT(slot_number)
+  COMPONENT_VIEWER_END(SpeedBarSlotTarget)
+
+  COMPONENT_VIEWER_START(CharacterSlot)
+    COMPONENT_VIEWER_DRAG_INT(slot_number)
+  COMPONENT_VIEWER_END(CharacterSlot)
+
+
+
+
 
   void RegisterComponents()
   {
@@ -179,7 +199,10 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(Button);
 
     REGISTER_COMPONENT_VIEWER(PauseUI);
-
     REGISTER_COMPONENT_VIEWER(PauseHoverUI);
+    
+    REGISTER_COMPONENT_VIEWER(SpeedBarSlot);
+    REGISTER_COMPONENT_VIEWER(SpeedBarSlotTarget);
+    REGISTER_COMPONENT_VIEWER(CharacterSlot);
   }
 } // namespace Editor
