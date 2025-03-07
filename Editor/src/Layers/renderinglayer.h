@@ -29,7 +29,8 @@ namespace Editor
     virtual void OnDetach() override;
     virtual void Update() override;
 
-    std::vector<std::pair<std::string, FlexECS::Entity>> GetRenderQueue();
+    void AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch, bool isEditor);
+    void AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch);
   };
 
 }

@@ -21,7 +21,7 @@ namespace Game
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     // Trigger music to start
-    //FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
+    FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
     //main_character = FlexECS::Scene::GetEntityByName("Walking Renko");
     //area_to_transition = FlexECS::Scene::GetEntityByName("Area To Transition");
   }

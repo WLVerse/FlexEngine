@@ -26,6 +26,9 @@ namespace Game
     virtual void OnAttach() override;
     virtual void OnDetach() override;
     virtual void Update() override;
+
+    void AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch);
+    void AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch);
   };
 
 }

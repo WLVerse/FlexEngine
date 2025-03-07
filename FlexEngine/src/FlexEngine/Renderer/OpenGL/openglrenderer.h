@@ -58,7 +58,7 @@ namespace FlexEngine
           Alignment_Bottom = 2,      /*!< Bottom alignment */
       };
 
-      std::string m_shader = R"(/shaders/freetypetext.flxshader)";  /*!< Path to the shader for text rendering */
+      std::string m_shader = R"(/shaders/freetypetext_GPU.flxshader)";  /*!< Path to the shader for text rendering */
       std::string m_fonttype = R"()";                     /*!< Font type to use for rendering; empty means an error will occur */
       std::string m_words;                                /*!< The actual text to render */
       Vector3 m_color = Vector3::Zero;                    /*!< Color of the text */
@@ -70,10 +70,33 @@ namespace FlexEngine
       Vector2 m_textboxDimensions = { 500.0f ,500.0f };   /*!< Dimensions of text box */
   };
 
+  /*!***************************************************************************
+  * \struct Renderer2DSpriteBatch
+  * \brief
+  * Holds data for batching multiple sprite instances, including transformation
+  * and color data for each instance.
+  *****************************************************************************/
+  struct __FLX_API Renderer2DSpriteBatch
+  {
+      std::string m_shader = R"(/shaders/batchtexture.flxshader)";  /*!< Path to the shader for text rendering */
+   
+      //GLuint m_vboid = 0;
+      std::vector<int> m_zindex; // Ignore, to be used and checked with in rendering later
+      std::vector<Matrix4x4> m_transformationData;
+      //std::vector<Vector3> m_colorAddData, m_colorMultiplyData;
+
+      //For animation
+      std::vector<Vector4> m_UVmap;
+
+      //For Opacity
+      std::vector<float> m_opacity; // might have problem with sizing of SSBO, check pls
+  };
+
   class __FLX_API OpenGLRenderer
   {
     static uint32_t m_draw_calls;
     static uint32_t m_draw_calls_last_frame;
+    static uint32_t m_maxInstances;
     static bool m_depth_test;
     static bool m_blending;
   public:
@@ -97,16 +120,19 @@ namespace FlexEngine
     // Standalone helper function to draw a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(const Renderer2DProps& props = {}, const FlexECS::EntityID camID = 0);
+    static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
 
     // Overloaded function to draw text as a texture.
     // Uses an internal unit square mesh to draw the texture.
     // Pass in a shader that supports the texture and color uniforms.
-    static void DrawTexture2D(const Renderer2DText& text = {}, const FlexECS::EntityID camID = 0);
+    static void DrawTexture2D(Camera const& cam, const Renderer2DText& text = {});
 
     // Draw with no usage of a camera entity
     static void DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData);
     static void DrawTexture2D(const Renderer2DText& text, const Camera& cameraData);
+
+    // Draw batch instances with no usage of a camera entity
+    static void DrawBatchTexture2D(const Renderer2DProps& props, const Renderer2DSpriteBatch& data, const Camera& cameraData);
 
     // This function is designed to be extremely lightweight
     // and doesn't require the camera, props, or asset manager.

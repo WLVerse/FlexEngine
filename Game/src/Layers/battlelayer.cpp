@@ -695,7 +695,7 @@ namespace Game
     {
         //CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
 
-        File& file = File::Open(Path::current("assets/saves/battlescene_v3.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v6.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         #pragma region Load _Battle Data
@@ -2154,14 +2154,15 @@ namespace Game
     void Win_Battle()
     {
         battle.is_end = true;
-        FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
     }
 
     void Lose_Battle()
     {
         battle.is_end = true;
-        FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
+        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
     }
+
     void BattleLayer::OnAttach()
     {
         Start_Of_Game();
