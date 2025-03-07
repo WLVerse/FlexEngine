@@ -51,6 +51,7 @@
     <ClCompile Include="src\targetthree.cpp" />
     <ClCompile Include="src\targettwo.cpp" />
     <ClCompile Include="src\testbutton.cpp" />
+    <ClCompile Include="src\transitionhandler.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
