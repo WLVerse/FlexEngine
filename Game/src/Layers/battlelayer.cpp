@@ -598,8 +598,6 @@ namespace Game
         // there is the healthbarslot, the actual healthbar entity, and the character entity that are all needed
         for (auto& character : battle.drifters_and_enemies)
         {
-            if (!character.is_alive)
-                return;
 
             auto entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name + " Healthbar");
 
@@ -1757,14 +1755,11 @@ namespace Game
 
                 battle.disable_input_timer += animation_time;// +1.f;
             }
-
-            //update status and health bar
-            Update_Character_Status();
         }
 
         if (battle.is_player_turn) //secondary animation of enemies getting hit
         {
-
+            Update_Character_Status();
         }
         else //secondary animation of players getting hit
         {
