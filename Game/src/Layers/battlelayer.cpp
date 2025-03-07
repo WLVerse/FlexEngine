@@ -50,7 +50,7 @@ namespace Game
 
     int current_health = 0;
     int current_speed = 0;
-    int current_slot = 0;          // 0-4, 0-1 for drifters, 0-4 for enemies
+    int current_slot = 0; // 0-4, 0-1 for drifters, 0-4 for enemies
     bool is_alive = true;
   };
 
@@ -81,7 +81,8 @@ namespace Game
     // game state
     bool is_player_turn = true;
     float disable_input_timer = 0.f;
-    bool prev_state = false; // used to cache the previous state, but also can be set to false even when the player takes a turn and still their turn next
+    bool prev_state = false; // used to cache the previous state, but also can be set to false even when the player
+                             // takes a turn and still their turn next
 
     int drifter_alive_count = 0;
     int enemy_alive_count = 0;
@@ -201,53 +202,53 @@ namespace Game
 
       if (character_asset.move_one != "None")
       {
-          auto& move_one_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_one);
+        auto& move_one_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_one);
 
-          _Move move_one;
-          move_one.name = move_one_asset.name;
-          move_one.damage = move_one_asset.damage;
-          move_one.speed = move_one_asset.speed;
+        _Move move_one;
+        move_one.name = move_one_asset.name;
+        move_one.damage = move_one_asset.damage;
+        move_one.speed = move_one_asset.speed;
 
-          move_one.effect = move_one_asset.effect;
-          move_one.value = move_one_asset.value;
-          move_one.target = move_one_asset.target;
+        move_one.effect = move_one_asset.effect;
+        move_one.value = move_one_asset.value;
+        move_one.target = move_one_asset.target;
 
-          move_one.description = move_one_asset.description;
-          character.move_one = move_one;
+        move_one.description = move_one_asset.description;
+        character.move_one = move_one;
       }
 
       if (character_asset.move_two != "None")
       {
-          auto& move_two_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_two);
+        auto& move_two_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_two);
 
-          _Move move_two;
-          move_two.name = move_two_asset.name;
-          move_two.damage = move_two_asset.damage;
-          move_two.speed = move_two_asset.speed;
+        _Move move_two;
+        move_two.name = move_two_asset.name;
+        move_two.damage = move_two_asset.damage;
+        move_two.speed = move_two_asset.speed;
 
-          move_two.effect = move_two_asset.effect;
-          move_two.value = move_two_asset.value;
-          move_two.target = move_two_asset.target;
+        move_two.effect = move_two_asset.effect;
+        move_two.value = move_two_asset.value;
+        move_two.target = move_two_asset.target;
 
-          move_two.description = move_two_asset.description;
-          character.move_two = move_two;
+        move_two.description = move_two_asset.description;
+        character.move_two = move_two;
       }
 
       if (character_asset.move_three != "None")
       {
-          auto& move_three_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_three);
+        auto& move_three_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_three);
 
-          _Move move_three;
-          move_three.name = move_three_asset.name;
-          move_three.damage = move_three_asset.damage;
-          move_three.speed = move_three_asset.speed;
+        _Move move_three;
+        move_three.name = move_three_asset.name;
+        move_three.damage = move_three_asset.damage;
+        move_three.speed = move_three_asset.speed;
 
-          move_three.effect = move_three_asset.effect;
-          move_three.value = move_three_asset.value;
-          move_three.target = move_three_asset.target;
+        move_three.effect = move_three_asset.effect;
+        move_three.value = move_three_asset.value;
+        move_three.target = move_three_asset.target;
 
-          move_three.description = move_three_asset.description;
-          character.move_three = move_three;
+        move_three.description = move_three_asset.description;
+        character.move_three = move_three;
       }
 
       character.current_slot = index;
@@ -265,8 +266,8 @@ namespace Game
   }
 
 #pragma endregion
-  
-  #pragma region Animation Events
+
+#pragma region Animation Events
 
   // the frame is when the event should trigger
   // the callback is what should happen when the event triggers
@@ -279,12 +280,12 @@ namespace Game
 
   std::unordered_map<FlexECS::EntityID, std::vector<_AnimationEvent>> animation_event_registry = {};
 
-  #pragma region Helper Functions
+#pragma region Helper Functions
 
   // at frame X, play the sound Y
   // example usage
   // PlaySound(current_character_entity, 3, R"(/audio/generic attack.mp3)");
-  static void PlaySound(FlexECS::Entity entity, int frame, AssetKey asset_handle)
+  static void PlaySoundEvent(FlexECS::Entity entity, int frame, AssetKey asset_handle)
   {
     auto& registry = animation_event_registry[entity];
     registry.push_back({ frame, [asset_handle]()
@@ -305,7 +306,7 @@ namespace Game
   //   current_character_entity, 5, target_entity,
   //   R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)"
   // );
-  static void PlayAnimation(FlexECS::Entity entity, int frame, FlexECS::Entity target, AssetKey spritesheet_handle)
+  static void PlayAnimationEvent(FlexECS::Entity entity, int frame, FlexECS::Entity target, AssetKey spritesheet_handle)
   {
     auto& registry = animation_event_registry[entity];
     registry.push_back({ frame, [target, spritesheet_handle]()
@@ -385,9 +386,9 @@ namespace Game
     deferred_removal.Flush();
   }
 
-  #pragma endregion
+#pragma endregion
 
-  #pragma endregion
+#pragma endregion
 
   FlexECS::Entity main_camera = FlexECS::Entity::Null;
 
@@ -401,301 +402,304 @@ namespace Game
     // Start battle music by default on scene load
     FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
 
-  #pragma region Load Battle Data
+#pragma region Load Battle Data
 
-      // load the battle
-      Internal_ParseBattle(R"(/data/debug.flxbattle)");
+    // load the battle
+    Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
-      // init non-loaded values
-      // these values are used internally for the battle system and are not saved
-      for (auto& character : battle.drifters)
+    // init non-loaded values
+    // these values are used internally for the battle system and are not saved
+    for (auto& character : battle.drifters)
+    {
+      battle.drifters_and_enemies.push_back(&character);
+      battle.speed_bar.push_back(&character);
+      battle.drifter_alive_count++;
+    }
+    for (auto& character : battle.enemies)
+    {
+      battle.drifters_and_enemies.push_back(&character);
+      battle.speed_bar.push_back(&character);
+      battle.enemy_alive_count++;
+    }
+
+    for (auto character : battle.speed_bar)
+    {
+      character->current_health = character->health;
+      character->current_speed = character->speed;
+      character->is_alive = true;
+    }
+
+    // cache the slot positions
+    // this is purely just so that the editor can actually position the slots
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
+    {
+      auto& character_slot = *entity.GetComponent<CharacterSlot>();
+      battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+    }
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
+    {
+      auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
+      battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
+    }
+
+    // create entities for the characters using the battle data
+    // note that the system doesnt deal with duplicates
+    // dupes break the targetting system and anything that uses GetEntityByName
+    int index = 0;
+    FlexECS::Entity e;
+    auto scene = FlexECS::Scene::GetActiveScene();
+
+    // projected_character icon creation
+    battle.projected_character =
+      scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
+    battle.projected_character.AddComponent<Transform>({});
+    battle.projected_character.AddComponent<Position>({});
+    battle.projected_character.AddComponent<Rotation>({});
+    battle.projected_character.AddComponent<Sprite>(
+      { FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") }
+    );
+    battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
+    battle.projected_character.AddComponent<ZIndex>({ 21 });
+    battle.projected_character.GetComponent<Transform>()->is_active = false;
+
+    // Spawn characters
+    for (auto& character : battle.drifters)
+    {
+      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Character>({});
+      e.AddComponent<Drifter>({});
+
+      // find the slot position
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Sprite>({}); // FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
+
+      switch (character.character_id)
       {
-        battle.drifters_and_enemies.push_back(&character);
-        battle.speed_bar.push_back(&character);
-        battle.drifter_alive_count++;
-      }
-      for (auto& character : battle.enemies)
-      {
-        battle.drifters_and_enemies.push_back(&character);
-        battle.speed_bar.push_back(&character);
-        battle.enemy_alive_count++;
-      }
-
-      for (auto character : battle.speed_bar)
-      {
-        character->current_health = character->health;
-        character->current_speed = character->speed;
-        character->is_alive = true;
-      }
-
-      // cache the slot positions
-      // this is purely just so that the editor can actually position the slots
-      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CharacterSlot>())
-      {
-        auto& character_slot = *entity.GetComponent<CharacterSlot>();
-        battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
-      }
-      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
-      {
-        auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
-        battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
-      }
-
-      // create entities for the characters using the battle data
-      // note that the system doesnt deal with duplicates
-      // dupes break the targetting system and anything that uses GetEntityByName
-      int index = 0;
-      FlexECS::Entity e;
-      auto scene = FlexECS::Scene::GetActiveScene();
-
-      //projected_character icon creation
-      battle.projected_character = scene->CreateEntity("projected_char"); // can always use GetEntityByName to find the entity
-      battle.projected_character.AddComponent<Transform>({});
-      battle.projected_character.AddComponent<Position>({});
-      battle.projected_character.AddComponent<Rotation>({});
-      battle.projected_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
-      battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
-      battle.projected_character.AddComponent<ZIndex>({ 21 });
-      battle.projected_character.GetComponent<Transform>()->is_active = false;
-
-      // Spawn characters
-      for (auto& character : battle.drifters)
-      {
-        e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Character>({});
-        e.AddComponent<Drifter>({});
-
-        // find the slot position
-        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Sprite>({  });//FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
-
-        switch (character.character_id)
-        {
-        case 1:
-          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
-          e.AddComponent<Animator>(
-            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
-              FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
-          );
-          break;
-        case 2:
-          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
-          e.AddComponent<Animator>(
-            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
-              FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
-          );
-          break;
-        }
-
-        e.AddComponent<ZIndex>({ 25 + index++ });
-      }
-
-      // Spawn enemies
-      index = 0;
-      for (auto& character : battle.enemies)
-      {
-        e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Character>({});
-        e.AddComponent<Enemy>({});
-
-        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
-        ); // offset by 2 for enemy slots, and offset the position
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
-
-        switch (character.character_id)
-        {
-        case 3:
-          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
-          e.AddComponent<Animator>(
-            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
-              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
-          );
-          break;
-        case 4:
-          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
-          e.AddComponent<Animator>(
-            { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
-              FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
-          );
-          break;
-        case 5:
-          e.AddComponent<Scale>({ Vector3(2, 2, 0) });
-          e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
-                                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
-          );
-          break;
-        }
-
-        e.AddComponent<ZIndex>({ 21 + index++ });
+      case 1:
+        e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 2:
+        e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
       }
 
-      // create the healthbars
-      for (auto& character : battle.drifters)
+      e.AddComponent<ZIndex>({ 25 + index++ });
+    }
+
+    // Spawn enemies
+    index = 0;
+    for (auto& character : battle.enemies)
+    {
+      e = scene->CreateEntity(character.name); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Character>({});
+      e.AddComponent<Enemy>({});
+
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
+      ); // offset by 2 for enemy slots, and offset the position
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
+
+      switch (character.character_id)
       {
-        e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Healthbar>({});
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
-        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
-        e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
-        e.AddComponent<ZIndex>({ 35 });
-
-        e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(-30, -100, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-        e.AddComponent<ZIndex>({ 3 });
-        e.AddComponent<Text>({
-          FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-          FLX_STRING_NEW(R"(Itches)"),
-          Vector3(1.0f, 1.0, 1.0f),
-          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-          {                            600,                              320 }
-        });
-
-        e = scene->CreateEntity(character.name + " Attack_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-110, 0, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
-
-        e = scene->CreateEntity(character.name + " Attack_Debuff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-70, 0, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
-
-        e = scene->CreateEntity(character.name + " Stun_Debuff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-30, 0, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
-        e.AddComponent<ZIndex>({ 36 });
-
-        e = scene->CreateEntity(character.name + " Shield_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10, 0, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
-
-        e = scene->CreateEntity(character.name + " Protect_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(50, 0, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
-
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      case 3:
+        e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 4:
+        e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+        e.AddComponent<Animator>(
+          { FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)"),
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
+      case 5:
+        e.AddComponent<Scale>({ Vector3(2, 2, 0) });
+        e.AddComponent<Animator>({ FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)"),
+                                   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)") }
+        );
+        break;
       }
-      for (auto& character : battle.enemies)
-      {
+
+      e.AddComponent<ZIndex>({ 21 + index++ });
+    }
+
+    // create the healthbars
+    for (auto& character : battle.drifters)
+    {
+      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Healthbar>({});
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
+      e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
+      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
+      e.AddComponent<ZIndex>({ 35 });
+
+      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(-30, -100, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+      e.AddComponent<ZIndex>({ 3 });
+      e.AddComponent<Text>({
+        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+        FLX_STRING_NEW(R"(Itches)"),
+        Vector3(1.0f, 1.0, 1.0f),
+        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+        {                            600,                              320 }
+      });
+
+      e = scene->CreateEntity(character.name + " Attack_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-110, 0, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
+
+      e = scene->CreateEntity(character.name + " Attack_Debuff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-70, 0, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
+
+      e = scene->CreateEntity(character.name + " Stun_Debuff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(-30, 0, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
+      e.AddComponent<ZIndex>({ 36 });
+
+      e = scene->CreateEntity(character.name + " Shield_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10, 0, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
+
+      e = scene->CreateEntity(character.name + " Protect_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(50, 0, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
+
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
+    }
+    for (auto& character : battle.enemies)
+    {
 #pragma region Enemy Healthbars
-        e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Healthbar>({});
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] } );
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
-        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
-        e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
-        e.AddComponent<ZIndex>({ 35 });
+      e = scene->CreateEntity(character.name + " Healthbar"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Healthbar>({});
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
+      e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
+      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Red.png)") });
+      e.AddComponent<ZIndex>({ 35 });
 
-        e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-105, -75, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
-        e.AddComponent<ZIndex>({ 3 });
-        e.AddComponent<Text>({
-          FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
-          FLX_STRING_NEW(R"(Itches)"),
-          Vector3(1.0f, 1.0, 1.0f),
-          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-          {                            600,                              320 }
-        });
+      e = scene->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-105, -75, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(0.3f, 0.3f, 0) });
+      e.AddComponent<ZIndex>({ 3 });
+      e.AddComponent<Text>({
+        FLX_STRING_NEW(R"(/fonts/Closeness/Closeness.ttf)"),
+        FLX_STRING_NEW(R"(Itches)"),
+        Vector3(1.0f, 1.0, 1.0f),
+        { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+        {                            600,                              320 }
+      });
 
-        e = scene->CreateEntity(character.name + " DamagePreview"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Healthbar>({});
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
-        e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
-        e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Rose.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e = scene->CreateEntity(character.name + " DamagePreview"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Healthbar>({});
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
+      e.GetComponent<Healthbar>()->original_position = e.GetComponent<Position>()->position;
+      e.GetComponent<Healthbar>()->original_scale = e.GetComponent<Scale>()->scale;
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Rose.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 #pragma endregion
 
 #pragma region Enemy Buffs
-        e = scene->CreateEntity(character.name + " Attack_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-80, 15, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
+      e = scene->CreateEntity(character.name + " Attack_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-80, 15, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 
-        e = scene->CreateEntity(character.name + " Attack_Debuff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-50, 15, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
+      e = scene->CreateEntity(character.name + " Attack_Debuff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-50, 15, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 
-        e = scene->CreateEntity(character.name + " Stun_Debuff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-20, 15, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
+      e = scene->CreateEntity(character.name + " Stun_Debuff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(-20, 15, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 
-        e = scene->CreateEntity(character.name + " Shield_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(10, 15, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
+      e = scene->CreateEntity(character.name + " Shield_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(10, 15, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 
-        e = scene->CreateEntity(character.name + " Protect_Buff"); // can always use GetEntityByName to find the entity
-        e.AddComponent<Transform>({});
-        e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(40, 15, 0) });
-        e.AddComponent<Rotation>({});
-        e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
+      e = scene->CreateEntity(character.name + " Protect_Buff"); // can always use GetEntityByName to find the entity
+      e.AddComponent<Transform>({});
+      e.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] + Vector3(40, 15, 0) });
+      e.AddComponent<Rotation>({});
+      e.AddComponent<Scale>({ Vector3(.025f, .025f, 0) });
 
-        e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
-        e.AddComponent<ZIndex>({ 36 });
+      e.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
+      e.AddComponent<ZIndex>({ 36 });
 #pragma endregion
-      }
+    }
 
-  #pragma endregion
+#pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
   }
@@ -708,7 +712,8 @@ namespace Game
 
   void BattleLayer::Update()
   {
-    std::string& current_fps = FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text);
+    std::string& current_fps =
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text);
     current_fps = "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
 
     bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
@@ -726,7 +731,8 @@ namespace Game
     bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");
 
     // If there is no selected move
-    if (!battle.is_player_turn) {
+    if (!battle.is_player_turn)
+    {
       // Set the transform component to false so that it does not render in scene
       FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
       FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
@@ -739,11 +745,8 @@ namespace Game
       // set the main camera
       CameraManager::SetMainGameCameraID(main_camera);
     }
-    
-    if (battle.is_win && Input::AnyKeyDown())
-    {
-      Application::MessagingSystem::Send("Game win to menu", true);
-    }
+
+    if (battle.is_win && Input::AnyKeyDown()) Application::MessagingSystem::Send("Game win to menu", true);
 
     if (battle.is_lose && Input::GetKeyDown(GLFW_KEY_R))
     {
@@ -751,52 +754,52 @@ namespace Game
       Application::MessagingSystem::Send("Game lose to menu", true);
     }
 
-    #pragma region Animation Events
+#pragma region Animation Events
 
     ProcessAnimatorEvents();
 
-    #pragma endregion
+#pragma endregion
 
     // return if the battle is over
     if (battle.is_win || battle.is_lose) return;
 
-    // start of the battle system
-    //
-    // Battle System Preparation
-    // - return when playing animations (disable_input_timer > 0)
-    // - get the current character from the speed bar
-    //
-    // AI Move
-    // - if it's not the player's turn, do the AI move and skip the player input code
-    //
-    // Player Input
-    // - if it's the player's turn, skip the AI move and check for input
-    // - if the player has selected a target, check for input for the move
-    // - if the player has selected a move, apply the move and update the speed
-    // - play the animations and disable input for the duration of the move animation
-    //
-    // Resolve Game State
-    // - resolve speed bar
-    //
-    // Update Displays
-    // - update the targeting display
-    // - update the speed bar display
-    //
-    // end of the battle system
+      // start of the battle system
+      //
+      // Battle System Preparation
+      // - return when playing animations (disable_input_timer > 0)
+      // - get the current character from the speed bar
+      //
+      // AI Move
+      // - if it's not the player's turn, do the AI move and skip the player input code
+      //
+      // Player Input
+      // - if it's the player's turn, skip the AI move and check for input
+      // - if the player has selected a target, check for input for the move
+      // - if the player has selected a move, apply the move and update the speed
+      // - play the animations and disable input for the duration of the move animation
+      //
+      // Resolve Game State
+      // - resolve speed bar
+      //
+      // Update Displays
+      // - update the targeting display
+      // - update the speed bar display
+      //
+      // end of the battle system
 
-  #pragma region Battle System Preparation
+#pragma region Battle System Preparation
 
     // current active character
 
     //_Character current_character
     battle.current_character = battle.speed_bar.front();
 
-    #ifdef _DEBUG
+#ifdef _DEBUG
     FLX_ASSERT(battle.current_character != nullptr, "Current character is null.");
     FLX_ASSERT(battle.current_character->is_alive, "Current character is dead.");
-    #else
+#else
     if (battle.current_character == nullptr || !battle.current_character->is_alive) return;
-    #endif
+#endif
 
     auto current_character_entity = FlexECS::Scene::GetEntityByName(battle.current_character->name);
     auto& current_character_animator = *current_character_entity.GetComponent<Animator>();
@@ -820,10 +823,11 @@ namespace Game
       return;
     }
 
-    if (battle.previous_character != nullptr) {
-      Vector3 previous_position = (battle.previous_character->character_id <= 2) ?
-        battle.sprite_slot_positions[battle.previous_character->current_slot] : 
-        battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+    if (battle.previous_character != nullptr)
+    {
+      Vector3 previous_position = (battle.previous_character->character_id <= 2)
+                                  ? battle.sprite_slot_positions[battle.previous_character->current_slot]
+                                  : battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
       battle.previous_character_entity.GetComponent<Position>()->position = previous_position;
     }
     // hide or display the move UI
@@ -837,16 +841,16 @@ namespace Game
       auto entity = FlexECS::Scene::GetEntityByName(character.name);
       entity.GetComponent<Position>()->position = battle.sprite_slot_positions[character.current_slot];
     }
-    
+
 #endif
 
     // Just swapped from enemy phase to player phase
     if (battle.prev_state != battle.is_player_turn && battle.is_player_turn)
     {
       // Plays sound if swap from enemy phase to player phase
-        std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
-        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
-        //FLX_STRING_NEW(R"(/audio/start turn.mp3)");
+      std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
+      FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
+      // FLX_STRING_NEW(R"(/audio/start turn.mp3)");
       FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
 
       // offset current player character to the right a bit
@@ -879,254 +883,210 @@ namespace Game
     if (!battle.is_player_turn && battle.current_character->stun_debuff_duration == 0)
     {
       // randomly pick a target
-        //battle.current_move = nullptr;
+      // battle.current_move = nullptr;
 
-        // randomly pick a move
+      // randomly pick a move
       // TODO: not yet
-        battle.current_move = nullptr;
-        battle.initial_target = nullptr;
-        battle.target = 0;
+      battle.current_move = nullptr;
+      battle.initial_target = nullptr;
+      battle.target = 0;
 
-        int move_num = Range<int>(0, 2).Get();
-        switch (move_num)
-        {
-        case 0:
-            battle.current_move = &battle.current_character->move_one;
-            break;
-        case 1:
-            battle.current_move = &battle.current_character->move_two;
-            break;
-        case 2:
-            battle.current_move = &battle.current_character->move_three;
-            break;
-        }
+      int move_num = Range<int>(0, 2).Get();
+      switch (move_num)
+      {
+      case 0:
+        battle.current_move = &battle.current_character->move_one;
+        break;
+      case 1:
+        battle.current_move = &battle.current_character->move_two;
+        break;
+      case 2:
+        battle.current_move = &battle.current_character->move_three;
+        break;
+      }
 
-      while (battle.initial_target == nullptr || !battle.initial_target->is_alive) battle.initial_target = battle.drifter_slots[Range<int>(0, 1).Get()];
+      while (battle.initial_target == nullptr || !battle.initial_target->is_alive)
+        battle.initial_target = battle.drifter_slots[Range<int>(0, 1).Get()];
 
       // Temporarily move the character
       battle.previous_character = battle.current_character;
       battle.previous_character_entity = current_character_entity;
-      current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot];
-      
+      current_character_entity.GetComponent<Position>()->position =
+        battle.sprite_slot_positions[battle.initial_target->current_slot];
+
       // apply the move
-      //Move_Resolution();
-      //target_character->current_health -= move->damage;
-      //target_character->current_speed += move->damage;
+      // Move_Resolution();
+      // target_character->current_health -= move->damage;
+      // target_character->current_speed += move->damage;
 
       // update the character's speed
       battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
 
-          if (battle.current_character->attack_buff_duration > 0)
-              battle.current_character->attack_buff_duration -= 1;
+      if (battle.current_character->attack_buff_duration > 0) battle.current_character->attack_buff_duration -= 1;
 
-          if (battle.current_character->attack_debuff_duration > 0)
-              battle.current_character->attack_debuff_duration -= 1;
+      if (battle.current_character->attack_debuff_duration > 0) battle.current_character->attack_debuff_duration -= 1;
 
-          if (battle.current_character->shield_buff_duration > 0)
-              battle.current_character->shield_buff_duration -= 1;
+      if (battle.current_character->shield_buff_duration > 0) battle.current_character->shield_buff_duration -= 1;
 
-          if (battle.current_character->protect_buff_duration > 0)
-              battle.current_character->protect_buff_duration -= 1;
+      if (battle.current_character->protect_buff_duration > 0) battle.current_character->protect_buff_duration -= 1;
 
       std::vector<_Character*> targets;
-      for (int i = 0; i < battle.current_move->effect.size(); i++) {
-          if (battle.current_move->target[i] == "ALL_ENEMIES")
+      for (int i = 0; i < battle.current_move->effect.size(); i++)
+      {
+        if (battle.current_move->target[i] == "ALL_ENEMIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->character_id <= 2) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
           {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && character->character_id <= 2)
-                  {
-                      targets.push_back(character);
-                  }
-              }
+            if (character->is_alive && (character->current_slot == battle.target - 1 && character->character_id <= 2 ||
+                                        character->current_slot == battle.target && character->character_id <= 2 ||
+                                        character->current_slot == battle.target + 1 && character->character_id <= 2))
+            {
+              targets.push_back(character);
+            }
           }
-          else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
+        }
+        else if (battle.current_move->target[i] == "NEXT_ENEMY")
+        {
+          for (auto character : battle.drifters_and_enemies)
           {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && (character->current_slot == battle.target - 1 && character->character_id <= 2 || character->current_slot == battle.target && character->character_id <= 2 || character->current_slot == battle.target + 1 && character->character_id <= 2))
-                  {
-                      targets.push_back(character);
-                  }
-              }
+            if (character->is_alive && character->character_id <= 2)
+            {
+              targets.push_back(character);
+              break;
+            }
           }
-          else if (battle.current_move->target[i] == "NEXT_ENEMY")
+        }
+        else if (battle.current_move->target[i] == "SINGLE_ENEMY")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->current_slot == battle.target && character->character_id <= 2)
+              targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "ALL_ALLIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->character_id > 2) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "NEXT_ALLY")
+        {
+          for (auto character : battle.drifters_and_enemies)
           {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && character->character_id <= 2)
-                  {
-                      targets.push_back(character);
-                      break;
-                  }
-              }
+            if (character->is_alive && character->character_id > 2 && character != battle.current_character)
+            {
+              targets.push_back(character);
+              break;
+            }
           }
-          else if (battle.current_move->target[i] == "SINGLE_ENEMY")
+        }
+        else if (battle.current_move->target[i] == "SINGLE_ALLY")
+        {
+          if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" ||
+              battle.current_move->target[0] == "SINGLE_ALLY" ||
+              battle.current_move->target[0] == "SELF") // fizzles if not targeting ally
           {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && character->current_slot == battle.target && character->character_id <= 2)
-                  {
-                      targets.push_back(character);
-                  }
-              }
+            for (auto character : battle.drifters_and_enemies)
+              if (character->is_alive && character->current_slot == battle.target && character->character_id > 2)
+                targets.push_back(character);
           }
-          else if (battle.current_move->target[i] == "ALL_ALLIES")
-          {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && character->character_id > 2)
-                  {
-                      targets.push_back(character);
-                  }
-              }
-          }
-          else if (battle.current_move->target[i] == "NEXT_ALLY")
-          {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive && character->character_id > 2 && character != battle.current_character)
-                  {
-                      targets.push_back(character);
-                      break;
-                  }
-              }
-          }
-          else if (battle.current_move->target[i] == "SINGLE_ALLY")
-          {
-              if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF") //fizzles if not targeting ally
-              {
-                  for (auto character : battle.drifters_and_enemies)
-                  {
-                      if (character->is_alive && character->current_slot == battle.target && character->character_id > 2)
-                      {
-                          targets.push_back(character);
-                      }
-                  }
-              }
-              //else targets.push_back(*(battle.current_character)); //defaults to targeting self
-          }
-          else if (battle.current_move->target[i] == "ALL")
-          {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->is_alive)
-                  targets.push_back(character);
-              }
-          }
-          else if (battle.current_move->target[i] == "SELF")
-          {
-                  targets.push_back(battle.current_character);
-          }
+          // else targets.push_back(*(battle.current_character)); //defaults to targeting self
+        }
+        else if (battle.current_move->target[i] == "ALL")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "SELF") { targets.push_back(battle.current_character); }
 
-          if (battle.current_move->effect[i] == "Damage")
+        if (battle.current_move->effect[i] == "Damage")
+        {
+          for (auto character : targets)
           {
-              for (auto character : targets)
-              {
-                  if (character->shield_buff_duration > 0)
-                  {
-                      continue;
-                  }
-                  else
-                  {
-                      int final_damage = battle.current_move->value[i];
-                      if (battle.current_character->attack_buff_duration > 0)
-                      {
-                          final_damage += battle.current_move->value[i] / 2;
-                      }
-                      if (battle.current_character->attack_debuff_duration > 0)
-                      {
-                          final_damage -= battle.current_move->value[i] / 2;
-                      }
-                      character->current_health -= final_damage;
-                  }
-              }
+            if (character->shield_buff_duration > 0) { continue; }
+            else
+            {
+              int final_damage = battle.current_move->value[i];
+              if (battle.current_character->attack_buff_duration > 0) final_damage += battle.current_move->value[i] / 2;
+              if (battle.current_character->attack_debuff_duration > 0)
+                final_damage -= battle.current_move->value[i] / 2;
+              character->current_health -= final_damage;
+            }
           }
-          if (battle.current_move->effect[i] == "Heal")
+        }
+        if (battle.current_move->effect[i] == "Heal")
+        {
+          for (auto character : targets)
+            if (character->current_health + battle.current_move->value[i] > character->health)
+              character->current_health = character->health;
+            else
+              character->current_health += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Speed_Up")
+        {
+          for (auto character : targets)
+            if (character->current_speed - battle.current_move->value[i] < 0)
+              character->current_speed = 0;
+            else
+              character->current_speed -= battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Speed_Down")
+        {
+          for (auto character : targets) character->current_speed += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Attack_Up")
+        {
+          for (auto character : targets) character->attack_buff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Attack_Down")
+        {
+          for (auto character : targets)
+            if (character->protect_buff_duration > 0)
+              continue;
+            else
+              character->attack_debuff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Stun")
+        {
+          for (auto character : targets)
+            if (character->protect_buff_duration > 0)
+              continue;
+            else
+              character->stun_debuff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Shield")
+        {
+          for (auto character : targets)
           {
-              for (auto character : targets)
-              {
-                  if (character->current_health + battle.current_move->value[i] > character->health)
-                  {
-                      character->current_health = character->health;
-                  }
-                  else character->current_health += battle.current_move->value[i];
-              }
+            character->shield_buff_duration += battle.current_move->value[i];
+            Log::Warning(std::to_string(character->shield_buff_duration));
           }
-          else if (battle.current_move->effect[i] == "Speed_Up")
+        }
+        else if (battle.current_move->effect[i] == "Protect")
+        {
+          for (auto character : targets) character->protect_buff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Strip")
+        {
+          for (auto character : targets)
           {
-              for (auto character : targets)
-              {
-                  if (character->current_speed - battle.current_move->value[i] < 0)
-                  {
-                      character->current_speed = 0;
-                  }
-                  else character->current_speed -= battle.current_move->value[i];
-              }
+            character->attack_buff_duration = 0;
+            character->shield_buff_duration = 0;
+            character->protect_buff_duration = 0;
           }
-          else if (battle.current_move->effect[i] == "Speed_Down")
+        }
+        else if (battle.current_move->effect[i] == "Cleanse")
+        {
+          for (auto character : targets)
           {
-              for (auto character : targets)
-              {
-                  character->current_speed += battle.current_move->value[i];
-              }
+            character->attack_debuff_duration = 0;
+            character->stun_debuff_duration = 0;
           }
-          else if (battle.current_move->effect[i] == "Attack_Up")
-          {
-              for (auto character : targets)
-              {
-                  character->attack_buff_duration += battle.current_move->value[i];
-              }
-          }
-          else if (battle.current_move->effect[i] == "Attack_Down")
-          {
-              for (auto character : targets)
-              {
-                  if (character->protect_buff_duration > 0) continue;
-                  else character->attack_debuff_duration += battle.current_move->value[i];
-              }
-          }
-          else if (battle.current_move->effect[i] == "Stun")
-          {
-              for (auto character : targets)
-              {
-                  if (character->protect_buff_duration > 0) continue;
-                  else character->stun_debuff_duration += battle.current_move->value[i];
-              }
-          }
-          else if (battle.current_move->effect[i] == "Shield")
-          {
-              for (auto character : targets)
-              {
-                  character->shield_buff_duration += battle.current_move->value[i];
-                  Log::Warning(std::to_string(character->shield_buff_duration));
-              }
-          }
-          else if (battle.current_move->effect[i] == "Protect")
-          {
-              for (auto character : targets)
-              {
-                  character->protect_buff_duration += battle.current_move->value[i];
-              }
-          }
-          else if (battle.current_move->effect[i] == "Strip")
-          {
-              for (auto character : targets)
-              {
-                  character->attack_buff_duration = 0;
-                  character->shield_buff_duration = 0;
-                  character->protect_buff_duration = 0;
-              }
-          }
-          else if (battle.current_move->effect[i] == "Cleanse")
-          {
-              for (auto character : targets)
-              {
-                  character->attack_debuff_duration = 0;
-                  character->stun_debuff_duration = 0;
-              }
-          }
-          targets.clear();
+        }
+        targets.clear();
       }
 
       // play the animation
@@ -1201,97 +1161,93 @@ namespace Game
     if (battle.is_player_turn && battle.current_move != nullptr)
     {
       if (Input::GetKeyDown(GLFW_KEY_1) || target_one_click)
-        {
-            if (battle.target == 0)
-            {
-                battle.target = -1;
-            }
-            else battle.target = 0;
-        }
-      else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
-        {
-            if (battle.target == 1)
-            {
-                battle.target = -1;
-            }
-            else battle.target = 1;
-        }
-      else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
-        {
-            if (battle.target == 2)
-            {
-                battle.target = -1;
-            }
-            else battle.target = 2;
-        }
-      else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
-        {
-            if (battle.target == 3)
-            {
-                battle.target = -1;
-            }
-            else battle.target = 3;
-        }
-      else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
-        {
-            if (battle.target == 4)
-            {
-                battle.target = -1;
-            }
-            else battle.target = 4;
-        }
-
-      if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
       {
+        if (battle.target == 0)
+          battle.target = -1;
+        else
+          battle.target = 0;
+      }
+      else if (Input::GetKeyDown(GLFW_KEY_2) || target_two_click)
+      {
+        if (battle.target == 1)
+          battle.target = -1;
+        else
+          battle.target = 1;
+      }
+      else if (Input::GetKeyDown(GLFW_KEY_3) || target_three_click)
+      {
+        if (battle.target == 2)
+          battle.target = -1;
+        else
+          battle.target = 2;
+      }
+      else if (Input::GetKeyDown(GLFW_KEY_4) || target_four_click)
+      {
+        if (battle.target == 3)
+          battle.target = -1;
+        else
+          battle.target = 3;
+      }
+      else if (Input::GetKeyDown(GLFW_KEY_5) || target_five_click)
+      {
+        if (battle.target == 4)
+          battle.target = -1;
+        else
+          battle.target = 4;
+      }
+
+      if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" ||
+          battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+      {
+        for (auto character : battle.drifters_and_enemies)
+        {
+          if (character->current_slot == battle.target && (character->character_id <= 2))
+          {
+            battle.initial_target = character;
+            if (!battle.initial_target->is_alive) battle.initial_target = nullptr;
+            break;
+          }
+          else
+            battle.initial_target = nullptr;
+        }
+        if (battle.initial_target == nullptr)
+        {
           for (auto character : battle.drifters_and_enemies)
           {
-              if (character->current_slot == battle.target && (character->character_id <= 2))
-              {
-                  battle.initial_target = character;
-                  if (!battle.initial_target->is_alive)
-                      battle.initial_target = nullptr;
-                  break;
-              }
-              else battle.initial_target = nullptr;
+            if (character->character_id <= 2 && character->is_alive)
+            {
+              battle.initial_target = character;
+              battle.target = character->current_slot;
+              break;
+            }
           }
-          if (battle.initial_target == nullptr)
-          {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->character_id <= 2 && character->is_alive)
-                  {
-                      battle.initial_target = character;
-                      battle.target = character->current_slot;
-                      break;
-                  }
-              }
-          }
+        }
       }
       else
       {
+        for (auto character : battle.drifters_and_enemies)
+        {
+          if (character->current_slot == battle.target && (character->character_id > 2))
+          {
+            battle.initial_target = character;
+            if (!battle.initial_target->is_alive) battle.initial_target = nullptr;
+            break;
+          }
+          else
+            battle.initial_target = nullptr;
+        }
+        if (battle.initial_target == nullptr)
+        {
           for (auto character : battle.drifters_and_enemies)
           {
-              if (character->current_slot == battle.target && (character->character_id > 2))
-              {
-                  battle.initial_target = character;
-                  if (!battle.initial_target->is_alive)
-                      battle.initial_target = nullptr;
-                  break;
-              }
-              else battle.initial_target = nullptr;
+            if (character->character_id > 2 && character->is_alive)
+            {
+              battle.initial_target = character;
+              battle.target = character->current_slot;
+              break;
+            }
           }
-          if (battle.initial_target == nullptr)
-          {
-              for (auto character : battle.drifters_and_enemies)
-              {
-                  if (character->character_id > 2 && character->is_alive)
-                  {
-                      battle.initial_target = character;
-                      battle.target = character->current_slot;
-                      break;
-                  }
-              }
-          }
+        }
       }
     }
 
@@ -1301,399 +1257,362 @@ namespace Game
 
     if (battle.current_character->stun_debuff_duration > 0)
     {
-        battle.current_character->stun_debuff_duration--;
+      battle.current_character->stun_debuff_duration--;
 
-        if (battle.current_character->attack_buff_duration > 0)
-            battle.current_character->attack_buff_duration -= 1;
+      if (battle.current_character->attack_buff_duration > 0) battle.current_character->attack_buff_duration -= 1;
 
-        if (battle.current_character->attack_debuff_duration > 0)
-            battle.current_character->attack_debuff_duration -= 1;
+      if (battle.current_character->attack_debuff_duration > 0) battle.current_character->attack_debuff_duration -= 1;
 
-        if (battle.current_character->shield_buff_duration > 0)
-            battle.current_character->shield_buff_duration -= 1;
+      if (battle.current_character->shield_buff_duration > 0) battle.current_character->shield_buff_duration -= 1;
 
-        if (battle.current_character->protect_buff_duration > 0)
-            battle.current_character->protect_buff_duration -= 1;
+      if (battle.current_character->protect_buff_duration > 0) battle.current_character->protect_buff_duration -= 1;
 
-        battle.current_character->current_speed = battle.current_character->speed + 10;
+      battle.current_character->current_speed = battle.current_character->speed + 10;
 
-        // Reset move selection, as well as description
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+      // Reset move selection, as well as description
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
 
-        battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
+      battle.prev_state =
+        false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
     }
     // Executes if player turn and target is selected and some move is already selected
     else if (battle.is_player_turn && battle.current_move != nullptr && battle.initial_target != nullptr &&
-      (Input::GetKeyDown(GLFW_KEY_SPACE) || (!battle.is_key_input && (move_one_click || move_two_click || move_three_click))))
+             (Input::GetKeyDown(GLFW_KEY_SPACE) ||
+              (!battle.is_key_input && (move_one_click || move_two_click || move_three_click))))
     {
-        if (battle.current_move == &battle.current_character->move_one)
+      if (battle.current_move == &battle.current_character->move_one)
+      {
+        switch (battle.current_character->character_id)
         {
-            switch (battle.current_character->character_id)
-            {
-            case 1:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            case 2:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            }
-        }
-        if (battle.current_move == &battle.current_character->move_two)
-        {
-            switch (battle.current_character->character_id)
-            {
-            case 1:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            case 2:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            }
-        }
-        if (battle.current_move == &battle.current_character->move_three)
-        {
-            switch (battle.current_character->character_id)
-            {
-            case 1:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            case 2:
-                current_character_animator.spritesheet_handle =
-                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                    FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
-                FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                break;
-            }
-        }
-
-        // temporarily move character
-        if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-        {
-        }
-        else
-        {
-            battle.previous_character = battle.current_character;
-            battle.previous_character_entity = current_character_entity;
-            current_character_entity.GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2];
-        }
-
-        // update the character's speed
-        battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
-
-        if (battle.current_character->attack_buff_duration > 0)
-        battle.current_character->attack_buff_duration--;
-
-        if (battle.current_character->attack_debuff_duration > 0)
-        battle.current_character->attack_debuff_duration--;
-
-        if (battle.current_character->shield_buff_duration > 0)
-        battle.current_character->shield_buff_duration--;
-
-        if (battle.current_character->protect_buff_duration > 0)
-        battle.current_character->protect_buff_duration--;
-
-        // apply the move
-        std::vector<_Character*> targets;
-        for (int i = 0; i < battle.current_move->effect.size(); i++) {
-            Log::Debug((battle.current_move->effect[i]));
-            Log::Debug(std::to_string(battle.current_move->value[i]));
-            Log::Debug((battle.current_move->target[i]));
-            if (battle.current_move->target[i] == "ALL_ENEMIES")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && character->character_id > 2)
-                    {
-                        targets.push_back(character);
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && (character->current_slot == battle.target - 1 && character->character_id > 2 || character->current_slot == battle.target && character->character_id > 2 || character->current_slot == battle.target + 1 && character->character_id > 2))
-                    {
-                        targets.push_back(character);
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "NEXT_ENEMY")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && character->character_id > 2)
-                    {
-                        targets.push_back(character);
-                        break;
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "SINGLE_ENEMY")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && character->current_slot == battle.target && character->character_id > 2)
-                    {
-                        targets.push_back(character);
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "ALL_ALLIES")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && character->character_id <= 2)
-                    {
-                        targets.push_back(character);
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "NEXT_ALLY")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive && character->character_id <= 2 && character != battle.current_character)
-                    {
-                        targets.push_back(character);
-                        break;
-                    }
-                }
-            }
-            else if (battle.current_move->target[i] == "SINGLE_ALLY")
-            {
-                if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF") //fizzles if not targeting ally
-                {
-                    for (auto character : battle.drifters_and_enemies)
-                    {
-                        if (character->is_alive && character->current_slot == battle.target && character->character_id <= 2)
-                        {
-                            targets.push_back(character);
-                        }
-                    }
-                }
-                //else targets.push_back(*(battle.current_character)); //defaults to targeting self
-            }
-            else if (battle.current_move->target[i] == "ALL")
-            {
-                for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character->is_alive)
-                    targets.push_back(character);
-                }
-            }
-            else if (battle.current_move->target[i] == "SELF")
-            {
-                targets.push_back(battle.current_character);
-            }
-
-            if (battle.current_move->effect[i] == "Damage")
-            {
-                for (auto character : targets)
-                {
-                    if (character->shield_buff_duration > 0)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        int final_damage = battle.current_move->value[i];
-                        if (battle.current_character->attack_buff_duration > 0)
-                        {
-                            final_damage += battle.current_move->value[i] / 2;
-                        }
-                        if (battle.current_character->attack_debuff_duration > 0)
-                        {
-                            final_damage -= battle.current_move->value[i] / 2;
-                        }
-                        character->current_health -= final_damage;
-                        Log::Debug(std::to_string(character->current_health));
-                    }
-                }
-            }
-            if (battle.current_move->effect[i] == "Heal")
-            {
-                for (auto character : targets)
-                {
-                    if (character->current_health + battle.current_move->value[i] > character->health)
-                    {
-                        character->current_health = character->health;
-                    }
-                    else character->current_health += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Speed_Up")
-            {
-                for (auto character : targets)
-                {
-                    if (character->current_speed - battle.current_move->value[i] < 0)
-                    {
-                        character->current_speed = 0;
-                    }
-                    else character->current_speed -= battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Speed_Down")
-            {
-                for (auto character : targets)
-                {
-                    character->current_speed += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Attack_Up")
-            {
-                for (auto character : targets)
-                {
-                    character->attack_buff_duration += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Attack_Down")
-            {
-                for (auto character : targets)
-                {
-                    if (character->protect_buff_duration > 0) continue;
-                    else character->attack_debuff_duration += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Stun")
-            {
-                for (auto character : targets)
-                {
-                    if (character->protect_buff_duration > 0) continue;
-                    else character->stun_debuff_duration += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Shield")
-            {
-                for (auto character : targets)
-                {
-                    character->shield_buff_duration += battle.current_move->value[i];
-                    Log::Warning(std::to_string(character->shield_buff_duration));
-                }
-            }
-            else if (battle.current_move->effect[i] == "Protect")
-            {
-                for (auto character : targets)
-                {
-                    character->protect_buff_duration += battle.current_move->value[i];
-                }
-            }
-            else if (battle.current_move->effect[i] == "Strip")
-            {
-                for (auto character : targets)
-                {
-                    character->attack_buff_duration = 0;
-                    character->shield_buff_duration = 0;
-                    character->protect_buff_duration = 0;
-                }
-            }
-            else if (battle.current_move->effect[i] == "Cleanse")
-            {
-                for (auto character : targets)
-                {
-                    character->attack_debuff_duration = 0;
-                    character->stun_debuff_duration = 0;
-                }
-            }
-            targets.clear();
-        }
-
-        // reset the target
-        //battle.target = 0;
-
-        // play the animation
-        float animation_time =
-          FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-            .total_frame_time;
-        current_character_animator.should_play = true;
-        current_character_animator.is_looping = false;
-        current_character_animator.return_to_default = true;
-        current_character_animator.frame_time = 0.f;
-        current_character_animator.current_frame = 0;
-
-        auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
-        auto& target_animator = *target_entity.GetComponent<Animator>();
-        switch (battle.initial_target->character_id)
-        {
-        case 3:
-          target_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+        case 1:
+          PlayAnimationEvent(
+            current_character_entity, 7,
+            current_character_entity, R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)"
+          );
+          PlaySoundEvent(current_character_entity, 7, R"(/audio/generic attack.mp3)");
           break;
-        case 4:
-          target_animator.spritesheet_handle =
-            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
-          break;
-        case 5:
-          // special case, the screen will flash red
+        case 2:
+          PlayAnimationEvent(
+            current_character_entity, 7, current_character_entity,
+            R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"
+          );
+          PlaySoundEvent(current_character_entity, 7, R"(/audio/generic attack.mp3)");
           break;
         }
-        target_animator.should_play = true;
-        target_animator.is_looping = false;
-        target_animator.return_to_default = true;
-        target_animator.frame_time = 0.f;
-        target_animator.current_frame = 0;
+      }
+      if (battle.current_move == &battle.current_character->move_two)
+      {
+        switch (battle.current_character->character_id)
+        {
+        case 1:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        case 2:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/generic attack.mp3)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        }
+      }
+      if (battle.current_move == &battle.current_character->move_three)
+      {
+        switch (battle.current_character->character_id)
+        {
+        case 1:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Ult_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        case 2:
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+          FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+          break;
+        }
+      }
 
-        // disable input for the duration of the move animation
-        battle.disable_input_timer += animation_time + 1.f;
+      // temporarily move character
+      if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" ||
+          battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+      {
+      }
+      else
+      {
+        battle.previous_character = battle.current_character;
+        battle.previous_character_entity = current_character_entity;
+        current_character_entity.GetComponent<Position>()->position =
+          battle.sprite_slot_positions[battle.initial_target->current_slot + 2];
+      }
 
-        // Reset move selection, as well as description
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+      // update the character's speed
+      battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
 
-        battle.current_move = nullptr;
+      if (battle.current_character->attack_buff_duration > 0) battle.current_character->attack_buff_duration--;
 
-        battle.projected_character.GetComponent<Transform>()->is_active = false;
-        battle.projected_speed = 0;
+      if (battle.current_character->attack_debuff_duration > 0) battle.current_character->attack_debuff_duration--;
 
-        battle.is_player_turn = false;
-        battle.prev_state = false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
+      if (battle.current_character->shield_buff_duration > 0) battle.current_character->shield_buff_duration--;
+
+      if (battle.current_character->protect_buff_duration > 0) battle.current_character->protect_buff_duration--;
+
+      // apply the move
+      std::vector<_Character*> targets;
+      for (int i = 0; i < battle.current_move->effect.size(); i++)
+      {
+        Log::Debug(battle.current_move->effect[i]);
+        Log::Debug(std::to_string(battle.current_move->value[i]));
+        Log::Debug(battle.current_move->target[i]);
+        if (battle.current_move->target[i] == "ALL_ENEMIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->character_id > 2) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
+          {
+            if (character->is_alive && (character->current_slot == battle.target - 1 && character->character_id > 2 ||
+                                        character->current_slot == battle.target && character->character_id > 2 ||
+                                        character->current_slot == battle.target + 1 && character->character_id > 2))
+            {
+              targets.push_back(character);
+            }
+          }
+        }
+        else if (battle.current_move->target[i] == "NEXT_ENEMY")
+        {
+          for (auto character : battle.drifters_and_enemies)
+          {
+            if (character->is_alive && character->character_id > 2)
+            {
+              targets.push_back(character);
+              break;
+            }
+          }
+        }
+        else if (battle.current_move->target[i] == "SINGLE_ENEMY")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->current_slot == battle.target && character->character_id > 2)
+              targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "ALL_ALLIES")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive && character->character_id <= 2) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "NEXT_ALLY")
+        {
+          for (auto character : battle.drifters_and_enemies)
+          {
+            if (character->is_alive && character->character_id <= 2 && character != battle.current_character)
+            {
+              targets.push_back(character);
+              break;
+            }
+          }
+        }
+        else if (battle.current_move->target[i] == "SINGLE_ALLY")
+        {
+          if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" ||
+              battle.current_move->target[0] == "SINGLE_ALLY" ||
+              battle.current_move->target[0] == "SELF") // fizzles if not targeting ally
+          {
+            for (auto character : battle.drifters_and_enemies)
+              if (character->is_alive && character->current_slot == battle.target && character->character_id <= 2)
+                targets.push_back(character);
+          }
+          // else targets.push_back(*(battle.current_character)); //defaults to targeting self
+        }
+        else if (battle.current_move->target[i] == "ALL")
+        {
+          for (auto character : battle.drifters_and_enemies)
+            if (character->is_alive) targets.push_back(character);
+        }
+        else if (battle.current_move->target[i] == "SELF") { targets.push_back(battle.current_character); }
+
+        if (battle.current_move->effect[i] == "Damage")
+        {
+          for (auto character : targets)
+          {
+            if (character->shield_buff_duration > 0) { continue; }
+            else
+            {
+              int final_damage = battle.current_move->value[i];
+              if (battle.current_character->attack_buff_duration > 0) final_damage += battle.current_move->value[i] / 2;
+              if (battle.current_character->attack_debuff_duration > 0)
+                final_damage -= battle.current_move->value[i] / 2;
+              character->current_health -= final_damage;
+              Log::Debug(std::to_string(character->current_health));
+            }
+          }
+        }
+        if (battle.current_move->effect[i] == "Heal")
+        {
+          for (auto character : targets)
+            if (character->current_health + battle.current_move->value[i] > character->health)
+              character->current_health = character->health;
+            else
+              character->current_health += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Speed_Up")
+        {
+          for (auto character : targets)
+            if (character->current_speed - battle.current_move->value[i] < 0)
+              character->current_speed = 0;
+            else
+              character->current_speed -= battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Speed_Down")
+        {
+          for (auto character : targets) character->current_speed += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Attack_Up")
+        {
+          for (auto character : targets) character->attack_buff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Attack_Down")
+        {
+          for (auto character : targets)
+            if (character->protect_buff_duration > 0)
+              continue;
+            else
+              character->attack_debuff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Stun")
+        {
+          for (auto character : targets)
+            if (character->protect_buff_duration > 0)
+              continue;
+            else
+              character->stun_debuff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Shield")
+        {
+          for (auto character : targets)
+          {
+            character->shield_buff_duration += battle.current_move->value[i];
+            Log::Warning(std::to_string(character->shield_buff_duration));
+          }
+        }
+        else if (battle.current_move->effect[i] == "Protect")
+        {
+          for (auto character : targets) character->protect_buff_duration += battle.current_move->value[i];
+        }
+        else if (battle.current_move->effect[i] == "Strip")
+        {
+          for (auto character : targets)
+          {
+            character->attack_buff_duration = 0;
+            character->shield_buff_duration = 0;
+            character->protect_buff_duration = 0;
+          }
+        }
+        else if (battle.current_move->effect[i] == "Cleanse")
+        {
+          for (auto character : targets)
+          {
+            character->attack_debuff_duration = 0;
+            character->stun_debuff_duration = 0;
+          }
+        }
+        targets.clear();
+      }
+
+      // reset the target
+      // battle.target = 0;
+
+      // play the animation
+      float animation_time =
+        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
+          .total_frame_time;
+      current_character_animator.should_play = true;
+      current_character_animator.is_looping = false;
+      current_character_animator.return_to_default = true;
+      current_character_animator.frame_time = 0.f;
+      current_character_animator.current_frame = 0;
+
+      auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
+      auto& target_animator = *target_entity.GetComponent<Animator>();
+      switch (battle.initial_target->character_id)
+      {
+      case 3:
+        target_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+        break;
+      case 4:
+        target_animator.spritesheet_handle =
+          FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+        break;
+      case 5:
+        // special case, the screen will flash red
+        break;
+      }
+      target_animator.should_play = true;
+      target_animator.is_looping = false;
+      target_animator.return_to_default = true;
+      target_animator.frame_time = 0.f;
+      target_animator.current_frame = 0;
+
+      // disable input for the duration of the move animation
+      battle.disable_input_timer += animation_time + 1.f;
+
+      // Reset move selection, as well as description
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+
+      battle.current_move = nullptr;
+
+      battle.projected_character.GetComponent<Transform>()->is_active = false;
+      battle.projected_speed = 0;
+
+      battle.is_player_turn = false;
+      battle.prev_state =
+        false; // Just swapped from player phase to enemy phase (even if its the player turn next, take it as so.)
     }
 
     // Sets the description for the current character and locks the current selected move for the next loop to consume
     if (battle.is_player_turn)
     {
       // Start of player turn to display their first move as default
-      if (battle.current_move == nullptr) {
+      if (battle.current_move == nullptr)
+      {
         battle.current_move = &battle.current_character->move_one;
-        FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active = true;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active =
+          true;
 
         FlexECS::Entity tempEntity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text");
         tempEntity.GetComponent<Transform>()->is_active = true;
         FLX_STRING_GET(tempEntity.GetComponent<Text>()->text) = battle.current_move->description;
       }
 
-      if (Input::GetKeyDown(GLFW_KEY_Z) || Input::GetKeyDown(GLFW_KEY_X) || Input::GetKeyDown(GLFW_KEY_C)) {
-        if (!battle.is_key_input) {
-          bool& to_set_active = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active;
+      if (Input::GetKeyDown(GLFW_KEY_Z) || Input::GetKeyDown(GLFW_KEY_X) || Input::GetKeyDown(GLFW_KEY_C))
+      {
+        if (!battle.is_key_input)
+        {
+          bool& to_set_active =
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description").GetComponent<Transform>()->is_active;
           if (!to_set_active) to_set_active = true;
 
-          to_set_active = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active;
+          to_set_active = FlexECS::Scene::GetActiveScene()
+                            ->GetEntityByName("Move Description Text")
+                            .GetComponent<Transform>()
+                            ->is_active;
           if (!to_set_active) to_set_active = true;
 
           // Toggles the variable (so that the input being read is from key only)
@@ -1702,36 +1621,34 @@ namespace Game
       }
 
       // Mouse movement detection
-      if (Input::GetMousePositionDelta().x > 0.f || Input::GetMousePositionDelta().y > 0.f) {
+      if (Input::GetMousePositionDelta().x > 0.f || Input::GetMousePositionDelta().y > 0.f)
+      {
         if (battle.is_key_input) battle.is_key_input ^= true;
       }
 
-      if ((Input::GetKeyDown(GLFW_KEY_Z) && battle.is_key_input) || 
-        (move_one_hover && !battle.is_key_input))
+      if ((Input::GetKeyDown(GLFW_KEY_Z) && battle.is_key_input) || (move_one_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_one;
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
-            battle.current_character->move_one.description;
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =
+          battle.current_character->move_one.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
-      if ((Input::GetKeyDown(GLFW_KEY_X) && battle.is_key_input) ||
-        (move_two_hover && !battle.is_key_input))
+      if ((Input::GetKeyDown(GLFW_KEY_X) && battle.is_key_input) || (move_two_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_two;
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =  
-            battle.current_character->move_two.description;
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =
+          battle.current_character->move_two.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
-      if ((Input::GetKeyDown(GLFW_KEY_C) && battle.is_key_input) ||
-        (move_three_hover && !battle.is_key_input))
+      if ((Input::GetKeyDown(GLFW_KEY_C) && battle.is_key_input) || (move_three_hover && !battle.is_key_input))
       {
         battle.current_move = &battle.current_character->move_three;
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = 
-            battle.current_character->move_three.description;
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =
+          battle.current_character->move_three.description;
         battle.projected_speed = battle.current_character->speed + battle.current_move->speed;
       }
 
-      int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+      int slot_number = -1; // will always be bigger than first element (itself), account for +1 for slot 0.
       if (battle.projected_speed > 0)
       {
         battle.projected_character.GetComponent<Transform>()->is_active = true;
@@ -1739,31 +1656,31 @@ namespace Game
         {
           if (battle.projected_speed < character->current_speed)
           {
-            //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+            // if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0
+            // + offset to the right, between slot 0 and slot 1
             break;
           }
-          else
-          {
-            slot_number++;
-          }
+          else { slot_number++; }
         }
 
-        bool checkFirst = true; //grabs current character's icon, slot 0
+        bool checkFirst = true; // grabs current character's icon, slot 0
         for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
         {
           if (checkFirst)
           {
-            battle.projected_character.GetComponent<Sprite>()->sprite_handle = entity.GetComponent<Sprite>()->sprite_handle;
+            battle.projected_character.GetComponent<Sprite>()->sprite_handle =
+              entity.GetComponent<Sprite>()->sprite_handle;
             checkFirst = false;
           }
           if (slot_number == 0)
           {
-            battle.projected_character.GetComponent<Position>()->position = entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
+            battle.projected_character.GetComponent<Position>()->position =
+              entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
             break;
           }
           else
           {
-            slot_number--; //counts backwards to the slot it's supposed to be
+            slot_number--; // counts backwards to the slot it's supposed to be
           }
         }
       }
@@ -1771,15 +1688,15 @@ namespace Game
       // update the character id in the slot based on the speed bar order
       for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
       {
-          auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
+        auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
 
-          if (speed_bar_slot.slot_number <= battle.speed_bar.size())
-              speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
-          else
-              speed_bar_slot.character = 0;
+        if (speed_bar_slot.slot_number <= battle.speed_bar.size())
+          speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
+        else
+          speed_bar_slot.character = 0;
       }
 
-      //button text
+      // button text
       FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) =
         "[Z] " + battle.current_character->move_one.name;
       FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) =
@@ -1787,20 +1704,23 @@ namespace Game
       FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) =
         "[C] " + battle.current_character->move_three.name;
 
-      //button UI
+      // button UI
       FlexECS::Entity move1 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1");
       FlexECS::Entity move2 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2");
       FlexECS::Entity move3 = FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 3");
 
       FLX_STRING_GET(move1.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_one) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (battle.current_move == &battle.current_character->move_one)
+          ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
       FLX_STRING_GET(move2.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_two) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (battle.current_move == &battle.current_character->move_two)
+          ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
       FLX_STRING_GET(move3.GetComponent<Sprite>()->sprite_handle) =
-        (battle.current_move == &battle.current_character->move_three) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
-        : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
+        (battle.current_move == &battle.current_character->move_three)
+          ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
+          : ("/images/battle ui/Battle_UI_Skill_Unselected.png");
     }
 
 #pragma endregion
@@ -1898,7 +1818,7 @@ namespace Game
     else if (battle.drifter_alive_count == 0 && !battle.is_lose)
     {
       battle.is_lose = true;
-      
+
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
@@ -1965,7 +1885,7 @@ namespace Game
       scale->scale.x = healthbar->original_scale.x * health_percentage;
 
       // Update Position
-      position->position.x = healthbar->original_position.x - healthbar->pixelLength/2.f * (1.0f -health_percentage);
+      position->position.x = healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - health_percentage);
 
       entity = FlexECS::Scene::GetEntityByName(character->name + " Stats");
 
@@ -1973,7 +1893,9 @@ namespace Game
       if (!entity && !entity.HasComponent<Text>()) continue;
 
       // get the character's current health
-      std::string stats = "HP: " + std::to_string(character->current_health) + " / " + std::to_string(character->health) + " , " + "SPD: " + std::to_string(character->current_speed);
+      std::string stats = "HP: " + std::to_string(character->current_health) + " / " +
+                          std::to_string(character->health) + " , " +
+                          "SPD: " + std::to_string(character->current_speed);
       entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
 
@@ -1984,8 +1906,9 @@ namespace Game
 
       // get the character's current health
       if (character->attack_buff_duration > 0)
-          entity.GetComponent<Transform>()->is_active = true;
-      else entity.GetComponent<Transform>()->is_active = false;
+        entity.GetComponent<Transform>()->is_active = true;
+      else
+        entity.GetComponent<Transform>()->is_active = false;
 
 
       entity = FlexECS::Scene::GetEntityByName(character->name + " Attack_Debuff");
@@ -1995,8 +1918,9 @@ namespace Game
 
       // get the character's current health
       if (character->attack_debuff_duration > 0)
-          entity.GetComponent<Transform>()->is_active = true;
-      else entity.GetComponent<Transform>()->is_active = false;
+        entity.GetComponent<Transform>()->is_active = true;
+      else
+        entity.GetComponent<Transform>()->is_active = false;
 
 
       entity = FlexECS::Scene::GetEntityByName(character->name + " Stun_Debuff");
@@ -2006,8 +1930,9 @@ namespace Game
 
       // get the character's current health
       if (character->stun_debuff_duration > 0)
-          entity.GetComponent<Transform>()->is_active = true;
-      else entity.GetComponent<Transform>()->is_active = false;
+        entity.GetComponent<Transform>()->is_active = true;
+      else
+        entity.GetComponent<Transform>()->is_active = false;
 
 
       entity = FlexECS::Scene::GetEntityByName(character->name + " Shield_Buff");
@@ -2017,8 +1942,9 @@ namespace Game
 
       // get the character's current health
       if (character->shield_buff_duration > 0)
-          entity.GetComponent<Transform>()->is_active = true;
-      else entity.GetComponent<Transform>()->is_active = false;
+        entity.GetComponent<Transform>()->is_active = true;
+      else
+        entity.GetComponent<Transform>()->is_active = false;
 
 
       entity = FlexECS::Scene::GetEntityByName(character->name + " Protect_Buff");
@@ -2028,47 +1954,42 @@ namespace Game
 
       // get the character's current health
       if (character->protect_buff_duration > 0)
-          entity.GetComponent<Transform>()->is_active = true;
-      else entity.GetComponent<Transform>()->is_active = false;
+        entity.GetComponent<Transform>()->is_active = true;
+      else
+        entity.GetComponent<Transform>()->is_active = false;
     }
 
-    //Damage Preview related stuff
-    //Just turn off everything first,
-    //Then turn on and adjust the people being targetted
+    // Damage Preview related stuff
+    // Just turn off everything first,
+    // Then turn on and adjust the people being targetted
     for (auto character : battle.enemy_slots)
     {
       auto entity = FlexECS::Scene::GetEntityByName(character->name + " DamagePreview");
       entity.GetComponent<Transform>()->is_active = false;
     }
     for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
-    {
       entity.GetComponent<Transform>()->is_active = false;
-    }
 
     if (battle.current_move && battle.is_player_turn)
     {
       std::vector<_Character*> targets;
-      for (int i = 0; i < battle.current_move->effect.size(); i++) 
+      for (int i = 0; i < battle.current_move->effect.size(); i++)
       {
-        //if (battle.current_move->effect[i] != "Damage") continue;
+        // if (battle.current_move->effect[i] != "Damage") continue;
 
         if (battle.current_move->target[i] == "ALL_ENEMIES")
         {
           for (auto character : battle.drifters_and_enemies)
-          {
-            if (character->is_alive && character->character_id > 2)
-            {
-              targets.push_back(character);
-            }
-          }
+            if (character->is_alive && character->character_id > 2) targets.push_back(character);
         }
         else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
         {
           for (auto character : battle.drifters_and_enemies)
           {
             if (character->character_id <= 2) continue;
-            if (character->is_alive && 
-              (character->current_slot == battle.target - 1 || character->current_slot == battle.target || character->current_slot == battle.target + 1))
+            if (character->is_alive &&
+                (character->current_slot == battle.target - 1 || character->current_slot == battle.target ||
+                 character->current_slot == battle.target + 1))
             {
               targets.push_back(character);
             }
@@ -2077,84 +1998,64 @@ namespace Game
         else if (battle.current_move->target[i] == "SINGLE_ENEMY")
         {
           for (auto character : battle.drifters_and_enemies)
-          {
             if (character->is_alive && character->current_slot == battle.target && character->character_id > 2)
-            {
               targets.push_back(character);
-            }
-          }
         }
-       
-        //Draw damage preview bar
+
+        // Draw damage preview bar
         for (auto target : targets)
         {
           auto entity = FlexECS::Scene::GetEntityByName(target->name + " DamagePreview");
           if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
           if (target->shield_buff_duration > 0) continue;
-          
+
           entity.GetComponent<Transform>()->is_active = true;
 
           auto* scale = entity.GetComponent<Scale>();
           auto* healthbar = entity.GetComponent<Healthbar>();
           auto* position = entity.GetComponent<Position>();
 
-          float current_health_percentage = static_cast<float>(target->current_health) / static_cast<float>(target->health);
-          float right_edge_pos = (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage))
-                               + (healthbar->pixelLength / 2.f * (current_health_percentage));
+          float current_health_percentage =
+            static_cast<float>(target->current_health) / static_cast<float>(target->health);
+          float right_edge_pos =
+            (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage)) +
+            (healthbar->pixelLength / 2.f * (current_health_percentage));
 
           float damage_taken = 0;
-          if (battle.current_move->effect[i] == "Damage")
-          {
-            damage_taken = battle.current_move->value[i];
-          }
+          if (battle.current_move->effect[i] == "Damage") damage_taken = battle.current_move->value[i];
 
-          if (battle.current_character->attack_buff_duration > 0)
-          {
-            damage_taken += damage_taken / 2;
-          }
-          if (battle.current_character->attack_debuff_duration < 0)
-          {
-            damage_taken -= damage_taken / 2;
-          }
+          if (battle.current_character->attack_buff_duration > 0) damage_taken += damage_taken / 2;
+          if (battle.current_character->attack_debuff_duration < 0) damage_taken -= damage_taken / 2;
 
 
           float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target->health);
-          
+
           scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
           position->position.x = right_edge_pos - (healthbar->pixelLength / 2 * percentage_damage_taken);
         }
 
-        //Draw Targetting icon over targetted enemy in speed bar
+        // Draw Targetting icon over targetted enemy in speed bar
         for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
         {
           int slot_number = entity.GetComponent<SpeedBarSlotTarget>()->slot_number;
 
           int size = static_cast<int>(battle.speed_bar.size());
-        
+
           if (slot_number > size)
           {
             entity.GetComponent<Transform>()->is_active = false;
             continue;
           }
 
-          //check if the character in the slot is being targetted.
+          // check if the character in the slot is being targetted.
           _Character* character = battle.speed_bar[slot_number - 1];
           for (_Character*& target : targets)
-          {
-            if (target == character)
-            {
-              entity.GetComponent<Transform>()->is_active = true;
-            }
-          }
+            if (target == character) entity.GetComponent<Transform>()->is_active = true;
         }
 
         targets.clear();
       }
-    
-
-
-
     }
 
 #pragma endregion
@@ -2170,14 +2071,15 @@ namespace Game
       // +2 to offset the slot number to the enemy slots
       // only target slots that have a character in them
       if (battle.initial_target != nullptr && battle.current_move != nullptr)
-      {
-          if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-          {
-              transform.is_active = (character_slot.slot_number == (battle.target + 1));
-          }
-          else transform.is_active = (character_slot.slot_number == (battle.target + 3));
-      }
-      else transform.is_active = false;
+        if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" ||
+            battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+        {
+          transform.is_active = (character_slot.slot_number == (battle.target + 1));
+        }
+        else
+          transform.is_active = (character_slot.slot_number == (battle.target + 3));
+      else
+        transform.is_active = false;
 
       if (!battle.is_player_turn) transform.is_active = false;
     }
@@ -2241,9 +2143,11 @@ namespace Game
     new_position.y -= 10;
 
     FlexECS::Entity tempMoveUI = FlexECS::Entity::Null;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
       new_position.y -= 30; // Vertical Difference: 30
-      switch (i) {
+      switch (i)
+      {
       case 0:
         tempMoveUI = FlexECS::Scene::GetEntityByName("Move 1 Text");
         break;
@@ -2259,8 +2163,10 @@ namespace Game
 
     new_position.x += 80;
     new_position.y += 10;
-    for (int i = 0; i < 3; i++) {
-      switch (i) {
+    for (int i = 0; i < 3; i++)
+    {
+      switch (i)
+      {
       case 0:
         tempMoveUI = FlexECS::Scene::GetEntityByName("Move 3");
         break;
