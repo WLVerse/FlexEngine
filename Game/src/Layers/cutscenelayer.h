@@ -84,7 +84,11 @@ namespace Game
         float m_arrowTimer = 0.0f;
         float m_arrowOscillationFrequency = 3.0f;
         float m_arrowOscillationAmplitude = 3.0f;
-        float m_arrowFadeDuration = 0.4f;
+        float m_skipTimer = 0.0f;
+        float m_skipFadeDuration = 2.0f;
+        float m_skipTextRate = 20.0f;
+        float m_baseRotationSpeed = 1200.0f;
+        float m_skipHoldThreshold = 3.0f;
 
         // Overall cutscene activation flag.
         bool m_CutsceneActive = false;
