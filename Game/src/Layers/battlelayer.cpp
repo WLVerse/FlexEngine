@@ -89,6 +89,7 @@ namespace Game
     bool is_lose = false;
 
     bool is_key_input = false;
+    bool is_paused = false;
 
     // Return to original position
     FlexECS::Entity previous_character_entity = FlexECS::Entity::Null;
@@ -270,7 +271,7 @@ namespace Game
 
   void BattleLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/battlescene_v5.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/battlescene_v6.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -558,6 +559,34 @@ namespace Game
       }
 
   #pragma endregion
+  #pragma Load pause menu data
+    std::array<std::string, 9> slider_names = {
+      "SFX Slider Background",
+      "SFX Slider Fill",
+      "SFX Knob",
+      "BGM Slider Background",
+      "BGM Slider Fill",
+      "BGM Knob",
+      "Master Slider Background",
+      "Master Slider Fill",
+      "Master Knob"
+    };
+    for (int i = 0; i < 9; i+=3) {
+      FlexECS::Entity tempEntity = FlexECS::Scene::GetEntityByName(slider_names[i]);
+
+      float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 25.f;
+      float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 25.f;
+
+      FlexECS::Entity sliderEntity = FlexECS::Scene::GetEntityByName(slider_names[i+1]);
+      sliderEntity.AddComponent<Slider>({
+        min_value,
+        max_value,
+        max_value - min_value,
+        ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value),
+        sliderEntity.GetComponent<Scale>()->scale
+        });
+    }
+  #pragma endregion
 
     main_camera = FlexECS::Scene::GetEntityByName("Camera");
   }
@@ -587,19 +616,31 @@ namespace Game
     bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
     bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");
 
+    bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
+
+    // check for escape key
+    // this goes back to the main menu
+    if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || resume_game)
+    {
+      // set the main camera
+      CameraManager::SetMainGameCameraID(main_camera);
+      
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
+        bool& state_to_set = entity.GetComponent<Transform>()->is_active;
+        if (entity.HasComponent<PauseHoverUI>()) state_to_set = false;
+        else state_to_set ^= true;
+      }
+
+      battle.is_paused ^= true;
+    }
+
+    if (battle.is_paused) return;
+
     // If there is no selected move
     if (!battle.is_player_turn) {
       // Set the transform component to false so that it does not render in scene
       FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Transform>()->is_active = false;
       FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Transform>()->is_active = false;
-    }
-
-    // check for escape key
-    // this goes back to the main menu
-    if (Input::GetKeyDown(GLFW_KEY_ESCAPE))
-    {
-      // set the main camera
-      CameraManager::SetMainGameCameraID(main_camera);
     }
     
     if (battle.is_win && Input::AnyKeyDown())
