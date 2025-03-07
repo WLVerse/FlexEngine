@@ -48,6 +48,57 @@
     <ClCompile Include="src\targetone.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\bgmslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfxslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\masterslider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mastervolumeincrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mastervolumedecrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bgmvolumeincrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bgmvolumedecrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfxvolumeincrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfxvolumedecrease.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\resumebutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\settingsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\quitbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\creditsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfxbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\displaymodebutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mastervolbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bgmbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\cutscene_autoplaybutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
