@@ -81,8 +81,8 @@ namespace Game
         bool is_end = false;
 
         int tutorial_info = 0;
-        bool is_tutorial = false;
-        bool is_tutorial_paused = false;
+        bool is_tutorial = true;
+        bool is_tutorial_running = false;
         FlexECS::Entity tutorial_text;
 
         bool start_of_turn = false;
@@ -503,6 +503,7 @@ namespace Game
 
         if (battle.is_tutorial)
         {
+            battle.is_tutorial_running = true;
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::GetActiveScene()->CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
@@ -512,7 +513,7 @@ namespace Game
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
             battle.tutorial_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
-              FLX_STRING_NEW(R"(At the start of each combat encounter, look at the Drift Bar. The order of characters from left to right will decide who goes from first to last. Since you're on the far left, you will take the first turn. Press any key to proceed.)"),
+              FLX_STRING_NEW(R"(Lorem Ipsum)"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
               {                            600,                              320 }
@@ -755,45 +756,51 @@ namespace Game
 
             Update_Speed_Bar();
 
-            //move explanation
-            if (battle.is_tutorial && battle.tutorial_info <= 4)
-            {
-                if (battle.tutorial_info == 4)
-                {
-                    FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                        "Good. Looks like your muscle memory is still intact. We may have a chance of saving the world yet. Now, show me what you're capable of! Press any key to proceed.";
-                }
-                battle.is_tutorial_paused = true;
+
+            //reset info
+            battle.current_character = battle.speed_bar.front();
+            battle.current_move = nullptr;
+            battle.initial_target = nullptr;
+            battle.move_num = 0;
+            battle.target_num = 0;
+
+            FLX_ASSERT(battle.current_character != nullptr, "Current character is null.");
+            FLX_ASSERT(battle.current_character->is_alive, "Current character is dead.");
+
+            battle.is_player_turn = (battle.current_character->character_id <= 2);
+
+            //play start of turn sounds
+            if (battle.is_player_turn)
+            {// Plays sound if swap from enemy phase to player phase
+                std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
+                Log::Debug(audio_to_play);
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+            }
+
+            //reset position
+            if (battle.previous_character != nullptr) {
+                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
+                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
+                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+                FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
             }
         }
 
-        //reset info
-        battle.current_character = battle.speed_bar.front();
-        battle.current_move = nullptr;
-        battle.initial_target = nullptr;
-        battle.move_num = 0;
-        battle.target_num = 0;
-
-        FLX_ASSERT(battle.current_character != nullptr, "Current character is null.");
-        FLX_ASSERT(battle.current_character->is_alive, "Current character is dead.");
-
-        battle.is_player_turn = (battle.current_character->character_id <= 2);
-
-        //play start of turn sounds
-        if (battle.is_player_turn)
-        {// Plays sound if swap from enemy phase to player phase
-            std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
-            Log::Debug(audio_to_play);
-            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
-            FlexECS::Scene::GetActiveScene()->GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+        if (battle.is_tutorial_running)
+        {
+            for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++) {
+                if (Input::GetKeyDown(key))
+                {
+                    battle.tutorial_info++;
+                }
+            }
         }
 
-        //reset position
-        if (battle.previous_character != nullptr) {
-            Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                battle.sprite_slot_positions[battle.previous_character->current_slot] :
-                battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
-            FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
+
+        if (battle.is_tutorial_running && battle.tutorial_info < 1)
+        {
+            return;
         }
 
         battle.change_phase = true;
@@ -923,12 +930,6 @@ namespace Game
                         }
                     }
                 }
-            }
-
-            //see how move hover
-            if (battle.is_tutorial && battle.tutorial_info <= 4)
-            {
-                battle.is_tutorial_paused = true;
             }
         }
 
@@ -1107,6 +1108,19 @@ namespace Game
                 Log::Debug("new target" + std::to_string(battle.target_num));
             }
 
+            if (battle.is_tutorial_running)
+            {
+                for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++) {
+                    if (Input::GetKeyDown(key))
+                    {
+                        if (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D)
+                            continue;
+
+                        battle.tutorial_info++;
+                    }
+                }
+            }
+
             //button sprite
             FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1").GetComponent<Sprite>()->sprite_handle) =
                 (battle.move_num == 1) ? ("/images/battle ui/Battle_UI_Skill_Selected.png")
@@ -1186,6 +1200,12 @@ namespace Game
                     }
                 }
             }
+
+        }
+
+        if (battle.is_tutorial_running && battle.tutorial_info < 4)
+        {
+            return;
         }
 
         //confirm the use of move for AI or player
@@ -1237,6 +1257,11 @@ namespace Game
                 FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
 
                 battle.projected_character.GetComponent<Transform>()->is_active = false;
+
+                if (battle.is_tutorial_running)
+                {
+                    battle.tutorial_info++;
+                }
 
                     // apply the move
                     std::vector<_Character*> targets;
@@ -1990,6 +2015,22 @@ namespace Game
         {
             return;
         }
+        if (battle.is_tutorial_running)
+        {
+            for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++) {
+                if (Input::GetKeyDown(key))
+                {
+                    if (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D)
+                        continue;
+
+                    battle.tutorial_info++;
+                }
+            }
+        }
+        if (battle.is_tutorial_running && battle.tutorial_info < 6)
+        {
+            return;
+        }
         if (battle.change_phase)
         {
             Log::Debug("End Turn");
@@ -2066,7 +2107,7 @@ namespace Game
                     }
 
                     target_animator.should_play = true;
-                    target_animator.is_looping = false;
+                    target_animator.is_looping = true;
                     target_animator.return_to_default = false;
                     target_animator.frame_time = 0.f;
                     target_animator.current_frame = 0;
@@ -2165,48 +2206,57 @@ namespace Game
         // return if the battle is over
         if (battle.is_end) return;
 
+         // insta win
+        if (Input::GetKeyDown(GLFW_KEY_X))
+            Win_Battle();
+
+        if (battle.is_tutorial && battle.is_tutorial_running)
+        {
+            switch (battle.tutorial_info)
+            {
+
+            case 0:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "This is the Drift Bar. It shows the turn order. Press any key to proceed.";
+                break;
+            case 1:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "It is now your turn. To defeat enemies, use your moves to attack them. Use W and S to navigate between your moves. Use A and D to navigate between your targets. Use SPACEBAR to confirm your move. Press any key to proceed.";
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
+                break;
+            case 2:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "See how when you select a move, a small icon of your character pops up on the Drift Bar? Each move has a different amount of Drift, and stronger moves tend to incur more Drift. This means your next turn will take longer to arrive. Press any key to proceed.";
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 700, 0);
+                break;
+            case 3:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "Remember, when you're ready, use SPACEBAR to execute your move. Press any key to proceed.";
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
+                break;
+            case 4:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "";
+                break;
+            case 5:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                    "Good. Looks like your muscle memory is still intact. We may have a chance of saving the world yet. Now, show me what you're capable of! Press any key to proceed.";
+                break;
+            case 6:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) = "";
+                battle.is_tutorial_running = false;
+                break;
+            default:
+                FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
+                "";
+                break;
+            }
+        }
+
         if (battle.disable_input_timer > 0.f)
         {
             battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-        }
-        else if (battle.is_tutorial_paused)
-        {
-            for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++) {
-                if (Input::GetKeyDown(key))
-                {
-                    battle.is_tutorial_paused = false;
-                    switch (battle.tutorial_info)
-                    {
-                    case 0:
-                        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                            "It is now your turn. To defeat enemies, use your moves to attack them. Use W and S to navigate between your moves. Use A and D to navigate between your targets. Use SPACEBAR to confirm your move. Press any key to proceed.";
-                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, -600, 0);
-
-                        break;
-                    case 1:
-                        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                            "See how when you select a move, a small icon of your character pops up on the Drift Bar? Each move has a different amount of Drift, and stronger moves tend to incur more Drift. This means your next turn will take longer to arrive. Press any key to proceed.";
-                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, 600, 0);
-                        battle.is_tutorial_paused = true;
-                        break;
-                    case 2:
-                        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                            "Remember, when you're ready, use SPACEBAR to execute your move. Press any key to proceed.";
-                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, -600, 0);
-                        battle.is_tutorial_paused = true;
-                        break;
-                    case 3:
-                        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                            "";
-                        break;
-                    case 4:
-                        FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
-                            "";
-                        break;
-                    }
-                    battle.tutorial_info++;
-                }
-            }
+            return;
         }
         else if (!battle.is_paused)
         {
@@ -2227,10 +2277,6 @@ namespace Game
                 End_Of_Turn();
             }
         }
-
-        // insta win
-        if (Input::GetKeyDown(GLFW_KEY_X))
-            Win_Battle();
     }
 
 } // namespace Game
