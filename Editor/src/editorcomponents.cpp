@@ -149,6 +149,11 @@ namespace Editor
   COMPONENT_VIEWER_START(Button)
   COMPONENT_VIEWER_END(Button)
 
+  COMPONENT_VIEWER_START(PauseUI)
+  COMPONENT_VIEWER_END(PauseUI)
+
+  COMPONENT_VIEWER_START(PauseHoverUI)
+  COMPONENT_VIEWER_END(PauseHoverUI)
 
    /**************
    * Gameplay
@@ -193,6 +198,9 @@ namespace Editor
 
     REGISTER_COMPONENT_VIEWER(Button);
 
+    REGISTER_COMPONENT_VIEWER(PauseUI);
+    REGISTER_COMPONENT_VIEWER(PauseHoverUI);
+    
     REGISTER_COMPONENT_VIEWER(SpeedBarSlot);
     REGISTER_COMPONENT_VIEWER(SpeedBarSlotTarget);
     REGISTER_COMPONENT_VIEWER(CharacterSlot);
