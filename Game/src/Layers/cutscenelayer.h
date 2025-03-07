@@ -45,11 +45,17 @@ namespace Game
         FlexECS::Entity m_nextShot;
         FlexECS::Entity m_dialoguebox;
         FlexECS::Entity m_shadowdialoguebox;
-        
+        FlexECS::Entity m_dialoguearrow;
+
         FlexECS::Entity m_autoplayText;
         FlexECS::Entity m_autoplayBtn;
         FlexECS::Entity m_autoplaySymbolAuto;     // To show that auto playing isn't active
         FlexECS::Entity m_autoplaySymbolPlaying;  // To show that auto playing is active
+
+        FlexECS::Entity m_skiptext;
+        FlexECS::Entity m_instructiontxt;
+        FlexECS::Entity m_instructiontxtopacityblk; //Have to do this due to text no opacity
+        FlexECS::Entity m_skipwheel;     // To show that auto playing isn't active
 
         // Timing and phase management.
         float m_ElapsedTime = 0.0f;      // Time in the normal (non-transition) phase.
@@ -69,6 +75,11 @@ namespace Game
         float m_TransitionElapsedTime = 0.0f;
         float m_PreTransitionDuration = 1.0f;
         float m_PostTransitionDuration = 1.0f;
+
+        // UI timers
+        bool m_instructionActive = true;
+        float m_instructionTimer = 0.0f;
+        float m_instructionDuration = 2.0f;
 
         // Overall cutscene activation flag.
         bool m_CutsceneActive = false;
@@ -108,6 +119,11 @@ namespace Game
 
         #pragma endregion
 
+        #pragma region UI Animation
+        void updateInstructionAnimation(float dt);
+        void updateDialogueArrow(float dt);
+        void updateSkipUI(float dt);
+        #pragma endregion
     public:
         CutsceneLayer() : Layer("Cutscene Layer") {}
         ~CutsceneLayer() = default;
