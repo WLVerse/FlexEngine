@@ -883,7 +883,8 @@ namespace Game
                         }
                         else
                         {
-                            battle.move_num = Range<int>(0, 1).Get();
+                            battle.target_num = Range<int>(0, 1).Get();
+                            Log::Debug("default target" + std::to_string(battle.target_num));
                             for (auto &character : battle.drifters_and_enemies)
                             {
                                 if (character.is_alive && character.current_slot == battle.target_num && character.character_id <= 2)
@@ -1832,6 +1833,7 @@ namespace Game
 
                 battle.disable_input_timer += animation_time;// +1.f;
             }
+            Update_Character_Status();
         }
 
         battle.start_of_turn = false;
