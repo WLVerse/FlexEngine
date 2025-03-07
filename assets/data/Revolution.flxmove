@@ -2,8 +2,8 @@ Name: Revolution
 Speed: 8
 Effect: Damage
 Value: 6
-Target: ALL_ENEMIES
+Target: ADJACENT_ENEMIES
 Effect: Speed_Up
 Value: 5
 Target: NEXT_ALLY
-Description: Deal 6 DMG to all enemies and speed up your next ally.
+Description: Deal 6 DMG to target adjacent enemies and speed up your next ally.

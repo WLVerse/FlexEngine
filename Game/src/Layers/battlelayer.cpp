@@ -2012,6 +2012,11 @@ namespace Game
                       std::remove(battle.speed_bar.begin(), battle.speed_bar.end(), &character), battle.speed_bar.end()
                     );
 
+                    character.attack_buff_duration = 0;
+                    character.attack_debuff_duration = 0;
+                    character.stun_debuff_duration = 0;
+                    character.shield_buff_duration = 0;
+                    character.protect_buff_duration = 0;
                     FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name + " Healthbar").GetComponent<Transform>()->is_active = false;
                     FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name + " Stats").GetComponent<Transform>()->is_active = false;
                     FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name + " Attack_Buff").GetComponent<Transform>()->is_active = false;
