@@ -209,7 +209,7 @@ namespace Game
 
         // Update UI animations:
         updateInstructionAnimation(dt);  // for pre-transition instruction text
-        //updateDialogueArrow(dt);         // for dialogue arrow in manual mode
+        updateDialogueArrow(dt);         // for dialogue arrow in manual mode
         //updateSkipUI(dt);                // for skip text and wheel
 
         // Process global input (restart, escape).
@@ -327,7 +327,10 @@ namespace Game
                 m_dialogueTimer += dt;
                 size_t charsToShow = static_cast<size_t>(m_dialogueTimer * m_dialogueTextRate);
                 if (charsToShow > totalChars)
+                {
                     charsToShow = totalChars;
+                    m_dialogueIsWaitingForInput = true;
+                }
                 std::string displayedText = fullText.substr(0, charsToShow);
                 FlexECS::Scene::StringIndex txt = FLX_STRING_NEW(displayedText);
                 m_dialoguebox.GetComponent<Text>()->text = txt;
@@ -439,6 +442,7 @@ namespace Game
                         advanceDialogue();
                     }
                 }
+                m_dialogueIsWaitingForInput = false;
             }
         }
     }
@@ -534,21 +538,45 @@ namespace Game
         if (!m_instructionActive)
             return;
 
+        if (Input::GetKey(GLFW_KEY_ESCAPE) || m_instructionTimer >= m_instructionDuration)
+        {
+            m_instructiontxt.GetComponent<Transform>()->is_active = false;
+            m_instructiontxtopacityblk.GetComponent<Transform>()->is_active = false;
+            m_instructionActive = false;
+            return;
+        }
+
         m_instructionTimer += dt;
         float progress = m_instructionTimer / m_instructionDuration; // instructionDuration is a set duration
         auto* pos = m_instructiontxt.GetComponent<Position>();
         pos->position.x = FlexMath::Lerp(pos->position.x, pos->position.x+1, progress); // Just move to the right a bit
         auto* sprite = m_instructiontxtopacityblk.GetComponent<Sprite>();
         sprite->opacity = FlexMath::Lerp(0.0f, 1.0f, progress);
-
-        if (m_instructionTimer >= m_instructionDuration)
+    }
+    
+    void CutsceneLayer::updateDialogueArrow(float dt)
+    {
+        static float m_totaltime = 0.0f;
+        static float m_arrowBaseY = m_dialoguearrow.GetComponent<Position>()->position.y;
+        m_totaltime += dt;
+        // Only run in manual mode when the current dialogue is fully revealed.
+        if (!is_autoplay && m_dialogueIsWaitingForInput)
         {
-            m_instructiontxt.GetComponent<Transform>()->is_active = false;
-            m_instructiontxtopacityblk.GetComponent<Transform>()->is_active = false;
-            m_instructionActive = false;
+            // Increase opacity over time
+            m_arrowTimer += dt;
+            m_dialoguearrow.GetComponent<Sprite>()->opacity = 1.0;
+
+            float offset = sin(m_totaltime * m_arrowOscillationFrequency) * m_arrowOscillationAmplitude;
+            auto* arrowpos = m_dialoguearrow.GetComponent<Position>();
+            arrowpos->position.y = m_arrowBaseY + offset;
+        }
+        else
+        {
+            m_arrowTimer = 0.0f;
+            m_dialoguearrow.GetComponent<Sprite>()->opacity = 0;
+            m_dialogueIsWaitingForInput = false;
         }
     }
-    //void updateDialogueArrow(float dt);
     //void updateSkipUI(float dt);
     #pragma endregion
 }

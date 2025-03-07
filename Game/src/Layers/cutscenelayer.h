@@ -80,6 +80,11 @@ namespace Game
         bool m_instructionActive = true;
         float m_instructionTimer = 0.0f;
         float m_instructionDuration = 2.0f;
+        bool m_dialogueIsWaitingForInput = false;
+        float m_arrowTimer = 0.0f;
+        float m_arrowOscillationFrequency = 3.0f;
+        float m_arrowOscillationAmplitude = 3.0f;
+        float m_arrowFadeDuration = 0.4f;
 
         // Overall cutscene activation flag.
         bool m_CutsceneActive = false;
