@@ -81,7 +81,7 @@ namespace Game
         bool is_end = false;
 
         int tutorial_info = 0;
-        bool is_tutorial = true;
+        bool is_tutorial = false;
         bool is_tutorial_paused = false;
         FlexECS::Entity tutorial_text;
 
@@ -124,6 +124,7 @@ namespace Game
 
         // parse the battle data
         int index = 0;
+        int temp_index = 0;
         for (auto& slot : asset.GetDrifterSlots())
         {
             _Character character;
@@ -288,6 +289,10 @@ namespace Game
             character_protect_buff.AddComponent<ZIndex>({ 21 + index });
 
             index++;
+            temp_index++;
+
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Drifter Healthbar Slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
         }
 
         index = 0;
@@ -410,7 +415,7 @@ namespace Game
 
             character_healthbar = FlexECS::Scene::GetActiveScene()->CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
             character_healthbar.AddComponent<Transform>({});
-            character_healthbar.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-30, -100, 0) });
+            character_healthbar.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-70, -100, 0) });
             character_healthbar.AddComponent<Rotation>({});
             character_healthbar.AddComponent<Scale>({ Vector3(0.5f, 0.5f, 0) });
             character_healthbar.AddComponent<ZIndex>({ 21 + index });
@@ -463,6 +468,9 @@ namespace Game
             character_protect_buff.AddComponent<ZIndex>({ 21 + index });
 
             index++;
+            temp_index++;
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot " + std::to_string(temp_index)).GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
         }
 
         int player_num = 0;
@@ -691,8 +699,25 @@ namespace Game
 
         #pragma region Load _Battle Data
 
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 1").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 2").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 3").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 4").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 5").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 6").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Speed slot 7").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Drifter Healthbar Slot 1").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Drifter Healthbar Slot 2").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot 1").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot 2").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot 3").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot 4").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetActiveScene()->GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
+
         // load the battle
-        Internal_ParseBattle(R"(/data/debug.flxbattle)");
+        if (battle.is_tutorial)
+        Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
+        else Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
             entity.GetComponent<Transform>()->is_active = false;
@@ -718,6 +743,10 @@ namespace Game
 
     void Start_Of_Turn()
     {
+        if (battle.disable_input_timer > 0)
+        {
+            return;
+        }
         //one-time call upon changing phase
         if (battle.change_phase)
         {
@@ -1497,7 +1526,7 @@ namespace Game
                     current_character_animator.frame_time = 0.f;
                     current_character_animator.current_frame = 0;
 
-                    battle.disable_input_timer += animation_time + 1.f;
+                    battle.disable_input_timer += animation_time - 0.1f;// +1.f;
             }
             else
             {
@@ -1753,94 +1782,214 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += animation_time;// +1.f;
+                battle.disable_input_timer += animation_time - 0.1f;// +1.f;
             }
         }
-
-        if (battle.is_player_turn) //secondary animation of enemies getting hit
+        if (battle.disable_input_timer > 0)
         {
-            Update_Character_Status();
+            return;
         }
-        else //secondary animation of players getting hit
-        {
-            float animation_time = .0f;
-            if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
+            if (battle.is_player_turn) //secondary animation of enemies getting hit
             {
-                for (auto& character : battle.drifters_and_enemies)
+                float animation_time = .0f;
+                if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
                 {
-                    if (character.is_alive && character.character_id <= 2)
+                    for (auto& character : battle.drifters_and_enemies)
                     {
-                        auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
-                        auto& target_animator = *target_entity.GetComponent<Animator>();
-                        switch (character.character_id)
+                        if (character.is_alive && character.character_id > 2)
                         {
-                        case 1:
-                            target_animator.spritesheet_handle =
-                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
-                            break;
-                        case 2:
-                            target_animator.spritesheet_handle =
-                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                            break;
-                        }
+                            if (battle.current_move->target[0] == "ADJACENT_ENEMIES")
+                            {
+                                if (character.current_slot == battle.target_num - 1 || character.current_slot == battle.target_num || character.current_slot == battle.target_num + 1)
+                                {
+                                    auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
+                                    auto& target_animator = *target_entity.GetComponent<Animator>();
+                                    switch (character.character_id)
+                                    {
+                                    case 3:
+                                        target_animator.spritesheet_handle =
+                                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+                                        break;
+                                    case 4:
+                                        target_animator.spritesheet_handle =
+                                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+                                        break;
+                                        //case 5:
+                                           // target_animator.spritesheet_handle =
+                                                //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+                                            //break;
+                                    }
 
-                        // get the slowest animation time
-                        if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                            .total_frame_time > animation_time)
-                        {
-                            animation_time =
-                                FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                                .total_frame_time;
+                                    // get the slowest animation time
+                                    if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                        .total_frame_time > animation_time)
+                                    {
+                                        animation_time =
+                                            FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                            .total_frame_time;
+                                    }
+                                    target_animator.should_play = true;
+                                    target_animator.is_looping = false;
+                                    target_animator.return_to_default = true;
+                                    target_animator.frame_time = 0.f;
+                                    target_animator.current_frame = 0;
+                                }
+                            }
+                            else
+                            {
+                                auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
+                                auto& target_animator = *target_entity.GetComponent<Animator>();
+                                switch (character.character_id)
+                                {
+                                case 3:
+                                    target_animator.spritesheet_handle =
+                                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+                                    break;
+                                case 4:
+                                    target_animator.spritesheet_handle =
+                                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+                                    break;
+                                    //case 5:
+                                       // target_animator.spritesheet_handle =
+                                            //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+                                        //break;
+
+                                }
+
+                                // get the slowest animation time
+                                if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                    .total_frame_time > animation_time)
+                                {
+                                    animation_time =
+                                        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                        .total_frame_time;
+                                }
+                                target_animator.should_play = true;
+                                target_animator.is_looping = false;
+                                target_animator.return_to_default = true;
+                                target_animator.frame_time = 0.f;
+                                target_animator.current_frame = 0;
+                            }
                         }
-                        target_animator.should_play = true;
-                        target_animator.is_looping = false;
-                        target_animator.return_to_default = true;
-                        target_animator.frame_time = 0.f;
-                        target_animator.current_frame = 0;
                     }
+                    battle.disable_input_timer += animation_time - 0.1f;// +1.f;
                 }
-                battle.disable_input_timer += animation_time;// +1.f;
-            }
-            else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
-            {
-                auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.initial_target->name);
-                auto& target_animator = *target_entity.GetComponent<Animator>();
-                switch (battle.initial_target->character_id)
+                else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
                 {
-                case 1:
-                    target_animator.spritesheet_handle =
-                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
-                    break;
-                case 2:
-                    target_animator.spritesheet_handle =
-                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                    break;
+                    auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.initial_target->name);
+                    auto& target_animator = *target_entity.GetComponent<Animator>();
+                    switch (battle.initial_target->character_id)
+                    {
+                    case 3:
+                        target_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)");
+                        break;
+                    case 4:
+                        target_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
+                        break;
+                    //case 5:
+                       // target_animator.spritesheet_handle =
+                            //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+                        //break;
+                    }
+                    animation_time =
+                        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                        .total_frame_time;
+
+                    target_animator.should_play = true;
+                    target_animator.is_looping = false;
+                    target_animator.return_to_default = true;
+                    target_animator.frame_time = 0.f;
+                    target_animator.current_frame = 0;
+
+                    battle.disable_input_timer += animation_time - 0.1f;// +1.f;
                 }
-                animation_time =
-                    FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                    .total_frame_time;
-
-                target_animator.should_play = true;
-                target_animator.is_looping = false;
-                target_animator.return_to_default = true;
-                target_animator.frame_time = 0.f;
-                target_animator.current_frame = 0;
-
-                battle.disable_input_timer += animation_time;// +1.f;
+                Update_Character_Status();
             }
-            Update_Character_Status();
-        }
+            else //secondary animation of players getting hit
+            {
+                float animation_time = .0f;
+                if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
+                {
+                    for (auto& character : battle.drifters_and_enemies)
+                    {
+                        if (character.is_alive && character.character_id <= 2)
+                        {
+                            auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(character.name);
+                            auto& target_animator = *target_entity.GetComponent<Animator>();
+                            switch (character.character_id)
+                            {
+                            case 1:
+                                target_animator.spritesheet_handle =
+                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
+                                break;
+                            case 2:
+                                target_animator.spritesheet_handle =
+                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+                                break;
+                            }
 
-        battle.start_of_turn = false;
-        battle.move_select = false;
-        battle.move_resolution = false;
-        battle.end_of_turn = true;
+                            // get the slowest animation time
+                            if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                .total_frame_time > animation_time)
+                            {
+                                animation_time =
+                                    FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                    .total_frame_time;
+                            }
+                            target_animator.should_play = true;
+                            target_animator.is_looping = false;
+                            target_animator.return_to_default = true;
+                            target_animator.frame_time = 0.f;
+                            target_animator.current_frame = 0;
+                        }
+                    }
+                    battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+                }
+                else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
+                {
+                    auto target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(battle.initial_target->name);
+                    auto& target_animator = *target_entity.GetComponent<Animator>();
+                    switch (battle.initial_target->character_id)
+                    {
+                    case 1:
+                        target_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Hurt_Anim_Sheet.flxspritesheet)");
+                        break;
+                    case 2:
+                        target_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
+                        break;
+                    }
+                    animation_time =
+                        FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                        .total_frame_time;
 
-        battle.change_phase = true;
+                    target_animator.should_play = true;
+                    target_animator.is_looping = false;
+                    target_animator.return_to_default = true;
+                    target_animator.frame_time = 0.f;
+                    target_animator.current_frame = 0;
+
+                    battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+                }
+                Update_Character_Status();
+            }
+            battle.start_of_turn = false;
+            battle.move_select = false;
+            battle.move_resolution = false;
+            battle.end_of_turn = true;
+
+            battle.change_phase = true;
     }
 
     void End_Of_Turn()
     {
+        if (battle.disable_input_timer > 0)
+        {
+            return;
+        }
         if (battle.change_phase)
         {
             Log::Debug("End Turn");

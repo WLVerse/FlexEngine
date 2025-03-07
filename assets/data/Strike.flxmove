@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Speed_Up
 Value: 5
 Target: SELF
-Description: Deal 8 damage to target enemy and decrease speed of self by 5. --- Total Speed: 7
+Description: Deal 8 DMG to target enemy and speed yourself up.

@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Attack_Down
 Value: 2
 Target: ADJACENT_ENEMIES
-Description: Stun an enemy and decrease attack of adjacent enemies for 2 turns. --- Total Speed: 12
+Description: STUN target enemy for 1 turn and decrease ATK of adjacent enemies for 2 turns.
