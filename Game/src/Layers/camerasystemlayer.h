@@ -14,39 +14,50 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Game
-{
+namespace Game {
 
-  class CameraSystemLayer : public FlexEngine::Layer
-  {
-  public:
-    CameraSystemLayer();
-    ~CameraSystemLayer() = default;
+    // The CameraSystemLayer handles camera shake and zoom effects.
+    class CameraSystemLayer : public FlexEngine::Layer {
+    public:
+        CameraSystemLayer();
+        ~CameraSystemLayer() override = default;
 
-    virtual void OnAttach() override;
-    virtual void OnDetach() override;
-    virtual void Update() override;
+        void OnAttach() override;
+        void OnDetach() override;
+        void Update() override;
 
-  private:
-      // Main camera entity.
-      FlexECS::Entity m_mainCameraEntity;
+    private:
+        // Main camera entity and base parameters.
+        FlexECS::Entity m_mainCameraEntity;
+        float m_zoomBase = 0.0f; //Original Ortho width of camera
+        const float m_baseAspectRatio = 16.0f / 9.0f;
+        const float m_minOrthoWidth = 1000.0f;
 
-      // Camera Shake effect variables.
-      bool m_shakeActive = false;
-      float m_shakeDuration = 0.0f;
-      float m_shakeElapsed = 0.0f;
-      float m_shakeIntensity = 0.0f;
-      Vector3 m_originalCameraPos;
+        struct ShakeEffect 
+        {
+            float duration;   // Total duration of the effect.
+            float elapsed;    // Time elapsed so far.
+            float intensity;  // Base shake intensity.
+            bool lerp;        // If true, intensity ramps up then down.
+        };
+        struct ZoomEffect 
+        {
+            float duration;         // Total duration of the effect.
+            float elapsed;          // Time elapsed so far.
+            float targetOrthoWidth; // Desired target orthographic width.
+            float initialOrthoWidth;// Starting orthographic width.
+            bool autoReturn;        // If true, zoom will ramp in then return.
+        };
 
-      // Camera Zoom effect variables.
-      bool m_zoomActive = false;
-      float m_zoomDuration = 0.0f;
-      float m_zoomElapsed = 0.0f;
-      float m_zoomTarget = 0.0f;
-      float m_zoomInitial = 0.0f;
+        std::vector<ShakeEffect> m_shakeEffects;
+        ZoomEffect m_zoomEffect;
 
-      const float m_baseAspectRatio = 16.0f / 9.0f;
-      const float m_minOrthoWidth = 10.0f;         
-  };
+        // Original camera position (base for applying shake).
+        Vector3 m_originalCameraPos;
 
-}
+        // Helper functions.
+        void EnsureMainCamera();
+        Vector3 GenerateShakeOffset(float intensity);
+    };
+
+} // namespace Game
