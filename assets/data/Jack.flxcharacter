@@ -1,6 +1,6 @@
 CharacterName: Jack
 CharacterID: 5
-Health: 30
+Health: 5
 Speed: 10
 MoveOne: /data/Sweep_Away.flxmove
 MoveTwo: /data/Sweep_Away.flxmove

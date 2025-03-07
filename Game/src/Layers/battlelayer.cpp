@@ -846,6 +846,8 @@ namespace Game
                             }
                         }
                     }
+
+                    Log::Debug("default target" + std::to_string(battle.target_num));
                 }
                 else //enemy
                 {
@@ -948,6 +950,8 @@ namespace Game
                         }
                     }
                 }
+
+                Log::Debug("default target" + std::to_string(battle.target_num));
             }
             else if (Input::GetKeyDown(GLFW_KEY_S))
             {
@@ -991,6 +995,8 @@ namespace Game
                         }
                     }
                 }
+
+                Log::Debug("default target" + std::to_string(battle.target_num));
             }
 
             //swap targets
@@ -1030,11 +1036,13 @@ namespace Game
                         }
                     }
                 }
+
+                Log::Debug("new target" + std::to_string(battle.target_num));
             }
             else if (Input::GetKeyDown(GLFW_KEY_D))
             {
                 battle.initial_target = nullptr;
-                while (battle.initial_target == nullptr)
+                while (battle.initial_target == nullptr || !battle.initial_target->is_alive)
                 {
                     battle.target_num++;
                     for (auto &character : battle.drifters_and_enemies)
@@ -1068,6 +1076,7 @@ namespace Game
                     }
                 }
                
+                Log::Debug("new target" + std::to_string(battle.target_num));
             }
 
             //button sprite
@@ -1750,6 +1759,8 @@ namespace Game
                 battle.disable_input_timer += animation_time;// +1.f;
             }
 
+            //update status and health bar
+            Update_Character_Status();
         }
 
         if (battle.is_player_turn) //secondary animation of enemies getting hit
@@ -1839,9 +1850,6 @@ namespace Game
         {
             Log::Debug("End Turn");
             battle.change_phase = false;
-
-            //update status and health bar
-            Update_Character_Status();
 
             //death animation
             float animation_time = .0f;
@@ -2022,18 +2030,19 @@ namespace Game
                     case 0:
                         FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
                             "It is now your turn. To defeat enemies, use your moves to attack them. Use W and S to navigate between your moves. Use A and D to navigate between your targets. Use SPACEBAR to confirm your move. Press any key to proceed.";
-                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position -= Vector3(0, 600, 0);
+                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, -600, 0);
 
                         break;
                     case 1:
                         FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
                             "See how when you select a move, a small icon of your character pops up on the Drift Bar? Each move has a different amount of Drift, and stronger moves tend to incur more Drift. This means your next turn will take longer to arrive. Press any key to proceed.";
-
+                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, 600, 0);
                         battle.is_tutorial_paused = true;
                         break;
                     case 2:
                         FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Text>()->text) =
                             "Remember, when you're ready, use SPACEBAR to execute your move. Press any key to proceed.";
+                        FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position += Vector3(0, -600, 0);
                         battle.is_tutorial_paused = true;
                         break;
                     case 3:
