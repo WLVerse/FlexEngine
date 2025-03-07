@@ -3,8 +3,12 @@
 out vec4 fragment_color;
 
 in vec2 tex_coord;
-in vec3 u_color_to_add;
-in vec3 u_color_to_multiply;
+in float u_alpha;
+//in vec3 u_color_to_add;
+//in vec3 u_color_to_multiply;
+
+uniform vec3 u_color_to_add;
+uniform vec3 u_color_to_multiply;
 
 // texture
 uniform sampler2D u_texture;
@@ -26,9 +30,13 @@ void main()
     alpha = 1.0;
   }
 
-  //fragment_color = vec4(diffuse, alpha);
+  //fragment_color = vec4(diffuse,  alpha);
+   if (u_alpha != 1.0)
+  {
+      alpha = u_alpha;
+  }
 
   vec3 result = diffuse * u_color_to_multiply + u_color_to_add;
   result = clamp(result, 0.0, 1.0);
-  fragment_color = vec4(result, alpha);
+  fragment_color = vec4(result,  alpha);
 }

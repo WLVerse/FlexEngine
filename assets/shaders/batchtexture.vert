@@ -9,17 +9,13 @@ layout(std430, binding = 0) buffer InstanceDataBuffer
 {
     mat4 transformation[];
 };
-layout(std430, binding = 1) buffer ColorBuffer 
-{
-    vec3 u_Color_to_add[];
-};
-layout(std430, binding = 2) buffer ColorMultiplyBuffer 
-{
-    vec3 u_Color_to_multiply[];
-};
-layout(std430, binding = 3) buffer AnimationUVBuffer
+layout(std430, binding = 1) buffer AnimationUVBuffer
 {
     vec4 u_Uv[];
+};
+layout(std430, binding = 2) buffer OpacityBuffer
+{
+    float u_Opacity[];
 };
 
 // Uniforms
@@ -27,8 +23,9 @@ uniform mat4 u_projection_view;
 
 // Output data
 out vec2 tex_coord;
-out vec3 u_color_to_add;
-out vec3 u_color_to_multiply;
+//out vec3 u_color_to_add;
+//out vec3 u_color_to_multiply;
+out float u_alpha;
 
 void main()
 {
@@ -37,7 +34,8 @@ void main()
 
   // data passthrough
   tex_coord = mix(u_Uv[gl_InstanceID].xy, u_Uv[gl_InstanceID].zw, m_tex_coord);
-  u_color_to_add = u_Color_to_add[gl_InstanceID];
-  u_color_to_multiply = u_Color_to_multiply[gl_InstanceID];
+  //u_color_to_add = u_Color_to_add[gl_InstanceID];
+  //u_color_to_multiply = u_Color_to_multiply[gl_InstanceID];
+  u_alpha = u_Opacity[gl_InstanceID];
 
 }

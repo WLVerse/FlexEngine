@@ -49,7 +49,7 @@ namespace FlexEngine
     Camera* CameraManager::GetMainGameCamera()
     {
       FlexECS::Entity camera_entity = m_mainGameCameraID;
-      
+
       return camera_entity.GetComponent<Camera>();
     }
 

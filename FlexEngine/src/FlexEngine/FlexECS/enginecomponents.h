@@ -98,7 +98,7 @@ namespace FlexEngine
    * \class Parent
    * \brief
    * This class represents the parent entity of an entity, enabling hierarchical
-   * transformations where a child entity inherits its parent�s transformation
+   * transformations where a child entity inherits its parents transformation
    * matrix. It supports complex scene graph structures.
    ******************************************************************************/
   class __FLX_API Parent
@@ -228,8 +228,8 @@ namespace FlexEngine
       float lifetime = 5.0f;
       float start_speed = 100.0f;
       float end_speed = 100.0f;
-      float start_size = 100.0f;
-      float end_size = 100.0f;
+      float start_size = 1.0f;
+      float end_size = 1.0f;
       Vector3 start_color = Vector3::One;
       Vector3 end_color = Vector3::One;
       float simulation_speed = 1.0f;
@@ -356,7 +356,32 @@ namespace FlexEngine
     Vector3 original_scale = Vector3::One;
   };
 
+  class __FLX_API Slider
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    float min_position = 0.f;
+    float max_position = 100.f;
+    float slider_length = 100.f;
+    float original_value = 0.5f;           // Between 0 and 1
+    Vector3 original_scale = Vector3::One;
+  };
+
   class __FLX_API MoveUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API PauseUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API PauseHoverUI
   {
     FLX_REFL_SERIALIZABLE
 
@@ -390,6 +415,12 @@ namespace FlexEngine
     int character = 0;   // 1-5
   };
 
+  class __FLX_API SpeedBarSlotTarget
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    int slot_number = 0; // 1-7
+  };
 #pragma endregion
 
   /**************
