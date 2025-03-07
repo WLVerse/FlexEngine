@@ -158,6 +158,11 @@ namespace Editor
    /**************
    * Gameplay
    **************/
+
+  COMPONENT_VIEWER_START(Healthbar)
+    //pixelLength, original_position and original_scale no need show ba
+  COMPONENT_VIEWER_END(CharacterSlot)
+
   COMPONENT_VIEWER_START(SpeedBarSlot)
     COMPONENT_VIEWER_DRAG_INT(slot_number)
     COMPONENT_VIEWER_DRAG_INT(character)
@@ -201,6 +206,7 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(PauseUI);
     REGISTER_COMPONENT_VIEWER(PauseHoverUI);
     
+    REGISTER_COMPONENT_VIEWER(Healthbar);
     REGISTER_COMPONENT_VIEWER(SpeedBarSlot);
     REGISTER_COMPONENT_VIEWER(SpeedBarSlotTarget);
     REGISTER_COMPONENT_VIEWER(CharacterSlot);
