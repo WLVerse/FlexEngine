@@ -37,15 +37,20 @@ namespace Game
 
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
         m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
-
         m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Shadow Dialogue Box");
         m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
+        m_dialoguearrow = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Arrow");
 
         m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
         m_autoplayBtn = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay");
         m_autoplaySymbolAuto = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Auto");
         m_autoplaySymbolPlaying = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Playing");
 
+        m_skiptext = FlexECS::Scene::GetActiveScene()->GetEntityByName("Skip Text");
+        m_instructiontxt = FlexECS::Scene::GetActiveScene()->GetEntityByName("Instruction Text");
+        m_instructiontxtopacityblk = FlexECS::Scene::GetActiveScene()->GetEntityByName("Instruction Text Opacity Block");
+        m_skipwheel = FlexECS::Scene::GetActiveScene()->GetEntityByName("Skip Wheel");
+        
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
 
@@ -191,20 +196,24 @@ namespace Game
         }
         
         // Handles Transition Messages
-        int test = Application::MessagingSystem::Receive<int>("TransitionCompleted");
-        Log::Info(std::to_string(test));
-        if (test == 1)
+        int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        if (transitionMSG == 1)
             StartCutscene();
-        else if (test == 2)
+        else if (transitionMSG == 2)
             StopCutscene();
 
         if (!m_CutsceneActive)
             return;
 
+        float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+
         // Process global input (restart, escape).
         processGlobalInput();
 
-        float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+        // Update UI animations:
+        updateInstructionAnimation(dt);  // for pre-transition instruction text
+        updateDialogueArrow(dt);         // for dialogue arrow in manual mode
+        updateSkipUI(dt);                // for skip text and wheel
 
         // Update dialogue based on the current mode.
         if (is_autoplay)
@@ -225,8 +234,7 @@ namespace Game
     {
         if (Input::GetKeyDown(GLFW_KEY_R))
             RestartCutscene();
-        if (Input::GetKey(GLFW_KEY_ESCAPE))
-            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+        //Skip cutscene key press moved to skipUIupdate
 
         bool autoplaybtn_click = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn clicked");
         bool autoplaybtn_hover = Application::MessagingSystem::Receive<bool>("Cutscene_AutoplayBtn hovered");
@@ -317,7 +325,10 @@ namespace Game
                 m_dialogueTimer += dt;
                 size_t charsToShow = static_cast<size_t>(m_dialogueTimer * m_dialogueTextRate);
                 if (charsToShow > totalChars)
+                {
                     charsToShow = totalChars;
+                    m_dialogueIsWaitingForInput = true;
+                }
                 std::string displayedText = fullText.substr(0, charsToShow);
                 FlexECS::Scene::StringIndex txt = FLX_STRING_NEW(displayedText);
                 m_dialoguebox.GetComponent<Text>()->text = txt;
@@ -429,6 +440,7 @@ namespace Game
                         advanceDialogue();
                     }
                 }
+                m_dialogueIsWaitingForInput = false;
             }
         }
     }
@@ -515,6 +527,92 @@ namespace Game
 
         std::string txt = FLX_STRING_GET(m_currShot.GetComponent<Sprite>()->sprite_handle);
         std::string txt2 = FLX_STRING_GET(m_nextShot.GetComponent<Sprite>()->sprite_handle);
+    }
+    #pragma endregion
+
+    #pragma region UI Animation
+    void CutsceneLayer::updateInstructionAnimation(float dt)
+    {
+        if (!m_instructionActive)
+            return;
+
+        if (Input::GetKey(GLFW_KEY_ESCAPE) || m_instructionTimer >= m_instructionDuration)
+        {
+            m_instructiontxt.GetComponent<Transform>()->is_active = false;
+            m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = 1.0f;
+            m_instructionActive = false;
+            return;
+        }
+
+        m_instructionTimer += dt;
+        float progress = m_instructionTimer / m_instructionDuration; // instructionDuration is a set duration
+        auto* pos = m_instructiontxt.GetComponent<Position>();
+        pos->position.x = FlexMath::Lerp(pos->position.x, pos->position.x+1, progress); // Just move to the right a bit
+        auto* sprite = m_instructiontxtopacityblk.GetComponent<Sprite>();
+        sprite->opacity = FlexMath::Lerp(0.0f, 1.0f, progress);
+    }
+    
+    void CutsceneLayer::updateDialogueArrow(float dt)
+    {
+        static float m_totaltime = 0.0f;
+        static float m_arrowBaseY = m_dialoguearrow.GetComponent<Position>()->position.y;
+        m_totaltime += dt;
+        // Only run in manual mode when the current dialogue is fully revealed.
+        if (!is_autoplay && m_dialogueIsWaitingForInput)
+        {
+            // Increase opacity over time
+            m_arrowTimer += dt;
+            m_dialoguearrow.GetComponent<Sprite>()->opacity = 1.0;
+
+            float offset = sin(m_totaltime * m_arrowOscillationFrequency) * m_arrowOscillationAmplitude;
+            auto* arrowpos = m_dialoguearrow.GetComponent<Position>();
+            arrowpos->position.y = m_arrowBaseY + offset;
+        }
+        else
+        {
+            m_arrowTimer = 0.0f;
+            m_dialoguearrow.GetComponent<Sprite>()->opacity = 0;
+            m_dialogueIsWaitingForInput = false;
+        }
+    }
+    
+    void CutsceneLayer::updateSkipUI(float dt)
+    {
+        if (Input::GetKey(GLFW_KEY_ESCAPE))
+        {
+            m_skipTimer += dt;
+            // Animate skip text: "Commencing Skip"
+            static std::string fullSkipText = "Commencing Skip";
+            size_t totalChars = fullSkipText.size();
+            size_t charsToShow = static_cast<size_t>(m_skipTimer * m_skipTextRate);
+            if (charsToShow > totalChars)
+                charsToShow = totalChars;
+            std::string displayedText = fullSkipText.substr(0, charsToShow);
+            m_skiptext.GetComponent<Text>()->text = FLX_STRING_NEW(displayedText.c_str());
+
+            // Animate skip wheel opacity and rotation.
+            auto* skipWheelSprite = m_skipwheel.GetComponent<Sprite>();
+            skipWheelSprite->opacity = 1.0f;
+            auto* skipWheelrotation = m_skipwheel.GetComponent<Rotation>();
+            // Increase rotation speed based on skipTimer.
+            skipWheelrotation->rotation.z -= (m_baseRotationSpeed * m_skipTimer * dt);
+
+            // Animate opacity of skip wheel
+            m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, m_skipTimer / m_skipFadeDuration);
+
+            // Check if held down long enough to trigger stop.
+            if (m_skipTimer >= m_skipHoldThreshold)
+                Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+        }
+        else
+        {
+            // Reset skip UI if ESC is released.
+            m_skipTimer = 0.0f;
+            m_skiptext.GetComponent<Text>()->text = FLX_STRING_NEW("");
+            m_skipwheel.GetComponent<Sprite>()->opacity = 0;
+            //m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = 0;
+            m_skipwheel.GetComponent<Rotation>()->rotation.z = 0.0f;
+        }
     }
     #pragma endregion
 }
