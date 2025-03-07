@@ -867,7 +867,7 @@ namespace Game
                     }
 
                     //default selects move target
-                    while (battle.initial_target == nullptr)
+                    while (battle.initial_target == nullptr || !battle.initial_target->is_alive)
                     {
                         if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
                         {
@@ -1201,9 +1201,7 @@ namespace Game
                     entity.GetComponent<Transform>()->is_active = false;
 
                 for (FlexECS::Entity &entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
-                {
                     entity.GetComponent<Transform>()->is_active = false;
-                }
 
                 FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
                 FLX_STRING_GET(FlexECS::Scene::GetActiveScene()->GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
@@ -1851,6 +1849,7 @@ namespace Game
             Log::Debug("End Turn");
             battle.change_phase = false;
 
+            Update_Character_Status();
             //death animation
             float animation_time = .0f;
             for (auto& character : battle.drifters_and_enemies)
