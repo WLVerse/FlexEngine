@@ -18,35 +18,30 @@ public:
 
   void Update() override
   {
-    FlexECS::Entity tempEntity = FlexECS::Scene::GetEntityByName("BGM Slider Background");
-
-    float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 20.f;
-    float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 20.f;
+    FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("BGM Slider Fill");
+    FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
 
     Vector3& new_position = self.GetComponent<Position>()->position;
 
-    tempEntity = FlexECS::Scene::GetEntityByName("Master Knob");
-    float& master_value = tempEntity.GetComponent<Position>()->position.x;
-    float volume_value = (new_position.x > master_value) ? master_value : new_position.x;
-
-    float volume_to_set = ((volume_value - min_value)) / (max_value - min_value);
-    FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM, volume_to_set);
-
     if (is_draggable) {
+      // Update slider knob position
       new_position.x += Input::GetMousePositionDelta().x;
-      new_position.x = std::clamp(new_position.x, min_value, max_value);
-
-      tempEntity = FlexECS::Scene::GetEntityByName("BGM Slider Fill");
-
-      Vector3& new_slider_fill_pos = tempEntity.GetComponent<Position>()->position;
-      new_slider_fill_pos.x = (new_position.x + min_value - 5.f) / 2.f;
-
-      Vector3& new_slider_fill_scale = tempEntity.GetComponent<Scale>()->scale;
-      float fill_to_set = ((new_position.x - min_value)) / (max_value - min_value);
-      new_slider_fill_scale.x =
-        tempEntity.GetComponent<Slider>()->original_scale.x / tempEntity.GetComponent<Slider>()->original_value * fill_to_set;
+      new_position.x = std::clamp(new_position.x, slider_details->min_position, slider_details->max_position);
     }
     if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) is_draggable = false;
+
+    // Update slider fill position and scale
+
+    slider_fill.GetComponent<Position>()->position.x = (new_position.x + slider_details->min_position) / 2.f;
+    float fill_to_set = (new_position.x - slider_details->min_position) / slider_details->slider_length;
+    slider_fill.GetComponent<Scale>()->scale.x = slider_details->original_scale.x / slider_details->original_value * fill_to_set;
+
+    // Update BGM volume
+    float& master_value = FlexECS::Scene::GetEntityByName("Master Knob").GetComponent<Position>()->position.x;
+    float volume_value = (new_position.x > master_value) ? master_value : new_position.x;
+
+    float volume_to_set = (volume_value - slider_details->min_position) / slider_details->slider_length;
+    FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM, volume_to_set);
   }
 
   void OnMouseEnter() override

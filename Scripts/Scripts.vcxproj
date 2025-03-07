@@ -19,17 +19,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bgmbutton.cpp" />
     <ClCompile Include="src\bgmslider.cpp" />
+    <ClCompile Include="src\bgmvolumedecrease.cpp" />
+    <ClCompile Include="src\bgmvolumeincrease.cpp" />
     <ClCompile Include="src\camerahandler.cpp" />
+    <ClCompile Include="src\creditsbutton.cpp" />
+    <ClCompile Include="src\displaymodebutton.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
     <ClCompile Include="src\masterslider.cpp" />
+    <ClCompile Include="src\mastervolbutton.cpp" />
+    <ClCompile Include="src\mastervolumedecrease.cpp" />
+    <ClCompile Include="src\mastervolumeincrease.cpp" />
     <ClCompile Include="src\menubutton.cpp" />
     <ClCompile Include="src\moveone.cpp" />
     <ClCompile Include="src\movethree.cpp" />
     <ClCompile Include="src\movetwo.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
     <ClCompile Include="src\playermovement.cpp" />
+    <ClCompile Include="src\quitbutton.cpp" />
+    <ClCompile Include="src\resumebutton.cpp" />
+    <ClCompile Include="src\settingsbutton.cpp" />
+    <ClCompile Include="src\sfxbutton.cpp" />
     <ClCompile Include="src\sfxslider.cpp" />
+    <ClCompile Include="src\sfxvolumedecrease.cpp" />
+    <ClCompile Include="src\sfxvolumeincrease.cpp" />
     <ClCompile Include="src\targetfive.cpp" />
     <ClCompile Include="src\targetfour.cpp" />
     <ClCompile Include="src\targetone.cpp" />
