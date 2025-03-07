@@ -2270,13 +2270,26 @@ namespace Game
     void Win_Battle()
     {
         battle.is_end = true;
-        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+      // A bit lame, but need to find by name to set, like the old Unity days
+      FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg dealt").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Win base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Player Stats").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Lose_Battle()
     {
-        battle.is_end = true;
-        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
+      battle.is_end = true;
+      FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Set_Up_Pause_Menu() {
@@ -2348,28 +2361,24 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
+        // return if the battle is over, press any key to go back to the main menu. Check this first as we don't want the pause menu to absorb it
+        if (battle.is_end)
+        {
+          if (Input::AnyKeyDown())
+          {
+            Application::MessagingSystem::Send("Game win to menu", true);
+          }
+          else return;
+        }
+
         bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key
         if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || resume_game)
         {
-          // set the main camera
-          //CameraManager::SetMainGameCameraID(main_camera);
-
-          //// unload win layer
-          //auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
-          //if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
-
-          //// unload lose layer
-          //auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
-          //if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
-
           Pause_Functionality();
         }
 
         if (battle.is_paused) return;
-
-        // return if the battle is over
-        if (battle.is_end) return;
 
         if (battle.disable_input_timer > 0.f)
         {
@@ -2438,6 +2447,8 @@ namespace Game
         // insta win
         if (Input::GetKeyDown(GLFW_KEY_X))
             Win_Battle();
+        if (Input::GetKeyDown(GLFW_KEY_Z))
+          Lose_Battle();
     }
 
 } // namespace Game
