@@ -1288,18 +1288,72 @@ namespace Game
         switch (battle.current_character->character_id)
         {
         case 1:
-          PlayAnimationEvent(
-            current_character_entity, 7,
-            current_character_entity, R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)"
-          );
-          PlaySoundEvent(current_character_entity, 7, R"(/audio/generic attack.mp3)");
+          // play character animation
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Attack_Anim_Sheet.flxspritesheet)");
+
+          // queue the sound
+          // at frame X, play the sound Y
+          PlaySoundEvent(current_character_entity, 6, R"(/audio/generic attack.mp3)");
+
+          // queue the hurt animation for the target
+          if (battle.target && battle.enemy_slots[battle.target - 1] != nullptr)
+          {
+            _Character* target_character = battle.enemy_slots[battle.target - 1];
+            FlexECS::Entity target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
+
+            // check what enemy is being targeted
+            switch (target_character->character_id)
+            {
+            case 3: // enemy 1
+              // at frame X, play the animation Y on entity Z
+              PlayAnimationEvent(
+                current_character_entity, 7, target_entity,
+                R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)"
+              );
+              break;
+            case 4: // enemy 2
+              PlayAnimationEvent(
+                current_character_entity, 7, target_entity,
+                R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)"
+              );
+              break;
+            case 5: // jack
+              // flash screen red
+              break;
+            }
+          }
           break;
+
         case 2:
-          PlayAnimationEvent(
-            current_character_entity, 7, current_character_entity,
-            R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)"
-          );
-          PlaySoundEvent(current_character_entity, 7, R"(/audio/generic attack.mp3)");
+          current_character_animator.spritesheet_handle =
+            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Attack_Anim_Sheet.flxspritesheet)");
+
+          PlaySoundEvent(current_character_entity, 6, R"(/audio/generic attack.mp3)");
+
+          if (battle.target && battle.enemy_slots[battle.target - 1] != nullptr)
+          {
+            _Character* target_character = battle.enemy_slots[battle.target - 1];
+            FlexECS::Entity target_entity = FlexECS::Scene::GetActiveScene()->GetEntityByName(target_character->name);
+            switch (target_character->character_id)
+            {
+            case 3:
+              PlayAnimationEvent(
+                current_character_entity, 7, target_entity,
+                R"(/images/spritesheets/Char_Enemy_01_Hurt_Anim_Sheet.flxspritesheet)"
+              );
+              break;
+            case 4:
+              PlayAnimationEvent(
+                current_character_entity, 7, target_entity,
+                R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)"
+              );
+              break;
+            case 5:
+              // flash screen red
+              break;
+            }
+          }
           break;
         }
       }
@@ -1539,6 +1593,7 @@ namespace Game
       float animation_time =
         FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
           .total_frame_time;
+      #if 0
       current_character_animator.should_play = true;
       current_character_animator.is_looping = false;
       current_character_animator.return_to_default = true;
@@ -1566,6 +1621,7 @@ namespace Game
       target_animator.return_to_default = true;
       target_animator.frame_time = 0.f;
       target_animator.current_frame = 0;
+      #endif
 
       // disable input for the duration of the move animation
       battle.disable_input_timer += animation_time + 1.f;
