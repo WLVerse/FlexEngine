@@ -360,7 +360,10 @@ namespace FlexEngine
   {
     FLX_REFL_SERIALIZABLE
   public:
-    float original_value; // Between 0 and 1
+    float min_position = 0.f;
+    float max_position = 100.f;
+    float slider_length = 100.f;
+    float original_value = 0.5f;           // Between 0 and 1
     Vector3 original_scale = Vector3::One;
   };
 
@@ -372,6 +375,13 @@ namespace FlexEngine
   };
 
   class __FLX_API PauseUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API PauseHoverUI
   {
     FLX_REFL_SERIALIZABLE
 
