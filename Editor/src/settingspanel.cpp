@@ -4,22 +4,26 @@
 namespace Editor {
 
     SettingsPanel::SettingsPanel()
-        :m_editorCameraSpeed(FlexPrefs::GetFloat("editor.cameraSpeed", 1.0f)),
-        m_editorThemeIndex(FlexPrefs::GetInt("editor.themeIndex", 0)),
-        m_editorBatching(FlexPrefs::GetBool("editor.batching", true)),
-        // Load game settings with defaults.
-        m_gameFullscreen(FlexPrefs::GetBool("game.fullscreen", false)),
-        m_gameVSync(FlexPrefs::GetBool("game.vsync", true)),
-        m_gameBatching(FlexPrefs::GetBool("game.batching", true)),
-        m_gameResolutionIndex(FlexPrefs::GetInt("game.resolutionIndex", 0)),
-        m_gameVolume(FlexPrefs::GetFloat("game.volume", 0.75f))
     {
     }
 
     void SettingsPanel::Init() 
     {
         // Any one-time initialization for the settings panel can go here.
+        // Load the saved preferences from file.
         FlexPrefs::Load();
+
+        // Load Editor settings
+        m_editorCameraSpeed = FlexPrefs::GetFloat("editor.cameraSpeed", 1.0f);
+        m_editorThemeIndex = FlexPrefs::GetInt("editor.themeIndex", 0);
+        m_editorBatching = FlexPrefs::GetBool("editor.batching", true);
+
+        // Load Game settings
+        m_gameFullscreen = FlexPrefs::GetBool("game.fullscreen", false);
+        m_gameVSync = FlexPrefs::GetBool("game.vsync", true);
+        m_gameBatching = FlexPrefs::GetBool("game.batching", true);
+        m_gameResolutionIndex = FlexPrefs::GetInt("game.resolutionIndex", 0);
+        m_gameVolume = FlexPrefs::GetFloat("game.volume", 0.75f);
     }
 
     void SettingsPanel::Update() 
@@ -85,6 +89,12 @@ namespace Editor {
             }
         }
 
+        // ----- Save Button -----
+        ImGui::Separator();
+        if (ImGui::Button("Save Settings", ImVec2(180, 30)))
+        {
+            FlexPrefs::Save();
+        }
         ImGui::End();
     }
 
