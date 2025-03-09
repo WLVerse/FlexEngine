@@ -1158,8 +1158,6 @@ namespace Game
                         }
                     }
                 }
-
-                Log::Debug("default target" + std::to_string(battle.target_num));
             }
 
             //swap targets
@@ -1322,6 +1320,7 @@ namespace Game
                 for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++)
                 {
                     if (key == GLFW_KEY_W || key == GLFW_KEY_A || key == GLFW_KEY_S || key == GLFW_KEY_D)
+                        continue;
                         if (Input::GetKeyDown(key))
                         {
                             battle.tutorial_info++;
