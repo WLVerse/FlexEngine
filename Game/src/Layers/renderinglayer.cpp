@@ -142,7 +142,7 @@ namespace Game
 
    FunctionQueue game_queue;
 
-   #if 0
+   #if 1
      #pragma region Sprite Renderer System
    
      // render all sprites
