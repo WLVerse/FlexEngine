@@ -104,6 +104,7 @@ namespace Game
     void Win_Battle();
     void Lose_Battle();
     void Update_Character_Status();
+    void Update_Damage_And_Targetting_Previews();
 
     void Internal_ParseBattle(AssetKey assetkey)
     {
@@ -413,6 +414,17 @@ namespace Game
             character_healthbar.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Green.png)") });
             character_healthbar.AddComponent<ZIndex>({ 21 + index });
 
+            FlexECS::Entity damage_preview = FlexECS::Scene::CreateEntity(character.name + " DamagePreview"); // can always use GetEntityByName to find the entity
+            damage_preview.AddComponent<Healthbar>({});
+            damage_preview.AddComponent<Transform>({});
+            damage_preview.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot + 2] });
+            damage_preview.AddComponent<Rotation>({});
+            damage_preview.AddComponent<Scale>({ Vector3(.1f, .1f, 0) });
+            damage_preview.GetComponent<Healthbar>()->original_position = damage_preview.GetComponent<Position>()->position;
+            damage_preview.GetComponent<Healthbar>()->original_scale = damage_preview.GetComponent<Scale>()->scale;
+            damage_preview.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_HealthBar_Rose.png)") });
+            damage_preview.AddComponent<ZIndex>({ 21 + index + 1 });
+
             character_healthbar = FlexECS::Scene::CreateEntity(character.name + " Stats"); // can always use GetEntityByName to find the entity
             character_healthbar.AddComponent<Transform>({});
             character_healthbar.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-70, -100, 0) });
@@ -688,13 +700,145 @@ namespace Game
                 entity.GetComponent<Transform>()->is_active = true;
             else entity.GetComponent<Transform>()->is_active = false;
         }
+
+    }
+
+    void Update_Damage_And_Targetting_Previews()
+    {
+      //Update damage preview displays
+      //As well as speed bar targeting icon
+      //Turn off all previews is_active, then turn back on
+      for (auto character : battle.drifters_and_enemies)
+      {
+        if (character.character_id <= 2) continue;
+
+        auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+        entity.GetComponent<Transform>()->is_active = false;
+      }
+      for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+      {
+        entity.GetComponent<Transform>()->is_active = false;
+      }
+
+      //Find which enemies are targetted, turn on damage previews
+      if (battle.current_move && battle.is_player_turn)
+      {
+        std::vector<_Character> targets;
+        for (int i = 0; i < battle.current_move->effect.size(); i++)
+        {
+          if (battle.current_move->target[i] == "ALL_ENEMIES")
+          {
+            for (auto character : battle.drifters_and_enemies)
+            {
+              if (character.is_alive && character.character_id > 2)
+              {
+                targets.push_back(character);
+              }
+            }
+          }
+          else if (battle.current_move->target[i] == "ADJACENT_ENEMIES")
+          {
+            for (auto character : battle.drifters_and_enemies)
+            {
+              if (character.character_id <= 2) continue;
+              if (character.is_alive &&
+                (character.current_slot == battle.target_num - 1 || character.current_slot == battle.target_num ||
+                  character.current_slot == battle.target_num + 1))
+              {
+                targets.push_back(character);
+              }
+            }
+            std::cout << "List of adjacent enemies: \n";
+            for (auto target : targets)
+            {
+              std::cout << target.name << "\n";
+            }
+          }
+          else if (battle.current_move->target[i] == "SINGLE_ENEMY")
+          {
+            for (auto character : battle.drifters_and_enemies)
+            {
+              if (character.is_alive && character.current_slot == battle.target_num && character.character_id > 2)
+              {
+                targets.push_back(character);
+              }
+            }
+          }
+
+          //Draw damage preview bar
+          for (auto target : targets)
+          {
+            auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
+            if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
+
+            if (target.shield_buff_duration > 0) continue;
+
+            entity.GetComponent<Transform>()->is_active = true;
+
+            auto* scale = entity.GetComponent<Scale>();
+            auto* healthbar = entity.GetComponent<Healthbar>();
+            auto* position = entity.GetComponent<Position>();
+
+            float current_health_percentage = static_cast<float>(target.current_health) / static_cast<float>(target.health);
+            float right_edge_pos = (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage))
+              + (healthbar->pixelLength / 2.f * (current_health_percentage));
+
+            float damage_taken = 0;
+            if (battle.current_move->effect[i] == "Damage")
+            {
+              damage_taken = battle.current_move->value[i];
+            }
+            if (battle.current_character->attack_buff_duration > 0)
+            {
+              damage_taken += damage_taken / 2;
+            }
+            if (battle.current_character->attack_debuff_duration < 0)
+            {
+              damage_taken -= damage_taken / 2;
+            }
+
+            float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
+
+            scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
+            position->position.x = right_edge_pos - (healthbar->pixelLength / 2 * percentage_damage_taken);
+          }
+
+          
+          //Draw Targetting icon over targetted enemy in speed bar
+          for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+          {
+            int slot_number = entity.GetComponent<SpeedBarSlotTarget>()->slot_number;
+
+            int size = static_cast<int>(battle.speed_bar.size());
+
+            if (slot_number > size)
+            {
+              entity.GetComponent<Transform>()->is_active = false;
+              continue;
+            }
+
+            //check if the character in the slot is being targetted.
+            _Character* character = battle.speed_bar[slot_number - 1];
+            for (_Character target : targets)
+            {
+              if (target.name == character->name)
+              {
+                entity.GetComponent<Transform>()->is_active = true;
+              }
+            }
+          }
+
+          targets.clear();
+        }
+
+      }
     }
 
     void Start_Of_Game()
     {
         //CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
 
-        File& file = File::Open(Path::current("assets/saves/battlescene_v6.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v7.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         #pragma region Load _Battle Data
@@ -1784,6 +1928,19 @@ namespace Game
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
             }
+
+            //Turn off damage and targetting previews
+            for (auto character : battle.drifters_and_enemies)
+            {
+              if (character.character_id <= 2) continue;
+
+              auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+              entity.GetComponent<Transform>()->is_active = false;
+            }
+            for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+            {
+              entity.GetComponent<Transform>()->is_active = false;
+            }
         }
         if (battle.disable_input_timer > 0)
         {
@@ -2113,13 +2270,26 @@ namespace Game
     void Win_Battle()
     {
         battle.is_end = true;
-        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<WinLayer>());
+        // A bit lame, but need to find by name to set, like the old Unity days
+      FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("dmg dealt").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Win base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Player Stats").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Lose_Battle()
     {
         battle.is_end = true;
-        //FLX_COMMAND_ADD_WINDOW_OVERLAY("Game", std::make_shared<LoseLayer>());
+        FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Set_Up_Pause_Menu() {
@@ -2191,28 +2361,23 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
+        if (battle.is_end)
+        {
+          if (Input::AnyKeyDown())
+          {
+            Application::MessagingSystem::Send("Game win to menu", true);
+          }
+          else return;
+        }
+
         bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key
         if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || resume_game)
         {
-          // set the main camera
-          //CameraManager::SetMainGameCameraID(main_camera);
-
-          //// unload win layer
-          //auto win_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Win Layer");
-          //if (win_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", win_layer);
-
-          //// unload lose layer
-          //auto lose_layer = Application::GetCurrentWindow()->GetLayerStack().GetOverlay("Lose Layer");
-          //if (lose_layer != nullptr) FLX_COMMAND_REMOVE_WINDOW_OVERLAY("Game", lose_layer);
-
           Pause_Functionality();
         }
 
         if (battle.is_paused) return;
-
-        // return if the battle is over
-        if (battle.is_end) return;
 
         if (battle.disable_input_timer > 0.f)
         {
@@ -2266,6 +2431,7 @@ namespace Game
             else if (battle.move_select)
             {
                 Move_Select();
+                Update_Damage_And_Targetting_Previews();
             }
             else if (battle.move_resolution)
             {
