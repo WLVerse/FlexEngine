@@ -2450,12 +2450,15 @@ namespace Game
                 break;
             case 1:
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.");
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 2:
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.");
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 700, 0);
                 break;
             case 3:
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("Remember, SPACEBAR to confirm your move.");
+                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 4:
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("");
