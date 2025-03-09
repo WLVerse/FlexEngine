@@ -59,6 +59,7 @@ namespace Game
 
         //icon to show where the character will end up on the speed bar after using a move
         FlexECS::Entity projected_character;
+        FlexECS::Entity projected_character_text;
 
         //vector 3 positions to move things around
         std::array<Vector3, 7> sprite_slot_positions = {};
@@ -82,7 +83,7 @@ namespace Game
         bool is_end = false;
 
         int tutorial_info = 0;
-        bool is_tutorial = false;
+        bool is_tutorial = true;
         bool is_tutorial_running = false;
         FlexECS::Entity tutorial_text;
 
@@ -516,22 +517,37 @@ namespace Game
         battle.projected_character.AddComponent<ZIndex>({ 21 + index });
         battle.projected_character.GetComponent<Transform>()->is_active = false;
 
+        // Text that just says next for the projected character lol
+        battle.projected_character_text = FlexECS::Scene::CreateEntity("projected_char_text"); 
+        battle.projected_character_text.AddComponent<Transform>({});
+        battle.projected_character_text.AddComponent<Position>({});
+        battle.projected_character_text.AddComponent<Rotation>({});
+        battle.projected_character_text.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
+        battle.projected_character_text.AddComponent<Text>({FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+                                                                 FLX_STRING_NEW(R"(NEXT)"),
+                                                                 Vector3(1.0f, 1.0, 1.0f),
+                                                                 { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+                                                                 {                            600,                              320 }
+                                                                 });
+        battle.projected_character_text.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_character_text.GetComponent<Transform>()->is_active = false;
+
         if (battle.is_tutorial)
         {
             battle.is_tutorial_running = true;
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(550, 700, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(550, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
-            battle.tutorial_text.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0) });
+            battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
             battle.tutorial_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {                            600,                              320 }
+              {                            1000,                              320 }
             });
         }
 
@@ -790,7 +806,7 @@ namespace Game
             float damage_taken = 0;
             if (battle.current_move->effect[i] == "Damage")
             {
-              damage_taken = battle.current_move->value[i];
+              damage_taken = static_cast<float>(battle.current_move->value[i]);
             }
             if (battle.current_character->attack_buff_duration > 0)
             {
@@ -1390,6 +1406,7 @@ namespace Game
             if (projected_speed > 0)
             {
                 battle.projected_character.GetComponent<Transform>()->is_active = true;
+                battle.projected_character_text.GetComponent<Transform>()->is_active = true;
                 for (auto character : battle.speed_bar)
                 {
                     if (projected_speed < character->current_speed)
@@ -1415,6 +1432,7 @@ namespace Game
                     if (slot_number == 0)
                     {
                         battle.projected_character.GetComponent<Position>()->position = entity.GetComponent<Position>()->position + Vector3{ 65, -65, 0 };
+                        battle.projected_character_text.GetComponent<Position>()->position = battle.projected_character.GetComponent<Position>()->position + Vector3{ -30, -75, 0 };
                         break;
                     }
                     else
@@ -1493,6 +1511,7 @@ namespace Game
 
                 //disable projected character icon
                 battle.projected_character.GetComponent<Transform>()->is_active = false;
+                battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
                 //Turn off damage and targetting previews
                 for (auto character : battle.drifters_and_enemies)
@@ -2315,15 +2334,12 @@ namespace Game
         //tutorial code
         if (battle.is_tutorial_running)
         {
-            for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++)
-            {
-                    if (Input::GetKeyDown(key))
-                    {
-                        battle.tutorial_info++;
-                    }
-            }
+          if (Input::AnyKeyDown())
+          {
+              battle.tutorial_info++;
+          }
         }
-        if (battle.is_tutorial && battle.tutorial_info < 6)
+        if (battle.is_tutorial && battle.tutorial_info < 5)
         {
             return;
         }
@@ -2600,37 +2616,37 @@ namespace Game
 
         if (battle.is_tutorial && battle.is_tutorial_running)
         {
+            std::string text_to_show;
             switch (battle.tutorial_info)
             {
             case 0:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("Drift Bar shows the turn order, characters will take turns from left to right.");
+                text_to_show = "Drift Bar shows the turn order, characters will take turns from left to right.";
                 break;
             case 1:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
+                text_to_show = "W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.";
+                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 2:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 700, 0);
+                text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
+                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 500, 0);
                 break;
             case 3:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("Remember, SPACEBAR to confirm your move.");
-                FlexECS::Scene::GetActiveScene()->GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
+                text_to_show = "Remember, SPACEBAR to confirm your move.";
+                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 4:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("");
+              text_to_show = "You're a natural. Now, show me what you're capable of on your own.";
                 break;
             case 5:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("You're a natural. Now, show me what you're capable of on your own.");
-                break;
-            case 6:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("");
+              text_to_show = "";
                 battle.is_tutorial_running = false;
                 break;
             default:
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text) = FLX_STRING_NEW("");
+              text_to_show = "";
                 break;
             }
+
+            FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text = FLX_STRING_NEW(text_to_show);
         }
 
         if (battle.disable_input_timer > 0.f)
