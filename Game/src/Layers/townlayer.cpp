@@ -22,8 +22,6 @@ namespace Game
 
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
-    //main_character = FlexECS::Scene::GetEntityByName("Walking Renko");
-    //area_to_transition = FlexECS::Scene::GetEntityByName("Area To Transition");
   }
 
   void TownLayer::OnDetach()
@@ -38,13 +36,11 @@ namespace Game
 #pragma region Camera Follow System
 
     // move camera to follow main character
-    FlexECS::Entity camera = FlexECS::Scene::GetActiveScene()->CachedQuery<Camera, Position>()[0];
-    FlexECS::Entity main_character, main_enemy;
-    auto characters = FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Position, Rigidbody>();
-    for (auto& c : characters) {
-      if (c.GetComponent<Rigidbody>()->is_static) main_enemy = c;
-      else main_character = c;
-    }
+    FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
+
+    FlexECS::Entity main_character, main_enemy, encounter_one, encounter_two;
+    main_enemy = FlexECS::Scene::GetEntityByName("Jack");
+    main_character = FlexECS::Scene::GetEntityByName("Renko");
 
     camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
     camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -880.f, 710.f);
@@ -55,7 +51,17 @@ namespace Game
    if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
    {
      // transition lorhhhhhhhh
-     Application::MessagingSystem::Send("Enter Battle", true);
+     Application::MessagingSystem::Send("Enter Boss", true);
+   }
+
+   if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
+   {
+     Application::MessagingSystem::Send("Enter Battle 1", true);
+   }
+
+   if (FlexECS::Scene::GetEntityByName("Encounter2").GetComponent<BoundingBox2D>()->is_colliding)
+   {
+     Application::MessagingSystem::Send("Enter Battle 2", true);
    }
 #pragma endregion
     /*
