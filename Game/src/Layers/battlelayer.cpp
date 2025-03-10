@@ -14,6 +14,7 @@
 
 namespace Game
 {
+    extern std::string file_name;
 
     struct _Move
     {
