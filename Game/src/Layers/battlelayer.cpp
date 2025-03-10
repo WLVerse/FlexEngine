@@ -575,14 +575,17 @@ namespace Game
             for (auto& character : battle.speed_bar) character->current_speed -= first_speed;
 
         // update the character id in the slot based on the speed bar order
-        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, SpeedBarSlot>())
         {
             auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
 
             if (speed_bar_slot.slot_number <= battle.speed_bar.size())
                 speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
             else
+            {
                 speed_bar_slot.character = 0;
+                entity.GetComponent<Transform>()->is_active = false;
+            }
         }
 
         // upon each icon in the slot based on character id
@@ -2521,15 +2524,6 @@ namespace Game
             else if (character.is_alive && character.character_id > 2)
             {
                 enemy_count++;
-            }
-        }
-        //loop through all slots and set the excess empty ones at the end to false
-        for (int i = 1; i < 8; i++)
-        {
-            if (i > player_count + enemy_count)
-            {
-                std::string slot_name = "Speed slot " + i;
-                FlexECS::Scene::GetEntityByName(slot_name).GetComponent<Transform>()->is_active = false;
             }
         }
         if (!player_count)
