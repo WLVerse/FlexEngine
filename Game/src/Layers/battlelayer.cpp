@@ -598,7 +598,7 @@ namespace Game
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(550, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(450, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
@@ -1128,13 +1128,7 @@ namespace Game
               battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyTurn_Indicator.png)");
             }
 
-            //reset position
-            if (battle.previous_character != nullptr) {
-                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
-                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
-                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
-            }
+            
         }
 
         //tutorial only
@@ -2612,6 +2606,13 @@ namespace Game
             }
             battle.disable_input_timer += animation_time;// + 1.f;
 
+            //reset position, then delay a bit
+            if (battle.previous_character != nullptr) {
+                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
+                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
+                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
+            }
             if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
         }
 
@@ -2814,15 +2815,12 @@ namespace Game
                 break;
             case 1:
                 text_to_show = "W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 2:
                 text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(450, 500, 0);
                 break;
             case 3:
                 text_to_show = "Remember, SPACEBAR to confirm your move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 4:
               text_to_show = "You're a natural. Now, show me what you're capable of on your own.";
