@@ -1027,7 +1027,6 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
 
         // load the battle
-        battle.is_tutorial = false;
         if (battle.is_tutorial)
         Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
         else Internal_ParseBattle(R"(/data/debug.flxbattle)");
