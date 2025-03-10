@@ -23,7 +23,6 @@
     <ClCompile Include="src\bgmslider.cpp" />
     <ClCompile Include="src\bgmvolumedecrease.cpp" />
     <ClCompile Include="src\bgmvolumeincrease.cpp" />
-    <ClCompile Include="src\camerahandler.cpp" />
     <ClCompile Include="src\creditsbutton.cpp" />
     <ClCompile Include="src\displaymodebutton.cpp" />
     <ClCompile Include="src\cutscene_autoplaybutton.cpp" />

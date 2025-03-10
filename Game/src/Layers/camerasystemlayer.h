@@ -14,18 +14,63 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Game
-{
+namespace Game {
 
-  class CameraSystemLayer : public FlexEngine::Layer
-  {
-  public:
-    CameraSystemLayer() : Layer("Camera System Layer") {}
-    ~CameraSystemLayer() = default;
+    // The CameraSystemLayer handles camera shake and zoom effects.
+    class CameraSystemLayer : public FlexEngine::Layer {
+    public:
+        CameraSystemLayer();
+        ~CameraSystemLayer() override = default;
 
-    virtual void OnAttach() override;
-    virtual void OnDetach() override;
-    virtual void Update() override;
-  };
+        void OnAttach() override;
+        void OnDetach() override;
+        void Update() override;
 
-}
+    private:
+        // Main camera entity and base parameters.
+        FlexECS::Entity m_mainCameraEntity;
+        float m_zoomBase = 0.0f; // Original ortho width of camera
+        const float m_baseAspectRatio = 16.0f / 9.0f;
+        const float m_minOrthoWidth = 1000.0f;
+
+        struct ShakeEffect
+        {
+            float duration;   // Total duration of the effect.
+            float elapsed;    // Time elapsed so far.
+            float intensity;  // Base shake intensity.
+            bool lerp;        // If true, intensity ramps up then down.
+        };
+
+        // Updated ZoomEffect:
+        // - For persistent zoom (non auto-return), 'duration' is used.
+        // - For auto-return zoom, we add lerpDuration (ramp up/down),
+        //   holdDuration (time at target zoom), and totalDuration = 2*lerpDuration + holdDuration.
+        struct ZoomEffect
+        {
+            // Persistent zoom effect parameters.
+            float duration;         // Total duration for persistent zoom effect.
+
+            // Common parameters:
+            float elapsed;          // Time elapsed so far.
+            float targetOrthoWidth; // Desired target orthographic width.
+            float initialOrthoWidth;// Starting orthographic width.
+            bool autoReturn;        // If true, zoom will ramp in then return.
+
+            // Auto-return effect parameters (used when autoReturn is true):
+            float lerpDuration;     // Lerp duration for ramping up and down.
+            float holdDuration;     // Duration to hold at target zoom.
+            float totalDuration;    // Total duration (2*lerpDuration + holdDuration).
+        };
+
+        std::vector<ShakeEffect> m_shakeEffects;
+        ZoomEffect m_zoomEffect;
+
+        // Original camera position (base for applying shake).
+        Vector3 m_originalCameraPos;
+
+        // Helper functions.
+        void EnsureMainCamera();
+        Vector3 GenerateShakeOffset(float intensity);
+    };
+
+} // namespace Game
