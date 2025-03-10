@@ -768,11 +768,6 @@ namespace Game
                 targets.push_back(character);
               }
             }
-            std::cout << "List of adjacent enemies: \n";
-            for (auto target : targets)
-            {
-              std::cout << target.name << "\n";
-            }
           }
           else if (battle.current_move->target[i] == "SINGLE_ENEMY")
           {
