@@ -1917,9 +1917,9 @@ namespace Game
                     break;
                 }
 
-                float animation_time =
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -1927,7 +1927,39 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Special delay for renko
+                if (battle.current_character->character_id == 1)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 3:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                // Special delay for grace
+                if (battle.current_character->character_id == 2)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 1:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  case 2:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                battle.disable_input_timer += 1.f;
             }
             else //resolve all move effects + play attack animation
             {
@@ -2172,9 +2204,9 @@ namespace Game
                     }
                     break;
                 }
-                float animation_time =
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -2182,7 +2214,10 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Delay for machine gun 
+                if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
+                  battle.disable_input_timer += 1.5f;
+                else battle.disable_input_timer += 0.5f;
             }
         }
         
@@ -2350,9 +2385,10 @@ namespace Game
                         //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
                     //break;
                 }
-                animation_time =
+
+                /*animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 target_animator.should_play = true;
                 target_animator.is_looping = false;
