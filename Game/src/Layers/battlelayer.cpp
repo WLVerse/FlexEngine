@@ -61,6 +61,7 @@ namespace Game
         //icon to show where the character will end up on the speed bar after using a move
         FlexECS::Entity projected_character;
         FlexECS::Entity projected_character_text;
+        FlexECS::Entity curr_char_highlight;
 
         //vector 3 positions to move things around
         std::array<Vector3, 7> sprite_slot_positions = {};
@@ -872,6 +873,8 @@ namespace Game
 
     void PlaySpeedbarAnimation()
     {
+      battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
+
         constexpr float duration = 2.f; // Duration for each phase
         constexpr float max_arc_height = -200.f;
 
@@ -949,6 +952,8 @@ namespace Game
         File& file = File::Open(Path::current("assets/saves/battlescene_v7.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
+        battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
+
         #pragma region Load _Battle Data
         battle.speed_slot_position[0] = FlexECS::Scene::GetEntityByName("Speed slot 1");
         battle.speed_slot_position[1] = FlexECS::Scene::GetEntityByName("Speed slot 2");
@@ -1015,6 +1020,8 @@ namespace Game
 
     void Start_Of_Turn()
     {
+      battle.curr_char_highlight.GetComponent<Transform>()->is_active = true; // Enable curr char accent
+
         //one-time call upon changing phase
         if (battle.change_phase)
         {
@@ -1048,6 +1055,11 @@ namespace Game
                 Log::Debug(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_PlayerTurn_Indicator.png)");
+            }
+            else
+            {
+              battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyTurn_Indicator.png)");
             }
 
             //reset position
