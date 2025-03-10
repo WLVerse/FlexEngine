@@ -547,7 +547,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {                            1000,                              320 }
+              {                           1400,                              320 }
             });
         }
 
@@ -2628,7 +2628,7 @@ namespace Game
                 break;
             case 2:
                 text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 500, 0);
+                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(450, 500, 0);
                 break;
             case 3:
                 text_to_show = "Remember, SPACEBAR to confirm your move.";
