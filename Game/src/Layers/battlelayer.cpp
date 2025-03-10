@@ -14,6 +14,8 @@
 
 namespace Game
 {
+    extern std::string file_name;
+
     struct _Move
     {
         std::string name = "";
@@ -61,6 +63,7 @@ namespace Game
         //icon to show where the character will end up on the speed bar after using a move
         FlexECS::Entity projected_character;
         FlexECS::Entity projected_character_text;
+        FlexECS::Entity curr_char_highlight;
 
         //vector 3 positions to move things around
         std::array<Vector3, 7> sprite_slot_positions = {};
@@ -604,7 +607,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
-              {                            1000,                              320 }
+              {                           1400,                              320 }
             });
         }
 
@@ -628,14 +631,17 @@ namespace Game
             for (auto& character : battle.speed_bar) character->current_speed -= first_speed;
 
         // update the character id in the slot based on the speed bar order
-        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<SpeedBarSlot>())
+        for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, SpeedBarSlot>())
         {
             auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
 
             if (speed_bar_slot.slot_number <= battle.speed_bar.size())
                 speed_bar_slot.character = battle.speed_bar[speed_bar_slot.slot_number - 1]->character_id;
             else
+            {
                 speed_bar_slot.character = 0;
+                entity.GetComponent<Transform>()->is_active = false;
+            }
         }
 
         // upon each icon in the slot based on character id
@@ -914,6 +920,8 @@ namespace Game
 
     void PlaySpeedbarAnimation()
     {
+      battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
+
         constexpr float duration = 2.f; // Duration for each phase
         constexpr float max_arc_height = -200.f;
 
@@ -988,10 +996,10 @@ namespace Game
 
     void Start_Of_Game()
     {
-        //CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
-
         File& file = File::Open(Path::current("assets/saves/battlescene_v7.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
+
+        battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
 
         #pragma region Load _Battle Data
         battle.speed_slot_position[0] = FlexECS::Scene::GetEntityByName("Speed slot 1");
@@ -1026,10 +1034,11 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 4").GetComponent<Transform>()->is_active = false;
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
 
+        Internal_ParseBattle(file_name);
         // load the battle
-        if (battle.is_tutorial)
-        Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
-        else Internal_ParseBattle(R"(/data/debug.flxbattle)");
+        //if (battle.is_tutorial)
+        //Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
+        //else Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
             entity.GetComponent<Transform>()->is_active = false;
@@ -1065,11 +1074,16 @@ namespace Game
 
         battle.change_phase = true;
 
+      // Play bgm for game
+      FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
+
         Log::Debug("Start Game");
     }
 
     void Start_Of_Turn()
     {
+      battle.curr_char_highlight.GetComponent<Transform>()->is_active = true; // Enable curr char accent
+
         //one-time call upon changing phase
         if (battle.change_phase)
         {
@@ -1103,6 +1117,11 @@ namespace Game
                 Log::Debug(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_PlayerTurn_Indicator.png)");
+            }
+            else
+            {
+              battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyTurn_Indicator.png)");
             }
 
             //reset position
@@ -2097,8 +2116,16 @@ namespace Game
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
                     break;
                 case 5:
-                    // current_character_animator.spritesheet_handle =
-                    //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    if (battle.move_num == 3)
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
+                    }
+                    else
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    }
                     break;
                 }
                 float animation_time =
@@ -2308,9 +2335,18 @@ namespace Game
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 5:
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                if (battle.move_num == 3)
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
+                else
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
                 break;
             }
 
@@ -2665,7 +2701,10 @@ namespace Game
         {
           if (Input::AnyKeyDown())
           {
-            Application::MessagingSystem::Send("Game win to menu", true);
+            if (!battle.is_tutorial)
+              Application::MessagingSystem::Send("Game win to menu", true);
+            else 
+              Application::MessagingSystem::Send("Game win to tutorial", true);
           }
           else return;
         }
@@ -2697,7 +2736,7 @@ namespace Game
                 break;
             case 2:
                 text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 500, 0);
+                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(450, 500, 0);
                 break;
             case 3:
                 text_to_show = "Remember, SPACEBAR to confirm your move.";

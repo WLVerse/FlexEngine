@@ -5,7 +5,6 @@ using namespace FlexEngine;
 
 namespace Game
 {
-
   class BaseLayer : public FlexEngine::Layer
   {
   public:
