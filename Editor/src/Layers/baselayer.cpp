@@ -21,6 +21,8 @@ namespace Editor
     // load assets only after the window has been created
     AssetManager::Load();
     FreeQueue::Push(std::bind(&AssetManager::Unload), "Application AssetManager");
+    // Load the saved preferences from file.
+    FlexPrefs::Load();
 
     // Renderer Setup
 

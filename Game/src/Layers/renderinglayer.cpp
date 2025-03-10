@@ -142,87 +142,90 @@ namespace Game
 
    FunctionQueue game_queue;
 
-   #if 0
-     #pragma region Sprite Renderer System
-   
-     // render all sprites
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
-      {
-        if (!element.GetComponent<Transform>()->is_active) continue;
+   if (!FlexPrefs::GetBool("game.batching"))
+   {
+       #pragma region Sprite Renderer System
 
-        Sprite& sprite = *element.GetComponent<Sprite>();
-        Renderer2DProps props;
+       // render all sprites
+       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
+       {
+           if (!element.GetComponent<Transform>()->is_active) continue;
 
-        // overload for animator
-        if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
-        {
-          Animator& animator = *element.GetComponent<Animator>();
+           Sprite& sprite = *element.GetComponent<Sprite>();
+           Renderer2DProps props;
 
-          props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-          props.texture_index = animator.current_frame;
-          props.alpha = 1.0f; // Update pls
-        }
-        else
-        {
-          props.asset = FLX_STRING_GET(sprite.sprite_handle);
-          props.texture_index = -1;
-          props.alpha = sprite.opacity;
-        }
+           // overload for animator
+           if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
+           {
+               Animator& animator = *element.GetComponent<Animator>();
 
-        int index = 0;
-        if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+               props.asset = FLX_STRING_GET(animator.spritesheet_handle);
+               props.texture_index = animator.current_frame;
+               props.alpha = 1.0f; // Update pls
+           }
+           else
+           {
+               props.asset = FLX_STRING_GET(sprite.sprite_handle);
+               props.texture_index = -1;
+               props.alpha = sprite.opacity;
+           }
 
-        props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
-      
-        props.alignment = Renderer2DProps::Alignment_TopLeft;
-        props.world_transform = element.GetComponent<Transform>()->transform;
+           int index = 0;
+           if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
-        game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
-      }
-      #pragma endregion
+           props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
 
-      #pragma region Text Renderer System
+           props.alignment = Renderer2DProps::Alignment_TopLeft;
+           props.world_transform = element.GetComponent<Transform>()->transform;
 
-      // Text
-      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
-      {
-          if (!element.GetComponent<Transform>()->is_active) continue;
+           game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+       }
+       #pragma endregion
 
-          const auto textComponent = element.GetComponent<Text>();
+       #pragma region Text Renderer System
 
-          Renderer2DText sample;
-          sample.m_window_size = Vector2(
-            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-            static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
-          );
+       // Text
+       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+       {
+           if (!element.GetComponent<Transform>()->is_active) continue;
 
-          int index = 0;
-          if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+           const auto textComponent = element.GetComponent<Text>();
 
-          sample.m_words = FLX_STRING_GET(textComponent->text);
-          sample.m_color = textComponent->color;
-          sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
-          // TODO: Need to convert text to similar to camera class
-          // Temp
-          sample.m_transform = Matrix4x4(
-            element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
-            0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
-            element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
-          );
-          sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
-                                          static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
-          sample.m_textboxDimensions = textComponent->textboxDimensions;
-          sample.m_linespacing = 12.0f;
-          game_queue.Insert({ [sample]()
-                              {
-                                OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
-                              },
-                              "", index });
-      }
+           Renderer2DText sample;
+           sample.m_window_size = Vector2(
+             static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+             static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+           );
 
-      game_queue.Flush();
-      #pragma endregion
-   #else
+           int index = 0;
+           if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+           sample.m_words = FLX_STRING_GET(textComponent->text);
+           sample.m_color = textComponent->color;
+           sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+           // TODO: Need to convert text to similar to camera class
+           // Temp
+           sample.m_transform = Matrix4x4(
+             element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
+             0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
+             element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
+           );
+           sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                           static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+           sample.m_textboxDimensions = textComponent->textboxDimensions;
+           sample.m_linespacing = 12.0f;
+           game_queue.Insert({ [sample]()
+                               {
+                                 OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
+                               },
+                               "", index });
+       }
+
+       game_queue.Flush();
+       #pragma endregion
+   }
+   else
+   {
   #pragma region Batch Sprite Renderer System
     
       FunctionQueue batch_render_queue;
@@ -316,7 +319,7 @@ namespace Game
 
       batch_render_queue.Flush();
    #pragma endregion
-   #endif
+   }
 
     OpenGLFrameBuffer::Unbind();
   }
