@@ -811,7 +811,7 @@ namespace Game
             {
               damage_taken += damage_taken / 2;
             }
-            if (battle.current_character->attack_debuff_duration < 0)
+            if (battle.current_character->attack_debuff_duration > 0)
             {
               damage_taken -= damage_taken / 2;
             }
