@@ -935,8 +935,6 @@ namespace Game
 
     void Start_Of_Game()
     {
-        //CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
-
         File& file = File::Open(Path::current("assets/saves/battlescene_v7.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
@@ -996,6 +994,9 @@ namespace Game
         battle.end_of_turn = false;
 
         battle.change_phase = true;
+
+      // Play bgm for game
+      FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
 
         Log::Debug("Start Game");
     }
