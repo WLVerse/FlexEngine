@@ -51,19 +51,17 @@ namespace Game
    if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
    {
      // transition lorhhhhhhhh
-     Application::MessagingSystem::Send("Enter Battle", true);
+     Application::MessagingSystem::Send("Enter Boss", true);
    }
 
    if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
    {
      Application::MessagingSystem::Send("Enter Battle 1", true);
-     Log::Info("Encounter 1 triggered");
    }
 
    if (FlexECS::Scene::GetEntityByName("Encounter2").GetComponent<BoundingBox2D>()->is_colliding)
    {
      Application::MessagingSystem::Send("Enter Battle 2", true);
-     Log::Info("Encounter 2 triggered");
    }
 #pragma endregion
     /*

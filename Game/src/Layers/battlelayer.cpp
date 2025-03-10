@@ -2650,7 +2650,10 @@ namespace Game
         {
           if (Input::AnyKeyDown())
           {
-            Application::MessagingSystem::Send("Game win to menu", true);
+            if (!battle.is_tutorial)
+              Application::MessagingSystem::Send("Game win to menu", true);
+            else 
+              Application::MessagingSystem::Send("Game win to tutorial", true);
           }
           else return;
         }
