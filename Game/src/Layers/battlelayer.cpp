@@ -2043,8 +2043,16 @@ namespace Game
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
                     break;
                 case 5:
-                    // current_character_animator.spritesheet_handle =
-                    //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    if (battle.move_num == 3)
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
+                    }
+                    else
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    }
                     break;
                 }
                 float animation_time =
@@ -2254,9 +2262,18 @@ namespace Game
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 5:
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                if (battle.move_num == 3)
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
+                else
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
                 break;
             }
 
