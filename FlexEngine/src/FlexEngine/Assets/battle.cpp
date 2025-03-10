@@ -44,6 +44,8 @@ namespace FlexEngine
           iss >> enemy_slot_five;
         else if (key == "BossBattle:")
           iss >> boss_battle;
+        else if (key == "Tutorial:")
+            iss >> is_tutorial;
       }
     }
 

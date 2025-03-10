@@ -26,6 +26,7 @@ namespace FlexEngine
       AssetKey enemy_slot_five = "None";
 
       int boss_battle = 0; // 0 = false, 1-5 = true, pointing out which enemy slot is the boss
+      bool is_tutorial = false;
 
       // helper vector functions
       std::vector<AssetKey*> GetDrifterSlots()

@@ -127,6 +127,7 @@ namespace Game
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
 
+        battle.is_tutorial = asset.is_tutorial;
         // parse the battle data
         int index = 0;
         int temp_index = 0;
@@ -862,6 +863,85 @@ namespace Game
       }
     }
 
+    static float Lerp(float a, float b, float t)
+    {
+        return a + t * (b - a);
+    }
+
+    void PlaySpeedbarAnimation()
+    {
+        constexpr float duration = 2.f; // Duration for each phase
+        constexpr float max_arc_height = -200.f;
+
+        static float time_played = 0.f;
+        static Vector3 dest[7];
+        static bool is_init = false;
+
+        if (!is_init)
+        {
+            // Set the initial position of the element to move
+            dest[0] = battle.speed_slot_position[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
+
+            // Cache lerp values for all inbetween elements
+            for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
+            {
+                if (i == battle.curr_char_pos_after_taking_turn + 1)
+                    break;
+
+                dest[i] = battle.speed_slot_position[i - 1].GetComponent<Position>()->position;
+            }
+
+            is_init = true;
+        }
+
+        // Lerp to the supposed position
+        if (time_played < duration)
+        {
+            float t = time_played / duration;
+            t = std::clamp(t, 0.f, 1.f);
+
+            float arc_t = 1.f - (2.f * t - 1.f) * (2.f * t - 1.f); // Parabolic arc
+
+            battle.speed_slot_position[0].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[0].x, dest[0].x, t),
+                                                                                       Lerp(battle.original_speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
+                                                                                       Lerp(battle.original_speed_slot_position[0].z, dest[0].z, t));
+
+            // Lerp the rest of the icons
+            for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
+            {
+                if (i == battle.curr_char_pos_after_taking_turn + 1)
+                {
+                    break;
+                }
+
+                battle.speed_slot_position[i].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[i].x, dest[i].x, t),
+                                                                                           Lerp(battle.original_speed_slot_position[i].y, dest[i].y, t),
+                                                                                           Lerp(battle.original_speed_slot_position[i].z, dest[i].z, t));
+            }
+
+            time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+            return;
+        }
+
+        // Ensure final position is set
+        for (int i{ 0 }; i < battle.speed_slot_position.size(); ++i)
+        {
+            if (i == battle.curr_char_pos_after_taking_turn + 1)
+            {
+                break;
+            }
+
+            battle.speed_slot_position[i].GetComponent<Position>()->position = dest[i];
+        }
+
+        // Reset for next animation
+        time_played = 0.f;
+
+        battle.speedbar_animating = false;
+        battle.end_of_turn = true;
+        is_init = false;
+    }
+
     void Start_Of_Game()
     {
         //CameraManager::SetMainGameCameraID(FlexECS::Scene::GetEntityByName("Camera"));
@@ -976,6 +1056,7 @@ namespace Game
             }
         }
 
+        //tutorial only
         if (battle.is_tutorial_running)
         {
             for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++)
@@ -986,7 +1067,6 @@ namespace Game
                 }
             }
         }
-
         if (battle.is_tutorial && battle.tutorial_info < 1)
         {
             return;
@@ -1007,7 +1087,7 @@ namespace Game
             Log::Debug("Move Select");
             battle.change_phase = false;
 
-            //skip turn if stunned, go straight to end of turn resolution (as opposed to start of turn, in case there are debuffs like burn that triggers at end of turn)
+            //skip turn if stunned, go straight to end of turn resolution
             if (battle.current_character->stun_debuff_duration > 0)
             {
                 battle.current_character->stun_debuff_duration -= 1;
@@ -1026,6 +1106,8 @@ namespace Game
 
                 battle.current_character->current_speed += battle.current_character->speed + 10;
 
+                Update_Character_Status();
+
                 battle.start_of_turn = false;
                 battle.move_select = false;
                 battle.move_resolution = false;
@@ -1036,7 +1118,7 @@ namespace Game
             }
             else
             {
-                //player
+                //continue with move selection, default selects move and target
                 if (battle.is_player_turn)
                 {
                     //set move ui to true
@@ -1069,8 +1151,8 @@ namespace Game
                             }
                         }
                     }
-                }
-                else //enemy
+                }//player default selects move and target
+                else //enemy default selects move and target
                 {
                     //default select move 1-3
                     battle.move_num = Range<int>(1, 3).Get();
@@ -1119,7 +1201,7 @@ namespace Game
             }
         }
 
-        //enable move if player turn
+        //enable move changes if player turn
         if (battle.is_player_turn)
         {
             //swap moves
@@ -1369,6 +1451,8 @@ namespace Game
                     }
                 }
             }
+
+            //tutorial only
             if (battle.is_tutorial_running)
             {
                 for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++)
@@ -1381,7 +1465,6 @@ namespace Game
                         }
                 }
             }
-
             if (battle.is_tutorial && battle.tutorial_info < 4)
             {
                 return;
@@ -1422,22 +1505,36 @@ namespace Game
             Log::Debug("Move Resolution");
             battle.change_phase = false;
 
-            if (battle.is_player_turn)
+            if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
             {
                 //disable move UI
                 for (FlexECS::Entity &entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
                     entity.GetComponent<Transform>()->is_active = false;
-
+                //disable target UI
                 for (FlexECS::Entity &entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
                     entity.GetComponent<Transform>()->is_active = false;
-
+                //disable move text
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
                 FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
 
+                //disable projected character icon
                 battle.projected_character.GetComponent<Transform>()->is_active = false;
                 battle.projected_character_text.GetComponent<Transform>()->is_active = false;
+
+                //Turn off damage and targetting previews
+                for (auto character : battle.drifters_and_enemies)
+                {
+                    if (character.character_id <= 2) continue;
+
+                    auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+                    entity.GetComponent<Transform>()->is_active = false;
+                }
+                for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
+                {
+                    entity.GetComponent<Transform>()->is_active = false;
+                }
 
                 // apply the move
                 std::vector<_Character*> targets;
@@ -1709,9 +1806,9 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+                battle.disable_input_timer += 0.5f;
             }
-            else
+            else //resolve all move effects + play attack animation
             {
                 //apply the move
                 std::vector<_Character*> targets;
@@ -1929,7 +2026,7 @@ namespace Game
                     FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot];
                 }
 
-                // play the animation
+                // play the attack animation
                 auto& current_character_animator = *FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Animator>();
                 switch (battle.current_character->character_id)
                 {
@@ -1956,31 +2053,22 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += animation_time - 0.1f;// +1.f;
-            }
-
-            //Turn off damage and targetting previews
-            for (auto character : battle.drifters_and_enemies)
-            {
-              if (character.character_id <= 2) continue;
-
-              auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
-              entity.GetComponent<Transform>()->is_active = false;
-            }
-            for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
-            {
-              entity.GetComponent<Transform>()->is_active = false;
+                battle.disable_input_timer += 0.5f;
             }
         }
         
+        //let attack animation play finish
         if (battle.disable_input_timer > 0.f)
         {
           return;
         }
         
+        //update health bar
+        Update_Character_Status();
+
         if (battle.is_player_turn) //secondary animation of enemies getting hit
         {
-            //play audio
+            //play attack audio
             switch (battle.move_num)
             {
             case 1:
@@ -2030,6 +2118,7 @@ namespace Game
                 break;
             }
 
+            //play damage animation for enemies
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
@@ -2111,7 +2200,7 @@ namespace Game
                         }
                     }
                 }
-                battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+                battle.disable_input_timer += 0.5f;
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2142,12 +2231,12 @@ namespace Game
                 target_animator.frame_time = 0.f;
                 target_animator.current_frame = 0;
 
-                battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+                battle.disable_input_timer += 0.5f;
             }
-            Update_Character_Status();
         }
         else //secondary animation of players getting hit
         {
+            //play attack audio
             switch (battle.current_character->character_id)
             {
             case 3:
@@ -2167,6 +2256,7 @@ namespace Game
                 break;
             }
 
+            //play damage animation for players
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
@@ -2232,7 +2322,6 @@ namespace Game
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
             }
-            Update_Character_Status();
         }
 
         battle.start_of_turn = false;
@@ -2244,92 +2333,15 @@ namespace Game
         battle.change_phase = true;
     }
 
-    static float Lerp(float a, float b, float t)
-    {
-        return a + t * (b - a);
-    }
-
-    void PlaySpeedbarAnimation()
-    {
-      constexpr float duration = 2.f; // Duration for each phase
-      constexpr float max_arc_height = -200.f;
-
-      static float time_played = 0.f;
-      static Vector3 dest[7];
-      static bool is_init = false;
-
-      if (!is_init)
-      {
-        // Set the initial position of the element to move
-        dest[0] = battle.speed_slot_position[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
-
-        // Cache lerp values for all inbetween elements
-        for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
-        {
-          if (i == battle.curr_char_pos_after_taking_turn + 1)
-            break;
-
-          dest[i] = battle.speed_slot_position[i - 1].GetComponent<Position>()->position;
-        }
-
-        is_init = true;
-      }
-
-      // Lerp to the supposed position
-      if (time_played < duration)
-      {
-          float t = time_played / duration;
-          t = std::clamp(t, 0.f, 1.f);
-
-          float arc_t = 1.f - (2.f * t - 1.f) * (2.f * t - 1.f); // Parabolic arc
-
-          battle.speed_slot_position[0].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[0].x, dest[0].x, t),
-                                                                                     Lerp(battle.original_speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t, 
-                                                                                     Lerp(battle.original_speed_slot_position[0].z, dest[0].z, t));
-
-          // Lerp the rest of the icons
-          for (int i{1}; i < battle.speed_slot_position.size(); ++i)
-          {
-            if (i == battle.curr_char_pos_after_taking_turn + 1)
-            {
-              break;
-            }
-
-            battle.speed_slot_position[i].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[i].x, dest[i].x, t),
-                                                                                       Lerp(battle.original_speed_slot_position[i].y, dest[i].y, t),
-                                                                                       Lerp(battle.original_speed_slot_position[i].z, dest[i].z, t));
-          }
-
-          time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-          return;
-      }
-
-      // Ensure final position is set
-      for (int i{0}; i < battle.speed_slot_position.size(); ++i)
-      {
-        if (i == battle.curr_char_pos_after_taking_turn + 1)
-        {
-          break;
-        }
-
-        battle.speed_slot_position[i].GetComponent<Position>()->position = dest[i];
-      }
-
-      // Reset for next animation
-      time_played = 0.f;
-
-      battle.speedbar_animating = false;
-      battle.end_of_turn = true;
-      is_init = false;
-    }
-
     void End_Of_Turn()
     {
+        // wait for all prior animations to stop playing before continuing with phase change
         if (battle.disable_input_timer > 0.f)
         {
           return;
         }
 
+        //tutorial code
         if (battle.is_tutorial_running)
         {
           if (Input::AnyKeyDown())
@@ -2337,18 +2349,17 @@ namespace Game
               battle.tutorial_info++;
           }
         }
-
         if (battle.is_tutorial && battle.tutorial_info < 5)
         {
             return;
         }
 
+        //upon start of end of turn, checks for any deaths and plays death animation accordingly
         if (battle.change_phase)
         {
             Log::Debug("End Turn");
             battle.change_phase = false;
 
-            Update_Character_Status();
             //death animation
             float animation_time = .0f;
             for (auto& character : battle.drifters_and_enemies)
@@ -2426,41 +2437,75 @@ namespace Game
                 }
             }
             battle.disable_input_timer += animation_time;// + 1.f;
-
-            //check for game over
-            int player_count = 0;
-            int enemy_count = 0;
-            for (auto& character : battle.drifters_and_enemies)
-            {
-                if (character.is_alive && character.character_id <= 2)
-                {
-                    player_count++;
-                }
-                else if (character.is_alive && character.character_id > 2)
-                {
-                    enemy_count++;
-                }
-            }
-
-            if (!player_count)
-            {
-                Lose_Battle();
-                return;
-            }
-            else if (!enemy_count)
-            {
-                Win_Battle();
-                return;
-            }
-
-            battle.start_of_turn = true;
-            battle.move_select = false;
-            battle.move_resolution = false;
-            battle.end_of_turn = false;
-
-            battle.change_phase = true;
-
         }
+
+        //let death animation play finish
+        if (battle.disable_input_timer > .0f)
+        {
+            return;
+        }
+
+        //set loop death animation for dead enemies
+        for (auto& character : battle.drifters_and_enemies)
+        {
+            // check if any characters are dead
+            if (!character.is_alive && character.character_id > 2)
+            {
+                auto& target_animator = *FlexECS::Scene::GetEntityByName(character.name).GetComponent<Animator>();
+                switch (character.character_id)
+                {
+                case 3:
+                    target_animator.spritesheet_handle =
+                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Loop_Sheet.flxspritesheet)");
+                    break;
+                case 4:
+                    target_animator.spritesheet_handle =
+                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Loop_Sheet.flxspritesheet)");
+                    break;
+                case 5:
+                    // goto jack death cutscene
+                    break;
+                }
+                target_animator.should_play = true;
+                target_animator.is_looping = true;
+                target_animator.return_to_default = false;
+                target_animator.frame_time = 0.f;
+                //target_animator.current_frame = 0;
+            }
+        }
+
+        //check for game over
+        int player_count = 0;
+        int enemy_count = 0;
+        for (auto& character : battle.drifters_and_enemies)
+        {
+            if (character.is_alive && character.character_id <= 2)
+            {
+                player_count++;
+            }
+            else if (character.is_alive && character.character_id > 2)
+            {
+                enemy_count++;
+            }
+        }
+        if (!player_count)
+        {
+            Lose_Battle();
+            return;
+        }
+        else if (!enemy_count)
+        {
+            Win_Battle();
+            return;
+        }
+
+        //change phase
+        battle.start_of_turn = true;
+        battle.move_select = false;
+        battle.move_resolution = false;
+        battle.end_of_turn = false;
+
+        battle.change_phase = true;
     }
 
     void Win_Battle()
@@ -2578,12 +2623,6 @@ namespace Game
         }
 
         if (battle.is_paused) return;
-        
-        if (battle.disable_input_timer > 0.f)
-        {
-            battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-            return;
-        }
 
         if (battle.is_tutorial && battle.is_tutorial_running)
         {
@@ -2618,6 +2657,12 @@ namespace Game
             }
 
             FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text = FLX_STRING_NEW(text_to_show);
+        }
+
+        if (battle.disable_input_timer > 0.f)
+        {
+            battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+            return;
         }
 
         if (battle.start_of_turn)
