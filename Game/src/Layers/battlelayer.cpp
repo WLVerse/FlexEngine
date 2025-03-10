@@ -14,6 +14,8 @@
 
 namespace Game
 {
+    extern std::string file_name;
+
     struct _Move
     {
         std::string name = "";
@@ -984,10 +986,11 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 4").GetComponent<Transform>()->is_active = false;
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
 
+        Internal_ParseBattle(file_name);
         // load the battle
-        if (battle.is_tutorial)
-        Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
-        else Internal_ParseBattle(R"(/data/debug.flxbattle)");
+        //if (battle.is_tutorial)
+        //Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
+        //else Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
             entity.GetComponent<Transform>()->is_active = false;
@@ -2041,8 +2044,16 @@ namespace Game
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
                     break;
                 case 5:
-                    // current_character_animator.spritesheet_handle =
-                    //   FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    if (battle.move_num == 3)
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
+                    }
+                    else
+                    {
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                    }
                     break;
                 }
                 float animation_time =
@@ -2252,9 +2263,18 @@ namespace Game
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 break;
             case 5:
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-                // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                if (battle.move_num == 3)
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
+                else
+                {
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                        FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                    FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                }
                 break;
             }
 
@@ -2488,6 +2508,15 @@ namespace Game
             else if (character.is_alive && character.character_id > 2)
             {
                 enemy_count++;
+            }
+        }
+        //loop through all slots and set the excess empty ones at the end to false
+        for (int i = 1; i < 8; i++)
+        {
+            if (i > player_count + enemy_count)
+            {
+                std::string slot_name = "Speed slot " + i;
+                FlexECS::Scene::GetEntityByName(slot_name).GetComponent<Transform>()->is_active = false;
             }
         }
         if (!player_count)
