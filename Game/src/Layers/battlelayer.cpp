@@ -19,6 +19,7 @@ namespace Game
         std::string name = "";
         int speed = 0;
 
+        //For reference, effects are: Damage Heal Speed_Up Speed_Down Attack_Up Attack_Down Stun Shield Protect Strip Cleanse
         std::vector<std::string> effect;
         std::vector<int> value;
         std::vector<std::string> target;
@@ -790,7 +791,20 @@ namespace Game
             auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
             if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
-            if (target.shield_buff_duration > 0) continue;
+            if (target.shield_buff_duration > 0)
+            {
+              //if current move is a buff stripper, add enemy to damage calculations
+              bool stripping_effect = false;
+              for (int i = 0; i < battle.current_move->effect.size(); i++)
+              {
+                if (battle.current_move->effect[i] == "Strip")
+                {
+                  stripping_effect = true;
+                  break;
+                }
+              }
+              if (!stripping_effect) continue;
+            }
 
             entity.GetComponent<Transform>()->is_active = true;
 
@@ -911,6 +925,7 @@ namespace Game
 
         //start function cycle
         battle.start_of_turn = true;
+        battle.current_move = nullptr;
         battle.move_select = false;
         battle.move_resolution = false;
         battle.end_of_turn = false;
