@@ -19,6 +19,7 @@ namespace Game
         std::string name = "";
         int speed = 0;
 
+        //For reference, effects are: Damage Heal Speed_Up Speed_Down Attack_Up Attack_Down Stun Shield Protect Strip Cleanse
         std::vector<std::string> effect;
         std::vector<int> value;
         std::vector<std::string> target;
@@ -650,6 +651,7 @@ namespace Game
 
             // Calculate the health percentage and new scale.
             float health_percentage = static_cast<float>(character.current_health) / static_cast<float>(character.health);
+            if (health_percentage < 0) health_percentage = 0;
             // Update Scale
             scale->scale.x = healthbar->original_scale.x * health_percentage;
 
@@ -768,11 +770,6 @@ namespace Game
                 targets.push_back(character);
               }
             }
-            std::cout << "List of adjacent enemies: \n";
-            for (auto target : targets)
-            {
-              std::cout << target.name << "\n";
-            }
           }
           else if (battle.current_move->target[i] == "SINGLE_ENEMY")
           {
@@ -791,7 +788,20 @@ namespace Game
             auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
             if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
-            if (target.shield_buff_duration > 0) continue;
+            if (target.shield_buff_duration > 0)
+            {
+              //if current move is a buff stripper, add enemy to damage calculations
+              bool stripping_effect = false;
+              for (int i = 0; i < battle.current_move->effect.size(); i++)
+              {
+                if (battle.current_move->effect[i] == "Strip")
+                {
+                  stripping_effect = true;
+                  break;
+                }
+              }
+              if (!stripping_effect) continue;
+            }
 
             entity.GetComponent<Transform>()->is_active = true;
 
@@ -817,6 +827,7 @@ namespace Game
               damage_taken -= damage_taken / 2;
             }
 
+            damage_taken = (damage_taken > static_cast<float>(target.health)) ? static_cast<float>(target.health) : damage_taken;
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
@@ -989,6 +1000,7 @@ namespace Game
 
         //start function cycle
         battle.start_of_turn = true;
+        battle.current_move = nullptr;
         battle.move_select = false;
         battle.move_resolution = false;
         battle.end_of_turn = false;
