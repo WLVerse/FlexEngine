@@ -712,7 +712,8 @@ namespace Game
             if (!entity || !entity.HasComponent<Text>()) continue;
 
             // get the character's current health
-            std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
+            std::string stats = ""; // ENABLE THE BOTTOM LINE IF YOU WANT TEXT FOR HP SPD ETC
+            //std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
             entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
 
@@ -840,9 +841,9 @@ namespace Game
             {
               //if current move is a buff stripper, add enemy to damage calculations
               bool stripping_effect = false;
-              for (int i = 0; i < battle.current_move->effect.size(); i++)
+              for (size_t j = 0; j < battle.current_move->effect.size(); j++)
               {
-                if (battle.current_move->effect[i] == "Strip")
+                if (battle.current_move->effect[j] == "Strip")
                 {
                   stripping_effect = true;
                   break;
@@ -928,6 +929,9 @@ namespace Game
         static float time_played = 0.f;
         static Vector3 dest[7];
         static bool is_init = false;
+
+        // Clamp to max number of alive characters
+        battle.curr_char_pos_after_taking_turn = std::min(static_cast<int>(battle.speed_bar.size()) - 1, battle.curr_char_pos_after_taking_turn);
 
         if (!is_init)
         {
@@ -1188,9 +1192,29 @@ namespace Game
                 battle.start_of_turn = false;
                 battle.move_select = false;
                 battle.move_resolution = false;
-                battle.end_of_turn = true;
+                battle.speedbar_animating = true;
 
                 battle.change_phase = true;
+
+                //projected character UI
+                int projected_speed = battle.current_character->current_speed;
+                int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                if (projected_speed > 0)
+                {
+                    for (auto character : battle.speed_bar)
+                    {
+                        if (projected_speed < character->current_speed)
+                        {
+                            //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                            break;
+                        }
+                        else
+                        {
+                            slot_number++;
+                        }
+                    }
+                }
+
                 return;
             }
             else
@@ -1271,6 +1295,25 @@ namespace Game
                                     battle.initial_target = &character;
                                     break;
                                 }
+                            }
+                        }
+                    }
+
+                    //projected character UI
+                    int projected_speed = battle.current_character->speed + battle.current_move->speed;
+                    int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                    if (projected_speed > 0)
+                    {
+                        for (auto character : battle.speed_bar)
+                        {
+                            if (projected_speed < character->current_speed)
+                            {
+                                //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                                break;
+                            }
+                            else
+                            {
+                                slot_number++;
                             }
                         }
                     }
@@ -1873,6 +1916,7 @@ namespace Game
                     }
                     break;
                 }
+
                 float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
                     .total_frame_time;
