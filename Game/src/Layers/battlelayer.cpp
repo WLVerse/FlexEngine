@@ -876,7 +876,7 @@ namespace Game
               damage_taken -= damage_taken / 2;
             }
 
-            damage_taken = (damage_taken > static_cast<float>(target.health)) ? static_cast<float>(target.health) : damage_taken;
+            damage_taken = (damage_taken > static_cast<float>(target.current_health)) ? static_cast<float>(target.current_health) : damage_taken;
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
