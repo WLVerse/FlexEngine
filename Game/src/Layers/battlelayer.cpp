@@ -2611,6 +2611,8 @@ namespace Game
                 }
             }
             battle.disable_input_timer += animation_time;// + 1.f;
+
+            if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
         }
 
         //let death animation play finish
