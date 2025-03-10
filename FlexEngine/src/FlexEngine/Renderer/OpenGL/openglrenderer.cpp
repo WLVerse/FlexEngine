@@ -806,7 +806,7 @@ namespace FlexEngine
           return;
       }
 
-      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, text.m_shader);
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/freetypetext.flxshader");
       asset_shader.Use();
 
       asset_shader.SetUniform_vec3("u_color", text.m_color);
