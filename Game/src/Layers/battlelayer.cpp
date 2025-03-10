@@ -102,8 +102,20 @@ namespace Game
         _Character* previous_character = nullptr;
     };
 
-    _Battle battle;
+    struct _SpriteHandles
+    {
+      FlexECS::Scene::StringIndex empty;
+      FlexECS::Scene::StringIndex renko;
+      FlexECS::Scene::StringIndex grace;
+      FlexECS::Scene::StringIndex enemy1;
+      FlexECS::Scene::StringIndex enemy2;
+      FlexECS::Scene::StringIndex jack;
 
+    };
+
+    _Battle battle;
+    _SpriteHandles sprite_handles;
+    void ClearBattleStruct();
     void Start_Of_Turn();
     void Move_Select();
     void Move_Resolution();
@@ -112,6 +124,50 @@ namespace Game
     void Lose_Battle();
     void Update_Character_Status();
     void Update_Damage_And_Targetting_Previews();
+
+    void ClearBattleStruct()
+    {
+      //Battle struct is global, so the variables persist through layer swapping
+      battle.drifters_and_enemies.clear();
+      battle.speed_bar.clear();
+
+      //icon to show where the character will end up on the speed bar after using a move
+      battle.projected_character = FlexECS::Entity::Null;
+      battle.projected_character_text = FlexECS::Entity::Null;
+
+      //vector 3 positions to move things around
+      battle.sprite_slot_positions = {};
+      battle.healthbar_slot_positions = {};
+      battle.speed_slot_position = {};
+      battle.original_speed_slot_position = {};
+
+      battle.current_character = nullptr;
+      battle.current_move = nullptr;
+      battle.initial_target = nullptr; //used to resolve whether the move will target allies or enemies by default and other stuff
+      battle.move_num = 0; //1-3, which move is being hovered
+      battle.target_num = 0; // 0-4, pointing out which enemy slot is the target
+      battle.curr_char_pos_after_taking_turn = 0;
+
+      battle.is_player_turn = false;
+      battle.disable_input_timer = 0.f;
+
+      battle.is_paused = false;
+      battle.is_end = false;
+
+      battle.tutorial_info = 0;
+      battle.is_tutorial = true;
+      battle.is_tutorial_running = false;
+      battle.tutorial_text;
+
+      battle.start_of_turn = false;
+      battle.move_select = false;
+      battle.move_resolution = false;
+      battle.speedbar_animating = false;
+      battle.end_of_turn = false;
+
+      battle.change_phase = false;
+      battle.previous_character = nullptr;
+    }
 
     void Internal_ParseBattle(AssetKey assetkey)
     {
@@ -594,40 +650,26 @@ namespace Game
             auto& sprite = *entity.GetComponent<Sprite>();
             auto& speed_bar_slot = *entity.GetComponent<SpeedBarSlot>();
 
-            // sprite handles
-            static FlexECS::Scene::StringIndex _empty =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)");
-            static FlexECS::Scene::StringIndex _renko =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Renko.png)");
-            static FlexECS::Scene::StringIndex _grace =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Grace.png)");
-            static FlexECS::Scene::StringIndex _enemy1 =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En1.png)");
-            static FlexECS::Scene::StringIndex _enemy2 =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En2.png)");
-            static FlexECS::Scene::StringIndex _jack =
-                FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_Jack.png)");
-
             // get the character in the slot
             switch (speed_bar_slot.character)
             {
             case 0:
-                sprite.sprite_handle = _empty;
+                sprite.sprite_handle = sprite_handles.empty;
                 break;
             case 1:
-                sprite.sprite_handle = _renko;
+                sprite.sprite_handle = sprite_handles.renko;
                 break;
             case 2:
-                sprite.sprite_handle = _grace;
+                sprite.sprite_handle = sprite_handles.grace;
                 break;
             case 3:
-                sprite.sprite_handle = _enemy1;
+                sprite.sprite_handle = sprite_handles.enemy1;
                 break;
             case 4:
-                sprite.sprite_handle = _enemy2;
+                sprite.sprite_handle = sprite_handles.enemy2;
                 break;
             case 5:
-                sprite.sprite_handle = _jack;
+                sprite.sprite_handle = sprite_handles.jack;
                 break;
             }
         }
@@ -1008,6 +1050,20 @@ namespace Game
             "";
         FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =
             "";
+
+        //Create speed bar sprite handles
+        sprite_handles.empty =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)");
+        sprite_handles.renko =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Renko.png)");
+        sprite_handles.grace =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Grace.png)");
+        sprite_handles.enemy1 =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En1.png)");
+        sprite_handles.enemy2 =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_En2.png)");
+        sprite_handles.jack =
+          FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_Jack.png)");
 
         //start function cycle
         battle.start_of_turn = true;
@@ -2616,8 +2672,9 @@ namespace Game
     
     void BattleLayer::OnAttach()
     {
-        Start_Of_Game();
-        Set_Up_Pause_Menu();
+      ClearBattleStruct();
+      Start_Of_Game();
+      Set_Up_Pause_Menu();
     }
 
     void BattleLayer::OnDetach()
