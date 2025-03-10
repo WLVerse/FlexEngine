@@ -15,7 +15,7 @@ using namespace FlexEngine;
 class PlayerMovementScript : public IScript
 {
 private:
-  float movement_speed = 8.f;
+  float movement_speed = 6.f;
   bool is_left = false;
 
 public:
