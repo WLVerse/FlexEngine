@@ -14,6 +14,7 @@
 
 namespace Game
 {
+
     struct _Move
     {
         std::string name = "";
@@ -973,10 +974,11 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 4").GetComponent<Transform>()->is_active = false;
         FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
 
+        Internal_ParseBattle(file_name);
         // load the battle
-        if (battle.is_tutorial)
-        Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
-        else Internal_ParseBattle(R"(/data/debug.flxbattle)");
+        //if (battle.is_tutorial)
+        //Internal_ParseBattle(R"(/data/tutorial.flxbattle)");
+        //else Internal_ParseBattle(R"(/data/debug.flxbattle)");
 
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
             entity.GetComponent<Transform>()->is_active = false;
@@ -2476,6 +2478,15 @@ namespace Game
             else if (character.is_alive && character.character_id > 2)
             {
                 enemy_count++;
+            }
+        }
+        //loop through all slots and set the excess empty ones at the end to false
+        for (int i = 1; i < 8; i++)
+        {
+            if (i > player_count + enemy_count)
+            {
+                std::string slot_name = "Speed slot " + i;
+                FlexECS::Scene::GetEntityByName(slot_name).GetComponent<Transform>()->is_active = false;
             }
         }
         if (!player_count)

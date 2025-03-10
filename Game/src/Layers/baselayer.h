@@ -5,6 +5,7 @@ using namespace FlexEngine;
 
 namespace Game
 {
+    extern std::string file_name;
 
   class BaseLayer : public FlexEngine::Layer
   {
