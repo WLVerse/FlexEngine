@@ -67,9 +67,8 @@ namespace Game
       cutsceneLayer = std::make_shared<CutsceneLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", cutsceneLayer);
     }
-
-    // Town to Battle layer
     #if 0
+    // Town to Battle layer
     if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
     {
         FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
