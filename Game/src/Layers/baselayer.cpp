@@ -3,6 +3,8 @@
 
 namespace Game
 {
+   std::string file_name = "";
+
   std::shared_ptr<GameLayer> gameLayer = nullptr;
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
@@ -66,6 +68,18 @@ namespace Game
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", cutsceneLayer);
     }
 
+    // Town to Battle layer
+    #if 0
+    if (Application::MessagingSystem::Receive<bool>("Enter Battle") && townLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+        townLayer = nullptr;
+
+        file_name = "/data/tutorial.flxbattle";
+        battleLayer = std::make_shared<BattleLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
+    }
+    #endif
     // Cutscene to town
     if (Application::MessagingSystem::Receive<bool>("Start Game") && cutsceneLayer != nullptr)
     {
@@ -92,6 +106,7 @@ namespace Game
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
       townLayer = nullptr;
 
+      file_name = "/data/debug.flxbattle";
       battleLayer = std::make_shared<BattleLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
