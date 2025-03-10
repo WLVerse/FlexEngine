@@ -99,7 +99,7 @@ namespace Editor
         {
             Animator& animator = *element.GetComponent<Animator>();
 
-            if (!animator.should_play) continue;
+            if (!animator.should_play || FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) == "") continue;
 
             animator.frame_time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
