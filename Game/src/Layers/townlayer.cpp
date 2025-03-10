@@ -38,7 +38,7 @@ namespace Game
     // move camera to follow main character
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
 
-    FlexECS::Entity main_character, main_enemy;
+    FlexECS::Entity main_character, main_enemy, encounter_one, encounter_two;
     main_enemy = FlexECS::Scene::GetEntityByName("Jack");
     main_character = FlexECS::Scene::GetEntityByName("Renko");
 
@@ -52,6 +52,18 @@ namespace Game
    {
      // transition lorhhhhhhhh
      Application::MessagingSystem::Send("Enter Battle", true);
+   }
+
+   if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
+   {
+     Application::MessagingSystem::Send("Enter Battle 1", true);
+     Log::Info("Encounter 1 triggered");
+   }
+
+   if (FlexECS::Scene::GetEntityByName("Encounter2").GetComponent<BoundingBox2D>()->is_colliding)
+   {
+     Application::MessagingSystem::Send("Enter Battle 2", true);
+     Log::Info("Encounter 2 triggered");
    }
 #pragma endregion
     /*
