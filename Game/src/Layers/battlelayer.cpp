@@ -598,7 +598,7 @@ namespace Game
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(550, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(450, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
@@ -712,7 +712,8 @@ namespace Game
             if (!entity || !entity.HasComponent<Text>()) continue;
 
             // get the character's current health
-            std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
+            std::string stats = ""; // ENABLE THE BOTTOM LINE IF YOU WANT TEXT FOR HP SPD ETC
+            //std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
             entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
 
@@ -840,9 +841,9 @@ namespace Game
             {
               //if current move is a buff stripper, add enemy to damage calculations
               bool stripping_effect = false;
-              for (int i = 0; i < battle.current_move->effect.size(); i++)
+              for (size_t j = 0; j < battle.current_move->effect.size(); j++)
               {
-                if (battle.current_move->effect[i] == "Strip")
+                if (battle.current_move->effect[j] == "Strip")
                 {
                   stripping_effect = true;
                   break;
@@ -875,7 +876,7 @@ namespace Game
               damage_taken -= damage_taken / 2;
             }
 
-            damage_taken = (damage_taken > static_cast<float>(target.health)) ? static_cast<float>(target.health) : damage_taken;
+            damage_taken = (damage_taken > static_cast<float>(target.current_health)) ? static_cast<float>(target.current_health) : damage_taken;
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
@@ -928,6 +929,9 @@ namespace Game
         static float time_played = 0.f;
         static Vector3 dest[7];
         static bool is_init = false;
+
+        // Clamp to max number of alive characters
+        battle.curr_char_pos_after_taking_turn = std::min(static_cast<int>(battle.speed_bar.size()) - 1, battle.curr_char_pos_after_taking_turn);
 
         if (!is_init)
         {
@@ -1124,13 +1128,7 @@ namespace Game
               battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyTurn_Indicator.png)");
             }
 
-            //reset position
-            if (battle.previous_character != nullptr) {
-                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
-                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
-                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
-            }
+            
         }
 
         //tutorial only
@@ -1188,9 +1186,29 @@ namespace Game
                 battle.start_of_turn = false;
                 battle.move_select = false;
                 battle.move_resolution = false;
-                battle.end_of_turn = true;
+                battle.speedbar_animating = true;
 
                 battle.change_phase = true;
+
+                //projected character UI
+                int projected_speed = battle.current_character->current_speed;
+                int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                if (projected_speed > 0)
+                {
+                    for (auto character : battle.speed_bar)
+                    {
+                        if (projected_speed < character->current_speed)
+                        {
+                            //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                            break;
+                        }
+                        else
+                        {
+                            slot_number++;
+                        }
+                    }
+                }
+
                 return;
             }
             else
@@ -1271,6 +1289,25 @@ namespace Game
                                     battle.initial_target = &character;
                                     break;
                                 }
+                            }
+                        }
+                    }
+
+                    //projected character UI
+                    int projected_speed = battle.current_character->speed + battle.current_move->speed;
+                    int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                    if (projected_speed > 0)
+                    {
+                        for (auto character : battle.speed_bar)
+                        {
+                            if (projected_speed < character->current_speed)
+                            {
+                                //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                                break;
+                            }
+                            else
+                            {
+                                slot_number++;
                             }
                         }
                     }
@@ -1873,9 +1910,10 @@ namespace Game
                     }
                     break;
                 }
-                float animation_time =
+
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -1883,7 +1921,39 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Special delay for renko
+                if (battle.current_character->character_id == 1)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 3:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                // Special delay for grace
+                if (battle.current_character->character_id == 2)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 1:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  case 2:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                battle.disable_input_timer += 1.f;
             }
             else //resolve all move effects + play attack animation
             {
@@ -2128,9 +2198,9 @@ namespace Game
                     }
                     break;
                 }
-                float animation_time =
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -2138,7 +2208,10 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Delay for machine gun 
+                if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
+                  battle.disable_input_timer += 1.5f;
+                else battle.disable_input_timer += 0.5f;
             }
         }
         
@@ -2306,9 +2379,10 @@ namespace Game
                         //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
                     //break;
                 }
-                animation_time =
+
+                /*animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 target_animator.should_play = true;
                 target_animator.is_looping = false;
@@ -2531,6 +2605,15 @@ namespace Game
                 }
             }
             battle.disable_input_timer += animation_time;// + 1.f;
+
+            //reset position, then delay a bit
+            if (battle.previous_character != nullptr) {
+                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
+                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
+                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
+            }
+            if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
         }
 
         //let death animation play finish
@@ -2732,15 +2815,12 @@ namespace Game
                 break;
             case 1:
                 text_to_show = "W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 2:
                 text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(450, 500, 0);
                 break;
             case 3:
                 text_to_show = "Remember, SPACEBAR to confirm your move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 4:
               text_to_show = "You're a natural. Now, show me what you're capable of on your own.";
