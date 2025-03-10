@@ -10,6 +10,7 @@ namespace Editor {
     void SettingsPanel::Init() 
     {
         // Any one-time initialization for the settings panel can go here.
+        FlexPrefs::Load();
 
         // Load Editor settings
         m_editorCameraSpeed = FlexPrefs::GetFloat("editor.cameraSpeed", 1.0f);
