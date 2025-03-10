@@ -651,6 +651,7 @@ namespace Game
 
             // Calculate the health percentage and new scale.
             float health_percentage = static_cast<float>(character.current_health) / static_cast<float>(character.health);
+            if (health_percentage < 0) health_percentage = 0;
             // Update Scale
             scale->scale.x = healthbar->original_scale.x * health_percentage;
 
