@@ -88,31 +88,34 @@ namespace Game
             Log::Info("Queued lerp shake effect.");
         }
 
-        // Persistent zoom effect. *DISABLED, BUGGY*
+        // Persistent zoom effect.
         // Message: "CameraZoomStart"
         // Parameters:
         //   - Parameter 1 (double duration): Duration (in seconds) over which the zoom occurs.
-        //   - Parameter 2 (double targetOrthoWidth): The target orthographic width to achieve by the end of the effect.
-        // A new zoom message replaces any existing zoom effect.
-        //if (auto zoomParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraZoomStart");
-        //    zoomParams.first > 0.0)
-        //{
-        //    // Use current camera ortho width as the starting point.
-        //    float currentOrthoWidth = m_zoomBase;
-        //    if (m_mainCameraEntity) 
-        //    {
-        //       currentOrthoWidth = m_mainCameraEntity.GetComponent<Camera>()->GetOrthoWidth();
-        //    }
-        //    m_zoomEffect = ZoomEffect{
-        //        static_cast<float>(zoomParams.first), // duration for persistent zoom
-        //        0.0f,
-        //        static_cast<float>(zoomParams.second), // target ortho width
-        //        currentOrthoWidth,                     // starting from current camera width
-        //        false,                                 // not auto-return
-        //        0.0f, 0.0f, 0.0f                       // auto-return parameters not used
-        //    };
-        //    Log::Info("Queued persistent zoom effect.");
-        //}
+        //   - Parameter 2 (double targetOrthoWidth): The target orthographic width to achieve.
+        if (auto zoomParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraZoomStart");
+            zoomParams.first > 0.0)
+        {
+            // Capture the current camera ortho width as baseline only if no zoom effect is active.
+            if (!m_zoomActive && m_mainCameraEntity)
+            {
+                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
+                {
+                    m_zoomBase = cam->GetOrthoWidth();
+                }
+            }
+            // Set up a persistent zoom effect (auto-return disabled).
+            m_zoomEffect = ZoomEffect{
+                static_cast<float>(zoomParams.first),   // duration over which to zoom
+                0.0f,                                     // reset elapsed time
+                static_cast<float>(zoomParams.second),    // target ortho width
+                m_zoomBase,                               // starting from the captured baseline width
+                false,                                    // auto-return disabled
+                0.0f, 0.0f, 0.0f                          // unused auto-return parameters
+            };
+            m_zoomActive = true;
+            Log::Info("Queued persistent zoom effect.");
+        }
 
         // Auto-return zoom effect.
         // Message: "CameraZoomAutoReturnStart"
@@ -221,15 +224,20 @@ namespace Game
             }
             else
             {
-                m_zoomEffect.elapsed += deltaTime;
                 float progress = std::min(m_zoomEffect.elapsed / m_zoomEffect.duration, 1.0f);
                 deltaZoom = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * progress;
+
                 if (m_zoomEffect.elapsed >= m_zoomEffect.duration)
                 {
-                    Log::Info("Zoom effect completed.");
+                    // Effect complete: Clamp progress and update baseline so the zoom stays.
+                    m_zoomEffect.elapsed = m_zoomEffect.duration;
+                    deltaZoom = 0.0;
+                    m_zoomBase = m_zoomEffect.targetOrthoWidth; // Permanently update baseline.
+                    Log::Info("Persistent zoom effect completed.");
                     Application::MessagingSystem::Send("CameraZoomCompleted", 1);
-                    m_zoomActive = false;
+                    m_zoomActive = false; // End the interpolation effect.
                 }
+                
             }
         }
 
@@ -243,13 +251,16 @@ namespace Game
         if (m_mainCameraEntity)
         {
             // Apply shake effects to the main camera.
-            if (!m_shakeEffects.empty())
+            if (auto pos = m_mainCameraEntity.GetComponent<Position>())
             {
-                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
+                if (!m_shakeEffects.empty())
                     pos->position = m_originalCameraPos + cumulativeShake;
                 else
-                    Log::Warning("Main camera: Position component missing.");
+                    pos->position = m_originalCameraPos;
             }
+            else
+                Log::Warning("Main camera: Position component missing.");
+
 
             // Apply zoom effects to the main camera.
             if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
