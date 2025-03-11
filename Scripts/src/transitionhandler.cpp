@@ -5,6 +5,10 @@
 
 using namespace FlexEngine;
 
+/******************************************************************************************
+* Crash Handling
+* - Ensure only one msg is being sent to do transition before switching scene
+******************************************************************************************/
 namespace Game 
 {
     #pragma region Transitions
