@@ -32,7 +32,7 @@ public:
 
     // Update slider fill position and scale
 
-    slider_fill.GetComponent<Position>()->position.x = (new_position.x + slider_details->min_position) / 2.f;
+    slider_fill.GetComponent<Position>()->position.x = (new_position.x + slider_details->min_position - 4.f) / 2.f;
     float fill_to_set = (new_position.x - slider_details->min_position) / slider_details->slider_length;
     slider_fill.GetComponent<Scale>()->scale.x = slider_details->original_scale.x / slider_details->original_value * fill_to_set;
 

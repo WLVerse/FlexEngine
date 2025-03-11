@@ -374,6 +374,20 @@ namespace FlexEngine
   public:
   };
 
+  class __FLX_API SettingsUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API CreditsUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
   class __FLX_API PauseUI
   {
     FLX_REFL_SERIALIZABLE

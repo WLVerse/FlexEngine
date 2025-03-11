@@ -29,7 +29,9 @@ public:
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
     {
       // TODO: Send message to display different assets (Either settings or credits)
-      // Application::MessagingSystem::Send("Resume Game", true);
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
+        entity.GetComponent<Transform>()->is_active = false;
+      }
     }
   }
 
