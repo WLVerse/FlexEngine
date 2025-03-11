@@ -18,9 +18,9 @@ public:
   {
     if (self.GetComponent<Transform>()->is_active) {
       if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
-        self.GetComponent<Scale>()->scale.x < self.GetComponent<Slider>()->original_scale.x ?
-          self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f:
-          self.GetComponent<Scale>()->scale.x = self.GetComponent<Slider>()->original_scale.x;
+        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
+          0.f, self.GetComponent<Slider>()->original_scale.x);
       }
 
       if (!FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active &&

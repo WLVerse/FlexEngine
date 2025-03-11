@@ -21,13 +21,21 @@ public:
   void Update() override
   {
     if (self.GetComponent<Transform>()->is_active) {
+      if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
+        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
+          0.f, self.GetComponent<Slider>()->original_scale.x);
+      }
+
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
+        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
         FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
+        FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
         FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
@@ -48,22 +56,37 @@ public:
         inc_selected = true;
         current_volume_value += 0.01f;
         timer = 0.5f;
+        FlexECS::Scene::GetEntityByName("BGM Volume Right").GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.f);
       }
       if (Input::GetKeyDown(GLFW_KEY_A) && current_volume_value > 0.f) {
         dec_selected = true;
         current_volume_value -= 0.01f;
         timer = 0.5f;
+        FlexECS::Scene::GetEntityByName("BGM Volume Left").GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.f);
       }
 
       timer > 0.f ? timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() : timer = 0.f;
 
+      if (inc_selected || dec_selected) {
+        FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.f);
+      }
+      else {
+        FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Scale>()->scale = Vector3(1.f, 1.f, 1.f);
+      }
+
       if (inc_selected) {
-        if (Input::GetKeyUp(GLFW_KEY_D) || current_volume_value > 1.f) inc_selected = false;
+        if (Input::GetKeyUp(GLFW_KEY_D) || current_volume_value > 1.f) {
+          inc_selected = false;
+          FlexECS::Scene::GetEntityByName("BGM Volume Right").GetComponent<Scale>()->scale = Vector3(1.f, 1.f, 1.f);
+        }
         if (timer == 0.f) current_volume_value < 1.f ? current_volume_value += 0.01f : current_volume_value = 1.f;
       }
 
       if (dec_selected) {
-        if (Input::GetKeyUp(GLFW_KEY_A) || current_volume_value < 0.f) dec_selected = false;
+        if (Input::GetKeyUp(GLFW_KEY_A) || current_volume_value < 0.f) {
+          dec_selected = false;
+          FlexECS::Scene::GetEntityByName("BGM Volume Left").GetComponent<Scale>()->scale = Vector3(1.f, 1.f, 1.f);
+        }
         if (timer == 0.f) current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
       }
 
