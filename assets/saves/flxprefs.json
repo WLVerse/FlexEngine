@@ -1,0 +1,11 @@
+{
+    "flexprefs": {
+        "game.batching": false,
+        "game.vsync": false,
+        "editor.cameraSpeed": 0.10000000149011612,
+        "editor.batching": false,
+        "game.resolutionIndex": 3,
+        "game.volume": 0.02500000037252903,
+        "game.fullscreen": true
+    }
+}

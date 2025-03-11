@@ -597,12 +597,15 @@ namespace Game
             // Increase rotation speed based on skipTimer.
             skipWheelrotation->rotation.z -= (m_baseRotationSpeed * m_skipTimer * dt);
 
-            // Animate opacity of skip wheel
+            // Animate opacity of skip wheel.
             m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, m_skipTimer / m_skipFadeDuration);
 
-            // Check if held down long enough to trigger stop.
-            if (m_skipTimer >= m_skipHoldThreshold)
+            // Check if held down long enough to trigger stop, and only send once.
+            if (m_skipTimer >= m_skipHoldThreshold && !m_messageSent)
+            {
                 Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+                m_messageSent = true;  // Mark that the message has been sent.
+            }
         }
         else
         {
@@ -610,8 +613,8 @@ namespace Game
             m_skipTimer = 0.0f;
             m_skiptext.GetComponent<Text>()->text = FLX_STRING_NEW("");
             m_skipwheel.GetComponent<Sprite>()->opacity = 0;
-            //m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = 0;
             m_skipwheel.GetComponent<Rotation>()->rotation.z = 0.0f;
+            m_messageSent = false; // Reset flag so that next press can send the message.
         }
     }
     #pragma endregion

@@ -92,7 +92,7 @@ namespace Game
 
         // Overall cutscene activation flag.
         bool m_CutsceneActive = false;
-
+        bool m_messageSent = false;
         #pragma endregion
 
         #pragma region Helper Func
