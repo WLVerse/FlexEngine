@@ -13,32 +13,6 @@ namespace Game
     }
 
     #pragma region Helper Func
-    // Ensure the main camera is set by querying the active scene.
-    void CameraSystemLayer::EnsureMainCamera()
-    {
-        if (m_mainCameraEntity)
-            return;
-
-        auto scene = FlexECS::Scene::GetActiveScene();
-        if (!scene)
-        {
-            Log::Error("CameraSystemLayer: No active scene.");
-            return;
-        }
-        for (auto& elem : scene->CachedQuery<Position, Camera>())
-        {
-            if (elem.Get() == CameraManager::GetMainGameCameraID())
-            {
-                m_mainCameraEntity = elem;
-                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
-                    m_originalCameraPos = pos->position;
-                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
-                    m_zoomBase = cam->GetOrthoWidth();
-                break;
-            }
-        }
-    }
-
     // Generate a random shake offset based on the given intensity.
     Vector3 CameraSystemLayer::GenerateShakeOffset(float intensity)
     {
@@ -50,6 +24,7 @@ namespace Game
 
     void CameraSystemLayer::OnAttach()
     {
+        m_zoomBase = Application::GetCurrentWindow()->GetWidth(); // REMEMBER THIS IS IMPORTANT IF ZOOM IS MESSED UP ON START
     }
 
     void CameraSystemLayer::OnDetach()
@@ -64,7 +39,13 @@ namespace Game
         {
             CameraManager::TryMainCamera();
         }
-        EnsureMainCamera();
+
+        // Get the entity of current main camera
+        FlexECS::Entity m_mainCameraEntity;
+        for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
+        {
+            if (elem.Get() == CameraManager::GetMainGameCameraID()) m_mainCameraEntity = elem;
+        }
 
         float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
@@ -72,14 +53,19 @@ namespace Game
         // Enqueue new camera effects from messages.
         // ----------------------------------------------------------------
 
+        // --- SHAKE EFFECTS ---
         // Standard shake effect.
         // Message: "CameraShakeStart"
-        // Parameters:
-        //   - Parameter 1 (double duration): Duration (in seconds) of the shake effect.
-        //   - Parameter 2 (double intensity): Base intensity of the shake effect.
+        // Parameters: (duration, intensity)
         if (auto shakeParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraShakeStart");
             shakeParams.first > 0.0 && shakeParams.second > 0.0)
         {
+            // Only capture the original camera position if no shake effect is active.
+            if (m_shakeEffects.empty() && m_mainCameraEntity)
+            {
+                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
+                    m_originalCameraPos = pos->position;
+            }
             m_shakeEffects.push_back({ static_cast<float>(shakeParams.first), 0.0f,
                                        static_cast<float>(shakeParams.second), false });
             Log::Info("Queued standard shake effect.");
@@ -87,12 +73,16 @@ namespace Game
 
         // Lerp (ramped) shake effect.
         // Message: "CameraShakeLerpStart"
-        // Parameters:
-        //   - Parameter 1 (double duration): Duration (in seconds) of the shake effect.
-        //   - Parameter 2 (double intensity): Base intensity, which will be ramped (lerped) up then down.
+        // Parameters: (duration, intensity)
         if (auto shakeLerpParams = Application::MessagingSystem::Receive<std::pair<double, double>>("CameraShakeLerpStart");
             shakeLerpParams.first > 0.0 && shakeLerpParams.second > 0.0)
         {
+            // Capture the baseline only if no shake effect is currently active.
+            if (m_shakeEffects.empty() && m_mainCameraEntity)
+            {
+                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
+                    m_originalCameraPos = pos->position;
+            }
             m_shakeEffects.push_back({ static_cast<float>(shakeLerpParams.first), 0.0f,
                                        static_cast<float>(shakeLerpParams.second), true });
             Log::Info("Queued lerp shake effect.");
@@ -126,56 +116,68 @@ namespace Game
 
         // Auto-return zoom effect.
         // Message: "CameraZoomAutoReturnStart"
-        // Parameters:
-        //   - Parameter 1 (double lerp duration): Time for ramping to/from target.
-        //   - Parameter 2 (double hold duration): Time to hold at the target zoom.
-        //   - Parameter 3 (double targetOrthoWidth): The target orthographic width.
-        // The effect lerps from the current camera width to the target and then returns to the base.
+        // Parameters: (lerpDuration, holdDuration, targetOrthoWidth)
         if (auto zoomAutoParams = Application::MessagingSystem::Receive<std::tuple<double, double, double>>("CameraZoomAutoReturnStart");
             std::get<0>(zoomAutoParams) > 0.0)
         {
             float lerpDuration = static_cast<float>(std::get<0>(zoomAutoParams));
             float holdDuration = static_cast<float>(std::get<1>(zoomAutoParams));
             float targetOrthoWidth = static_cast<float>(std::get<2>(zoomAutoParams));
-            float currentOrthoWidth = m_zoomBase;
-            if (m_mainCameraEntity) 
+            float currentOrthoWidth = targetOrthoWidth; // fallback value
+
+            // Capture the zoom baseline if there is no active zoom effect.
+            if (!m_zoomActive && m_mainCameraEntity)
             {
                 if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
+                {
                     currentOrthoWidth = cam->GetOrthoWidth();
+                    m_zoomBase = currentOrthoWidth;
+                }
             }
-            m_zoomEffect = ZoomEffect
+            else if (m_zoomActive && m_mainCameraEntity)
             {
-                0.0f, // 'duration' not used for auto-return zoom
-                0.0f,
-                targetOrthoWidth,
-                currentOrthoWidth, // starting from current camera width
-                true,              // enable auto-return effect
+                // Optionally update the baseline if a new zoom message is received.
+                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
+                {
+                    currentOrthoWidth = cam->GetOrthoWidth();
+                    m_zoomBase = currentOrthoWidth;
+                }
+            }
+
+            m_zoomEffect = ZoomEffect{
+                0.0f,             // elapsed
+                0.0f,             // duration not used here
+                targetOrthoWidth, // target ortho width
+                currentOrthoWidth,// initial ortho width captured at message time
+                true,             // auto-return enabled
                 lerpDuration,
                 holdDuration,
-                2 * lerpDuration + holdDuration // total duration for auto-return (ramp up + hold + ramp down)
+                2 * lerpDuration + holdDuration // total duration: ramp up + hold + ramp down
             };
+            m_zoomActive = true;
             Log::Info("Queued auto-return zoom effect.");
         }
 
 
         // ----------------------------------------------------------------
-        // Process active shake effects.
-        // ----------------------------------------------------------------
+                // Process active shake effects.
+                // ----------------------------------------------------------------
         Vector3 cumulativeShake(0.0f);
-        for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i) 
+        for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i)
         {
             auto& effect = m_shakeEffects[i];
             effect.elapsed += deltaTime;
             float intensity = effect.intensity;
-            if (effect.lerp) 
+            if (effect.lerp)
             {
                 float progress = std::min(effect.elapsed / effect.duration, 1.0f);
-                // Ramp up then down.
                 float factor = (progress < 0.5f) ? (progress * 2.0f) : ((1.0f - progress) * 2.0f);
                 intensity *= factor;
             }
             cumulativeShake += GenerateShakeOffset(intensity);
-            if (effect.elapsed >= effect.duration) {
+
+            if (effect.elapsed >= effect.duration)
+            {
                 m_shakeEffects.erase(m_shakeEffects.begin() + i);
                 Log::Info("Shake effect completed.");
                 Application::MessagingSystem::Send("CameraShakeCompleted", 1);
@@ -183,71 +185,82 @@ namespace Game
         }
 
         // ----------------------------------------------------------------
-        // Process active zoom effect.
+        // Process active zoom effects.
         // ----------------------------------------------------------------
-        float delta = 0.0f;
-        if (m_zoomEffect.autoReturn) 
+        float deltaZoom = 0.0f;
+        if (m_zoomActive)
         {
             m_zoomEffect.elapsed += deltaTime;
-            if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration) 
+            if (m_zoomEffect.autoReturn)
             {
-                // Ramp up phase: lerp from initial to target.
-                float t = m_zoomEffect.elapsed / m_zoomEffect.lerpDuration;
-                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * t;
+                if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration)
+                {
+                    // Ramp up phase: interpolate from baseline to target.
+                    float t = m_zoomEffect.elapsed / m_zoomEffect.lerpDuration;
+                    deltaZoom = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * t;
+                }
+                else if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration)
+                {
+                    // Hold phase at target.
+                    deltaZoom = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth);
+                }
+                else if (m_zoomEffect.elapsed < m_zoomEffect.totalDuration)
+                {
+                    // Ramp down phase: interpolate back toward the baseline.
+                    float t = (m_zoomEffect.elapsed - (m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration)) / m_zoomEffect.lerpDuration;
+                    deltaZoom = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * (1.0f - t);
+                }
+                else
+                {
+                    // Zoom effect completed.
+                    deltaZoom = 0.0f;
+                    Log::Info("Zoom effect completed.");
+                    Application::MessagingSystem::Send("CameraZoomCompleted", 1);
+                    m_zoomActive = false;
+                }
             }
-            else if (m_zoomEffect.elapsed < m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration) 
+            else
             {
-                // Hold phase: fully at target zoom.
-                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth);
-            }
-            else if (m_zoomEffect.elapsed < m_zoomEffect.totalDuration) 
-            {
-                // Ramp down phase: lerp back to the initial (base) width.
-                float t = (m_zoomEffect.elapsed - (m_zoomEffect.lerpDuration + m_zoomEffect.holdDuration)) / m_zoomEffect.lerpDuration;
-                delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * (1.0f - t);
-            }
-            else 
-            {
-                // Auto-return effect completed.
-                delta = 0.0f;
-                Log::Info("Zoom effect completed.");
-                Application::MessagingSystem::Send("CameraZoomCompleted", 1);
-            }
-        }
-        else 
-        {
-            m_zoomEffect.elapsed += deltaTime;
-            float progress = std::min(m_zoomEffect.elapsed / m_zoomEffect.duration, 1.0f);
-            delta = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * progress;
-            if (m_zoomEffect.elapsed >= m_zoomEffect.duration)
-            {
-                Log::Info("Zoom effect completed.");
-                Application::MessagingSystem::Send("CameraZoomCompleted", 1);
+                m_zoomEffect.elapsed += deltaTime;
+                float progress = std::min(m_zoomEffect.elapsed / m_zoomEffect.duration, 1.0f);
+                deltaZoom = (m_zoomEffect.targetOrthoWidth - m_zoomEffect.initialOrthoWidth) * progress;
+                if (m_zoomEffect.elapsed >= m_zoomEffect.duration)
+                {
+                    Log::Info("Zoom effect completed.");
+                    Application::MessagingSystem::Send("CameraZoomCompleted", 1);
+                    m_zoomActive = false;
+                }
             }
         }
 
-        float effectiveOrthoWidth = std::max(m_zoomBase + delta, m_minOrthoWidth);
+        // Calculate the effective orthographic dimensions.
+        float effectiveOrthoWidth = std::max(m_zoomBase + deltaZoom, m_minOrthoWidth);
         float effectiveOrthoHeight = effectiveOrthoWidth / m_baseAspectRatio;
 
         // ----------------------------------------------------------------
-        // Apply shake and zoom effects to the main camera.
+        // Apply effects to the main camera.
         // ----------------------------------------------------------------
-        if (m_mainCameraEntity) 
+        if (m_mainCameraEntity)
         {
-            if (auto pos = m_mainCameraEntity.GetComponent<Position>())
-                pos->position = m_originalCameraPos + cumulativeShake;
-            else
-                Log::Warning("Main camera Position component missing.");
+            // Apply shake effects to the main camera.
+            if (!m_shakeEffects.empty())
+            {
+                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
+                    pos->position = m_originalCameraPos + cumulativeShake;
+                else
+                    Log::Warning("Main camera: Position component missing.");
+            }
 
-            if (auto cam = m_mainCameraEntity.GetComponent<Camera>()) 
+            // Apply zoom effects to the main camera.
+            if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
             {
                 cam->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
                                      -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
                 cam->Update();
             }
-            else 
+            else
             {
-                Log::Warning("Main camera Camera component missing.");
+                Log::Warning("Main camera: Camera component missing.");
             }
         }
 

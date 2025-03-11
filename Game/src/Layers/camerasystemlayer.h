@@ -27,12 +27,6 @@ namespace Game {
         void Update() override;
 
     private:
-        // Main camera entity and base parameters.
-        FlexECS::Entity m_mainCameraEntity;
-        float m_zoomBase = 0.0f; // Original ortho width of camera
-        const float m_baseAspectRatio = 16.0f / 9.0f;
-        const float m_minOrthoWidth = 1000.0f;
-
         struct ShakeEffect
         {
             float duration;   // Total duration of the effect.
@@ -67,9 +61,12 @@ namespace Game {
 
         // Original camera position (base for applying shake).
         Vector3 m_originalCameraPos;
+        float m_zoomBase = 1920.0f; // Original ortho width of camera
+        bool m_zoomActive = false;
+        const float m_baseAspectRatio = 16.0f / 9.0f;
+        const float m_minOrthoWidth = 640.0f; // Smallest ortho width allowed
 
         // Helper functions.
-        void EnsureMainCamera();
         Vector3 GenerateShakeOffset(float intensity);
     };
 
