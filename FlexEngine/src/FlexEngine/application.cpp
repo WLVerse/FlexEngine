@@ -25,6 +25,7 @@
 
 #include "StateManager/statemanager.h"
 #include "input.h"
+#include "flexprefs.h"
 #include "FMOD/FMODWrapper.h" // Include for initializing fmod system at application start
 #include "Renderer/Camera/cameramanager.h" //Include for starting up the camera bank
 namespace FlexEngine
@@ -351,6 +352,9 @@ namespace FlexEngine
     // initialize glfw
     FLX_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW!");
     FMODWrapper::Load();
+
+    // Load the saved preferences from file.
+    FlexPrefs::Load();
   }
 
   Application::~Application()

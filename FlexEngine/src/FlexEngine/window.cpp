@@ -198,7 +198,7 @@ namespace FlexEngine
     SetCurrentContext();
 
     // clear screen
-    OpenGLRenderer::ClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
+    OpenGLRenderer::ClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
     OpenGLRenderer::ClearFrameBuffer();
 
     m_frameratecontroller.BeginFrame();
