@@ -140,32 +140,35 @@ namespace FlexEngine
 
     void Camera::UpdateEffects(float dt)
     {
+        bool hasShake = !m_shakeEffects.empty();
+        bool hasZoom = m_zoomActive;
+
         // ---- Process Shake Effects ----
         Vector3 cumulativeShake(0.0f);
-        for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i)
+        if (hasShake)
         {
-            auto& effect = m_shakeEffects[i];
-            effect.elapsed += dt;
-            float intensity = effect.intensity;
-            if (effect.lerp)
+            for (int i = static_cast<int>(m_shakeEffects.size()) - 1; i >= 0; --i)
             {
-                float progress = std::min(effect.elapsed / effect.duration, 1.0f);
-                float factor = (progress < 0.5f) ? (progress * 2.0f) : ((1.0f - progress) * 2.0f);
-                intensity *= factor;
-            }
-            cumulativeShake += GenerateShakeOffset(intensity);
+                auto& effect = m_shakeEffects[i];
+                effect.elapsed += dt;
+                float intensity = effect.intensity;
+                if (effect.lerp)
+                {
+                    float progress = std::min(effect.elapsed / effect.duration, 1.0f);
+                    float factor = (progress < 0.5f) ? (progress * 2.0f) : ((1.0f - progress) * 2.0f);
+                    intensity *= factor;
+                }
+                cumulativeShake += GenerateShakeOffset(intensity);
 
-            if (effect.elapsed >= effect.duration)
-            {
-                // Remove completed shake effect.
-                m_shakeEffects.erase(m_shakeEffects.begin() + i);
+                if (effect.elapsed >= effect.duration)
+                {
+                    m_shakeEffects.erase(m_shakeEffects.begin() + i);
+                }
             }
         }
-        // Update view matrix with shake offset.
-        SetViewMatrix(m_originalCameraPos + cumulativeShake);
 
         // ---- Process Zoom Effects ----
-        if (m_zoomActive)
+        if (hasZoom)
         {
             float deltaZoom = 0.0f;
             m_zoomEffect.elapsed += dt;
@@ -207,14 +210,24 @@ namespace FlexEngine
                 }
             }
 
-            // Calculate new orthographic dimensions.
+            // Update orthographic dimensions based on zoom.
             float effectiveOrthoWidth = std::max(m_zoomBase + deltaZoom, m_minOrthoWidth);
             float effectiveOrthoHeight = effectiveOrthoWidth / m_baseAspectRatio;
             SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
                             -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
         }
 
-        UpdateCameraMatrix();
+        // Only update the view matrix if at least one effect is active.
+        if (hasShake || hasZoom)
+        {
+            // If shake effects are active, apply the cumulative shake offset.
+            // Otherwise, keep the view matrix unchanged.
+            if (hasShake)
+                SetViewMatrix(m_originalCameraPos + cumulativeShake);
+            else
+                SetViewMatrix(m_originalCameraPos);
+        }
+        // If neither effect is active, do not modify the view matrix.
     }
     #pragma endregion
 }
