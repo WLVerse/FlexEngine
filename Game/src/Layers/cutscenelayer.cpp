@@ -195,6 +195,17 @@ namespace Game
             return;
         }
         
+        #if 0 
+        if (Input::GetKeyDown(GLFW_KEY_L))
+            Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 2, 10.0 });
+        if (Input::GetKeyDown(GLFW_KEY_P))
+            Application::MessagingSystem::Send("CameraShakeLerpStart", std::pair<double, double>{ 2, 10.0 });
+        if (Input::GetKeyDown(GLFW_KEY_O))
+            Application::MessagingSystem::Send("CameraZoomAutoReturnStart", std::tuple<double, double, double>{ 1, 2.0, rand() % 800 + 1000 });
+        if (Input::GetKeyDown(GLFW_KEY_U))
+            Application::MessagingSystem::Send("CameraZoomStart", std::pair<double, double>{ 2, rand() % 800 + 1000 });
+        #endif
+
         // Handles Transition Messages
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
         if (transitionMSG == 1)
