@@ -181,6 +181,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\prefabeditor.cpp" />
     <ClCompile Include="src\sceneview.cpp" />
     <ClCompile Include="src\selectionsystem.cpp" />
+    <ClCompile Include="src\settingspanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -210,6 +211,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\prefabeditor.h" />
     <ClInclude Include="src\sceneview.h" />
     <ClInclude Include="src\selectionsystem.h" />
+    <ClInclude Include="src\settingspanel.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\assets\images\flexengine\flexengine-256.ico" />

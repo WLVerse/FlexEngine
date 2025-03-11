@@ -24,7 +24,7 @@
 #include "prefabeditor.h"
 #include "sceneview.h"
 #include "gameview.h"
-
+#include "settingspanel.h"
 #include "FlexEngine/Renderer/Camera/camera.h" // For an editor owned camera
 
 #include "selectionsystem.h"
@@ -83,6 +83,7 @@ namespace Editor
 		PrefabEditor m_prefabeditor;
 		SceneView m_sceneview;
 		GameView m_gameview;
+		SettingsPanel m_settingspanel;
 
 		SelectionSystem m_selection;
 

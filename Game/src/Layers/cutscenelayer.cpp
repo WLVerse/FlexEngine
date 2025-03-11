@@ -451,16 +451,30 @@ namespace Game
         if (m_frameCount > 1 && m_TransitionPhase == TransitionPhase::None)
         {
             m_ElapsedTime += dt;
+            // Calculate progress (from 0 to 1) over the duration of the frame.
+            float progress = m_ElapsedTime / m_PerFrameDuration;
+            if (progress > 1.0f)
+                progress = 1.0f;
+
             if (m_currFrameIndex < m_frameCount - 1)
             {
+                // Crossfade between current and next shot.
+                m_currShot.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, progress);
+
                 if (m_ElapsedTime >= m_PerFrameDuration)
                 {
+                    // Once the crossfade completes, swap the shots.
                     SwapShots();
                     m_ElapsedTime = 0.0f;
+                    // Reset opacities: current shot becomes fully visible,
+                    // and the next shot is reset (set to transparent until the next crossfade).
+                    m_currShot.GetComponent<Sprite>()->opacity = 1.0f;
                 }
             }
             else // On the last frame.
             {
+                // Fade out the current shot only.
+                m_currShot.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, progress);
                 if (m_ElapsedTime >= m_PerFrameDuration && m_TransitionPhase == TransitionPhase::None)
                 {
                     m_TransitionPhase = TransitionPhase::PreTransition;
@@ -469,6 +483,7 @@ namespace Game
             }
         }
     }
+
 
     // Update transition phases (fade–out and fade–in effects).
     void CutsceneLayer::updateTransitionPhase(float dt)
@@ -597,12 +612,15 @@ namespace Game
             // Increase rotation speed based on skipTimer.
             skipWheelrotation->rotation.z -= (m_baseRotationSpeed * m_skipTimer * dt);
 
-            // Animate opacity of skip wheel
+            // Animate opacity of skip wheel.
             m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, m_skipTimer / m_skipFadeDuration);
 
-            // Check if held down long enough to trigger stop.
-            if (m_skipTimer >= m_skipHoldThreshold)
+            // Check if held down long enough to trigger stop, and only send once.
+            if (m_skipTimer >= m_skipHoldThreshold && !m_messageSent)
+            {
                 Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+                m_messageSent = true;  // Mark that the message has been sent.
+            }
         }
         else
         {
@@ -610,8 +628,8 @@ namespace Game
             m_skipTimer = 0.0f;
             m_skiptext.GetComponent<Text>()->text = FLX_STRING_NEW("");
             m_skipwheel.GetComponent<Sprite>()->opacity = 0;
-            //m_instructiontxtopacityblk.GetComponent<Sprite>()->opacity = 0;
             m_skipwheel.GetComponent<Rotation>()->rotation.z = 0.0f;
+            m_messageSent = false; // Reset flag so that next press can send the message.
         }
     }
     #pragma endregion

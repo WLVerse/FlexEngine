@@ -15,8 +15,9 @@ using namespace FlexEngine;
 class PlayerMovementScript : public IScript
 {
 private:
-  float movement_speed = 6.f;
+  float movement_speed = 400.f;
   bool is_left = false;
+  #define dt Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime()
 
 public:
   PlayerMovementScript()
@@ -41,45 +42,36 @@ public:
   {
     if (Input::GetKey(GLFW_KEY_W))
     {
-      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.y += movement_speed;
-      //self.GetComponent<Scale>()->scale = { 41, 99, 0 };
+      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.y += movement_speed * dt;
       self.GetComponent<Animator>()->spritesheet_handle =
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Run_Up_Anim_Sheet.flxspritesheet)");
     }
     else if (Input::GetKey(GLFW_KEY_A))
     {
-      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.x -= movement_speed;
-      //self.GetComponent<Scale>()->scale = { 58, 92, 0 };
+      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.x -= movement_speed * dt;
       self.GetComponent<Animator>()->spritesheet_handle =
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Run_Left_Anim_Sheet.flxspritesheet)");
       is_left = true;
     }
     else if (Input::GetKey(GLFW_KEY_S))
     {
-      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.y -= movement_speed;
-      //self.GetComponent<Scale>()->scale = { 40, 99, 0 };
+      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.y -= movement_speed * dt;
       self.GetComponent<Animator>()->spritesheet_handle =
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Run_Down_Anim_Sheet.flxspritesheet)");
     }
     else if (Input::GetKey(GLFW_KEY_D))
     {
-      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.x += movement_speed;
-      //self.GetComponent<Scale>()->scale = { 58, 92, 0 };
+      if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.x += movement_speed * dt;
       self.GetComponent<Animator>()->spritesheet_handle =
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Run_Right_Anim_Sheet.flxspritesheet)");
       is_left = false;
     }
     else
-    /*if (!Input::GetKey(GLFW_KEY_W) && !Input::GetKey(GLFW_KEY_A) && !Input::GetKey(GLFW_KEY_S) &&
-        !Input::GetKey(GLFW_KEY_D))*/
     {
-      //self.GetComponent<Scale>()->scale = { 40, 93, 0 };
       self.GetComponent<Animator>()->spritesheet_handle = is_left ?
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Left_Anim_Sheet.flxspritesheet)") :
         FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
     }
-
-    //self.GetComponent<Scale>()->scale *= 1.5;
   }
 
   void Stop() override
