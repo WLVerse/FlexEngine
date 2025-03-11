@@ -179,6 +179,7 @@ namespace FlexEngine
   FLX_REFL_REGISTER_PROPERTY(slider_length)
   FLX_REFL_REGISTER_PROPERTY(original_value)
   FLX_REFL_REGISTER_PROPERTY(original_scale)
+  FLX_REFL_REGISTER_PROPERTY(original_pos)
   FLX_REFL_REGISTER_END;
 
   FLX_REFL_REGISTER_START(SettingsUI)

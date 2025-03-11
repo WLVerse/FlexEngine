@@ -3,6 +3,10 @@ using namespace FlexEngine;
 
 class SFXButtonScript : public IScript
 {
+private:
+  bool inc_selected = false;
+  bool dec_selected = false;
+  float timer = 0.f;
 public:
   SFXButtonScript()
   {
@@ -16,12 +20,62 @@ public:
 
   void Update() override
   {
+    if (self.GetComponent<Transform>()->is_active) {
+      if (Input::GetKeyDown(GLFW_KEY_W)) {
+        Input::Cleanup();
+        FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active = true;
+        self.GetComponent<Transform>()->is_active = false;
+      }
+      if (Input::GetKeyDown(GLFW_KEY_S)) {
+        Input::Cleanup();
+        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active = true;
+        self.GetComponent<Transform>()->is_active = false;
+      }
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+        Input::Cleanup();
+        self.GetComponent<Transform>()->is_active = false;
+      }
+      FlexECS::Entity knob = FlexECS::Scene::GetEntityByName("SFX Knob");
+
+      FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("SFX Slider Fill");
+      FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
+
+      float& knob_pos = knob.GetComponent<Position>()->position.x;
+      float current_volume_value = (knob_pos - slider_details->min_position) / slider_details->slider_length;
+
+      if (Input::GetKeyDown(GLFW_KEY_D) && current_volume_value < 1.f) {
+        inc_selected = true;
+        current_volume_value += 0.01f;
+        timer = 0.5f;
+      }
+      if (Input::GetKeyDown(GLFW_KEY_A) && current_volume_value > 0.f) {
+        dec_selected = true;
+        current_volume_value -= 0.01f;
+        timer = 0.5f;
+      }
+
+      timer > 0.f ? timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() : timer = 0.f;
+
+      if (inc_selected) {
+        if (Input::GetKeyUp(GLFW_KEY_D) || current_volume_value > 1.f) inc_selected = false;
+        if (timer == 0.f) current_volume_value < 1.f ? current_volume_value += 0.01f : current_volume_value = 1.f;
+      }
+
+      if (dec_selected) {
+        if (Input::GetKeyUp(GLFW_KEY_A) || current_volume_value < 0.f) dec_selected = false;
+        if (timer == 0.f) current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
+      }
+
+      FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX, current_volume_value);
+
+      knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
+    }
   }
 
   void OnMouseEnter() override
   {
-    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
-      self.GetComponent<Transform>()->is_active = true;
+   /* if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
+      self.GetComponent<Transform>()->is_active = true;*/
   }
 
   void OnMouseStay() override
@@ -35,7 +89,7 @@ public:
 
   void OnMouseExit() override
   {
-    self.GetComponent<Transform>()->is_active = false;
+    /*self.GetComponent<Transform>()->is_active = false;*/
   }
 };
 

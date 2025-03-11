@@ -2732,23 +2732,24 @@ namespace Game
         FlexECS::Entity sliderEntity = FlexECS::Scene::GetEntityByName(slider_names[i + 1]);
         sliderEntity.GetComponent<Slider>()->min_position = min_value;
         sliderEntity.GetComponent<Slider>()->max_position = max_value;
-        sliderEntity.GetComponent<Slider>()->original_scale = sliderEntity.GetComponent<Scale>()->scale;
         sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
         sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
       }
-      // Temp Fix for now. Will actually add the component in the flxscene
-      FlexECS::Scene::GetEntityByName("Move Description").AddComponent<MoveUI>({});
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
+        entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
+      }
       #pragma endregion
     }
 
     void Pause_Functionality() {
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
         bool& state_to_set = entity.GetComponent<Transform>()->is_active;
-        if (entity.HasComponent<PauseHoverUI>()) state_to_set = false;
+        if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<SettingsUI>()) state_to_set = false;
         else state_to_set ^= true;
       }
 
       battle.is_paused ^= true;
+      if (battle.is_paused) FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
     }
     
     void BattleLayer::OnAttach()
