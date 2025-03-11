@@ -451,16 +451,30 @@ namespace Game
         if (m_frameCount > 1 && m_TransitionPhase == TransitionPhase::None)
         {
             m_ElapsedTime += dt;
+            // Calculate progress (from 0 to 1) over the duration of the frame.
+            float progress = m_ElapsedTime / m_PerFrameDuration;
+            if (progress > 1.0f)
+                progress = 1.0f;
+
             if (m_currFrameIndex < m_frameCount - 1)
             {
+                // Crossfade between current and next shot.
+                m_currShot.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, progress);
+
                 if (m_ElapsedTime >= m_PerFrameDuration)
                 {
+                    // Once the crossfade completes, swap the shots.
                     SwapShots();
                     m_ElapsedTime = 0.0f;
+                    // Reset opacities: current shot becomes fully visible,
+                    // and the next shot is reset (set to transparent until the next crossfade).
+                    m_currShot.GetComponent<Sprite>()->opacity = 1.0f;
                 }
             }
             else // On the last frame.
             {
+                // Fade out the current shot only.
+                m_currShot.GetComponent<Sprite>()->opacity = FlexMath::Lerp(1.0f, 0.0f, progress);
                 if (m_ElapsedTime >= m_PerFrameDuration && m_TransitionPhase == TransitionPhase::None)
                 {
                     m_TransitionPhase = TransitionPhase::PreTransition;
@@ -469,6 +483,7 @@ namespace Game
             }
         }
     }
+
 
     // Update transition phases (fade–out and fade–in effects).
     void CutsceneLayer::updateTransitionPhase(float dt)
