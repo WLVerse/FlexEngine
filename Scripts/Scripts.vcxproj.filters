@@ -102,5 +102,8 @@
     <ClCompile Include="src\transitionhandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\movevfx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
