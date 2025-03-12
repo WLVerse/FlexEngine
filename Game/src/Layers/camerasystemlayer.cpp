@@ -182,6 +182,7 @@ namespace Game
             if (effect.elapsed >= effect.duration)
             {
                 m_shakeEffects.erase(m_shakeEffects.begin() + i);
+                //m_mainCameraEntity.GetComponent<Position>()->position = m_originalCameraPos;
                 Log::Info("Shake effect completed.");
                 Application::MessagingSystem::Send("CameraShakeCompleted", 1);
             }
@@ -248,31 +249,15 @@ namespace Game
         // ----------------------------------------------------------------
         // Apply effects to the main camera.
         // ----------------------------------------------------------------
-        if (m_mainCameraEntity)
         {
-            // Apply shake effects to the main camera.
-            if (auto pos = m_mainCameraEntity.GetComponent<Position>())
-            {
-                if (!m_shakeEffects.empty())
-                    pos->position = m_originalCameraPos + cumulativeShake;
-                else
-                    pos->position = m_originalCameraPos;
-            }
-            else
-                Log::Warning("Main camera: Position component missing.");
+            //// Apply shake effects to the main camera.
+            //if (!m_shakeEffects.empty())
+            //    m_mainCameraEntity.GetComponent<Position>()->position = m_originalCameraPos + cumulativeShake;
 
 
             // Apply zoom effects to the main camera.
-            if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
-            {
-                cam->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
-                                     -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
-                cam->Update();
-            }
-            else
-            {
-                Log::Warning("Main camera: Camera component missing.");
-            }
+            m_mainCameraEntity.GetComponent<Camera>()->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
+                                 -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
         }
 
         // ----------------------------------------------------------------
@@ -280,7 +265,7 @@ namespace Game
         // ----------------------------------------------------------------
         for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
         {
-            elem.GetComponent<Camera>()->SetViewMatrix(elem.GetComponent<Position>()->position);
+            elem.GetComponent<Camera>()->SetViewMatrix(elem.GetComponent<Position>()->position + cumulativeShake);
             elem.GetComponent<Camera>()->Update();
         }
     }
