@@ -124,7 +124,7 @@ namespace Game
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
 
-    #if 1
+    #if 0
     if (Input::GetKeyDown(GLFW_KEY_L))
         Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 2, 10.0 });
     if (Input::GetKeyDown(GLFW_KEY_P))

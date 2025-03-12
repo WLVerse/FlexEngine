@@ -24,7 +24,7 @@ namespace Game
 
     void CameraSystemLayer::OnAttach()
     {
-        m_zoomBase = Application::GetCurrentWindow()->GetWidth(); // REMEMBER THIS IS IMPORTANT IF ZOOM IS MESSED UP ON START
+        m_zoomBase = static_cast<float>(Application::GetCurrentWindow()->GetWidth()); // REMEMBER THIS IS IMPORTANT IF ZOOM IS MESSED UP ON START
     }
 
     void CameraSystemLayer::OnDetach()
