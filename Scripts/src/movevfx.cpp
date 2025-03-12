@@ -1,6 +1,24 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
+
+
+/////////////////////
+//Documentation -.-//
+/////////////////////
+
+//Call Application::MessagingSystem::Send<bool>("Initialize VFX", true); at the start
+//Because both Awake() and Start() doesnt seem to work, lol
+//
+//How to spawn VFX:
+// - Send a "Spawn VFX" message through messaging system.
+// Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+//
+// -Parameters, in order, are:
+// Target entity, assetkey of spritesheet, position offset of VFX, VFX scale.
+// Go adjust position and scale until it feels right
+
+
 class MoveVFXSystemScript : public IScript
 {
 private:
@@ -21,8 +39,6 @@ public:
 
   void Update() override
   {
-    //std::cout << "Creating !\n";
-
     if (Application::MessagingSystem::Receive<bool>("Initialize VFX"))
     {
       m_vfx_pool.resize(7);
@@ -74,8 +90,11 @@ public:
       }
     }
     
+    //>>>>TAKE NOTE:<<<<<<
     //>>>>THIS IS A HACK<<<<< BECAUSE I DONT WANNA WAKE PEOPLE UP AT 3:08AM
-    //move the black box away
+    // Partially a graphics problem. After animation finishes, if it doesnt have a default animation,
+    // A black box is shown.
+    // Thus, we just move the black box far away lmao
     for (auto& e : m_vfx_pool)
     {
       if (e.second == false) continue;
@@ -87,21 +106,6 @@ public:
         e.second = false;
       }
     }
-
-    //if (vfx_targets.targets.size() > 0)
-    //{
-    //  std::cout << "Targets: \n";
-    //  for (auto target : vfx_targets.targets)
-    //  {
-    //    std::cout << FLX_STRING_GET(*target.GetComponent<EntityName>()) << "\n";
-    //  }
-    //  std::cout << "Anim file: " << vfx_targets.animation << "\n";
-    //  std::cout << "isplayer: " << vfx_targets.is_player<< "\n";
-    //}
-      //std::cout << "Current Frame: " << animator.current_frame << "\n";
-      //std::cout << "Current Frame Time: " << animator.current_frame_time << "\n";
-      //std::cout << "Frame Time: " << animator.frame_time << "\n";
-      //std::cout << "TOtalFrame: " << animator.total_frames<< "\n";
   }
 
   void OnMouseEnter() override
