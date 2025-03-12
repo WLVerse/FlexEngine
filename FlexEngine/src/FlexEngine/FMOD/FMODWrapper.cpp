@@ -196,7 +196,7 @@ void FMODWrapper::Core::ForceFadeOut(float fadeDuration)
     channel->setVolumeRamp(true);
 
     // Set fade-out duration
-    FMOD_ASSERT(channel->setFadePointRamp(fadeDuration * 1000, 0.0f)); // End volume (0%) after fadeDuration
+    FMOD_ASSERT(channel->setFadePointRamp(static_cast<unsigned long long>(fadeDuration * 1000.f), 0.0f)); // End volume (0%) after fadeDuration
 
     // Schedule a stop at the end of the fade using DSP clock delay system
     unsigned long long dspClock;
@@ -210,7 +210,7 @@ void FMODWrapper::Core::ForceFadeOut(float fadeDuration)
     fmod_system->getSoftwareFormat(&sampleRate, &speakerMode, &numRawSpeakers);
 
     // Set the delay to stop the sound after the fade duration
-    channel->setDelay(0, dspClock + (fadeDuration * sampleRate), false);
+    channel->setDelay(0, dspClock + static_cast<unsigned long long>(fadeDuration * sampleRate), false);
   }
 }
 
