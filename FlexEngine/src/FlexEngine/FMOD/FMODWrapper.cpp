@@ -186,6 +186,34 @@ void FMODWrapper::Core::ForceStop()
   channels.clear();
 }
 
+void FMODWrapper::Core::ForceFadeOut(float fadeDuration)
+{
+  for (auto& [key, channel] : channels)
+  {
+    if (!channel) continue; // Skip invalid 
+
+    // Enable volume ramp to start fade out
+    channel->setVolumeRamp(true);
+
+    // Set fade-out duration
+    FMOD_ASSERT(channel->setFadePointRamp(fadeDuration * 1000, 0.0f)); // End volume (0%) after fadeDuration
+
+    // Schedule a stop at the end of the fade using DSP clock delay system
+    unsigned long long dspClock;
+    channel->getSystemObject(&fmod_system);
+    channel->getDSPClock(nullptr, &dspClock);
+
+    // Create variables for getting software format, but we just want the sample rate.
+    int sampleRate = 0;
+    FMOD_SPEAKERMODE speakerMode;
+    int numRawSpeakers;
+    fmod_system->getSoftwareFormat(&sampleRate, &speakerMode, &numRawSpeakers);
+
+    // Set the delay to stop the sound after the fade duration
+    channel->setDelay(0, dspClock + (fadeDuration * sampleRate), false);
+  }
+}
+
 void FMODWrapper::Core::StopAll()
 {
   for (auto& channel : channels)
