@@ -62,6 +62,8 @@ namespace Game
         // Cleanup code, if needed.
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(50);
+
+        FMODWrapper::Core::ForceFadeOut(1.f);
     }
 
     void CutsceneLayer::StartCutscene()

@@ -2761,8 +2761,8 @@ namespace Game
 
     void BattleLayer::OnDetach()
     {
-        // Make sure nothing carries over in the way of sound
-        FMODWrapper::Core::ForceStop();
+      // Make sure nothing carries over in the way of sound
+      FMODWrapper::Core::ForceFadeOut(1.f);
     }
 
     void BattleLayer::Update()

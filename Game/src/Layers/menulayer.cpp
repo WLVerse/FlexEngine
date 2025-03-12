@@ -32,8 +32,9 @@ namespace Game
 
   void MenuLayer::OnDetach()
   {
+    // No longer need to stop sound as the cutscene is using it...
     // Make sure nothing carries over in the way of sound
-    FMODWrapper::Core::ForceStop();
+    //FMODWrapper::Core::ForceStop();
   }
 
   void MenuLayer::Update()
