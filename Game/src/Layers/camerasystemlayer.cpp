@@ -40,13 +40,6 @@ namespace Game
             CameraManager::TryMainCamera();
         }
 
-        // Get the entity of current main camera
-        FlexECS::Entity m_mainCameraEntity;
-        for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
-        {
-            if (elem.Get() == CameraManager::GetMainGameCameraID()) m_mainCameraEntity = elem;
-        }
-
         float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
         // ----------------------------------------------------------------
@@ -61,10 +54,9 @@ namespace Game
             shakeParams.first > 0.0 && shakeParams.second > 0.0)
         {
             // Only capture the original camera position if no shake effect is active.
-            if (m_shakeEffects.empty() && m_mainCameraEntity)
+            if (m_shakeEffects.empty())
             {
-                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
-                    m_originalCameraPos = pos->position;
+                m_originalCameraPos = CameraManager::GetMainGameCamera()->GetPosition();
             }
             m_shakeEffects.push_back({ static_cast<float>(shakeParams.first), 0.0f,
                                        static_cast<float>(shakeParams.second), false });
@@ -78,10 +70,9 @@ namespace Game
             shakeLerpParams.first > 0.0 && shakeLerpParams.second > 0.0)
         {
             // Capture the baseline only if no shake effect is currently active.
-            if (m_shakeEffects.empty() && m_mainCameraEntity)
+            if (m_shakeEffects.empty())
             {
-                if (auto pos = m_mainCameraEntity.GetComponent<Position>())
-                    m_originalCameraPos = pos->position;
+                m_originalCameraPos = CameraManager::GetMainGameCamera()->GetPosition();
             }
             m_shakeEffects.push_back({ static_cast<float>(shakeLerpParams.first), 0.0f,
                                        static_cast<float>(shakeLerpParams.second), true });
@@ -97,12 +88,9 @@ namespace Game
             zoomParams.first > 0.0)
         {
             // Capture the current camera ortho width as baseline only if no zoom effect is active.
-            if (!m_zoomActive && m_mainCameraEntity)
+            if (!m_zoomActive)
             {
-                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
-                {
-                    m_zoomBase = cam->GetOrthoWidth();
-                }
+                m_zoomBase = CameraManager::GetMainGameCamera()->GetOrthoWidth();
             }
             // Set up a persistent zoom effect (auto-return disabled).
             m_zoomEffect = ZoomEffect{
@@ -129,22 +117,16 @@ namespace Game
             float currentOrthoWidth = targetOrthoWidth; // fallback value
 
             // Capture the zoom baseline if there is no active zoom effect.
-            if (!m_zoomActive && m_mainCameraEntity)
+            if (!m_zoomActive)
             {
-                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
-                {
-                    currentOrthoWidth = cam->GetOrthoWidth();
-                    m_zoomBase = currentOrthoWidth;
-                }
+                currentOrthoWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+                m_zoomBase = currentOrthoWidth;
             }
-            else if (m_zoomActive && m_mainCameraEntity)
+            else if (m_zoomActive)
             {
                 // Optionally update the baseline if a new zoom message is received.
-                if (auto cam = m_mainCameraEntity.GetComponent<Camera>())
-                {
-                    currentOrthoWidth = cam->GetOrthoWidth();
-                    m_zoomBase = currentOrthoWidth;
-                }
+                currentOrthoWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+                m_zoomBase = currentOrthoWidth;
             }
 
             m_zoomEffect = ZoomEffect{
@@ -182,7 +164,6 @@ namespace Game
             if (effect.elapsed >= effect.duration)
             {
                 m_shakeEffects.erase(m_shakeEffects.begin() + i);
-                //m_mainCameraEntity.GetComponent<Position>()->position = m_originalCameraPos;
                 Log::Info("Shake effect completed.");
                 Application::MessagingSystem::Send("CameraShakeCompleted", 1);
             }
@@ -250,13 +231,8 @@ namespace Game
         // Apply effects to the main camera.
         // ----------------------------------------------------------------
         {
-            //// Apply shake effects to the main camera.
-            //if (!m_shakeEffects.empty())
-            //    m_mainCameraEntity.GetComponent<Position>()->position = m_originalCameraPos + cumulativeShake;
-
-
             // Apply zoom effects to the main camera.
-            m_mainCameraEntity.GetComponent<Camera>()->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
+            CameraManager::GetMainGameCamera()->SetOrthographic(-effectiveOrthoWidth / 2, effectiveOrthoWidth / 2,
                                  -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
         }
 
