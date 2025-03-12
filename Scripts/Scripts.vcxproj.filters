@@ -102,5 +102,11 @@
     <ClCompile Include="src\transitionhandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\mainmenuquit.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenureturn.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -39,7 +39,7 @@ public:
         FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
         self.GetComponent<Transform>()->is_active = false;
       }
