@@ -84,8 +84,11 @@ namespace Game
         float disable_input_timer = 0.f;
 
         bool is_paused = false;
-        bool is_end = false;
+        //bool is_end = false;
+        bool is_win = false;
+        bool is_lose = false;
 
+        int battle_num = 0;
         int tutorial_info = 0;
         bool is_tutorial = true;
         bool is_tutorial_running = false;
@@ -152,8 +155,10 @@ namespace Game
       battle.disable_input_timer = 0.f;
 
       battle.is_paused = false;
-      battle.is_end = false;
+      battle.is_win = false;
+      battle.is_lose = false;
 
+      battle.battle_num = 0;
       battle.tutorial_info = 0;
       battle.is_tutorial = true;
       battle.is_tutorial_running = false;
@@ -186,7 +191,8 @@ namespace Game
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
 
-        battle.is_tutorial = asset.is_tutorial;
+        battle.battle_num = asset.battle_num;
+        battle.is_tutorial = !asset.battle_num;
         // parse the battle data
         int index = 0;
         int temp_index = 0;
@@ -2665,6 +2671,7 @@ namespace Game
                 enemy_count++;
             }
         }
+
         if (!player_count)
         {
             Lose_Battle();
@@ -2687,7 +2694,7 @@ namespace Game
 
     void Win_Battle()
     {
-        battle.is_end = true;
+        battle.is_win = true;
         // A bit lame, but need to find by name to set, like the old Unity days
       FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
@@ -2702,7 +2709,7 @@ namespace Game
 
     void Lose_Battle()
     {
-      battle.is_end = true;
+      battle.is_lose = true;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
@@ -2779,21 +2786,50 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
-        if (battle.is_end)
+        if (battle.is_win || battle.is_lose)
         {
           if (Input::AnyKeyDown())
           {
-            if (!battle.is_tutorial)
-              Application::MessagingSystem::Send("Game win to menu", true);
-            else 
-              Application::MessagingSystem::Send("Game win to tutorial", true);
+              if (battle.is_win)
+              {
+                  switch (battle.battle_num)
+                  {
+                  case 0:
+                      Application::MessagingSystem::Send("Tutorial win to Town", true);
+                      break;
+                  case 1:
+                      Application::MessagingSystem::Send("Battle 1 win to Town", true);
+                      break;
+                  case 2:
+                      Application::MessagingSystem::Send("Battle Boss win to Menu", true);
+                      break;
+                  }
+              }
+              else
+              {
+                  switch (battle.battle_num)
+                  {
+                  case 0:
+                      Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
+                      break;
+                  case 1:
+                      Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
+                      break;
+                  case 2:
+                      Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
+                      break;
+                  }
+              }
           }
           else return;
         }
 
         // insta win
-        if (Input::GetKeyDown(GLFW_KEY_X))
+        if (Input::GetKeyDown(GLFW_KEY_F4))
             Win_Battle();
+            // insta lose
+            if (Input::GetKeyDown(GLFW_KEY_F5))
+                Lose_Battle();
 
         bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key

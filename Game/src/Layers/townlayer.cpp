@@ -15,13 +15,20 @@
 
 namespace Game
 {
+    extern std::string town_version;
   void TownLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
+    //File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
+      File& file = File::Open(Path::current(town_version));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
+
+    if (town_version == "assets/saves/town_v4_2.flxscene")
+    {
+        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943, -172.714, 0);
+    }
   }
 
   void TownLayer::OnDetach()
@@ -38,8 +45,7 @@ namespace Game
     // move camera to follow main character
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
 
-    FlexECS::Entity main_character, main_enemy, encounter_one, encounter_two;
-    main_enemy = FlexECS::Scene::GetEntityByName("Jack");
+    FlexECS::Entity main_character;
     main_character = FlexECS::Scene::GetEntityByName("Renko");
 
     camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
@@ -48,21 +54,32 @@ namespace Game
 
 #pragma endregion
 #pragma region Scene Transition
-   if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
+   /*if (main_enemy.GetComponent<BoundingBox2D>()->is_colliding)
    {
      // transition lorhhhhhhhh
      Application::MessagingSystem::Send("Enter Boss", true);
-   }
+   }*/
+    if (town_version == "assets/saves/town_v4_2.flxscene")
+    {
+        if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
+        {
+            FlexECS::Scene::GetEntityByName("Jack Collider").RemoveComponent<BoundingBox2D>();
+            FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active = true;
+        }
 
-   if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
-   {
-     Application::MessagingSystem::Send("Enter Battle 1", true);
-   }
+        if (FlexECS::Scene::GetEntityByName("Jack").GetComponent<BoundingBox2D>()->is_colliding)
+        {
+            Application::MessagingSystem::Send("Enter Boss", true);
+        }
+    }
+    else
+    {
 
-   if (FlexECS::Scene::GetEntityByName("Encounter2").GetComponent<BoundingBox2D>()->is_colliding)
-   {
-     Application::MessagingSystem::Send("Enter Battle 2", true);
-   }
+        if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
+        {
+            Application::MessagingSystem::Send("Enter Battle 1", true);
+        }
+    }
 #pragma endregion
     /*
 #pragma region Renko X Barrel z-index resolver

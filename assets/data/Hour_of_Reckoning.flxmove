@@ -4,6 +4,6 @@ Effect: Strip
 Value: 0
 Target: ALL_ENEMIES
 Effect: Damage
-Value: 10
+Value: 30
 Target: ALL_ENEMIES
 Description: Strip all buffs from all enemies and deal 10 DMG to them.
