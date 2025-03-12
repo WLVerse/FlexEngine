@@ -46,9 +46,6 @@ namespace Game
     // Camera system goes last to capture the loaded scene
     camSystemLayer = std::make_shared<CameraSystemLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", camSystemLayer);
-
-    // Load the saved preferences from file.
-    FlexPrefs::Load();
   }
 
   void BaseLayer::OnDetach()

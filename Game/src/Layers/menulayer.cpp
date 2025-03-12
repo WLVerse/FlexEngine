@@ -61,12 +61,18 @@ namespace Game
       // shit copy paste
       if (selected_button == 0)
       {
-        Application::MessagingSystem::Send("Start Cutscene", true);
+          Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
       }
       else if (selected_button == 2)
       {
         Application::QueueCommand(Application::Command::QuitApplication);
       }
+    }
+
+    int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+    if (transitionMSG == 2)
+    {
+        Application::MessagingSystem::Send("Start Cutscene", true);
     }
   }
 }
