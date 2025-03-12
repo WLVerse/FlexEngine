@@ -139,6 +139,7 @@ namespace Game
 
     #pragma endregion
 
+    //TODO remove the enum entirely and just reduce the parameters of what to send
     class TransitionHandlerScript : public IScript 
     {
         std::unique_ptr<ITransitionEffect> m_currentTransition;

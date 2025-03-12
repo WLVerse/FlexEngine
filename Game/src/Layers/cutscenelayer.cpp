@@ -196,7 +196,8 @@ namespace Game
             Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
             return;
         }
-        
+       
+
         // Handles Transition Messages
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
         if (transitionMSG == 1)
