@@ -28,11 +28,15 @@ public:
 
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active = true;
+        std::string entity_name = "Return Button Sprite";
+        if (FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
+          entity_name = "Display Mode Sprite";
+        }
+        FlexECS::Scene::GetEntityByName(entity_name).GetComponent<Scale>()->scale.x = 0.f;
+        FlexECS::Scene::GetEntityByName(entity_name).GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
         self.GetComponent<Transform>()->is_active = false;
       }

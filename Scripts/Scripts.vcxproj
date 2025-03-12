@@ -27,6 +27,8 @@
     <ClCompile Include="src\displaymodebutton.cpp" />
     <ClCompile Include="src\cutscene_autoplaybutton.cpp" />
     <ClCompile Include="src\exitbutton.cpp" />
+    <ClCompile Include="src\mainmenuquit.cpp" />
+    <ClCompile Include="src\mainmenureturn.cpp" />
     <ClCompile Include="src\masterslider.cpp" />
     <ClCompile Include="src\mastervolbutton.cpp" />
     <ClCompile Include="src\mastervolumedecrease.cpp" />
