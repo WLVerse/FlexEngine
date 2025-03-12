@@ -27,7 +27,7 @@ namespace Game
   void TownLayer::OnDetach()
   {
     // Make sure nothing carries over in the way of sound
-    FMODWrapper::Core::ForceStop();
+    FMODWrapper::Core::ForceFadeOut(1.f);
   }
 
   void TownLayer::Update()

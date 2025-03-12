@@ -365,9 +365,24 @@ namespace FlexEngine
     float slider_length = 100.f;
     float original_value = 0.5f;           // Between 0 and 1
     Vector3 original_scale = Vector3::One;
+    Vector3 original_pos = Vector3::One;
   };
 
   class __FLX_API MoveUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API SettingsUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
+  class __FLX_API CreditsUI
   {
     FLX_REFL_SERIALIZABLE
 

@@ -126,7 +126,7 @@ namespace Game
             auto currentScene = FlexECS::Scene::GetActiveScene();
             if (currentScene && m_transitionFrame) 
             {
-                currentScene->DestroyEntity(m_transitionFrame);
+                //currentScene->DestroyEntity(m_transitionFrame); //Gonna have to remove this since scene auto removes, causes issues
                 m_transitionFrame = FlexECS::Entity(); // Reset handle.
             }
             else 

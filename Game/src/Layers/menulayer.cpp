@@ -32,8 +32,9 @@ namespace Game
 
   void MenuLayer::OnDetach()
   {
+    // No longer need to stop sound as the cutscene is using it...
     // Make sure nothing carries over in the way of sound
-    FMODWrapper::Core::ForceStop();
+    //FMODWrapper::Core::ForceStop();
   }
 
   void MenuLayer::Update()
@@ -61,12 +62,18 @@ namespace Game
       // shit copy paste
       if (selected_button == 0)
       {
-        Application::MessagingSystem::Send("Start Cutscene", true);
+          Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
       }
       else if (selected_button == 2)
       {
         Application::QueueCommand(Application::Command::QuitApplication);
       }
+    }
+
+    int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+    if (transitionMSG == 2)
+    {
+        Application::MessagingSystem::Send("Start Cutscene", true);
     }
   }
 }
