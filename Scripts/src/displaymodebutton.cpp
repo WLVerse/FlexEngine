@@ -29,14 +29,18 @@ public:
         FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
         self.GetComponent<Transform>()->is_active = false;
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
+        std::string entity_name = "Return Button Sprite";
+        if (FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
+          entity_name = "Master Volume Sprite";
+        }
+        FlexECS::Scene::GetEntityByName(entity_name).GetComponent<Scale>()->scale.x = 0.f;
+        FlexECS::Scene::GetEntityByName(entity_name).GetComponent<Transform>()->is_active = true;
         self.GetComponent<Transform>()->is_active = false;
       }
     }
