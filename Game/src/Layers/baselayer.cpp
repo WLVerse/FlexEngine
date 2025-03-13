@@ -4,7 +4,7 @@
 namespace Game
 {
    std::string file_name = "";
-
+   std::string town_version = "";
   std::shared_ptr<GameLayer> gameLayer = nullptr;
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
@@ -73,17 +73,29 @@ namespace Game
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", cutsceneLayer);
       cutsceneLayer = nullptr;
       
-      file_name = "/data/tutorial.flxbattle";
+      file_name = "/data/tutorial_battle.flxbattle";
       battleLayer = std::make_shared<BattleLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
+    // Game Lose to tutorial
+    if (Application::MessagingSystem::Receive<bool>("Tutorial lose to Tutorial") && battleLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+        battleLayer = nullptr;
+
+        file_name = "/data/tutorial_battle.flxbattle";
+        battleLayer = std::make_shared<BattleLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
+    }
+
     // Tutorial to town
-    if (Application::MessagingSystem::Receive<bool>("Game win to tutorial") && battleLayer != nullptr)
+    if (Application::MessagingSystem::Receive<bool>("Tutorial win to Town") && battleLayer != nullptr)
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
       battleLayer = nullptr;
       
+      town_version = "assets/saves/town_v4.flxscene";
       townLayer = std::make_shared<TownLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
@@ -91,9 +103,35 @@ namespace Game
     // Town to first encounter
     if (Application::MessagingSystem::Receive<bool>("Enter Battle 1") && townLayer != nullptr)
     {
-      
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
+        townLayer = nullptr;
+
+        file_name = "/data/robot_battle.flxbattle";
+        battleLayer = std::make_shared<BattleLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
+    // first encounter lose to first encounter again
+    if (Application::MessagingSystem::Receive<bool>("Battle 1 lose to Battle 1") && battleLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+        battleLayer = nullptr;
+
+        file_name = "/data/robot_battle.flxbattle";
+        battleLayer = std::make_shared<BattleLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
+    }
+
+    // First encounter to town
+    if (Application::MessagingSystem::Receive<bool>("Battle 1 win to Town") && battleLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+        battleLayer = nullptr;
+
+        town_version = "assets/saves/town_v4_2.flxscene";
+        townLayer = std::make_shared<TownLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
+    }
 
     // Town to Boss
     if (Application::MessagingSystem::Receive<bool>("Enter Boss") && townLayer != nullptr)
@@ -101,11 +139,33 @@ namespace Game
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", townLayer);
       townLayer = nullptr;
 
-      file_name = "/data/debug.flxbattle";
+      file_name = "/data/boss_battle.flxbattle"; //enables check for townlayer upon win
       battleLayer = std::make_shared<BattleLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
+    // boss lose to boss again
+    if (Application::MessagingSystem::Receive<bool>("Battle Boss lose to Battle Boss") && battleLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+        battleLayer = nullptr;
+
+        file_name = "/data/boss_battle.flxbattle"; //enables check for townlayer upon win
+        battleLayer = std::make_shared<BattleLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
+    }
+
+    // boss to menu
+    if (Application::MessagingSystem::Receive<bool>("Battle Boss win to Menu") && battleLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+        battleLayer = nullptr;
+
+        menuLayer = std::make_shared<MenuLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
+
+    #if 0
     if (Application::MessagingSystem::Receive<bool>("Game win to menu"))
     {
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
@@ -123,6 +183,7 @@ namespace Game
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
+    #endif
 
     #if 0
     if (Input::GetKeyDown(GLFW_KEY_L))
