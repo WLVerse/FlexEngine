@@ -16,6 +16,7 @@ namespace Game
 {
     extern std::string file_name;
 
+
     struct _Move
     {
         std::string name = "";
@@ -84,8 +85,11 @@ namespace Game
         float disable_input_timer = 0.f;
 
         bool is_paused = false;
-        bool is_end = false;
+        //bool is_end = false;
+        bool is_win = false;
+        bool is_lose = false;
 
+        int battle_num = 0;
         int tutorial_info = 0;
         bool is_tutorial = true;
         bool is_tutorial_running = false;
@@ -110,8 +114,17 @@ namespace Game
       FlexECS::Scene::StringIndex enemy1;
       FlexECS::Scene::StringIndex enemy2;
       FlexECS::Scene::StringIndex jack;
-
     };
+
+    struct _VFXPresets
+    {
+      std::string vfx_player_attack  = "/images/vfx/Impact_FX_Player_64.flxspritesheet";
+      std::string vfx_enemy_attack1  = "/images/vfx/Impact_FX_En1_48.flxspritesheet";
+      std::string vfx_enemy_attack2  = "/images/vfx/Impact_FX_En2_48.flxspritesheet";
+
+      std::string vfx_grace_ult      = "/images/vfx/VFX_Grace_Ult_Anim_Sheet.flxspritesheet";
+      std::string vfx_jack_ult       = "/images/vfx/VFX_Jack_Ult_Sheet.flxspritesheet";
+    } VFXPresets;
 
     _Battle battle;
     _SpriteHandles sprite_handles;
@@ -152,8 +165,10 @@ namespace Game
       battle.disable_input_timer = 0.f;
 
       battle.is_paused = false;
-      battle.is_end = false;
+      battle.is_win = false;
+      battle.is_lose = false;
 
+      battle.battle_num = 0;
       battle.tutorial_info = 0;
       battle.is_tutorial = true;
       battle.is_tutorial_running = false;
@@ -186,7 +201,8 @@ namespace Game
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
 
-        battle.is_tutorial = asset.is_tutorial;
+        battle.battle_num = asset.battle_num;
+        battle.is_tutorial = !asset.battle_num;
         // parse the battle data
         int index = 0;
         int temp_index = 0;
@@ -598,7 +614,7 @@ namespace Game
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(550, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(450, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
@@ -712,7 +728,8 @@ namespace Game
             if (!entity || !entity.HasComponent<Text>()) continue;
 
             // get the character's current health
-            std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
+            std::string stats = ""; // ENABLE THE BOTTOM LINE IF YOU WANT TEXT FOR HP SPD ETC
+            //std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
             entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
 
 
@@ -840,9 +857,9 @@ namespace Game
             {
               //if current move is a buff stripper, add enemy to damage calculations
               bool stripping_effect = false;
-              for (int i = 0; i < battle.current_move->effect.size(); i++)
+              for (size_t j = 0; j < battle.current_move->effect.size(); j++)
               {
-                if (battle.current_move->effect[i] == "Strip")
+                if (battle.current_move->effect[j] == "Strip")
                 {
                   stripping_effect = true;
                   break;
@@ -875,7 +892,7 @@ namespace Game
               damage_taken -= damage_taken / 2;
             }
 
-            damage_taken = (damage_taken > static_cast<float>(target.health)) ? static_cast<float>(target.health) : damage_taken;
+            damage_taken = (damage_taken > static_cast<float>(target.current_health)) ? static_cast<float>(target.current_health) : damage_taken;
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
@@ -928,6 +945,9 @@ namespace Game
         static float time_played = 0.f;
         static Vector3 dest[7];
         static bool is_init = false;
+
+        // Clamp to max number of alive characters
+        battle.curr_char_pos_after_taking_turn = std::min(static_cast<int>(battle.speed_bar.size()) - 1, battle.curr_char_pos_after_taking_turn);
 
         if (!is_init)
         {
@@ -996,7 +1016,7 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v7.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v8.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
@@ -1074,10 +1094,13 @@ namespace Game
 
         battle.change_phase = true;
 
+      //Scripting initialize
+      Application::MessagingSystem::Send<bool>("Initialize VFX", true);
+
       // Play bgm for game
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
 
-        Log::Debug("Start Game");
+      Log::Debug("Start Game");
     }
 
     void Start_Of_Turn()
@@ -1124,13 +1147,7 @@ namespace Game
               battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyTurn_Indicator.png)");
             }
 
-            //reset position
-            if (battle.previous_character != nullptr) {
-                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
-                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
-                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
-            }
+            
         }
 
         //tutorial only
@@ -1188,9 +1205,29 @@ namespace Game
                 battle.start_of_turn = false;
                 battle.move_select = false;
                 battle.move_resolution = false;
-                battle.end_of_turn = true;
+                battle.speedbar_animating = true;
 
                 battle.change_phase = true;
+
+                //projected character UI
+                int projected_speed = battle.current_character->current_speed;
+                int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                if (projected_speed > 0)
+                {
+                    for (auto character : battle.speed_bar)
+                    {
+                        if (projected_speed < character->current_speed)
+                        {
+                            //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                            break;
+                        }
+                        else
+                        {
+                            slot_number++;
+                        }
+                    }
+                }
+
                 return;
             }
             else
@@ -1271,6 +1308,25 @@ namespace Game
                                     battle.initial_target = &character;
                                     break;
                                 }
+                            }
+                        }
+                    }
+
+                    //projected character UI
+                    int projected_speed = battle.current_character->speed + battle.current_move->speed;
+                    int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
+                    if (projected_speed > 0)
+                    {
+                        for (auto character : battle.speed_bar)
+                        {
+                            if (projected_speed < character->current_speed)
+                            {
+                                //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
+                                break;
+                            }
+                            else
+                            {
+                                slot_number++;
                             }
                         }
                     }
@@ -1869,13 +1925,18 @@ namespace Game
                     case 2:
                         current_character_animator.spritesheet_handle =
                             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {FlexECS::Scene::GetEntityByName(battle.current_character->name)}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0.0f }, { 2.0f,2.0f,2.0f } });
+
                         break;
                     }
                     break;
                 }
-                float animation_time =
+
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -1883,7 +1944,39 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Special delay for renko
+                if (battle.current_character->character_id == 1)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 3:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                // Special delay for grace
+                if (battle.current_character->character_id == 2)
+                {
+                  switch (battle.move_num)
+                  {
+                  case 1:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  case 2:
+                    battle.disable_input_timer -= 0.5f;
+                    break;
+
+                  default:
+                    break;
+                  }
+                }
+
+                battle.disable_input_timer += 1.f;
             }
             else //resolve all move effects + play attack animation
             {
@@ -2128,9 +2221,9 @@ namespace Game
                     }
                     break;
                 }
-                float animation_time =
+                /*float animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;
+                    .total_frame_time;*/
 
                 current_character_animator.should_play = true;
                 current_character_animator.is_looping = false;
@@ -2138,7 +2231,10 @@ namespace Game
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
 
-                battle.disable_input_timer += 0.5f;
+                // Delay for machine gun 
+                if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
+                  battle.disable_input_timer += 1.5f;
+                else battle.disable_input_timer += 0.5f;
             }
         }
         
@@ -2207,6 +2303,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
+              std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id > 2)
@@ -2227,10 +2324,10 @@ namespace Game
                                     target_animator.spritesheet_handle =
                                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                                     break;
-                                    //case 5:
-                                        // target_animator.spritesheet_handle =
-                                            //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                                        //break;
+                                case 5:
+                                      target_animator.spritesheet_handle =
+                                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                                    break;
                                 }
 
                                 // get the slowest animation time
@@ -2246,6 +2343,8 @@ namespace Game
                                 target_animator.return_to_default = true;
                                 target_animator.frame_time = 0.f;
                                 target_animator.current_frame = 0;
+
+                                hit_entities.push_back(target_entity);
                             }
                         }
                         else
@@ -2262,10 +2361,10 @@ namespace Game
                                 target_animator.spritesheet_handle =
                                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                                 break;
-                                //case 5:
-                                    // target_animator.spritesheet_handle =
-                                        //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                                    //break;
+                            case 5:
+                                  target_animator.spritesheet_handle =
+                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                                break;
 
                             }
 
@@ -2282,10 +2381,16 @@ namespace Game
                             target_animator.return_to_default = true;
                             target_animator.frame_time = 0.f;
                             target_animator.current_frame = 0;
+
+                            hit_entities.push_back(target_entity);
                         }
                     }
                 }
                 battle.disable_input_timer += 0.5f;
+
+                //Hit VFX
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2301,15 +2406,17 @@ namespace Game
                     target_animator.spritesheet_handle =
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                     break;
-                //case 5:
-                    // target_animator.spritesheet_handle =
-                        //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                    //break;
+                case 5:
+                     target_animator.spritesheet_handle =
+                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                    break;
                 }
-                animation_time =
-                    FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                    .total_frame_time;
 
+                /*animation_time =
+                    FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                    .total_frame_time;*/
+
+                 
                 target_animator.should_play = true;
                 target_animator.is_looping = false;
                 target_animator.return_to_default = true;
@@ -2317,6 +2424,10 @@ namespace Game
                 target_animator.current_frame = 0;
 
                 battle.disable_input_timer += 0.5f;
+
+                //Hit VFX
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
             }
         }
         else //secondary animation of players getting hit
@@ -2354,6 +2465,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
+              std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id <= 2)
@@ -2385,9 +2497,14 @@ namespace Game
                         target_animator.return_to_default = true;
                         target_animator.frame_time = 0.f;
                         target_animator.current_frame = 0;
+
+                        hit_entities.push_back(target_entity);
                     }
                 }
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { hit_entities, VFXPresets.vfx_enemy_attack1, {}, {5.0f, 5.0f, 5.0f} });
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2415,6 +2532,19 @@ namespace Game
                 target_animator.current_frame = 0;
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+        
+                //Hit VFX
+                //Specific check for Jack's attack
+                if (battle.current_character->character_id == 5)
+                {
+                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 5.0f, 5.0f, 5.0f } });
+                }
+                else
+                {
+                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                  { {target_entity}, VFXPresets.vfx_enemy_attack1, {}, { 5.0f, 5.0f, 5.0f } });
+                }
             }
         }
 
@@ -2531,6 +2661,15 @@ namespace Game
                 }
             }
             battle.disable_input_timer += animation_time;// + 1.f;
+
+            //reset position, then delay a bit
+            if (battle.previous_character != nullptr) {
+                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
+                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
+                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
+            }
+            if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
         }
 
         //let death animation play finish
@@ -2582,6 +2721,7 @@ namespace Game
                 enemy_count++;
             }
         }
+
         if (!player_count)
         {
             Lose_Battle();
@@ -2604,7 +2744,7 @@ namespace Game
 
     void Win_Battle()
     {
-        battle.is_end = true;
+        battle.is_win = true;
         // A bit lame, but need to find by name to set, like the old Unity days
       FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
@@ -2619,7 +2759,7 @@ namespace Game
 
     void Lose_Battle()
     {
-      battle.is_end = true;
+      battle.is_lose = true;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
@@ -2643,31 +2783,30 @@ namespace Game
       for (int i = 0; i < 9; i += 3) {
         FlexECS::Entity tempEntity = FlexECS::Scene::GetEntityByName(slider_names[i]);
 
-        float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 25.f;
-        float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 25.f;
+        float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 20.f;
+        float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 15.f;
 
         FlexECS::Entity sliderEntity = FlexECS::Scene::GetEntityByName(slider_names[i + 1]);
-        sliderEntity.AddComponent<Slider>({
-          min_value,
-          max_value,
-          max_value - min_value,
-          ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value),
-          sliderEntity.GetComponent<Scale>()->scale
-          });
+        sliderEntity.GetComponent<Slider>()->min_position = min_value;
+        sliderEntity.GetComponent<Slider>()->max_position = max_value;
+        sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
+        sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
       }
-      // Temp Fix for now. Will actually add the component in the flxscene
-      FlexECS::Scene::GetEntityByName("Move Description").AddComponent<MoveUI>({});
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
+        entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
+      }
       #pragma endregion
     }
 
     void Pause_Functionality() {
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
         bool& state_to_set = entity.GetComponent<Transform>()->is_active;
-        if (entity.HasComponent<PauseHoverUI>()) state_to_set = false;
+        if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<SettingsUI>()) state_to_set = false;
         else state_to_set ^= true;
       }
 
       battle.is_paused ^= true;
+      if (battle.is_paused) FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
     }
     
     void BattleLayer::OnAttach()
@@ -2679,8 +2818,8 @@ namespace Game
 
     void BattleLayer::OnDetach()
     {
-        // Make sure nothing carries over in the way of sound
-        FMODWrapper::Core::ForceStop();
+      // Make sure nothing carries over in the way of sound
+      FMODWrapper::Core::ForceFadeOut(1.f);
     }
 
     void BattleLayer::Update()
@@ -2697,21 +2836,50 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
-        if (battle.is_end)
+        if (battle.is_win || battle.is_lose)
         {
           if (Input::AnyKeyDown())
           {
-            if (!battle.is_tutorial)
-              Application::MessagingSystem::Send("Game win to menu", true);
-            else 
-              Application::MessagingSystem::Send("Game win to tutorial", true);
+              if (battle.is_win)
+              {
+                  switch (battle.battle_num)
+                  {
+                  case 0:
+                      Application::MessagingSystem::Send("Tutorial win to Town", true);
+                      break;
+                  case 1:
+                      Application::MessagingSystem::Send("Battle 1 win to Town", true);
+                      break;
+                  case 2:
+                      Application::MessagingSystem::Send("Battle Boss win to Menu", true);
+                      break;
+                  }
+              }
+              else
+              {
+                  switch (battle.battle_num)
+                  {
+                  case 0:
+                      Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
+                      break;
+                  case 1:
+                      Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
+                      break;
+                  case 2:
+                      Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
+                      break;
+                  }
+              }
           }
           else return;
         }
 
         // insta win
-        if (Input::GetKeyDown(GLFW_KEY_X))
+        if (Input::GetKeyDown(GLFW_KEY_F4))
             Win_Battle();
+            // insta lose
+            if (Input::GetKeyDown(GLFW_KEY_F5))
+                Lose_Battle();
 
         bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key
@@ -2732,15 +2900,12 @@ namespace Game
                 break;
             case 1:
                 text_to_show = "W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 2:
                 text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(450, 500, 0);
                 break;
             case 3:
                 text_to_show = "Remember, SPACEBAR to confirm your move.";
-                FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Position>()->position = Vector3(550, 100, 0);
                 break;
             case 4:
               text_to_show = "You're a natural. Now, show me what you're capable of on your own.";

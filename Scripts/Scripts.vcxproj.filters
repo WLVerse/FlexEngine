@@ -6,9 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\camerahandler.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\playanimation.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -103,6 +100,15 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\transitionhandler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenuquit.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenureturn.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movevfx.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

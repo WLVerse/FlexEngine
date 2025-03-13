@@ -61,7 +61,7 @@ namespace Editor
 	{
 
 	}
-	
+
 	void SceneView::CalculateViewportPosition()
 	{
 		ImVec2 window_top_left = ImGui::GetWindowPos();
@@ -81,7 +81,7 @@ namespace Editor
 		float width = app_width;
 		float height = app_height;
 		float aspect_ratio = Editor::GetInstance().m_editorCamera.GetOrthoWidth() / Editor::GetInstance().m_editorCamera.GetOrthoHeight();
-		
+
 		//also have a tiny bit of extra padding to ensure the whole image is in frame
 		if (height > content_size.y - TOP_PADDING)
 		{
@@ -173,16 +173,16 @@ namespace Editor
 	{
 		FlexECS::Entity clicked_entity = FlexECS::Entity::Null;
 		Vector4 mouse_world_pos = GetWorldClickPosition();
-		
-		auto z_index_sort = [](const std::pair<FlexECS::EntityID, float>& a, const std::pair<FlexECS::EntityID, float>& b) 
+
+		auto z_index_sort = [](const std::pair<FlexECS::EntityID, float>& a, const std::pair<FlexECS::EntityID, float>& b)
 		{
 			if (a.second == b.second)
-					return a.first < b.first; 
+				return a.first < b.first;
 			return a.second >= b.second;
 		};
-		
+
 		std::set<std::pair<FlexECS::EntityID, float>, decltype(z_index_sort)> clicked_entities(z_index_sort);
-		
+
 		//Gets all entities under the mouse (including entities overlapping each other)
 		//Sorts them based on position.z
 		auto scene = FlexECS::Scene::GetActiveScene();
@@ -194,7 +194,7 @@ namespace Editor
 			//auto& pos = entity.GetComponent<Position>()->position;
 			//auto& scale = entity.GetComponent<Scale>()->scale;
 			//float rotation = entity.GetComponent<Rotation>()->rotation.z;
-			auto &transform = entity.GetComponent<Transform>()->transform;
+			auto& transform = entity.GetComponent<Transform>()->transform;
 
 			auto corners = ComputeOBBCorners(transform);
 
@@ -236,12 +236,12 @@ namespace Editor
 				}
 
 				auto current = clicked_entities.find({ FlexECS::EntityID(current_selected), current_selected.GetComponent<Position>()->position.z });
-				
+
 				if (current == clicked_entities.end() || ++current == clicked_entities.end())
 				{
 					clicked_entity = clicked_entities.begin()->first;
 				}
-				else 
+				else
 				{
 					clicked_entity = current->first;
 				}
@@ -251,7 +251,7 @@ namespace Editor
 				clicked_entity = clicked_entities.begin()->first;
 			}
 		}
-		
+
 		return clicked_entity;
 	}
 
@@ -279,10 +279,10 @@ namespace Editor
 		ImVec2 current_mouse_pos = ImGui::GetMousePos();
 		Vector2 pt1 = ScreenToWorld(current_mouse_pos);
 		Vector2 pt2 = ScreenToWorld(m_drag_selection_start_point);
-		
+
 		Vector2 max_point = { std::max(pt1.x, pt2.x), std::max(pt1.y, pt2.y) };
 		Vector2 min_point = { std::min(pt1.x, pt2.x), std::min(pt1.y, pt2.y) };
-		
+
 		auto scene = FlexECS::Scene::GetActiveScene();
 		for (auto entity : scene->CachedQuery<Position, Rotation, Scale, Transform, Sprite>()) //you probably only wanna click on things that are rendered
 		{
@@ -321,7 +321,7 @@ namespace Editor
 			if (ImGui::IsMouseReleased(0) && ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem))
 			{
 				if (!m_gizmo_hovered &&
-						std::abs(ImGui::GetMousePos().x - m_drag_selection_start_point.x) < 10 && 
+						std::abs(ImGui::GetMousePos().x - m_drag_selection_start_point.x) < 10 &&
 						std::abs(ImGui::GetMousePos().y - m_drag_selection_start_point.y) < 10)
 				{
 					//check if mouse click was within the viewport
@@ -355,8 +355,8 @@ namespace Editor
 				m_dragging_selection = false;
 			}
 
-			
-			
+
+
 			//Changing Gizmos type
 			if (ImGui::IsKeyPressed(ImGuiKey_W))
 			{
@@ -400,11 +400,11 @@ namespace Editor
 				 || !selected_entity.HasComponent<Scale>() || !selected_entity.HasComponent<Rotation>()) {
 				return;
 			}
-			
+
 			//auto& entity_transform = selected_entity.GetComponent<Transform>()->transform;
 			auto& entity_position = selected_entity.GetComponent<Position>()->position;
-			auto& entity_scale	= selected_entity.GetComponent<Scale>()->scale;
-			auto& entity_rotation	= selected_entity.GetComponent<Rotation>()->rotation;
+			auto& entity_scale = selected_entity.GetComponent<Scale>()->scale;
+			auto& entity_rotation = selected_entity.GetComponent<Rotation>()->rotation;
 			auto entity_transform = selected_entity.GetComponent<Transform>()->transform;
 
 
@@ -425,7 +425,7 @@ namespace Editor
 			}
 
 			//Display an imgui rect around the sprite so we know where we are clicking, at least
-			ImRect bounding_box (WorldToScreen(min_point), WorldToScreen(max_point));
+			ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 			ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 
 			//Draw Translate Gizmo
@@ -484,7 +484,7 @@ namespace Editor
 				//Scale the change in position with relation to screen size
 				//pos_change represents how much the gizmo moved in absolute screen coordinates.
 				//Need to convert screen space to world space
-				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth()  / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 				pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 				entity_position += Vector3(pos_change.x, -pos_change.y, 0.0f);
 
@@ -615,7 +615,7 @@ namespace Editor
 			for (FlexECS::Entity entity : selected_list)
 			{
 				if (!entity.HasComponent<Transform>() || !entity.HasComponent<Position>() ||
-					  !entity.HasComponent<Scale>() || !entity.HasComponent<Rotation>())
+						!entity.HasComponent<Scale>() || !entity.HasComponent<Rotation>())
 				{
 					return;
 				}
@@ -642,9 +642,9 @@ namespace Editor
 				ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 				ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(255, 255, 0, 150));
 			}
-			
+
 			average_pos /= static_cast<float>(selected_list.size());
-			ImVec2 gizmo_origin_pos = WorldToScreen({average_pos.x, average_pos.y});
+			ImVec2 gizmo_origin_pos = WorldToScreen({ average_pos.x, average_pos.y });
 
 			//Draw Translate Gizmo
 			if (m_current_gizmo_type == GizmoType::TRANSLATE)
@@ -698,7 +698,7 @@ namespace Editor
 
 				m_gizmo_hovered = right || up || xy;
 
-				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth()/ ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
+				pos_change.x *= Editor::GetInstance().m_editorCamera.GetOrthoWidth() / ((m_viewport_size.x == 0.0f) ? 1.0f : m_viewport_size.x);
 				pos_change.y *= Editor::GetInstance().m_editorCamera.GetOrthoHeight() / ((m_viewport_size.y == 0.0f) ? 1.0f : m_viewport_size.y);
 
 				for (FlexECS::Entity entity : selected_list)
@@ -807,7 +807,7 @@ namespace Editor
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNav;
 
 		ImGui::Begin("Scene", nullptr, window_flags);
-			CalculateViewportPosition();
+		CalculateViewportPosition();
 
 		//Display Scene texture
 		ImGui::SetCursorPos(m_viewport_position);
@@ -896,12 +896,12 @@ namespace Editor
 				//float new_right = std::clamp(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom, maxZoom);
 				float new_right = std::max(Editor::GetInstance().m_editorCamera.GetOrthoWidth() - zoomDelta, minZoom);
 				float new_top = new_right / baseAspectRatio;
-				Editor::GetInstance().m_editorCamera.SetOrthographic(-new_right/2, new_right / 2, -new_top / 2, new_top / 2);
+				Editor::GetInstance().m_editorCamera.SetOrthographic(-new_right / 2, new_right / 2, -new_top / 2, new_top / 2);
 				Editor::GetInstance().m_editorCamera.Update();
 			}
 		}
 	}
-	
+
 	void SceneView::DisplayMainCamBounds()
 	{
 		if (!m_display_cam_bounds) return;
@@ -911,7 +911,7 @@ namespace Editor
 		{
 			return;
 		}
-		
+
 		const auto& cam_data = main_camera.GetComponent<Camera>();
 		float cam_width = cam_data->GetOrthoWidth();
 		float cam_height = cam_data->GetOrthoHeight();
@@ -919,13 +919,13 @@ namespace Editor
 		const auto& pos = main_camera.GetComponent<Position>()->position;
 
 		//construct bounding box for camera
-		ImVec2 gizmo_origin_pos = WorldToScreen({pos.x, pos.y});
+		ImVec2 gizmo_origin_pos = WorldToScreen({ pos.x, pos.y });
 
 		Vector2 max_point = { pos.x + cam_width / 2, pos.y + cam_height / 2 };
-		Vector2 min_point = { pos.x - cam_width / 2, pos.y - cam_height / 2};
+		Vector2 min_point = { pos.x - cam_width / 2, pos.y - cam_height / 2 };
 
 		ImRect bounding_box(WorldToScreen(min_point), WorldToScreen(max_point));
 		ImGui::GetWindowDrawList()->AddRect(bounding_box.Min, bounding_box.Max, IM_COL32(100, 160, 100, 160), 0.0f, 0, 1.5f);
-	
+
 	}
 }

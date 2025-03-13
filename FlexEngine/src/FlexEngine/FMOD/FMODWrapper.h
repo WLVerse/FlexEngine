@@ -93,6 +93,8 @@ public:
     // Stops playing all sounds
     static void ForceStop();
 
+    static void ForceFadeOut(float fadeDuration);
+
     static void ChangeLoopProperty(std::string const&, bool);
 
     // Adjusts the volume of the group belonging to the channelgroup.

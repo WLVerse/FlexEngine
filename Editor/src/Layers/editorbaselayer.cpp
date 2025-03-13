@@ -292,6 +292,15 @@ namespace Editor
                                             Window::FrameBufferManager.GetFrameBuffer("Scene")->Clear();
                                           } });
               }
+              if (ImGui::MenuItem("Settings", "Ctrl+S"))
+              {
+                  SettingsPanel* settingsPanel = Editor::GetInstance().GetPanel<SettingsPanel>();
+                  if (settingsPanel)
+                  {
+                      // Toggle the open state: if open, close it; if closed, open it.
+                      settingsPanel->SetOpen(!settingsPanel->IsOpen());
+                  }
+              }
 
               ImGui::EndMenu();
           }

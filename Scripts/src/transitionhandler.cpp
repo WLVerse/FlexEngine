@@ -5,6 +5,10 @@
 
 using namespace FlexEngine;
 
+/******************************************************************************************
+* Crash Handling
+* - Ensure only one msg is being sent to do transition before switching scene
+******************************************************************************************/
 namespace Game 
 {
     #pragma region Transitions
@@ -122,7 +126,7 @@ namespace Game
             auto currentScene = FlexECS::Scene::GetActiveScene();
             if (currentScene && m_transitionFrame) 
             {
-                currentScene->DestroyEntity(m_transitionFrame);
+                //currentScene->DestroyEntity(m_transitionFrame); //Gonna have to remove this since scene auto removes, causes issues
                 m_transitionFrame = FlexECS::Entity(); // Reset handle.
             }
             else 
@@ -135,6 +139,7 @@ namespace Game
 
     #pragma endregion
 
+    //TODO remove the enum entirely and just reduce the parameters of what to send
     class TransitionHandlerScript : public IScript 
     {
         std::unique_ptr<ITransitionEffect> m_currentTransition;
