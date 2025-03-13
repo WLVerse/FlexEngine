@@ -640,7 +640,7 @@ namespace Game
 
             FlexECS::Entity tutorial_box = FlexECS::Scene::CreateEntity("tutorial_textbox"); // can always use GetEntityByName to find the entity
             tutorial_box.AddComponent<Transform>({});
-            tutorial_box.AddComponent<Position>({ Vector3(850, 110, 0) });
+            tutorial_box.AddComponent<Position>({ Vector3(845, 110, 0) });
             tutorial_box.AddComponent<Rotation>({});
             tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
             tutorial_box.AddComponent<ZIndex>({ 21 + index });
@@ -2005,9 +2005,6 @@ namespace Game
                         current_character_animator.spritesheet_handle =
                             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
 
-                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                        { {FlexECS::Scene::GetEntityByName(battle.current_character->name)}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0.0f }, { 2.0f,2.0f,2.0f } });
-
                         break;
                     }
                     break;
@@ -2377,6 +2374,8 @@ namespace Game
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                         FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                    { {FlexECS::Scene::GetEntityByName(battle.current_character->name)}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0.0f }, { 2.0f,2.0f,2.0f } });
                     break;
                 }
                 break;
@@ -2586,8 +2585,17 @@ namespace Game
                 }
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
 
-                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                { hit_entities, VFXPresets.vfx_enemy_attack1, {}, {5.0f, 5.0f, 5.0f} });
+                if (battle.current_character->character_id == 5)
+                {
+                    if (battle.move_num == 3)
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                    { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                }
+                else
+                {
+                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                    { hit_entities, VFXPresets.vfx_enemy_attack1, {}, { 2.0f, 2.0f, 2.0f } });
+                }
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2620,13 +2628,14 @@ namespace Game
                 //Specific check for Jack's attack
                 if (battle.current_character->character_id == 5)
                 {
+                    if (battle.move_num == 3)
                   Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 5.0f, 5.0f, 5.0f } });
+                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
                 }
                 else
                 {
                   Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                  { {target_entity}, VFXPresets.vfx_enemy_attack1, {}, { 5.0f, 5.0f, 5.0f } });
+                  { {target_entity}, VFXPresets.vfx_enemy_attack1, {}, { 2.0f, 2.0f, 2.0f } });
                 }
             }
         }
