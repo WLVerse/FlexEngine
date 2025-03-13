@@ -16,6 +16,7 @@ namespace Game
 {
     extern std::string file_name;
 
+
     struct _Move
     {
         std::string name = "";
@@ -113,8 +114,17 @@ namespace Game
       FlexECS::Scene::StringIndex enemy1;
       FlexECS::Scene::StringIndex enemy2;
       FlexECS::Scene::StringIndex jack;
-
     };
+
+    struct _VFXPresets
+    {
+      std::string vfx_player_attack  = "/images/vfx/Impact_FX_Player_64.flxspritesheet";
+      std::string vfx_enemy_attack1  = "/images/vfx/Impact_FX_En1_48.flxspritesheet";
+      std::string vfx_enemy_attack2  = "/images/vfx/Impact_FX_En2_48.flxspritesheet";
+
+      std::string vfx_grace_ult      = "/images/vfx/VFX_Grace_Ult_Anim_Sheet.flxspritesheet";
+      std::string vfx_jack_ult       = "/images/vfx/VFX_Jack_Ult_Sheet.flxspritesheet";
+    } VFXPresets;
 
     _Battle battle;
     _SpriteHandles sprite_handles;
@@ -1084,10 +1094,13 @@ namespace Game
 
         battle.change_phase = true;
 
+      //Scripting initialize
+      Application::MessagingSystem::Send<bool>("Initialize VFX", true);
+
       // Play bgm for game
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = true;
 
-        Log::Debug("Start Game");
+      Log::Debug("Start Game");
     }
 
     void Start_Of_Turn()
@@ -1912,6 +1925,10 @@ namespace Game
                     case 2:
                         current_character_animator.spritesheet_handle =
                             FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Ult_Anim_Sheet.flxspritesheet)");
+
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {FlexECS::Scene::GetEntityByName(battle.current_character->name)}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0.0f }, { 2.0f,2.0f,2.0f } });
+
                         break;
                     }
                     break;
@@ -2286,6 +2303,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
+              std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id > 2)
@@ -2306,10 +2324,10 @@ namespace Game
                                     target_animator.spritesheet_handle =
                                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                                     break;
-                                    //case 5:
-                                        // target_animator.spritesheet_handle =
-                                            //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                                        //break;
+                                case 5:
+                                      target_animator.spritesheet_handle =
+                                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                                    break;
                                 }
 
                                 // get the slowest animation time
@@ -2325,6 +2343,8 @@ namespace Game
                                 target_animator.return_to_default = true;
                                 target_animator.frame_time = 0.f;
                                 target_animator.current_frame = 0;
+
+                                hit_entities.push_back(target_entity);
                             }
                         }
                         else
@@ -2341,10 +2361,10 @@ namespace Game
                                 target_animator.spritesheet_handle =
                                     FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                                 break;
-                                //case 5:
-                                    // target_animator.spritesheet_handle =
-                                        //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                                    //break;
+                            case 5:
+                                  target_animator.spritesheet_handle =
+                                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                                break;
 
                             }
 
@@ -2361,10 +2381,16 @@ namespace Game
                             target_animator.return_to_default = true;
                             target_animator.frame_time = 0.f;
                             target_animator.current_frame = 0;
+
+                            hit_entities.push_back(target_entity);
                         }
                     }
                 }
                 battle.disable_input_timer += 0.5f;
+
+                //Hit VFX
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2380,16 +2406,17 @@ namespace Game
                     target_animator.spritesheet_handle =
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Hurt_Anim_Sheet.flxspritesheet)");
                     break;
-                //case 5:
-                    // target_animator.spritesheet_handle =
-                        //FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Hurt_Anim_Sheet.flxspritesheet)");
-                    //break;
+                case 5:
+                     target_animator.spritesheet_handle =
+                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Hurt_Anim_Sheet.flxspritesheet)");
+                    break;
                 }
 
                 /*animation_time =
                     FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
                     .total_frame_time;*/
 
+                 
                 target_animator.should_play = true;
                 target_animator.is_looping = false;
                 target_animator.return_to_default = true;
@@ -2397,6 +2424,10 @@ namespace Game
                 target_animator.current_frame = 0;
 
                 battle.disable_input_timer += 0.5f;
+
+                //Hit VFX
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
             }
         }
         else //secondary animation of players getting hit
@@ -2434,6 +2465,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
+              std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id <= 2)
@@ -2465,9 +2497,14 @@ namespace Game
                         target_animator.return_to_default = true;
                         target_animator.frame_time = 0.f;
                         target_animator.current_frame = 0;
+
+                        hit_entities.push_back(target_entity);
                     }
                 }
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+
+                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                { hit_entities, VFXPresets.vfx_enemy_attack1, {}, {5.0f, 5.0f, 5.0f} });
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2495,6 +2532,19 @@ namespace Game
                 target_animator.current_frame = 0;
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
+        
+                //Hit VFX
+                //Specific check for Jack's attack
+                if (battle.current_character->character_id == 5)
+                {
+                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 5.0f, 5.0f, 5.0f } });
+                }
+                else
+                {
+                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                  { {target_entity}, VFXPresets.vfx_enemy_attack1, {}, { 5.0f, 5.0f, 5.0f } });
+                }
             }
         }
 
