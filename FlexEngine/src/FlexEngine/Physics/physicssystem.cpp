@@ -10,7 +10,7 @@
 // [10%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Added some code for mouse over detection
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 **************************************************************************/
 
 #include "physicssystem.h"

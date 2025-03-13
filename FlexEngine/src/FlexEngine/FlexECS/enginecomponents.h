@@ -7,7 +7,7 @@
 // [100%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 #pragma once
 
 #include "../Renderer/Camera/camera.h" // External declaration of the reflected Camera component
