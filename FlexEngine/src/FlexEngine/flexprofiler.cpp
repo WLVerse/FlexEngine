@@ -7,7 +7,7 @@
 // [100%] Kuan Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
 // 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

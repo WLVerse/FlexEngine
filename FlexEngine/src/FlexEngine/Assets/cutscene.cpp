@@ -1,17 +1,37 @@
-#include "pch.h"
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// cutscene.cpp
+//
+// Implements the Cutscene constructor defined in cutscene.h. This function
+// reads metadata from the provided file and parses cutscene frame ranges and
+// timing information. It supports lines formatted as:
+// Cutscene_01_WakingUp, frames:00000-00023, time:(1.0f,0.6f,1.0f)
+// The parser extracts the cutscene name, frame start/end, and timing values
+// (preTime, duration, postTime), and stores them in an unordered_map for quick access.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 
+#include "pch.h"
 #include "cutscene.h"
 
 namespace FlexEngine
 {
     namespace Asset
     {
+        // Constructs a Cutscene instance by parsing the provided metadata file.
         Cutscene::Cutscene(File& _metadata)
             : metadata(_metadata)
         {
+            // Read the entire metadata file into a stringstream for line-by-line processing.
             std::stringstream ss(metadata.Read());
             std::string line;
 
+            // Process each line in the metadata file.
             while (std::getline(ss, line))
             {
                 // Skip empty lines.
@@ -38,7 +58,7 @@ namespace FlexEngine
                 // Remove the "frames:" prefix.
                 const std::string framesPrefix = "frames:";
                 std::string frameRange = framesStr.substr(framesPrefix.length());
-                // Split the frame range (e.g. "00000-00023") into start and end.
+                // Split the frame range (e.g., "00000-00023") into start and end strings.
                 size_t dashPos = frameRange.find("-");
                 if (dashPos == std::string::npos)
                     continue;
@@ -63,7 +83,7 @@ namespace FlexEngine
                 int tokenIndex = 0;
                 while (std::getline(timeStream, token, ','))
                 {
-                    // Remove any spaces.
+                    // Remove any whitespace characters.
                     token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
                     // Remove trailing 'f' if present.
                     if (!token.empty() && token.back() == 'f')
@@ -86,9 +106,9 @@ namespace FlexEngine
                 info.duration = duration;
                 info.postTime = postTime;
 
-                // Insert into the unordered map using the cutscene name as key.
+                // Insert the parsed data into the unordered_map using the cutscene name as the key.
                 cutscenes[name] = info;
             }
-        } // namespace Asset
-    } // namespace FlexEngine
-}
+        }
+    } // namespace Asset
+} // namespace FlexEngine

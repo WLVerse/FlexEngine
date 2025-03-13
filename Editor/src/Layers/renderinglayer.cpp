@@ -13,13 +13,15 @@
 // The framebuffers used are "scene" and "game", and nothing is rendered to the default framebuffer. (Editor property)
 //
 // AUTHORS
-// [90%] Yew Chong (yewchong.k\@digipen.edu)
+// [70%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
 // 
 // [10%] Wen Loong (wenloong.l\@digipen.edu)
 //   - Added animation rendering
 //
-//
+// [20%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Added batching
+// 
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"

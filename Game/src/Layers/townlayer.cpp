@@ -27,7 +27,7 @@ namespace Game
 
     if (town_version == "assets/saves/town_v4_2.flxscene")
     {
-        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943, -172.714, 0);
+        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
   }
 

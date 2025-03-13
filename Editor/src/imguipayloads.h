@@ -8,7 +8,7 @@
 // [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
 //   - Main Author
 //
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 **************************************************************************/
 #pragma once
 
