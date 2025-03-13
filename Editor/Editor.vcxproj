@@ -127,7 +127,8 @@
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmodL.dll" "$(OutDir)" /e /r /y /q
 xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q</Command>
       <Command>rmdir /S /Q "$(OutDir)assets
-xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
+xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"
+xcopy /Y "$(SolutionDir)imgui.ini" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +155,8 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmod.dll" "$(OutDir)" /e /r /y /q
 xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q</Command>
       <Command>rmdir /S /Q "$(OutDir)assets
-xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
+xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"
+xcopy /Y "$(SolutionDir)imgui.ini" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
