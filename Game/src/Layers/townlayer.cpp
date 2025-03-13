@@ -49,8 +49,8 @@ namespace Game
     main_character = FlexECS::Scene::GetEntityByName("Renko");
 
     camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
-    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -880.f, 710.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 880.f);
+    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 730.f);
 
 #pragma endregion
 #pragma region Scene Transition
