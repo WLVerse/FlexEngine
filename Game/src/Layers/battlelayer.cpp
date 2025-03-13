@@ -282,7 +282,7 @@ namespace Game
             //character_sprite.AddComponent<Character>({});
 
             // find the slot position
-            character_sprite.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] });
+            character_sprite.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot] + Vector3(20, 120, 0) });
             character_sprite.AddComponent<Rotation>({});
             character_sprite.AddComponent<Sprite>({  });
 
@@ -356,7 +356,7 @@ namespace Game
 
             FlexECS::Entity character_shield_buff = FlexECS::Scene::CreateEntity(character.name + " Shield_Buff"); // can always use GetEntityByName to find the entity
             character_shield_buff.AddComponent<Transform>({});
-            character_shield_buff.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10, -20, 0) });
+            character_shield_buff.AddComponent<Position>({ battle.healthbar_slot_positions[character.current_slot] + Vector3(10,  -20, 0) });
             character_shield_buff.AddComponent<Rotation>({});
             character_shield_buff.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
             character_shield_buff.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def_+1.png)") });
@@ -454,7 +454,7 @@ namespace Game
             //character_sprite.AddComponent<Character>({});
             //character_sprite.AddComponent<Enemy>({});
 
-            character_sprite.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 25, 0) }
+            character_sprite.AddComponent<Position>({ battle.sprite_slot_positions[character.current_slot + 2] + Vector3(-18, 15, 0) }
             ); // offset by 2 for enemy slots, and offset the position
             character_sprite.AddComponent<Rotation>({});
             character_sprite.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
@@ -1961,7 +1961,7 @@ namespace Game
                 else
                 {
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2];
+                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-18, 15, 0);
                 }
 
                 //apply player attack animation based on move used
@@ -2273,7 +2273,7 @@ namespace Game
                 else
                 {
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot];
+                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(20, 120, 0);
                 }
 
                 // play the attack animation
@@ -2781,8 +2781,8 @@ namespace Game
             //reset position, then delay a bit
             if (battle.previous_character != nullptr) {
                 Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                    battle.sprite_slot_positions[battle.previous_character->current_slot] :
-                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2];
+                    battle.sprite_slot_positions[battle.previous_character->current_slot] + Vector3(20, 120, 0) :
+                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2] + Vector3(-18, 15, 0);
                 FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
             }
             if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
@@ -2862,6 +2862,7 @@ namespace Game
     {
         battle.is_win = true;
         // A bit lame, but need to find by name to set, like the old Unity days
+        FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
         FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
@@ -2878,6 +2879,7 @@ namespace Game
     void Lose_Battle()
     {
       battle.is_lose = true;
+      FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
