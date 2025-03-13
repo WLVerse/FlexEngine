@@ -1,0 +1,9 @@
+Name: Immobilize
+Speed: 36
+Effect: Damage
+Value: 16
+Target: SINGLE_ENEMY
+Effect: Stun
+Value: 1
+Target: SINGLE_ENEMY
+Description: Deal damage to an enemy and stun them for 1 turn.

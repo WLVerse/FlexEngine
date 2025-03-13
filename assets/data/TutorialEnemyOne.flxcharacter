@@ -1,0 +1,7 @@
+CharacterName: EnemyOne
+CharacterID: 3
+Health: 30
+Speed: 35
+MoveOne: /data/Self_Repair.flxmove
+MoveTwo: /data/Self_Repair.flxmove
+MoveThree: /data/Full_Burst.flxmove

@@ -1,3 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// camerasystemlayer.h / cameraservicelayer.h
+// 
+// Layer that handles the updates to validating cameras to update in CamManager
+//
+// The CameraSystemLayer class provides camera shake and zoom effects for enhanced
+// gameplay experience. It manages multiple shake effects and zoom parameters,
+// including both persistent and auto-return zoom behaviors.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie_soh\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #include "CameraSystemLayer.h"
 #include <cstdlib>    // For std::rand()
 #include <ctime>      // For std::time()

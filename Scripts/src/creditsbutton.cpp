@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// creditsbutton.cpp
+//
+// This script handles the interactions for the key inputs used by the credits
+// button inside the pause menu. It displays the credits when it has been
+// selected by the user
+//
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

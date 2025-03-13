@@ -1,13 +1,15 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.h
 // 
-// Rendering layer for the editor.
+// Rendering layer for the game.
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [50%] Chan Wen Loong (wenloong.c\@digipen.edu)
 //   - Main Author
+// [50%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Sub Author
 // 
-// Copyright (c) 2024 DigiPen, All rights reserved.
+// Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once
 

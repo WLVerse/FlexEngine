@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// resumebutton.cpp
+//
+// This script handles the interactions for the key inputs used by the resume
+// button inside the pause menu. It returns the user back to the game whenever
+// the user clicks on the button.
+// 
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

@@ -27,6 +27,8 @@
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
 
+#include "flexprefs.h"  
+
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32  //to expose glfwGetWin32Window
 #include <GLFW/glfw3native.h>
@@ -107,8 +109,18 @@ namespace FlexEngine
       glfwWindowHint(hint, value);
     }
 
-    // create window
-    m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
+    // Fullscreen overrides any option
+    if (FlexPrefs::GetBool("game.fullscreen"))
+    {
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      m_glfwwindow = glfwCreateWindow(mode->width, mode->height, m_props.title.c_str(), monitor, nullptr);
+    }
+    else
+    {
+      m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
+    }
 
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);

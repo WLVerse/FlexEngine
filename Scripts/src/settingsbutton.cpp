@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// settingsbutton.cpp
+//
+// This script handles the interactions for the key inputs used by the settings
+// button inside the pause menu. It displays the volume settings of the game
+// that the user can edit, after the user has selected the settings button.
+// 
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

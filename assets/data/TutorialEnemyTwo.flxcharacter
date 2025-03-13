@@ -1,0 +1,7 @@
+CharacterName: EnemyTwo
+CharacterID: 4
+Health: 30
+Speed: 40
+MoveOne: /data/Speed_Up.flxmove
+MoveTwo: /data/Speed_Up.flxmove
+MoveThree: /data/Exterminate.flxmove

@@ -1,9 +1,9 @@
 Name: Revolution
-Speed: 8
+Speed: 30
 Effect: Damage
-Value: 6
-Target: ADJACENT_ENEMIES
-Effect: Speed_Up
-Value: 5
-Target: NEXT_ALLY
-Description: Deal 6 DMG to target adjacent enemies and speed up your next ally.
+Value: 8
+Target: ALL_ENEMIES
+Effect: Protect
+Value: 1
+Target: SELF
+Description: Deal damage to all enemies. Protect yourself from debuffs for 1 turn.

@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// mastervolumeincrease.cpp
+//
+// This script handles the interactions for the mouse inputs used by the right
+// arrow of the master volume slider. It increases the volume each time the
+// user clicks on the arrow
+//
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

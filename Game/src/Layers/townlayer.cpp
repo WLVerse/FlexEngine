@@ -4,9 +4,10 @@
 // CPP file for town layer where user can control main character to walk around the town scene
 //
 // AUTHORS
-// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+// [80%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
 //   - Main Author
-//
+// [20%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
+//   - Co Author
 // Copyright (c) 2025 DigiPen, All rights reserved.
 #include "Layers.h"
 #include "Physics/physicssystem.h"
@@ -27,7 +28,7 @@ namespace Game
 
     if (town_version == "assets/saves/town_v4_2.flxscene")
     {
-        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943, -172.714, 0);
+        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
   }
 
@@ -49,8 +50,8 @@ namespace Game
     main_character = FlexECS::Scene::GetEntityByName("Renko");
 
     camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
-    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -880.f, 710.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 880.f);
+    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 730.f);
 
 #pragma endregion
 #pragma region Scene Transition

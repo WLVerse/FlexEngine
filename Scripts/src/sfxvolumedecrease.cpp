@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// sfxvolumedecrease.cpp
+//
+// This script handles the interactions for the mouse inputs used by the left
+// arrow of the sfx slider. It decreases the volume each time the user clicks
+// on the arrow
+//
+// AUTHORS
+// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

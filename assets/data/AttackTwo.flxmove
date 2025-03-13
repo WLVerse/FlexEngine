@@ -1,6 +1,0 @@
-Name: AttackTwo
-Speed: 5
-Effect: Damage
-Value: 1
-Target: SINGLE_ENEMY
-Description: Deal 5 damage to an enemy.
