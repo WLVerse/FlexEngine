@@ -1,0 +1,7 @@
+CharacterName: EnemyOneAlt2
+CharacterID: 3
+Health: 25
+Speed: 5
+MoveOne: /data/Shield_Barrage.flxmove
+MoveTwo: /data/Shield_Barrage.flxmove
+MoveThree: /data/Shield_Barrage.flxmove
