@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// movevfx.cpp
+//
+// This script handles the move vfx that is needed by the game. It works by
+// sending a spawn vfx message via the messaging system
+// 
+// AUTHORS
+// [100%]  (rocky.sutarius\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #include <FlexEngine.h>
 using namespace FlexEngine;
 

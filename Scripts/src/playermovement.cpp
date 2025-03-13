@@ -1,13 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
 // WLVERSE [https://wlverse.web.app]
 // playermovement.cpp
 //
-// scripting cpp file for player movement
-//
+// This script handles the key inputs (W, A, S, D) that is used by the player
+// to navigate through the town scene. It changes the animation of the character
+// based on the movements of the character.
+// 
 // AUTHORS
 // [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
 //   - Main Author
 //
 // Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 
 #include <FlexEngine.h>
 using namespace FlexEngine;
