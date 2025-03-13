@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// settingspanel.h
+//
+// Settings Panel for the editor, using FlexPrefs.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+**************************************************************************/
+
 #pragma once
 
 #include "editorpanel.h"

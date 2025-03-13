@@ -1,3 +1,16 @@
+/*!************************************************************************
+// WLVERSE [https://wlverse.web.app]
+// sceneview.cpp
+//
+// Scene Panel for the editor.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+**************************************************************************/
+
 #include "sceneview.h"
 #include "editorgui.h"
 #include "imguipayloads.h"
