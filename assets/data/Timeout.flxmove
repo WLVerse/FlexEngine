@@ -1,9 +1,9 @@
 Name: Timeout
-Speed: 8
+Speed: 35
 Effect: Stun
 Value: 1
 Target: SINGLE_ENEMY
-Effect: Attack_Down
-Value: 2
-Target: ADJACENT_ENEMIES
-Description: STUN target enemy for 1 turn and decrease ATK of adjacent enemies for 2 turns.
+Effect: Speed_Down
+Value: 15
+Target: SINGLE_ENEMY
+Description: Stun an enemy and delay their next turn.

@@ -1,9 +1,0 @@
-Name: Innocent_Verdict
-Speed: 12
-Effect: Cleanse
-Value: 0
-Target: ALL_ALLIES
-Effect: Shield
-Value: 1
-Target: ALL_ALLIES
-Description: Cleanse all debuffs from all allies and shield them from DMG for 1 turn.

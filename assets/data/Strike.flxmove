@@ -1,9 +1,9 @@
 Name: Strike
-Speed: 8
+Speed: 25
 Effect: Damage
-Value: 8
+Value: 15
 Target: SINGLE_ENEMY
 Effect: Speed_Up
-Value: 5
-Target: SELF
-Description: Deal 8 DMG to target enemy and speed yourself up.
+Value: 10
+Target: NEXT_ALLY
+Description: Deal damage to an enemy. Accelerate the next turn of your other ally.

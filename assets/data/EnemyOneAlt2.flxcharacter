@@ -1,7 +1,7 @@
 CharacterName: EnemyOneAlt2
 CharacterID: 3
-Health: 25
-Speed: 5
-MoveOne: /data/Shield_Barrage.flxmove
-MoveTwo: /data/Shield_Barrage.flxmove
-MoveThree: /data/Shield_Barrage.flxmove
+Health: 30
+Speed: 35
+MoveOne: /data/Self_Repair.flxmove
+MoveTwo: /data/Weakening_Shot.flxmove
+MoveThree: /data/Full_Burst.flxmove

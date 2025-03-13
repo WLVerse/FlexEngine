@@ -1,7 +1,7 @@
 DrifterSlotOne: /data/Renko.flxcharacter
 DrifterSlotTwo:
-EnemySlotOne: /data/EnemyOne.flxcharacter
-EnemySlotTwo: /data/EnemyTwo.flxcharacter
+EnemySlotOne: /data/TutorialEnemyOne.flxcharacter
+EnemySlotTwo: /data/TutorialEnemyTwo.flxcharacter
 EnemySlotThree:
 EnemySlotFour:
 EnemySlotFive:

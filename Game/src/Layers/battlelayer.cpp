@@ -1,12 +1,11 @@
 // WLVERSE [https://wlverse.web.app]
-// physicslayer.cpp
+// battlelayer.cpp
 //
-// _Battle layer for the editor.
+// _Battle layer for the game.
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [70%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
 //   - Main Author
-//
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
@@ -51,6 +50,8 @@ namespace Game
         int current_health = 0;
         int current_speed = 0;
         int current_slot = 0;          // 0-4, 0-1 for drifters, 0-4 for enemies
+
+        int previous_health = 0;
         bool is_alive = true;
     };
 
@@ -614,7 +615,7 @@ namespace Game
             //set up tutorial text
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(450, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(500, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
@@ -879,7 +880,39 @@ namespace Game
               + (healthbar->pixelLength / 2.f * (current_health_percentage));
 
             float damage_taken = 0;
-            if (battle.current_move->effect[i] == "Damage")
+            for (int k = 0; k < battle.current_move->effect.size(); k++)
+            {
+                if (battle.current_move->effect[k] == "Damage")
+                {
+                    if (battle.current_move->target[k] == "SINGLE_ENEMY" && battle.initial_target->current_slot == target.current_slot)
+                    {
+                        float current_damage = static_cast<float>(battle.current_move->value[k]);
+                        if (battle.current_character->attack_buff_duration > 0)
+                        {
+                            current_damage += current_damage / 2;
+                        }
+                        if (battle.current_character->attack_debuff_duration > 0)
+                        {
+                            current_damage -= current_damage / 2;
+                        }
+                        damage_taken += current_damage;
+                    }
+                    else if (battle.current_move->target[k] == "ALL_ENEMIES")
+                    {
+                        float current_damage = static_cast<float>(battle.current_move->value[k]);
+                            if (battle.current_character->attack_buff_duration > 0)
+                            {
+                                current_damage += current_damage / 2;
+                            }
+                        if (battle.current_character->attack_debuff_duration > 0)
+                        {
+                            current_damage -= current_damage / 2;
+                        }
+                        damage_taken += current_damage;
+                    }
+                }
+            }
+            /*if (battle.current_move->effect[i] == "Damage")
             {
               damage_taken = static_cast<float>(battle.current_move->value[i]);
             }
@@ -890,8 +923,7 @@ namespace Game
             if (battle.current_character->attack_debuff_duration > 0)
             {
               damage_taken -= damage_taken / 2;
-            }
-
+            }*/
             damage_taken = (damage_taken > static_cast<float>(target.current_health)) ? static_cast<float>(target.current_health) : damage_taken;
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
@@ -1198,19 +1230,10 @@ namespace Game
                 if (battle.current_character->protect_buff_duration > 0)
                     battle.current_character->protect_buff_duration -= 1;
 
-                battle.current_character->current_speed += battle.current_character->speed + 10;
-
                 Update_Character_Status();
 
-                battle.start_of_turn = false;
-                battle.move_select = false;
-                battle.move_resolution = false;
-                battle.speedbar_animating = true;
-
-                battle.change_phase = true;
-
                 //projected character UI
-                int projected_speed = battle.current_character->current_speed;
+                int projected_speed = battle.current_character->speed + 10;
                 int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
                 if (projected_speed > 0)
                 {
@@ -1228,6 +1251,16 @@ namespace Game
                     }
                 }
 
+                battle.curr_char_pos_after_taking_turn = slot_number; // might need to -1
+
+                battle.current_character->current_speed += battle.current_character->speed + 10;
+
+                battle.start_of_turn = false;
+                battle.move_select = false;
+                battle.move_resolution = false;
+                battle.speedbar_animating = true;
+
+                battle.change_phase = true;
                 return;
             }
             else
@@ -1330,6 +1363,7 @@ namespace Game
                             }
                         }
                     }
+                    battle.curr_char_pos_after_taking_turn = slot_number; // might need to -1
                 }
             }
         }
@@ -2662,6 +2696,7 @@ namespace Game
             }
             battle.disable_input_timer += animation_time;// + 1.f;
 
+            battle.current_character->previous_health = battle.current_character->current_health;
             //reset position, then delay a bit
             if (battle.previous_character != nullptr) {
                 Vector3 original_position = (battle.previous_character->character_id <= 2) ?

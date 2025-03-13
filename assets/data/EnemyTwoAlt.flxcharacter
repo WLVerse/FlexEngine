@@ -1,7 +1,7 @@
 CharacterName: EnemyTwoAlt
 CharacterID: 4
-Health: 25
-Speed: 8
-MoveOne: /data/Weakening_Shot.flxmove
-MoveTwo: /data/Weakening_Shot.flxmove
-MoveThree: /data/Weakening_Shot.flxmove
+Health: 30
+Speed: 40
+MoveOne: /data/Speed_Up.flxmove
+MoveTwo: /data/Covering_Fire.flxmove
+MoveThree: /data/Exterminate.flxmove

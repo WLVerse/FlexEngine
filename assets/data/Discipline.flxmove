@@ -1,9 +1,9 @@
 Name: Discipline
-Speed: 5
+Speed: 20
 Effect: Damage
-Value: 5
+Value: 10
 Target: SINGLE_ENEMY
 Effect: Attack_Up
 Value: 3
 Target: NEXT_ALLY
-Description: Deal 5 DMG to target enemy and increase ATK of next ally for 2 turns.
+Description: Deal damage to an enemy and increase ATK of your other ally for 2 turns.
