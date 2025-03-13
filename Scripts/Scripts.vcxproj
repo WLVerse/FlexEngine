@@ -37,6 +37,7 @@
     <ClCompile Include="src\moveone.cpp" />
     <ClCompile Include="src\movethree.cpp" />
     <ClCompile Include="src\movetwo.cpp" />
+    <ClCompile Include="src\movevfx.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
     <ClCompile Include="src\playermovement.cpp" />
     <ClCompile Include="src\quitbutton.cpp" />
