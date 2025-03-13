@@ -1,14 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////
 // WLVERSE [https://wlverse.web.app]
-// baselayer.cpp
+// cutscenelayer.h / .cpp
 // 
-// Base layer that runs before everything.
+// Declares the CutsceneLayer class, which handles the logic for displaying
+// cutscenes with dialogue, transitions, and UI interaction.
+//
+// This base layer manages cutscene playback, including image sequencing,
+// animated text dialogue, input response, autoplay logic, and transition effects.
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c@digipen.edu)
-//   - Main Author
-// 
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Designed and implemented full cutscene system including UI, timing,
+//     image transitions, and text animation.
+//
 // Copyright (c) 2025 DigiPen, All rights reserved.
-
+/////////////////////////////////////////////////////////////////////////////
 #include "Layers.h"
 
 namespace Game

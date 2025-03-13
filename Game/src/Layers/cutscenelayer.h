@@ -1,14 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////
 // WLVERSE [https://wlverse.web.app]
-// baselayer.h
+// cutscenelayer.h / .cpp
 // 
-// Base layer that runs before everything.
+// Declares the CutsceneLayer class, which handles the logic for displaying
+// cutscenes with dialogue, transitions, and UI interaction.
+//
+// This base layer manages cutscene playback, including image sequencing,
+// animated text dialogue, input response, autoplay logic, and transition effects.
 //
 // AUTHORS
-// [100%] Soh Wei Jie
-//   - Main Author
-// 
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Designed and implemented full cutscene system including UI, timing,
+//     image transitions, and text animation.
+//
 // Copyright (c) 2025 DigiPen, All rights reserved.
-
+/////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include <FlexEngine.h>
@@ -16,6 +22,7 @@ using namespace FlexEngine;
 
 namespace Game
 {
+    // Defines the current transition phase in the cutscene.
     enum TransitionPhase
     {
         None,          // No transition is occurring; normal image display.
@@ -26,13 +33,13 @@ namespace Game
     class CutsceneLayer : public FlexEngine::Layer
     {
         // Asset references.
-        FlexECS::Scene::StringIndex  m_currDialogueFile;
-        FlexECS::Scene::StringIndex  m_currCutsceneFile;
+        FlexECS::Scene::StringIndex  m_currDialogueFile = 0;
+        FlexECS::Scene::StringIndex  m_currCutsceneFile = 0;
 
         // Containers for cutscene images and dialogue.
         std::vector<FlexECS::Scene::StringIndex> m_CutsceneImages;
         std::vector<std::vector<FlexECS::Scene::StringIndex>> m_CutsceneDialogue;
-        
+
         #pragma region Variables
 
         // Index management for sections, frames, and dialogue lines.
@@ -97,55 +104,74 @@ namespace Game
 
         #pragma region Helper Func
     private:
-        // Process global inputs such as restarting or exiting the cutscene.
+        // Handles global input actions like skipping or restarting the cutscene.
         void processGlobalInput();
 
-        // Update the dialogue text animation (common to both auto and manual modes).
+        // Updates the animated display of dialogue characters over time.
         void updateDialogueText(float dt);
 
-        // Advance to the next dialogue line and trigger transition if needed.
+        // Advances to the next dialogue line or section, if applicable.
         void advanceDialogue();
 
-        // Skip remaining frames in the current section.
+        // Immediately jumps to the last frame in the current section.
         void skipRemainingFrames();
 
-        // Update dialogue for auto-run mode.
+        // Automatically progresses dialogue when autoplay is enabled.
         void updateDialogueAuto(float dt);
 
-        // Update dialogue for manual (user-controlled) mode.
+        // Handles manual input-based progression of dialogue.
         void updateDialogueManual(float dt);
 
-        // Update image frames for multi-frame sections.
+        // Updates image frames when the section includes multiple image frames.
         void updateImageFrames(float dt);
 
-        // Handle the transition effects (fade-out/in).
+        // Controls transition effects such as fade-out and fade-in between shots.
         void updateTransitionPhase(float dt);
 
-        // Swap current and next shot entities.
+        // Swaps the current cutscene shot entity with the next shot.
         void SwapShots();
 
+        // Updates timing values and per-frame duration when transitioning between sections.
         void UpdateTimings(bool toNextSection = false);
-
         #pragma endregion
 
         #pragma region UI Animation
+        // Updates the animation for the instructional "Click to continue" text.
         void updateInstructionAnimation(float dt);
+
+        // Animates the dialogue arrow to indicate input is expected.
         void updateDialogueArrow(float dt);
+
+        // Updates skip button UI effects such as fading, spinning, and text visibility.
         void updateSkipUI(float dt);
         #pragma endregion
+
     public:
+        // Constructs the cutscene layer with a default layer name.
         CutsceneLayer() : Layer("Cutscene Layer") {}
+
+        // Default destructor.
         ~CutsceneLayer() = default;
 
+        // Called when the layer is attached to the application.
         virtual void OnAttach() override;
+
+        // Called when the layer is removed from the application.
         virtual void OnDetach() override;
+
+        // Called every frame to update cutscene logic, visuals, and UI.
         virtual void Update() override;
 
+        // Loads a new cutscene using provided dialogue and cutscene files.
         void loadCutscene(FlexECS::Scene::StringIndex dialogue_file, FlexECS::Scene::StringIndex cutscene_file);
-       
-        // Control functions (can be called externally).
+
+        // Starts playback of the cutscene from the beginning.
         void StartCutscene();
+
+        // Ends and deactivates the currently playing cutscene.
         void StopCutscene();
+
+        // Fully restarts the cutscene and resets its state.
         void RestartCutscene();
     };
 

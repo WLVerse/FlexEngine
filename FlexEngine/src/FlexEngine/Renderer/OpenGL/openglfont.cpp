@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// openglfont.cpp
+//
+// Implements the Font class methods for loading, managing, and rendering
+// fonts using FreeType and OpenGL in the FlexEngine::Asset namespace.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #include <glad/glad.h>
 #include "Utilities/file.h"
 #include "openglfont.h"
@@ -26,6 +40,10 @@ namespace FlexEngine
         };
 
         #pragma region Constructors
+        /*!************************************************************************
+         * \brief Constructs a Font instance and loads font data.
+         * \param key Font file key within the assets directory.
+         *************************************************************************/
         Font::Font(const std::string& key)
             : m_key(key), m_currentFontSize(50)
         {
@@ -43,7 +61,11 @@ namespace FlexEngine
             LoadGlyphsForSize(m_currentFontSize);
         }
         #pragma endregion
+
         #pragma region Font Management Functions
+        /*!************************************************************************
+         * \brief Initializes the FreeType library if not already set up.
+         *************************************************************************/
         void Font::SetupLib()
         {
             if (s_library == nullptr)
@@ -55,6 +77,9 @@ namespace FlexEngine
             }
         }
 
+        /*!************************************************************************
+         * \brief Frees all cached font size data and releases FreeType resources.
+         *************************************************************************/
         void Font::Unload()
         {
             // Free all cached font size data.
@@ -94,6 +119,10 @@ namespace FlexEngine
             }
         }
 
+        /*!************************************************************************
+         * \brief Loads glyphs for a given font size and caches the results.
+         * \param size The desired font size in pixels.
+         *************************************************************************/
         void Font::LoadGlyphsForSize(int size)
         {
             // Primary Check: If data for this size exists, free its resources first.
@@ -209,7 +238,7 @@ namespace FlexEngine
                         atlasBuffer[destY * atlasWidth + destX] = tg.buffer[row * tg.width + col];
                     }
                 }
-                // Compute normalized UV coordinates (note the corrected division by atlasHeight).
+                // Compute normalized UV coordinates.
                 Vector2 uvOffset(static_cast<float>(x + padding) / atlasWidth,
                                  static_cast<float>(y + padding) / atlasHeight);
                 Vector2 uvSize(static_cast<float>(tg.width) / atlasWidth,
@@ -236,7 +265,12 @@ namespace FlexEngine
             m_sizeData[size] = data;
         }
         #pragma endregion
+
         #pragma region Set Functions
+        /*!************************************************************************
+         * \brief Sets the current font size and loads glyphs if not already cached.
+         * \param size New font size in pixels (must be positive).
+         *************************************************************************/
         void Font::SetFontSize(int size)
         {
             if (size <= 0)
@@ -254,6 +288,10 @@ namespace FlexEngine
             m_currentFontSize = size;
         }
 
+        /*!************************************************************************
+         * \brief Enables or disables hinting and regenerates glyphs for the current size.
+         * \param enabled True to enable hinting; false to disable.
+         *************************************************************************/
         void Font::SetHinting(bool enabled)
         {
             m_hintingEnabled = enabled;
@@ -261,13 +299,23 @@ namespace FlexEngine
             LoadGlyphsForSize(m_currentFontSize);
         }
 
+        /*!************************************************************************
+         * \brief Enables or disables kerning.
+         * \param enabled True to enable kerning; false to disable.
+         *************************************************************************/
         void Font::SetKerning(bool enabled)
         {
             m_kerningEnabled = enabled;
             // Kerning is typically applied during text layout rather than during glyph generation.
         }
         #pragma endregion
+
         #pragma region Get Functions
+        /*!************************************************************************
+         * \brief Retrieves a glyph for a specific character.
+         * \param c Character to retrieve glyph for.
+         * \return Reference to the glyph object.
+         *************************************************************************/
         const Glyph& Font::GetGlyph(char c) const
         {
             auto it = m_sizeData.find(m_currentFontSize);
@@ -281,6 +329,10 @@ namespace FlexEngine
             return defaultGlyph;
         }
 
+        /*!************************************************************************
+         * \brief Retrieves the atlas texture for the current font size.
+         * \return OpenGL texture ID for the atlas.
+         *************************************************************************/
         unsigned int Font::GetAtlasTexture() const
         {
             auto it = m_sizeData.find(m_currentFontSize);
@@ -288,5 +340,5 @@ namespace FlexEngine
         }
         #pragma endregion
 
-    }
-}
+    } // namespace Asset
+} // namespace FlexEngine

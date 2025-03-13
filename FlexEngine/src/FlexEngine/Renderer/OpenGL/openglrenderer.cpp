@@ -1,3 +1,32 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// openglrenderer.h / .cpp
+//
+// This header declares the structures and functions used for 2D rendering
+// with OpenGL. It defines properties for texture and text rendering, sprite
+// batching, and includes the OpenGLRenderer class, which provides a suite of
+// static functions for drawing 2D elements (textures, text, and batches) using
+// an internal unit square mesh.
+//
+// Structures defined:
+// - Renderer2DProps: Contains transformation, shader, asset, and color data
+//   for rendering 2D textures.
+// - Renderer2DText: Encapsulates text rendering parameters including shader,
+//   font type, alignment, and transformation settings.
+// - Renderer2DSpriteBatch: Holds batch data for rendering multiple sprite
+//   instances with transformations and per-instance opacity.
+//
+// The OpenGLRenderer class provides static helper functions for common
+// 2D rendering tasks and configuration options for depth testing and blending.
+//
+// AUTHORS
+// [40%] Wen Loong (wenloong.l\@digipen.edu)
+// [30%] Yew Chong (yewchong.k\@digipen.edu)
+// [30%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #include "openglrenderer.h"
 
 #include "assetmanager.h" // FLX_ASSET_GET

@@ -1,3 +1,17 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// font.h
+//
+// Declares the Font class and associated glyph structures used for managing
+// font assets, glyph generation, and text rendering in the FlexEngine Asset namespace.
+//
+// AUTHORS
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
 #include "flx_api.h"
@@ -7,6 +21,7 @@
 #include "FlexMath/matrix4x4.h"
 
 #include <string>
+#include <map>
 
 namespace FlexEngine
 {
@@ -18,7 +33,7 @@ namespace FlexEngine
         * \brief
         * Represents a single glyph with texture and positioning data.
         *************************************************************************/
-        struct __FLX_API Glyph 
+        struct __FLX_API Glyph
         {
             unsigned int textureID = 0;   // Individual glyph texture ID.
             Vector2 size;                 // Size of the glyph in pixels.
@@ -28,8 +43,7 @@ namespace FlexEngine
             Vector2 uvSize;               // Size of glyph region in atlas (normalized).
         };
 
-
-        //Helper struct to pass glyph information to shader
+        // Helper struct to pass glyph information to shader.
         struct GlyphMetric
         {
             float advance;
@@ -47,7 +61,7 @@ namespace FlexEngine
         class __FLX_API Font
         {
             // Helper structure to store glyph data and atlas information for a specific font size.
-            struct FontSizeData 
+            struct FontSizeData
             {
                 std::map<char, Glyph> glyphs;
                 unsigned int atlasTexture = 0;
@@ -77,6 +91,7 @@ namespace FlexEngine
 
             // Loads glyphs for a given font size and caches the results.
             void LoadGlyphsForSize(int size);
+
         public:
             #pragma region Constructors
             // Delete default constructor.
@@ -87,44 +102,37 @@ namespace FlexEngine
              * \param key Font file key within the assets directory.
              *************************************************************************/
             explicit Font(const std::string& key);
-
             #pragma endregion
 
             #pragma region Font Management Functions
-            
+
             /*!************************************************************************
-            * \brief
-            * Frees all faces and library resources.
+            * \brief Frees all faces and library resources.
             *************************************************************************/
             void Unload();
 
             /*!************************************************************************
-            * \brief
-            * Initializes the FreeType library if not already set up.
+            * \brief Initializes the FreeType library if not already set up.
             *************************************************************************/
             void SetupLib();
-
             #pragma endregion
 
             #pragma region Set Functions
 
             /*!************************************************************************
-            * \brief
-            * Sets the current font size. Caches the font data for each size.
+            * \brief Sets the current font size. Caches the font data for each size.
             * \param size New font size (must be positive).
             *************************************************************************/
             void SetFontSize(int size);
 
             /*!************************************************************************
-            * \brief
-            * Enables or disables hinting and regenerates glyphs for the current size.
+            * \brief Enables or disables hinting and regenerates glyphs for the current size.
             * \param enabled True to enable hinting; false to disable.
             *************************************************************************/
             void SetHinting(bool enabled);
 
             /*!************************************************************************
-            * \brief
-            * Enables or disables kerning.
+            * \brief Enables or disables kerning.
             * \param enabled True to enable kerning; false to disable.
             *************************************************************************/
             void SetKerning(bool enabled);
@@ -133,37 +141,32 @@ namespace FlexEngine
             #pragma region Get Functions
 
             /*!************************************************************************
-            * \brief
-            * Retrieves a glyph for a specific character.
+            * \brief Retrieves a glyph for a specific character.
             * \param c Character to retrieve glyph for.
             * \return Reference to the glyph object.
             *************************************************************************/
             Glyph const& GetGlyph(char c) const;
 
             /*!************************************************************************
-            * \brief
-            * Gets the current font size.
+            * \brief Gets the current font size.
             * \return Current font size.
             *************************************************************************/
             int GetFontSize() const { return m_currentFontSize; }
 
             /*!************************************************************************
-            * \brief
-            * Checks if hinting is enabled.
+            * \brief Checks if hinting is enabled.
             * \return True if hinting is enabled, false otherwise.
             *************************************************************************/
             bool IsHintingEnabled() const { return m_hintingEnabled; }
 
             /*!************************************************************************
-            * \brief
-            * Checks if kerning is enabled.
+            * \brief Checks if kerning is enabled.
             * \return True if kerning is enabled, false otherwise.
             *************************************************************************/
             bool IsKerningEnabled() const { return m_kerningEnabled; }
 
             /*!************************************************************************
-            * \brief 
-            * Retrieves the atlas texture for the current font size.
+            * \brief Retrieves the atlas texture for the current font size.
             * \return OpenGL texture ID for the atlas.
             *************************************************************************/
             unsigned int GetAtlasTexture() const;
@@ -171,5 +174,6 @@ namespace FlexEngine
 
         };
 
-    }
-}
+    } // namespace Asset
+
+} // namespace FlexEngine

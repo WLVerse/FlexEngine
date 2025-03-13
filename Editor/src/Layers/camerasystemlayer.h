@@ -4,7 +4,7 @@
 // Layer that handles the updates to validating cameras to update in CamManager
 //
 // AUTHORS
-// [100%] Soh Wei Jie (weijie_soh.c\@digipen.edu)
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
 //   - Main Author
 // 
 // Copyright (c) 2025 DigiPen, All rights reserved.
