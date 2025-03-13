@@ -609,16 +609,57 @@ namespace Game
         battle.projected_character_text.AddComponent<ZIndex>({ 21 + index });
         battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
+        FlexECS::Entity move_used_textbox = FlexECS::Scene::CreateEntity("move_used_textbox"); // can always use GetEntityByName to find the entity
+        move_used_textbox.AddComponent<Transform>({});
+        move_used_textbox.AddComponent<Position>({ Vector3(1595, 515, 0) });
+        move_used_textbox.AddComponent<Rotation>({});
+        move_used_textbox.AddComponent<Scale>({ Vector3(0.2f, 0.3f, 0) });
+        move_used_textbox.AddComponent<ZIndex>({ 21 + index });
+        move_used_textbox.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
+        move_used_textbox.GetComponent<Transform>()->is_active = false;
+
+        FlexECS::Entity move_used_text = FlexECS::Scene::CreateEntity("move_used_text"); // can always use GetEntityByName to find the entity
+        move_used_text.AddComponent<Transform>({});
+        move_used_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
+        move_used_text.AddComponent<Rotation>({});
+        move_used_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
+        move_used_text.AddComponent<ZIndex>({ 22 + index });
+        move_used_text.AddComponent<Text>({
+          FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+          FLX_STRING_NEW(R"()"),
+          Vector3(1.0f, 1.0, 1.0f),
+          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+          {                           1400,                              320 }
+        });
+        move_used_text.GetComponent<Transform>()->is_active = false;
+
         if (battle.is_tutorial)
         {
             battle.is_tutorial_running = true;
             //set up tutorial text
+
+            FlexECS::Entity tutorial_box = FlexECS::Scene::CreateEntity("tutorial_textbox"); // can always use GetEntityByName to find the entity
+            tutorial_box.AddComponent<Transform>({});
+            tutorial_box.AddComponent<Position>({ Vector3(850, 110, 0) });
+            tutorial_box.AddComponent<Rotation>({});
+            tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
+            tutorial_box.AddComponent<ZIndex>({ 21 + index });
+            tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
+
+            FlexECS::Entity tutorial_press = FlexECS::Scene::CreateEntity("tutorial_press_button"); // can always use GetEntityByName to find the entity
+            tutorial_press.AddComponent<Transform>({});
+            tutorial_press.AddComponent<Position>({ Vector3(850, -20, 0) });
+            tutorial_press.AddComponent<Rotation>({});
+            tutorial_press.AddComponent<Scale>({ Vector3(0.9f, 0.75f, 0) });
+            tutorial_press.AddComponent<ZIndex>({ 21 + index });
+            tutorial_press.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_Win_Text_Press Any Button To Continue.png)") });
+
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(500, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(525, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-            battle.tutorial_text.AddComponent<ZIndex>({ 21 + index });
+            battle.tutorial_text.AddComponent<ZIndex>({ 22 + index });
             battle.tutorial_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
@@ -1168,8 +1209,9 @@ namespace Game
             //play start of turn sounds
             if (battle.is_player_turn)
             {// Plays sound if swap from enemy phase to player phase
-                std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
-                Log::Debug(audio_to_play);
+                std::string audio_to_play = "/audio/start turn.mp3";
+                //std::string audio_to_play = "/audio/" + battle.current_character->name + " start.mp3";
+                //Log::Debug(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(audio_to_play);
                 FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                 battle.curr_char_highlight.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_PlayerTurn_Indicator.png)");
@@ -1672,6 +1714,9 @@ namespace Game
             Log::Debug("Move Resolution");
             battle.change_phase = false;
 
+            FlexECS::Scene::GetEntityByName("move_used_textbox").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Transform>()->is_active = true;
+            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = battle.current_move->name;
             if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
             {
                 //disable move UI
@@ -2005,6 +2050,10 @@ namespace Game
                     battle.disable_input_timer -= 0.5f;
                     break;
 
+                  case 3:
+                      battle.disable_input_timer += 0.5f;
+                      break;
+
                   default:
                     break;
                   }
@@ -2326,7 +2375,7 @@ namespace Game
                     break;
                 case 2:
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                        FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+                        FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     break;
                 }
@@ -2618,6 +2667,10 @@ namespace Game
             Log::Debug("End Turn");
             battle.change_phase = false;
 
+            FlexECS::Scene::GetEntityByName("move_used_textbox").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Transform>()->is_active = false;
+            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = "";
+
             //death animation
             float animation_time = .0f;
             for (auto& character : battle.drifters_and_enemies)
@@ -2692,6 +2745,25 @@ namespace Game
                     target_animator.return_to_default = false;
                     target_animator.frame_time = 0.f;
                     target_animator.current_frame = 0;
+
+                    switch (character.character_id)
+                    {
+                    case 3:
+                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                            FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
+                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                        break;
+                    case 4:
+                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                            FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
+                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                        break;
+                    case 5:
+                        //FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                           // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                       // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                        break;
+                    }
                 }
             }
             battle.disable_input_timer += animation_time;// + 1.f;
@@ -2781,7 +2853,9 @@ namespace Game
     {
         battle.is_win = true;
         // A bit lame, but need to find by name to set, like the old Unity days
-      FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
+        FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
+            FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
+        FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
@@ -2795,6 +2869,8 @@ namespace Game
     void Lose_Battle()
     {
       battle.is_lose = true;
+      FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
+          FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
       FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
@@ -2931,23 +3007,25 @@ namespace Game
             switch (battle.tutorial_info)
             {
             case 0:
-                text_to_show = "Drift Bar shows the turn order, characters will take turns from left to right.";
+                text_to_show = "The turn bar shows the order in which characters will take their turns, from left to right.";
                 break;
             case 1:
-                text_to_show = "W & S to swap moves. A & D to swap targets. SPACEBAR to confirm move.";
+                text_to_show = "Press W & S to swap moves. Press A & D to swap targets. Press SPACEBAR to confirm move.";
                 break;
             case 2:
-                text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to incur more Drift, which slows down your next turn.";
+                text_to_show = "The smaller icon of your character on the turn bar indicates when you will take your next turn. Stronger moves tend to put you further back on the turn bar.";
                 break;
             case 3:
-                text_to_show = "Remember, SPACEBAR to confirm your move.";
+                text_to_show = "Remember, press SPACEBAR to confirm your move.";
                 break;
             case 4:
-              text_to_show = "You're a natural. Now, show me what you're capable of on your own.";
+              text_to_show = "You're a natural. Looks like we may still have a shot at saving the world after all. Now, finish this!";
                 break;
             case 5:
               text_to_show = "";
                 battle.is_tutorial_running = false;
+                FlexECS::Scene::GetEntityByName("tutorial_textbox").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
                 break;
             default:
               text_to_show = "";
