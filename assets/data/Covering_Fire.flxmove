@@ -1,0 +1,9 @@
+Name: Covering_Fire
+Speed: 28
+Effect: Damage
+Value: 8
+Target: SINGLE_ENEMY
+Effect: Shield
+Value: 1
+Target: NEXT_ALLY
+Description: Deal damage to an enemy and Shield your next ally for 1 turn.

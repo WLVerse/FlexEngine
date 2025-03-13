@@ -4,9 +4,10 @@
 // CPP file for town layer where user can control main character to walk around the town scene
 //
 // AUTHORS
-// [100%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
+// [80%] Ho Jin Jie Donovan (h.jinjiedonovan\@digipen.edu)
 //   - Main Author
-//
+// [20%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
+//   - Co Author
 // Copyright (c) 2025 DigiPen, All rights reserved.
 #include "Layers.h"
 #include "Physics/physicssystem.h"

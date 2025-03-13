@@ -1,0 +1,9 @@
+Name: Intervention
+Speed: 50
+Effect: Cleanse
+Value: 0
+Target: ALL_ALLIES
+Effect: Shield
+Value: 1
+Target: ALL_ALLIES
+Description: Cleanse all debuffs from all allies and shield them from damage for 1 turn.
