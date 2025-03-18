@@ -2947,7 +2947,10 @@ namespace Game
     void BattleLayer::Update()
     {
         FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text) =  "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
-
+        if (Input::GetKeyDown(GLFW_KEY_F1))
+        {
+          FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
+        }
         /*bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
         bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
         bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
