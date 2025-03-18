@@ -184,6 +184,16 @@ namespace Game
       battle.change_phase = false;
       battle.previous_character = nullptr;
     }
+        
+    static void ReplaceUnderscoresWithSpaces(std::string& str) 
+    {
+        // Find each underscore and replace it with a space
+        size_t pos = 0;
+        while ((pos = str.find('_', pos)) != std::string::npos) {
+            str[pos] = ' ';  // Replace the underscore with a space
+            pos++;  // Move to the next character after the replaced one
+        }
+    }
 
     void Internal_ParseBattle(AssetKey assetkey)
     {
@@ -1008,11 +1018,17 @@ namespace Game
         return a + t * (b - a);
     }
 
+   float HalfSinCurve(float t) 
+   {
+      float constexpr M_PI = 3.14f;
+      return std::max(1 - std::sinf(t * M_PI), 0.5f); // Sin function maps t to 0 to pi
+   }
+
     void PlaySpeedbarAnimation()
     {
       battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
 
-        constexpr float duration = 2.f; // Duration for each phase
+        constexpr float duration = 1.f; // Duration for each phase
         constexpr float max_arc_height = -200.f;
 
         static float time_played = 0.f;
@@ -1050,6 +1066,8 @@ namespace Game
             battle.speed_slot_position[0].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[0].x, dest[0].x, t),
                                                                                        Lerp(battle.original_speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
                                                                                        Lerp(battle.original_speed_slot_position[0].z, dest[0].z, t));
+
+            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
 
             // Lerp the rest of the icons
             for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
@@ -1716,7 +1734,12 @@ namespace Game
 
             FlexECS::Scene::GetEntityByName("move_used_textbox").GetComponent<Transform>()->is_active = true;
             FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Transform>()->is_active = true;
-            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = battle.current_move->name;
+
+            // Set move used text cleanly
+            std::string strip_underscore_text = battle.current_move->name;
+            ReplaceUnderscoresWithSpaces(strip_underscore_text);
+            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = strip_underscore_text;
+
             if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
             {
                 //disable move UI
