@@ -329,4 +329,27 @@ namespace FlexEngine
 
   #pragma endregion
 
+  void Window::ToggleFullScreen(bool fs)
+  {
+    // Toggle fullscreen
+    if (fs)
+    {
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      glfwSetWindowMonitor(m_glfwwindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    }
+    else
+    {
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      glfwSetWindowMonitor(m_glfwwindow, nullptr, 0, 0, m_props.width, m_props.height, 0);
+      glfwSetWindowPos(m_glfwwindow, mode->width / 2 - m_props.width/2, mode->height/2 - m_props.height/2); // Center to the screen
+    }
+
+    // Set the preference
+    FlexPrefs::SetBool("game.fullscreen", fs);
+    FlexPrefs::Save();
+  }
 }
