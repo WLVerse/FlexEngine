@@ -1013,11 +1013,13 @@ namespace Game
       }
     }
 
+    // Lerp function from a to b
     static float Lerp(float a, float b, float t)
     {
         return a + t * (b - a);
     }
 
+    // Returns a value of 1-sin with a lowest value of 0.5. i.e Goes from 0.5 to 1 to 0.5
    float HalfSinCurve(float t) 
    {
       float constexpr M_PI = 3.14f;
@@ -1026,20 +1028,41 @@ namespace Game
 
     void PlaySpeedbarAnimation()
     {
-      battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
+        battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
 
-        constexpr float duration = 1.f; // Duration for each phase
+        constexpr float duration = 0.8f; // Duration for each phase
+        constexpr float pulse_dur = 1.f;
         constexpr float max_arc_height = -200.f;
 
-        static float time_played = 0.f;
+        static float time_played = 0.5f;
         static Vector3 dest[7];
         static bool is_init = false;
+        static bool pulse_played = false;
 
         // Clamp to max number of alive characters
         battle.curr_char_pos_after_taking_turn = std::min(static_cast<int>(battle.speed_bar.size()) - 1, battle.curr_char_pos_after_taking_turn);
 
+        if (!pulse_played)
+        {
+          // Pulse the character icon for duration amount of time 
+          if (time_played < pulse_dur)
+          {
+            float t = time_played / duration;
+            t = std::clamp(t, 0.f, 1.f);
+
+            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.1f, HalfSinCurve(t) + 0.1f, HalfSinCurve(t) + 0.1f);
+
+            time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 2.f;
+            return;
+          }
+
+          pulse_played = true;
+        }
+
         if (!is_init)
         {
+          time_played = 0.f; // Reset from pulse played
+
             // Set the initial position of the element to move
             dest[0] = battle.speed_slot_position[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
 
@@ -1103,6 +1126,7 @@ namespace Game
         battle.speedbar_animating = false;
         battle.end_of_turn = true;
         is_init = false;
+        pulse_played = false;
     }
 
     void Start_Of_Game()
