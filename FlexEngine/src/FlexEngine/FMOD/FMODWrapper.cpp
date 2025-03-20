@@ -18,6 +18,8 @@
 #include "FMODWrapper.h"
 #include <string>
 
+#include "flexprefs.h" // For saving volume settings
+
 namespace FlexEngine
 {
 // Static initialization for wrapper
@@ -256,10 +258,12 @@ void FMODWrapper::Core::AdjustGroupVolume(CHANNELGROUP channelGroup, float volPe
   if (channelGroup == CHANNELGROUP::BGM)
   {
     FMODWrapper::bgm_group->setVolume(volPercent);
+    FlexPrefs::SetFloat("game.volume", volPercent);
   }
   else if (channelGroup == CHANNELGROUP::SFX)
   {
     FMODWrapper::sfx_group->setVolume(volPercent);
+    FlexPrefs::SetFloat("game.sfx.volume", volPercent);
   }
 }
 

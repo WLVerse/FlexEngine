@@ -1050,7 +1050,7 @@ namespace Game
             float t = time_played / duration;
             t = std::clamp(t, 0.f, 1.f);
 
-            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.1f, HalfSinCurve(t) + 0.1f, HalfSinCurve(t) + 0.1f);
+            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
 
             time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 2.f;
             return;
