@@ -2007,8 +2007,10 @@ namespace Game
                 }
                 else
                 {
+                  // Moves to the target
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-18, 15, 0);
+                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position =
+                      battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-50, 90, 0);
                 }
 
                 //apply player attack animation based on move used
@@ -2315,12 +2317,12 @@ namespace Game
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
                 {
-
+                  // Do nothing if enemy targets its own allies
                 }
                 else
                 {
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(20, 120, 0);
+                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(50, 40, 0);
                 }
 
                 // play the attack animation
