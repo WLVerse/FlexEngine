@@ -2322,7 +2322,9 @@ namespace Game
                 else
                 {
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(50, 40, 0);
+                    FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+                    character.GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(50, 40, 0);
+                    character.GetComponent<ZIndex>()->z = 500;
                 }
 
                 // play the attack animation
@@ -2700,6 +2702,10 @@ namespace Game
 
     void End_Of_Turn()
     {
+        // Set back z index, hacky af
+        FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+        character.GetComponent<ZIndex>()->z = 100;
+
         // wait for all prior animations to stop playing before continuing with phase change
         if (battle.disable_input_timer > 0.f)
         {
