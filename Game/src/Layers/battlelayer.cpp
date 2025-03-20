@@ -184,6 +184,16 @@ namespace Game
       battle.change_phase = false;
       battle.previous_character = nullptr;
     }
+        
+    static void ReplaceUnderscoresWithSpaces(std::string& str) 
+    {
+        // Find each underscore and replace it with a space
+        size_t pos = 0;
+        while ((pos = str.find('_', pos)) != std::string::npos) {
+            str[pos] = ' ';  // Replace the underscore with a space
+            pos++;  // Move to the next character after the replaced one
+        }
+    }
 
     void Internal_ParseBattle(AssetKey assetkey)
     {
@@ -1003,27 +1013,56 @@ namespace Game
       }
     }
 
+    // Lerp function from a to b
     static float Lerp(float a, float b, float t)
     {
         return a + t * (b - a);
     }
 
+    // Returns a value of 1-sin with a lowest value of 0.5. i.e Goes from 0.5 to 1 to 0.5
+   float HalfSinCurve(float t) 
+   {
+      float constexpr M_PI = 3.14f;
+      return std::max(1 - std::sinf(t * M_PI), 0.5f); // Sin function maps t to 0 to pi
+   }
+
     void PlaySpeedbarAnimation()
     {
-      battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
+        battle.curr_char_highlight.GetComponent<Transform>()->is_active = false; // Disable curr char accent otherwise animation will look weird
 
-        constexpr float duration = 2.f; // Duration for each phase
+        constexpr float duration = 0.8f; // Duration for each phase
+        constexpr float pulse_dur = 1.f;
         constexpr float max_arc_height = -200.f;
 
-        static float time_played = 0.f;
+        static float time_played = 0.5f;
         static Vector3 dest[7];
         static bool is_init = false;
+        static bool pulse_played = false;
 
         // Clamp to max number of alive characters
         battle.curr_char_pos_after_taking_turn = std::min(static_cast<int>(battle.speed_bar.size()) - 1, battle.curr_char_pos_after_taking_turn);
 
+        if (!pulse_played)
+        {
+          // Pulse the character icon for duration amount of time 
+          if (time_played < pulse_dur)
+          {
+            float t = time_played / duration;
+            t = std::clamp(t, 0.f, 1.f);
+
+            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
+
+            time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 2.f;
+            return;
+          }
+
+          pulse_played = true;
+        }
+
         if (!is_init)
         {
+          time_played = 0.f; // Reset from pulse played
+
             // Set the initial position of the element to move
             dest[0] = battle.speed_slot_position[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
 
@@ -1050,6 +1089,8 @@ namespace Game
             battle.speed_slot_position[0].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[0].x, dest[0].x, t),
                                                                                        Lerp(battle.original_speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
                                                                                        Lerp(battle.original_speed_slot_position[0].z, dest[0].z, t));
+
+            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
 
             // Lerp the rest of the icons
             for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
@@ -1085,6 +1126,7 @@ namespace Game
         battle.speedbar_animating = false;
         battle.end_of_turn = true;
         is_init = false;
+        pulse_played = false;
     }
 
     void Start_Of_Game()
@@ -1716,7 +1758,12 @@ namespace Game
 
             FlexECS::Scene::GetEntityByName("move_used_textbox").GetComponent<Transform>()->is_active = true;
             FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Transform>()->is_active = true;
-            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = battle.current_move->name;
+
+            // Set move used text cleanly
+            std::string strip_underscore_text = battle.current_move->name;
+            ReplaceUnderscoresWithSpaces(strip_underscore_text);
+            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("move_used_text").GetComponent<Text>()->text) = strip_underscore_text;
+
             if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
             {
                 //disable move UI
@@ -1960,8 +2007,10 @@ namespace Game
                 }
                 else
                 {
+                  // Moves to the target
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-18, 15, 0);
+                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position =
+                      battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-50, 90, 0);
                 }
 
                 //apply player attack animation based on move used
@@ -2268,12 +2317,14 @@ namespace Game
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
                 {
-
+                  // Do nothing if enemy targets its own allies
                 }
                 else
                 {
                     battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(20, 120, 0);
+                    FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+                    character.GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(50, 40, 0);
+                    character.GetComponent<ZIndex>()->z = 500;
                 }
 
                 // play the attack animation
@@ -2651,6 +2702,10 @@ namespace Game
 
     void End_Of_Turn()
     {
+        // Set back z index, hacky af
+        FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
+        character.GetComponent<ZIndex>()->z = 100;
+
         // wait for all prior animations to stop playing before continuing with phase change
         if (battle.disable_input_timer > 0.f)
         {
