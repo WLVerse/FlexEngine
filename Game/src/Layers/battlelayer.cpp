@@ -875,7 +875,10 @@ namespace Game
             scale->scale.x = healthbar->original_scale.x * health_percentage;
 
             // Update Position
-            position->position.x = healthbar->original_position.x - static_cast<float>((healthbar->pixelLength / 2) * (1.0 - health_percentage));
+            //position->position.x = healthbar->original_position.x - static_cast<float>((15) * (1.0 - health_percentage));
+
+            Log::Debug(std::to_string(healthbar->original_position.x));
+            Log::Debug(std::to_string(position->position.x));
 
             /*entity = FlexECS::Scene::GetEntityByName(character.name + " Stats");
             entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Stats");
@@ -1026,11 +1029,13 @@ namespace Game
         auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(character.current_slot + 1));
         entity.GetComponent<Transform>()->is_active = false;
       }*/
+
         for (int i = 1; i < 6; i++)
         {
-            auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
-            entity.GetComponent<Transform>()->is_active = false;
+            auto e = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
+            e.GetComponent<Transform>()->is_active = false;
         }
+
       for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
       {
         entity.GetComponent<Transform>()->is_active = false;
@@ -1075,13 +1080,13 @@ namespace Game
               }
             }
           }
-
           //Draw damage preview bar
           for (auto target : targets)
           {
               auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(target.current_slot + 1));
+
             //auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
-            if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
+            if (!entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
             if (target.shield_buff_duration > 0)
             {
@@ -1105,7 +1110,7 @@ namespace Game
             auto* position = entity.GetComponent<Position>();
 
             float current_health_percentage = static_cast<float>(target.current_health) / static_cast<float>(target.health);
-            float right_edge_pos = (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage))
+            float right_edge_pos = (healthbar->original_position.x - (15 * (1.0f - current_health_percentage)))
               + (healthbar->pixelLength / 2.f * (current_health_percentage));
 
             float damage_taken = 0;
@@ -1157,7 +1162,7 @@ namespace Game
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
-            position->position.x = right_edge_pos - (healthbar->pixelLength / 2 * percentage_damage_taken);
+            //position->position.x = right_edge_pos - (15 * percentage_damage_taken);
           }
 
           
@@ -1320,6 +1325,7 @@ namespace Game
             auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
             entity.GetComponent<Healthbar>()->original_position = entity.GetComponent<Position>()->position;
             entity.GetComponent<Healthbar>()->original_scale = entity.GetComponent<Scale>()->scale;
+            entity.GetComponent<Transform>()->is_active = false;
         }
 
         Internal_ParseBattle(file_name);
@@ -3263,6 +3269,7 @@ namespace Game
                       Application::MessagingSystem::Send("Battle 1 win to Town", true);
                       break;
                   case 2:
+                      Input::Cleanup();
                       Application::MessagingSystem::Send("Battle Boss win to Menu", true);
                       break;
                   }
@@ -3278,6 +3285,7 @@ namespace Game
                       Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
                       break;
                   case 2:
+                      Input::Cleanup();
                       Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
                       break;
                   }
