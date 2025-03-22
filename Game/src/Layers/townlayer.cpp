@@ -16,7 +16,7 @@
 
 namespace Game
 {
-    extern std::string town_version;
+  extern std::string town_version;
   void TownLayer::OnAttach()
   {
     //File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
@@ -49,7 +49,25 @@ namespace Game
     FlexECS::Entity main_character;
     main_character = FlexECS::Scene::GetEntityByName("Renko");
 
-    camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
+    
+
+    // Option 1: Damped Spring Effect ("lagging behind" effect like a spring following the player)
+    //float damping = 5.0f; // Higher values = snappier response
+    //camera.GetComponent<Position>()->position += (main_character.GetComponent<Position>()->position -
+    //  camera.GetComponent<Position>()->position) * damping * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+
+    // Option 2: Lerp (Linear Interpolation) for smooth camera movement over time
+    float lerpFactor = 0.1f; // Adjust as needed (higher = faster, lower = smoother)
+    camera.GetComponent<Position>()->position.x =
+      lerp(camera.GetComponent<Position>()->position.x,
+                main_character.GetComponent<Position>()->position.x,
+                lerpFactor);
+    camera.GetComponent<Position>()->position.y =
+      lerp(camera.GetComponent<Position>()->position.y,
+                main_character.GetComponent<Position>()->position.y,
+                lerpFactor);
+
+    //camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
     camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
     camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 730.f);
 
@@ -97,5 +115,8 @@ namespace Game
 
     
     */
+  }
+  float TownLayer::lerp(float a, float b, float t) {
+    return a + t * (b - a);
   }
 } // namespace Game
