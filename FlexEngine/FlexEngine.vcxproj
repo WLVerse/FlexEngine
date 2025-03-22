@@ -132,7 +132,8 @@
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmodL.dll" "$(OutDir)" /e /r /y /q
-xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q</Command>
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\ffmpeg\bin\*.dll" "$(OutDir)" /e /r /y /q</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
@@ -168,7 +169,8 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmod.dll" "$(OutDir)" /e /r /y /q
-xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q</Command>
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\ffmpeg\bin\*.dll" "$(OutDir)" /e /r /y /q</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
