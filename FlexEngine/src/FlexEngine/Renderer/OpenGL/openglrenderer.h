@@ -145,7 +145,7 @@ namespace FlexEngine
 
         // Gaussian Blur settings
         int   blurKernelSize = 12;    // Intensity
-        float blurSigma = 10.0f; // Blur Distance
+        float blurSigma = 12.5f; // Blur Distance
         int   blurPasses = 5;    // Number of blur passes
 
         // Chromatic Aberration settings
@@ -156,9 +156,9 @@ namespace FlexEngine
         float chromaBlueOffset = 1.0f;
 
         // Bloom settings
-        float bloomThreshold = 0.55f;  // Luminance threshold for bloom
-        float bloomIntensity = 0.8f;  // Intensity multiplier for bloom
-        float bloomRadius = 10.0f; // Bloom spread radius
+        float bloomThreshold = 0.75f;  // Luminance threshold for bloom
+        float bloomIntensity = 0.25f;  // Intensity multiplier for bloom
+        float bloomRadius = 1.2f; // Bloom spread radius
 
         // Vignette settings
         float vignetteIntensity = 0.5f;  // How dark the edges get

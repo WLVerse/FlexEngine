@@ -70,7 +70,7 @@ namespace Game
             // Global toggles from the marker.
             m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
             m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
-            m_globalsettings.enableBloom = PPComponent->enableBloom;
+            //m_globalsettings.enableBloom = PPComponent->enableBloom;
             m_globalsettings.enableVignette = PPComponent->enableVignette;
             m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
             m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
@@ -156,6 +156,30 @@ namespace Game
         // At this stage, your regular RenderingLayer might have rendered the scene.
         // You may now composite the local post-processed textures with the main scene.
         // For example, you can render the local processed texture onto m_GlobalFramebuffer.
+        if (Input::GetKeyDown(GLFW_KEY_Z)) m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
+
+        if (Input::GetKeyDown(GLFW_KEY_T)) m_globalsettings.bloomThreshold += 0.05f;
+        if (Input::GetKeyDown(GLFW_KEY_G)) m_globalsettings.bloomThreshold -= 0.05f;
+
+        // Bloom Intensity
+        if (Input::GetKeyDown(GLFW_KEY_Y)) m_globalsettings.bloomIntensity += 0.05f;
+        if (Input::GetKeyDown(GLFW_KEY_H)) m_globalsettings.bloomIntensity -= 0.05f;
+
+        // Bloom Radius
+        if (Input::GetKeyDown(GLFW_KEY_U)) m_globalsettings.bloomRadius += 1.0f;
+        if (Input::GetKeyDown(GLFW_KEY_J)) m_globalsettings.bloomRadius -= 1.0f;
+
+        // Blur Kernel Size
+        if (Input::GetKeyDown(GLFW_KEY_I)) m_globalsettings.blurKernelSize = std::min(m_globalsettings.blurKernelSize + 1, 64);
+        if (Input::GetKeyDown(GLFW_KEY_K)) m_globalsettings.blurKernelSize = std::max(m_globalsettings.blurKernelSize - 1, 1);
+
+        // Blur Sigma
+        if (Input::GetKeyDown(GLFW_KEY_O)) m_globalsettings.blurSigma += 0.5f;
+        if (Input::GetKeyDown(GLFW_KEY_L)) m_globalsettings.blurSigma -= 0.5f;
+
+        // Blur Passes
+        if (Input::GetKeyDown(GLFW_KEY_P)) m_globalsettings.blurPasses = std::min(m_globalsettings.blurPasses + 1, 10);
+        if (Input::GetKeyDown(GLFW_KEY_SEMICOLON)) m_globalsettings.blurPasses = std::max(m_globalsettings.blurPasses - 1, 1);
 
         // === Step 3: Process Global Post-Processing ===
         // Bind global framebuffer if not already bound and apply global effects.
