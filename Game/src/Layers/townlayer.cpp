@@ -30,6 +30,8 @@ namespace Game
     {
         FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
+    FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
+    camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
   }
 
   void TownLayer::OnDetach()
