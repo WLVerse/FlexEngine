@@ -1,30 +1,29 @@
-#include "postprocessinglayer.h"
+#include "PostProcessing.h"
 
 namespace Game 
 {
-
-    PostProcessingLayer::PostProcessingLayer()
-        : Layer("PostProcessing Layer")
-    {
-    }
-
-    void PostProcessingLayer::OnAttach() 
+    void PostProcessing::Init()
     {
         // Initialize framebuffers for local and global post-processing.
         // These framebuffers should be set up with the desired resolution and attachments.
-        //m_LocalFramebuffer = FrameBuffer::Create(/* framebuffer specifications for local effects */);
-        //m_GlobalFramebuffer = FrameBuffer::Create(/* framebuffer specifications for global effects */);
+        // The below part should be handled by renderer if framebuffermanager is under it
+        Vector2 window_size = Vector2(static_cast<float>(Application::GetCurrentWindow()->GetWidth()), static_cast<float>(Application::GetCurrentWindow()->GetHeight()));
+        Window::FrameBufferManager.AddFrameBuffer("Final Post Processing", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Bloom", window_size);
     }
 
-    void PostProcessingLayer::OnDetach()
+    void PostProcessing::Exit()
     {
         // Release or reset resources.
-        //m_LocalFramebuffer.reset();
-        //m_GlobalFramebuffer.reset();
     }
 
-    void PostProcessingLayer::Update() 
+    void PostProcessing::Update() 
     {
+        OpenGLFrameBuffer::Unbind();
+
+        if (!CameraManager::has_main_camera) return;
+
         // === Step 1: Process Local Post-Processing ===
         // Bind local framebuffer and render objects that have post-processing components.
         //m_LocalFramebuffer->Bind();
@@ -43,10 +42,10 @@ namespace Game
         // Bind global framebuffer if not already bound and apply global effects.
         ProcessGlobalPostProcessing();
 
-        // Finally, the final output is rendered to the main window (or screen).
+        OpenGLFrameBuffer::Unbind();
     }
 
-    void PostProcessingLayer::ProcessLocalPostProcessing() 
+    void PostProcessing::ProcessLocalPostProcessing() 
     {
         // Example: For each object with a PostProcessingComponent, do:
         //   1. Retrieve its stackable post-processing effects.
@@ -66,7 +65,7 @@ namespace Game
         // }
     }
 
-    void PostProcessingLayer::ProcessGlobalPostProcessing() 
+    void PostProcessing::ProcessGlobalPostProcessing() 
     {
         // Apply global post-processing effects such as bloom, tone mapping, or color grading.
         // Typically, you render a fullscreen quad with a shader chain that takes the global framebuffer's texture.

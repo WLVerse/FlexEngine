@@ -34,6 +34,7 @@
 #include "FlexEngine/flexprefs.h"
 #include "FlexEngine/FlexMath/quaternion.h"
 
+#include "window.h"
 namespace FlexEngine
 {
 
@@ -106,7 +107,7 @@ namespace FlexEngine
     glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
     m_draw_calls++;
   }
-  
+
   #pragma region Sprite Rendering
   // TODO: cache the vao and vbo
   // Draws to default camera
@@ -1290,5 +1291,128 @@ namespace FlexEngine
   }
   #pragma endregion
 
+  #pragma region Post Processing
+  /*!***************************************************************************
+  * \brief
+  * Draws the post-processing layer after all other rendering operations.
+  *****************************************************************************/
+  void OpenGLRenderer::DrawPostProcessing(const Renderer2D_GlobalPPSettings& settings)
+  {
+      //OpenGLFrameBuffer::SetPostProcessingFrameBuffer(); // Initial Frame Buffer Setup
 
+      ////CURRENT POST-PROCESS(PP) BEING HANDLED:
+      //// 1) Blur / Focal Adjust
+      //{
+      //    //Pending
+      //}
+      //// 2) Bloom
+      //{
+      //    // Step 1: Set to bloom frame buffer -> you do not want to mess with the other effects textures
+      //    OpenGLFrameBuffer::SetBloomFrameBuffer();
+
+      //    // Step 2: Brightness Extraction
+      //    OpenGLPostProcessing::ApplyBrightnessPass(0.55f);
+
+      //    // Step 3: Gaussian Blur
+      //    OpenGLPostProcessing::ApplyGaussianBlur(4, 10.0f, 12);
+
+      //    // Step 4: Final Composition
+      //    OpenGLPostProcessing::ApplyBloomFinalComposition(0.8f);
+      //}
+      //// 4) Lens Flare
+      //{
+      //    //Pending
+      //}
+
+      //// Clean-up
+      //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+      //glDrawBuffers(2, drawBuffers);
+      //glBindVertexArray(0);
+  }
+
+  /*!***************************************************************************
+    * \brief
+    * Applies a brightness threshold pass for the bloom effect.
+    *
+    * \param threshold The brightness threshold to apply.
+    *****************************************************************************/
+  void OpenGLRenderer::ApplyBrightnessPass(float threshold)
+  {
+      //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+      //glDrawBuffers(2, drawBuffers);
+
+      //m_bloom_brightness_shader.Use();
+      //m_bloom_brightness_shader.SetUniform_float("u_Threshold", threshold);
+      //glActiveTexture(GL_TEXTURE0);
+      //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_finalRenderTex); // Input: scene texture
+      //m_bloom_brightness_shader.SetUniform_int("scene", 0);
+
+      //glBindVertexArray(m_VAOid);
+      //glDrawArrays(GL_TRIANGLES, 0, 6);
+      ////m_draw_calls++;
+  }
+
+  ///*!***************************************************************************
+  //* \brief
+  //* Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
+  //*
+  //* \param blurDrawPasses The number of passes to apply for the blur.
+  //* \param blurDistance The distance factor for the blur effect.
+  //* \param intensity The intensity of the blur.
+  //*****************************************************************************/
+  void OpenGLRenderer::ApplyGaussianBlur(int blurPasses, float blurDistance, int intensity)
+  {
+      //m_bloom_gaussianblur_shader.Use();
+      //bool horizontal = true;
+
+      //for (int i = 0; i < blurPasses; ++i)
+      //{
+      //    GLenum drawBuffer = horizontal ? GL_COLOR_ATTACHMENT0 : GL_COLOR_ATTACHMENT1;
+      //    glDrawBuffers(1, &drawBuffer);
+
+      //    m_bloom_gaussianblur_shader.SetUniform_int("horizontal", horizontal);
+      //    glActiveTexture(GL_TEXTURE0);
+      //    glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_pingpongTex[horizontal]);
+      //    m_bloom_gaussianblur_shader.SetUniform_int("scene", 0);
+      //    m_bloom_gaussianblur_shader.SetUniform_float("blurDistance", blurDistance);
+      //    m_bloom_gaussianblur_shader.SetUniform_int("intensity", intensity);
+
+      //    glBindVertexArray(m_VAOid);
+      //    glDrawArrays(GL_TRIANGLES, 0, 6);
+      //    //m_draw_calls++;
+
+      //    horizontal = !horizontal;
+      //}
+  }
+
+  ///*!***************************************************************************
+  //* \brief
+  //* Applies the final bloom composition with a specified opacity level.
+  //*
+  //* \param opacity The opacity level for the bloom composition.
+  //*****************************************************************************/
+  void OpenGLRenderer::ApplyBloomFinalComposition(float opacity)
+  {
+      //OpenGLFrameBuffer::SetGameFrameBuffer();
+      ////GLenum drawBuffer = GL_COLOR_ATTACHMENT1;
+      //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT1 };
+      //glDrawBuffers(1, drawBuffers);
+
+      //m_bloom_finalcomp_shader.Use();
+      //glActiveTexture(GL_TEXTURE0);
+      //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_gameRenderTex); // Original scene texture
+      //m_bloom_finalcomp_shader.SetUniform_int("screenTex", 0);
+      //glActiveTexture(GL_TEXTURE1);
+      //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_pingpongTex[0]); // Blur Vertical
+      //m_bloom_finalcomp_shader.SetUniform_int("bloomVTex", 1);
+      //glActiveTexture(GL_TEXTURE2);
+      //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_pingpongTex[1]); // Blur Horizontal
+      //m_bloom_finalcomp_shader.SetUniform_int("bloomHTex", 2);
+      //m_bloom_finalcomp_shader.SetUniform_float("opacity", opacity);
+
+      //glBindVertexArray(m_VAOid);
+      //glDrawArrays(GL_TRIANGLES, 0, 6);
+      //m_draw_calls++;
+  }
+  #pragma endregion
 }

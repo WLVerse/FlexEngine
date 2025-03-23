@@ -14,6 +14,8 @@
 #pragma once
 
 #include <FlexEngine.h>
+#include "postprocessing.h"
+
 using namespace FlexEngine;
 
 namespace Game

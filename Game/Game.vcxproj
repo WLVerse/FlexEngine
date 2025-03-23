@@ -169,7 +169,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\menulayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />
-    <ClInclude Include="src\Layers\postprocessinglayer.h" />
+    <ClInclude Include="src\Layers\postprocessing.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\townlayer.h" />
@@ -185,7 +185,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\menulayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
-    <ClCompile Include="src\Layers\postprocessinglayer.cpp" />
+    <ClCompile Include="src\Layers\postprocessing.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\townlayer.cpp" />

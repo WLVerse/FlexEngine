@@ -124,6 +124,64 @@ namespace FlexEngine
     };
 
     /**
+    * @brief Encapsulates data for batching multiple sprite instances in a single draw call.
+    *
+    * This structure aggregates essential per-instance data, including transformation matrices,
+    * z-index values for depth ordering, UV mapping for animated sprites, and opacity levels.
+    * It also holds references to shader programs and other rendering state necessary to efficiently
+    * render a large number of sprites while minimizing draw calls.
+    */
+    struct __FLX_API Renderer2D_GlobalPPSettings
+    {
+        // Global toggles and multiplier
+        bool enableGaussianBlur = false;
+        bool enableChromaticAberration = false;
+        bool enableBloom = false;
+        bool enableVignette = false;
+        bool enableColorGrading = false;
+        bool enableFilmGrain = false;
+        bool enablePixelate = false;
+        float globalIntensity = 1.0f;
+
+        // Gaussian Blur settings
+        int   blurKernelSize = 5;    // Typically an odd number
+        float blurSigma = 1.0f; // Standard deviation for Gaussian distribution
+        int   blurPasses = 1;    // Number of blur passes
+
+        // Chromatic Aberration settings
+        float chromaIntensity = 1.0f;  // Overall effect intensity
+        float chromaMaxOffset = 5.0f;  // Maximum pixel offset for channel shift
+        float chromaRedOffset = 1.0f;
+        float chromaGreenOffset = 1.0f;
+        float chromaBlueOffset = 1.0f;
+
+        // Bloom settings
+        float bloomThreshold = 1.0f;  // Luminance threshold for bloom
+        float bloomIntensity = 1.0f;  // Intensity multiplier for bloom
+        float bloomRadius = 10.0f; // Bloom spread radius
+
+        // Vignette settings
+        float vignetteIntensity = 0.5f;  // How dark the edges get
+        float vignetteRadius = 0.75f; // Size of the vignette effect (0-1 range)
+        float vignetteSoftness = 0.5f;  // How gradual the fall-off is
+
+        // Color Grading settings
+        float colorBrightness = 0.0f;  // Brightness adjustment
+        float colorContrast = 1.0f;  // Contrast multiplier
+        float colorSaturation = 1.0f;  // Saturation multiplier
+        //std::string lutTexturePath = "";    // Path to lookup table (LUT) texture, if any
+
+        // Pixelation settings
+        int   pixelWidth = 8;     // Pixel block width
+        int   pixelHeight = 8;     // Pixel block height
+
+        // Film Grain settings
+        float filmGrainIntensity = 0.5f;  // Grain intensity
+        float filmGrainSize = 1.0f;  // Grain size
+        bool  filmGrainAnimate = true;  // Whether grain is animated over time
+    };
+
+    /**
      * @brief Provides a suite of static methods for 2D rendering using OpenGL.
      *
      * The OpenGLRenderer class offers functionality for drawing 2D textures, text,
@@ -215,6 +273,33 @@ namespace FlexEngine
           const Vector2& window_size = Vector2(1600.0f, 900.0f),
           Renderer2DProps::Alignment alignment = Renderer2DProps::Alignment_TopLeft
         );
+
+        #pragma region Post Processing
+        static void DrawPostProcessing(const Renderer2D_GlobalPPSettings& settings);
+        /*!***************************************************************************
+        * \brief
+        * Applies a brightness threshold pass for the bloom effect.
+        *
+        * \param threshold The brightness threshold to apply.
+        *****************************************************************************/
+        static void ApplyBrightnessPass(float threshold = 1.0f);
+        /*!***************************************************************************
+        * \brief
+        * Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
+        *
+        * \param blurDrawPasses The number of passes to apply for the blur.
+        * \param blurDistance The distance factor for the blur effect.
+        * \param intensity The intensity of the blur.
+        *****************************************************************************/
+        static void ApplyGaussianBlur(int blurPasses = 4, float blurDistance = 10.0f, int intensity = 12);
+        /*!***************************************************************************
+        * \brief
+        * Applies the final bloom composition with a specified opacity level.
+        *
+        * \param opacity The opacity level for the bloom composition.
+        *****************************************************************************/
+        static void ApplyBloomFinalComposition(float opacity = 1.0f);
+        #pragma endregion
     };
 
 }
