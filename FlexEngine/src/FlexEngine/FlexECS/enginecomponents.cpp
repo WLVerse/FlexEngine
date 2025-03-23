@@ -221,4 +221,66 @@ namespace FlexEngine
   FLX_REFL_REGISTER_START(MoveThreeComponent)
   FLX_REFL_REGISTER_END;
 
+  // Registration for PostProcessingMarker
+  FLX_REFL_REGISTER_START(PostProcessingMarker)
+      FLX_REFL_REGISTER_PROPERTY(enableGaussianBlur)
+      FLX_REFL_REGISTER_PROPERTY(enableChromaticAberration)
+      FLX_REFL_REGISTER_PROPERTY(enableBloom)
+      FLX_REFL_REGISTER_PROPERTY(enableVignette)
+      FLX_REFL_REGISTER_PROPERTY(enableColorGrading)
+      FLX_REFL_REGISTER_PROPERTY(enableFilmGrain)
+      FLX_REFL_REGISTER_PROPERTY(enablePixelate)
+      FLX_REFL_REGISTER_PROPERTY(globalIntensity)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingGaussianBlur
+  FLX_REFL_REGISTER_START(PostProcessingGaussianBlur)
+      FLX_REFL_REGISTER_PROPERTY(kernelSize)
+      FLX_REFL_REGISTER_PROPERTY(sigma)
+      FLX_REFL_REGISTER_PROPERTY(blurPasses)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingChromaticAbberation
+  FLX_REFL_REGISTER_START(PostProcessingChromaticAbberation)
+      FLX_REFL_REGISTER_PROPERTY(intensity)
+      FLX_REFL_REGISTER_PROPERTY(maxOffset)
+      FLX_REFL_REGISTER_PROPERTY(redOffset)
+      FLX_REFL_REGISTER_PROPERTY(greenOffset)
+      FLX_REFL_REGISTER_PROPERTY(blueOffset)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingBloom
+  FLX_REFL_REGISTER_START(PostProcessingBloom)
+      FLX_REFL_REGISTER_PROPERTY(threshold)
+      FLX_REFL_REGISTER_PROPERTY(intensity)
+      FLX_REFL_REGISTER_PROPERTY(radius)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingVignette
+  FLX_REFL_REGISTER_START(PostProcessingVignette)
+      FLX_REFL_REGISTER_PROPERTY(intensity)
+      FLX_REFL_REGISTER_PROPERTY(radius)
+      FLX_REFL_REGISTER_PROPERTY(softness)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingColorGrading
+  FLX_REFL_REGISTER_START(PostProcessingColorGrading)
+      FLX_REFL_REGISTER_PROPERTY(brightness)
+      FLX_REFL_REGISTER_PROPERTY(contrast)
+      FLX_REFL_REGISTER_PROPERTY(saturation)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingPixelate
+  FLX_REFL_REGISTER_START(PostProcessingPixelate)
+      FLX_REFL_REGISTER_PROPERTY(pixelWidth)
+      FLX_REFL_REGISTER_PROPERTY(pixelHeight)
+      FLX_REFL_REGISTER_END;
+
+  // Registration for PostProcessingFilmGrain
+  FLX_REFL_REGISTER_START(PostProcessingFilmGrain)
+      FLX_REFL_REGISTER_PROPERTY(grainIntensity)
+      FLX_REFL_REGISTER_PROPERTY(grainSize)
+      FLX_REFL_REGISTER_PROPERTY(animateGrain)
+      FLX_REFL_REGISTER_END;
+
 } // namespace FlexEngine

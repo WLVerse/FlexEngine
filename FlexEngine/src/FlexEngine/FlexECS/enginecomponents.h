@@ -467,4 +467,98 @@ namespace FlexEngine
 
 #pragma endregion
 
+#pragma region Post-processing
+  // Marker class to designate where and which global post-processing effects are enabled.
+ // You can attach this to a dedicated render target.
+  class __FLX_API PostProcessingMarker 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      // Global toggles for various effects.
+      bool enableGaussianBlur = false;
+      bool enableChromaticAberration = false;
+      bool enableBloom = false;
+      bool enableVignette = false;
+      bool enableColorGrading = false;
+      bool enableFilmGrain = false;
+      bool enablePixelate = false;
+
+      // A global blend or intensity multiplier that can influence all effects.
+      float globalIntensity = 1.0f;
+  };
+
+  // Gaussian Blur effect parameters.
+  class __FLX_API PostProcessingGaussianBlur 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int   kernelSize = 5;    // Kernel size for the blur (odd number preferred).
+      float sigma = 1.0f; // Standard deviation for the Gaussian distribution.
+      int   blurPasses = 1;    // Number of passes to apply (higher for smoother blur).
+  };
+
+  // Chromatic Aberration effect parameters.
+  class __FLX_API PostProcessingChromaticAbberation 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float intensity = 1.0f;  // Overall intensity of the effect.
+      float maxOffset = 5.0f;  // Maximum channel offset in pixels.
+      // Optionally, individual channel offsets can be defined.
+      float redOffset = 1.0f;
+      float greenOffset = 1.0f;
+      float blueOffset = 1.0f;
+  };
+
+  // Bloom effect parameters.
+  class __FLX_API PostProcessingBloom 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float threshold = 1.0f;  // Luminance threshold for bloom extraction.
+      float intensity = 1.0f;  // Bloom intensity multiplier.
+      float radius = 10.0f; // Spread radius of the bloom.
+  };
+
+  // Vignette effect parameters.
+  class __FLX_API PostProcessingVignette 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float intensity = 0.5f;  // How dark the edges become.
+      float radius = 0.75f; // The size of the vignette effect (0 to 1).
+      float softness = 0.5f;  // How gradual the fall-off is at the edges.
+  };
+
+  // Color Grading effect parameters.
+  class __FLX_API PostProcessingColorGrading 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float brightness = 0.0f;  // Adjustment to brightness.
+      float contrast = 1.0f;  // Contrast multiplier.
+      float saturation = 1.0f;  // Saturation multiplier.
+  };
+
+  // Pixelation effect parameters.
+  class __FLX_API PostProcessingPixelate 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int pixelWidth = 8;     // Width of a pixel block.
+      int pixelHeight = 8;     // Height of a pixel block.
+  };
+
+  // Film Grain effect parameters.
+  class __FLX_API PostProcessingFilmGrain 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float grainIntensity = 0.5f; // How pronounced the grain is.
+      float grainSize = 1.0f; // Size of individual grain particles.
+      bool  animateGrain = true; // Whether the grain is animated over time.
+  };
+
+#pragma endregion
+
 } // namespace FlexEngine

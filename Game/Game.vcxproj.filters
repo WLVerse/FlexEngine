@@ -55,10 +55,10 @@
     <ClInclude Include="src\Layers\battlelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\tutoriallayer.h">
+    <ClInclude Include="src\Layers\battlestuff.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Layers\battlestuff.h">
+    <ClInclude Include="src\Layers\postprocessinglayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,7 +102,7 @@
     <ClCompile Include="src\Layers\battlelayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Layers\tutoriallayer.cpp">
+    <ClCompile Include="src\Layers\postprocessinglayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>
