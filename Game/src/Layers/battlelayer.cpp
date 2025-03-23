@@ -1243,7 +1243,7 @@ namespace Game
             float t = time_played / duration;
             t = std::clamp(t, 0.f, 1.f);
 
-            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
+            battle.speed_slot_icons[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
 
             time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 2.f;
             return;
@@ -1283,7 +1283,7 @@ namespace Game
                                                                                        Lerp(battle.speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
                                                                                        Lerp(battle.speed_slot_position[0].z, dest[0].z, t));
 
-            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
+            battle.speed_slot_icons[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
 
             // Lerp the rest of the icons
             for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
@@ -2936,10 +2936,6 @@ namespace Game
 
     void End_Of_Turn()
     {
-        // Set back z index, hacky af
-        FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
-        character.GetComponent<ZIndex>()->z = 100;
-
         // wait for all prior animations to stop playing before continuing with phase change
         if (battle.disable_input_timer > 0.f)
         {
