@@ -187,6 +187,8 @@ namespace FlexEngine
     void SetWidth(const unsigned int& width) { m_props.width = width; }
     void SetHeight(const unsigned int& height) { m_props.height = height; }
 
+    void ToggleFullScreen(bool);
+
     #pragma endregion
 
     #pragma region Window Management Functions
