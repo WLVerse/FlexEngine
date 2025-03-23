@@ -19,18 +19,20 @@ namespace Game
         static Renderer2D_GlobalPPSettings GetGlobalSettings();
         static int GetPostProcessZIndex();
     private:
-        // Process local post-processing (per-object effects)
+        // Process entities for local post-processing (per-object effects)
         static void ProcessLocalPostProcessing();
 
-        // Process global post-processing (applied to the full scene)
+        // Process entities for global post-processing (applied to the full scene)
         static void ProcessGlobalPostProcessing();
+
+        // Starts applying global post-processing (applied to the full scene)
+        static void DrawGlobalPostProcessing();
+
+        // Redraws a texture to current framebuffer
+        static void ReplicateFrameBufferAttachment(GLuint texture);
 
         static Renderer2D_GlobalPPSettings m_globalsettings;
         static int postProcessZIndex;
-
-        // Framebuffers for intermediate rendering
-        // static std::shared_ptr<FrameBuffer> m_LocalFramebuffer;
-        // static std::shared_ptr<FrameBuffer> m_GlobalFramebuffer;
     };
 
 } // namespace Game

@@ -118,15 +118,16 @@ namespace FlexEngine
 
   void OpenGLRenderer::DrawTexture2D(const GLuint& texture, const Matrix4x4& transform, const Vector2& screenDimensions)
   {
+      #pragma region VAO setup
       // unit square
       static const float vertices[] = {
           // Position           // TexCoords
-          -0.5f, 0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
-           0.5f, 0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
-           0.5f, -0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-           0.5f, -0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
-          -0.5f, -0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
-          -0.5f, 0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
+          -0.5f, 0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+           0.5f, 0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+           0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // Top-right
+           0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // Top-right
+          -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // Top-left
+          -0.5f, 0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
       };
 
       static GLuint vao = 0, vbo = 0;
@@ -140,12 +141,10 @@ namespace FlexEngine
           glBindBuffer(GL_ARRAY_BUFFER, vbo);
           glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-          glad_glEnableVertexAttribArray(0);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-          //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-          //glEnableVertexAttribArray(1);
-          //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
           glBindVertexArray(0);
 
           // free in freequeue
@@ -161,44 +160,12 @@ namespace FlexEngine
       // guard
       if (vao == 0) return; // hey, might need to check if scale is 0 because thats what the old code does idk
 
-      float tex_coords[12] = {
-        0.0f, 1.0f, // Bottom-left
-        1.0f, 1.0f, // Bottom-right
-        1.0f, 0.0f, // Top-right
-        1.0f, 0.0f, // Top-right
-        0.0f, 0.0f, // Top-left
-        0.0f, 1.0f  // Bottom-left
-      };
-
-      GLuint vbo_uv = 0;
-
-      glGenBuffers(1, &vbo_uv);
-
-      glBindVertexArray(vao);
-      glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(tex_coords), tex_coords, GL_STATIC_DRAW);
-
-      glEnableVertexAttribArray(1);
-      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
-      glBindVertexArray(0);
-
-      // free in freequeue
-      FreeQueue::Push(
-        [=]()
-      {
-          glDeleteBuffers(1, &vbo_uv);
-      },
-        "Free UV buffer"
-      );
-
-
       // bind all
       glBindVertexArray(vao);
+      #pragma endregion
 
       auto& asset_shader = AssetManager::Get<Asset::Shader>(R"(/shaders/texture.flxshader)");
       asset_shader.Use();
-
 
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, texture);
@@ -227,9 +194,6 @@ namespace FlexEngine
       }
 
       glBindVertexArray(0);
-
-      // free
-      FreeQueue::RemoveAndExecute("Free UV buffer");
   }
 
  
@@ -1448,25 +1412,78 @@ namespace FlexEngine
   }
 
   /*!***************************************************************************
-    * \brief
-    * Applies a brightness threshold pass for the bloom effect.
-    *
-    * \param threshold The brightness threshold to apply.
-    *****************************************************************************/
-  void OpenGLRenderer::ApplyBrightnessPass(float threshold)
+  * \brief
+  * Applies a brightness threshold pass for the bloom effect.
+  *
+  * \param threshold The brightness threshold to apply.
+  *****************************************************************************/
+  void OpenGLRenderer::ApplyBrightnessPass(const GLuint& texture, float threshold)
   {
-      //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-      //glDrawBuffers(2, drawBuffers);
+      #pragma region VAO setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      };
 
-      //m_bloom_brightness_shader.Use();
-      //m_bloom_brightness_shader.SetUniform_float("u_Threshold", threshold);
-      //glActiveTexture(GL_TEXTURE0);
-      //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_finalRenderTex); // Input: scene texture
-      //m_bloom_brightness_shader.SetUniform_int("scene", 0);
+      static GLuint vao = 0, vbo = 0;
 
-      //glBindVertexArray(m_VAOid);
-      //glDrawArrays(GL_TRIANGLES, 0, 6);
-      ////m_draw_calls++;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // Bind our VAO for drawing.
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Use the brightness pass shader.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Bloom_BrightnessPass.flxshader");
+      asset_shader.Use();
+      asset_shader.SetUniform_float("u_Threshold", threshold);
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      asset_shader.SetUniform_int("u_texture", 0);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+
+      // Error checking.
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+          Log::Fatal("OpenGL Error: " + std::to_string(error));
+      }
+
+      glBindVertexArray(0);
   }
 
   ///*!***************************************************************************
@@ -1477,29 +1494,62 @@ namespace FlexEngine
   //* \param blurDistance The distance factor for the blur effect.
   //* \param intensity The intensity of the blur.
   //*****************************************************************************/
-  void OpenGLRenderer::ApplyGaussianBlur(int blurPasses, float blurDistance, int intensity)
+  void OpenGLRenderer::ApplyGaussianBlur(const GLuint& texture, float blurDistance, int intensity, bool isHorizontal)
   {
-      //m_bloom_gaussianblur_shader.Use();
-      //bool horizontal = true;
+      //#pragma region VAO setup
+      //// Full-screen quad covering clip space.
+      //static const float vertices[] = {
+      //    // Position           // TexCoords
+      //    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+      //     1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+      //     1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+      //     1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+      //    -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+      //    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      //};
 
-      //for (int i = 0; i < blurPasses; ++i)
+      //static GLuint vao = 0, vbo = 0;
+
+      //if (vao == 0)
       //{
-      //    GLenum drawBuffer = horizontal ? GL_COLOR_ATTACHMENT0 : GL_COLOR_ATTACHMENT1;
-      //    glDrawBuffers(1, &drawBuffer);
+      //    glGenVertexArrays(1, &vao);
+      //    glGenBuffers(1, &vbo);
 
-      //    m_bloom_gaussianblur_shader.SetUniform_int("horizontal", horizontal);
-      //    glActiveTexture(GL_TEXTURE0);
-      //    glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_pingpongTex[horizontal]);
-      //    m_bloom_gaussianblur_shader.SetUniform_int("scene", 0);
-      //    m_bloom_gaussianblur_shader.SetUniform_float("blurDistance", blurDistance);
-      //    m_bloom_gaussianblur_shader.SetUniform_int("intensity", intensity);
+      //    glBindVertexArray(vao);
+      //    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      //    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-      //    glBindVertexArray(m_VAOid);
-      //    glDrawArrays(GL_TRIANGLES, 0, 6);
-      //    //m_draw_calls++;
+      //    glEnableVertexAttribArray(0);
+      //    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+      //    glEnableVertexAttribArray(1);
+      //    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+      //    glBindVertexArray(0);
 
-      //    horizontal = !horizontal;
+      //    // free in freequeue
+      //    FreeQueue::Push(
+      //      [=]()
+      //    {
+      //        glDeleteBuffers(1, &vbo);
+      //        glDeleteVertexArrays(1, &vao);
+      //    }
+      //    );
       //}
+
+      //// Bind our VAO for drawing.
+      //glBindVertexArray(vao);
+      //#pragma endregion
+
+      //auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Gaussian_Blur.flxshader");
+     
+      //asset_shader.SetUniform_int("horizontal", isHorizontal);
+      //glActiveTexture(GL_TEXTURE0);
+      //glBindTexture(GL_TEXTURE_2D, texture);
+      //asset_shader.SetUniform_int("u_texture", 0);
+      //asset_shader.SetUniform_float("blurDistance", blurDistance);
+      //asset_shader.SetUniform_int("intensity", intensity);
+      //
+      //glDrawArrays(GL_TRIANGLES, 0, 6);
+      //m_draw_calls++;
   }
 
   ///*!***************************************************************************
@@ -1508,13 +1558,13 @@ namespace FlexEngine
   //*
   //* \param opacity The opacity level for the bloom composition.
   //*****************************************************************************/
-  void OpenGLRenderer::ApplyBloomFinalComposition(float opacity)
+  void OpenGLRenderer::ApplyBloomFinalComposition(const GLuint& blurtextureHorizontal, const GLuint& blurtextureVertical, float opacity)
   {
       //OpenGLFrameBuffer::SetGameFrameBuffer();
       ////GLenum drawBuffer = GL_COLOR_ATTACHMENT1;
       //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT1 };
       //glDrawBuffers(1, drawBuffers);
-
+      //
       //m_bloom_finalcomp_shader.Use();
       //glActiveTexture(GL_TEXTURE0);
       //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_gameRenderTex); // Original scene texture
@@ -1526,7 +1576,7 @@ namespace FlexEngine
       //glBindTexture(GL_TEXTURE_2D, OpenGLFrameBuffer::m_pingpongTex[1]); // Blur Horizontal
       //m_bloom_finalcomp_shader.SetUniform_int("bloomHTex", 2);
       //m_bloom_finalcomp_shader.SetUniform_float("opacity", opacity);
-
+      //
       //glBindVertexArray(m_VAOid);
       //glDrawArrays(GL_TRIANGLES, 0, 6);
       //m_draw_calls++;

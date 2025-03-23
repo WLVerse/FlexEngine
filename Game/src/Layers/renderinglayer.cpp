@@ -238,7 +238,7 @@ namespace Game
               if (!element.GetComponent<Transform>()->is_active)
                   continue;
 
-              Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+              Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
               GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
               Matrix4x4 transform = element.GetComponent<Transform>()->transform;
               game_queue.Insert({

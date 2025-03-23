@@ -14,7 +14,8 @@ namespace Game
         Window::FrameBufferManager.AddFrameBuffer("Local Post Processing", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Global Post Processing", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Final Post Processing", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Horizontal", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Vertical", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Bloom", window_size);
     }
 
@@ -28,7 +29,7 @@ namespace Game
         OpenGLFrameBuffer::Unbind();
 
         if (!CameraManager::has_main_camera) return;
-
+       
         #pragma region Clearing Framebuffers
         Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
         OpenGLRenderer::ClearFrameBuffer();
@@ -44,6 +45,7 @@ namespace Game
 
         #pragma region Update Settings
         // Finalizing Post Processing
+        Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
         for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
         {
             if (!element.GetComponent<Transform>()->is_active)
@@ -53,7 +55,7 @@ namespace Game
             positionComponent->position = Vector3(0, 0, 0);
             auto rotationComponent = element.GetComponent<Rotation>();
             auto scaleComponent = element.GetComponent<Scale>();
-            scaleComponent->scale = Vector3((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight(),0.0f);
+            scaleComponent->scale = Vector3(windowSize,0.0f);
 
             Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, positionComponent->position);
             Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotationComponent->rotation).ToRotationMatrix();
@@ -65,76 +67,72 @@ namespace Game
             // Retrieve the marker that holds the global toggles.
             const auto PPComponent = element.GetComponent<PostProcessingMarker>();
 
-            // Create and fill out the global post-processing settings.
-            Renderer2D_GlobalPPSettings settings;
-
             // Global toggles from the marker.
-            settings.enableGaussianBlur = PPComponent->enableGaussianBlur;
-            settings.enableChromaticAberration = PPComponent->enableChromaticAberration;
-            settings.enableBloom = PPComponent->enableBloom;
-            settings.enableVignette = PPComponent->enableVignette;
-            settings.enableColorGrading = PPComponent->enableColorGrading;
-            settings.enableFilmGrain = PPComponent->enableFilmGrain;
-            settings.enablePixelate = PPComponent->enablePixelate;
-            settings.globalIntensity = PPComponent->globalIntensity;
+            m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
+            m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
+            m_globalsettings.enableBloom = PPComponent->enableBloom;
+            m_globalsettings.enableVignette = PPComponent->enableVignette;
+            m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
+            m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
+            m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
             if (element.HasComponent<PostProcessingGaussianBlur>())
             {
                 auto blur = element.GetComponent<PostProcessingGaussianBlur>();
-                settings.blurKernelSize = blur->kernelSize;
-                settings.blurSigma = blur->sigma;
-                settings.blurPasses = blur->blurPasses;
+                m_globalsettings.blurKernelSize = blur->kernelSize;
+                m_globalsettings.blurSigma = blur->sigma;
+                m_globalsettings.blurPasses = blur->blurPasses;
             }
 
             if (element.HasComponent<PostProcessingChromaticAbberation>())
             {
                 auto chroma = element.GetComponent<PostProcessingChromaticAbberation>();
-                settings.chromaIntensity = chroma->intensity;
-                settings.chromaMaxOffset = chroma->maxOffset;
-                settings.chromaRedOffset = chroma->redOffset;
-                settings.chromaGreenOffset = chroma->greenOffset;
-                settings.chromaBlueOffset = chroma->blueOffset;
+                m_globalsettings.chromaIntensity = chroma->intensity;
+                m_globalsettings.chromaMaxOffset = chroma->maxOffset;
+                m_globalsettings.chromaRedOffset = chroma->redOffset;
+                m_globalsettings.chromaGreenOffset = chroma->greenOffset;
+                m_globalsettings.chromaBlueOffset = chroma->blueOffset;
             }
 
             if (element.HasComponent<PostProcessingBloom>())
             {
                 auto bloom = element.GetComponent<PostProcessingBloom>();
-                settings.bloomThreshold = bloom->threshold;
-                settings.bloomIntensity = bloom->intensity;
-                settings.bloomRadius = bloom->radius;
+                m_globalsettings.bloomThreshold = bloom->threshold;
+                m_globalsettings.bloomIntensity = bloom->intensity;
+                m_globalsettings.bloomRadius = bloom->radius;
             }
 
             if (element.HasComponent<PostProcessingVignette>())
             {
                 auto vignette = element.GetComponent<PostProcessingVignette>();
-                settings.vignetteIntensity = vignette->intensity;
-                settings.vignetteRadius = vignette->radius;
-                settings.vignetteSoftness = vignette->softness;
+                m_globalsettings.vignetteIntensity = vignette->intensity;
+                m_globalsettings.vignetteRadius = vignette->radius;
+                m_globalsettings.vignetteSoftness = vignette->softness;
             }
 
             if (element.HasComponent<PostProcessingColorGrading>())
             {
                 auto colorGrade = element.GetComponent<PostProcessingColorGrading>();
-                settings.colorBrightness = colorGrade->brightness;
-                settings.colorContrast = colorGrade->contrast;
-                settings.colorSaturation = colorGrade->saturation;
-                //settings.lutTexturePath = colorGrade->lutTexturePath;
+                m_globalsettings.colorBrightness = colorGrade->brightness;
+                m_globalsettings.colorContrast = colorGrade->contrast;
+                m_globalsettings.colorSaturation = colorGrade->saturation;
             }
 
             if (element.HasComponent<PostProcessingPixelate>())
             {
                 auto pixelate = element.GetComponent<PostProcessingPixelate>();
-                settings.pixelWidth = pixelate->pixelWidth;
-                settings.pixelHeight = pixelate->pixelHeight;
+                m_globalsettings.pixelWidth = pixelate->pixelWidth;
+                m_globalsettings.pixelHeight = pixelate->pixelHeight;
             }
 
             if (element.HasComponent<PostProcessingFilmGrain>())
             {
                 auto filmGrain = element.GetComponent<PostProcessingFilmGrain>();
-                settings.filmGrainIntensity = filmGrain->grainIntensity;
-                settings.filmGrainSize = filmGrain->grainSize;
-                settings.filmGrainAnimate = filmGrain->animateGrain;
+                m_globalsettings.filmGrainIntensity = filmGrain->grainIntensity;
+                m_globalsettings.filmGrainSize = filmGrain->grainSize;
+                m_globalsettings.filmGrainAnimate = filmGrain->animateGrain;
             }
 
             // Retrieve z-index if available.
@@ -142,13 +140,16 @@ namespace Game
                 postProcessZIndex = element.GetComponent<ZIndex>()->z;
         }
         #pragma endregion
+
+        #pragma region Run Postprocessing Effects
         // === Step 1: Process Local Post-Processing ===
         // Bind local framebuffer and render objects that have post-processing components.
         //m_LocalFramebuffer->Bind();
         // Clear local framebuffer as needed.
         // Here, you would iterate through all objects with a PostProcessingComponent,
         // then apply their stack of post-processing effects.
-        ProcessLocalPostProcessing();
+        //ProcessLocalPostProcessing();
+        //DrawLocalPostProcessing();
         //m_LocalFramebuffer->Unbind();
 
         // === Step 2: Render Scene to Global Framebuffer ===
@@ -159,6 +160,17 @@ namespace Game
         // === Step 3: Process Global Post-Processing ===
         // Bind global framebuffer if not already bound and apply global effects.
         ProcessGlobalPostProcessing();
+        DrawGlobalPostProcessing();
+        #pragma endregion
+
+        #pragma region Merge Results
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+
+        GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
+        GLuint localtexture = Window::FrameBufferManager.GetFrameBuffer("Local Post Processing")->GetColorAttachment();
+        ReplicateFrameBufferAttachment(globaltexture);
+
+        #pragma endregion
 
         OpenGLFrameBuffer::Unbind();
     }
@@ -275,11 +287,122 @@ namespace Game
 
         // Render all objects (sprites and text) that are below the post-process marker.
         prePostProcessingQueue.Flush();
-
-        // Call OpenGLRenderer to start process
-        //OpenGLRenderer::DrawPostProcessing();
     }
     
+    void PostProcessing::DrawGlobalPostProcessing()
+    {
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+
+        // ---------- Bloom Pipeline ----------
+        if (m_globalsettings.enableBloom)
+        {
+            // Step 1: Set to the bloom framebuffer to isolate the bloom effect.
+            GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
+            GLuint bloomtexture = Window::FrameBufferManager.GetFrameBuffer("Bloom")->GetColorAttachment();
+            GLuint gaussianblurHorizontaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Horizontal")->GetColorAttachment();
+            GLuint gaussianblurVerticaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Vertical")->GetColorAttachment();
+
+            // Step 2: Brightness Extraction - isolate bright areas based on the bloom threshold.
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+            OpenGLRenderer::ApplyBrightnessPass(globaltexture, m_globalsettings.bloomThreshold);
+
+            // Step 3: Gaussian Blur as part of the bloom chain.
+            GLuint inputTex = bloomtexture;
+            bool horizontal = true; // Start with a horizontal blur.
+            for (int i = 0; i < m_globalsettings.blurPasses; ++i)
+            {
+                if (horizontal)
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+                else
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurSigma, m_globalsettings.blurKernelSize, horizontal);
+                inputTex = horizontal ? gaussianblurVerticaltexture : gaussianblurHorizontaltexture;
+                horizontal = !horizontal;
+            }
+
+            // Step 4: Final Bloom Composition - combine the blurred highlights back with the original scene.
+            //OpenGLRenderer::ApplyBloomFinalComposition(gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity);
+
+            // Step 5: Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(bloomtexture);
+        }
+
+        // Apply a full-screen Gaussian blur on the scene if enabled.
+        //if (m_globalsettings.enableGaussianBlur)
+        //{
+        //    // (Optionally reset the framebuffer if needed.)
+        //    Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+        //
+        //    OpenGLRenderer::ApplyGaussianBlur(m_globalsettings.blurKernelSize, m_globalsettings.blurSigma, m_globalsettings.blurPasses);
+        //}
+
+        //// Chromatic Aberration: apply color separation if enabled.
+        //if (m_globalsettings.enableChromaticAberration)
+        //{
+        //    OpenGLRenderer::ApplyChromaticAberration(
+        //        m_globalsettings.chromaIntensity,
+        //        m_globalsettings.chromaMaxOffset,
+        //        m_globalsettings.chromaRedOffset,
+        //        m_globalsettings.chromaGreenOffset,
+        //        m_globalsettings.chromaBlueOffset
+        //    );
+        //}
+
+        //// Color Grading / Tone Mapping: adjust brightness, contrast, and saturation.
+        //if (m_globalsettings.enableColorGrading)
+        //{
+        //    OpenGLRenderer::ApplyColorGrading(
+        //        m_globalsettings.colorBrightness,
+        //        m_globalsettings.colorContrast,
+        //        m_globalsettings.colorSaturation
+        //        //, m_globalsettings.lutTexturePath if required
+        //    );
+        //}
+
+        //// Vignette: darken edges to draw attention to the center.
+        //if (m_globalsettings.enableVignette)
+        //{
+        //    OpenGLRenderer::ApplyVignette(
+        //        m_globalsettings.vignetteIntensity,
+        //        m_globalsettings.vignetteRadius,
+        //        m_globalsettings.vignetteSoftness
+        //    );
+        //}
+
+        //// Film Grain: overlay a subtle noise effect.
+        //if (m_globalsettings.enableFilmGrain)
+        //{
+        //    OpenGLRenderer::ApplyFilmGrain(
+        //        m_globalsettings.filmGrainIntensity,
+        //        m_globalsettings.filmGrainSize,
+        //        m_globalsettings.filmGrainAnimate
+        //    );
+        //}
+
+        //// Pixelate: optionally apply a pixelation effect as a final overlay.
+        //if (m_globalsettings.enablePixelate)
+        //{
+        //    OpenGLRenderer::ApplyPixelate(
+        //        m_globalsettings.pixelWidth,
+        //        m_globalsettings.pixelHeight
+        //    );
+        //}
+    }
+
+    void PostProcessing::ReplicateFrameBufferAttachment(GLuint texture)
+    {
+        Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
+        {
+            if (!element.GetComponent<Transform>()->is_active)
+                continue;
+            Matrix4x4 transform = element.GetComponent<Transform>()->transform;
+
+            OpenGLRenderer::DrawTexture2D(texture, transform, windowSize);
+        }
+    }
+
     Renderer2D_GlobalPPSettings PostProcessing::GetGlobalSettings()
     {
         return m_globalsettings;
