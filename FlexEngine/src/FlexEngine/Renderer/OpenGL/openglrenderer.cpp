@@ -116,6 +116,122 @@ namespace FlexEngine
     DrawTexture2D(props, cam);
   }
 
+  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const GLuint& texture, const Matrix4x4& transform)
+  {
+      // unit square
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -0.5f, 0.5f, 0.0f,   //0.0f, 1.0f, // Bottom-left
+           0.5f, 0.5f, 0.0f,   //1.0f, 1.0f, // Bottom-right
+           0.5f, -0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+           0.5f, -0.5f, 0.0f,   //1.0f, 0.0f, // Top-right
+          -0.5f, -0.5f, 0.0f,   //0.0f, 0.0f, // Top-left
+          -0.5f, 0.5f, 0.0f,   //0.0f, 1.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glad_glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+          //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          //glEnableVertexAttribArray(1);
+          //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0) return; // hey, might need to check if scale is 0 because thats what the old code does idk
+
+      float tex_coords[12] = {
+        0.0f, 1.0f, // Bottom-left
+        1.0f, 1.0f, // Bottom-right
+        1.0f, 0.0f, // Top-right
+        1.0f, 0.0f, // Top-right
+        0.0f, 0.0f, // Top-left
+        0.0f, 1.0f  // Bottom-left
+      };
+
+      GLuint vbo_uv = 0;
+
+      glGenBuffers(1, &vbo_uv);
+
+      glBindVertexArray(vao);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo_uv);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(tex_coords), tex_coords, GL_STATIC_DRAW);
+
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+      glBindVertexArray(0);
+
+      // free in freequeue
+      FreeQueue::Push(
+        [=]()
+      {
+          glDeleteBuffers(1, &vbo_uv);
+      },
+        "Free UV buffer"
+      );
+
+
+      // bind all
+      glBindVertexArray(vao);
+
+      auto& asset_shader = AssetManager::Get<Asset::Shader>(R"(/shaders/texture.flxshader)");
+      asset_shader.Use();
+
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture);
+
+      asset_shader.SetUniform_bool("u_use_texture", true);
+      asset_shader.SetUniform_int("u_texture", 0);
+      asset_shader.SetUniform_vec3("u_color_to_add", Vector3(0.0f, 0.0f, 0.0f));
+      asset_shader.SetUniform_vec3("u_color_to_multiply", Vector3(1.0f, 1.0f, 1.0f));
+      asset_shader.SetUniform_float("u_alpha", 1.0f);
+
+      asset_shader.SetUniform_mat4("u_model", transform);
+
+      // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
+      asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
+
+      // draw
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+
+      // error checking
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+          Log::Fatal("OpenGL Error: " + std::to_string(error));
+      }
+
+      glBindVertexArray(0);
+
+      // free
+      FreeQueue::RemoveAndExecute("Free UV buffer");
+  }
+
+ 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData)
   {
     // unit square

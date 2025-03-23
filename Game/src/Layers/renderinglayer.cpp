@@ -227,104 +227,34 @@ namespace Game
                                   },
                                   "", index });
           }
+          #pragma endregion
 
-          // Finalizing Post Processing
+          #pragma region Post Processing Render
+         // Insert the global post-processing draw call into the game queue.
+          auto ppIndex = PostProcessing::GetPostProcessZIndex();
+          int width = FlexEngine::Application::GetCurrentWindow()->GetWidth();
+          int height = FlexEngine::Application::GetCurrentWindow()->GetHeight();
           for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
           {
               if (!element.GetComponent<Transform>()->is_active)
                   continue;
 
-              // Retrieve the marker that holds the global toggles.
-              const auto PPComponent = element.GetComponent<PostProcessingMarker>();
-
-              // Create and fill out the global post-processing settings.
-              Renderer2D_GlobalPPSettings settings;
-
-              // Global toggles from the marker.
-              settings.enableGaussianBlur = PPComponent->enableGaussianBlur;
-              settings.enableChromaticAberration = PPComponent->enableChromaticAberration;
-              settings.enableBloom = PPComponent->enableBloom;
-              settings.enableVignette = PPComponent->enableVignette;
-              settings.enableColorGrading = PPComponent->enableColorGrading;
-              settings.enableFilmGrain = PPComponent->enableFilmGrain;
-              settings.enablePixelate = PPComponent->enablePixelate;
-              settings.globalIntensity = PPComponent->globalIntensity;
-
-              // Override global default with effect component settings if present.
-              if (element.HasComponent<PostProcessingGaussianBlur>())
-              {
-                  auto blur = element.GetComponent<PostProcessingGaussianBlur>();
-                  settings.blurKernelSize = blur->kernelSize;
-                  settings.blurSigma = blur->sigma;
-                  settings.blurPasses = blur->blurPasses;
-              }
-
-              if (element.HasComponent<PostProcessingChromaticAbberation>())
-              {
-                  auto chroma = element.GetComponent<PostProcessingChromaticAbberation>();
-                  settings.chromaIntensity = chroma->intensity;
-                  settings.chromaMaxOffset = chroma->maxOffset;
-                  settings.chromaRedOffset = chroma->redOffset;
-                  settings.chromaGreenOffset = chroma->greenOffset;
-                  settings.chromaBlueOffset = chroma->blueOffset;
-              }
-
-              if (element.HasComponent<PostProcessingBloom>())
-              {
-                  auto bloom = element.GetComponent<PostProcessingBloom>();
-                  settings.bloomThreshold = bloom->threshold;
-                  settings.bloomIntensity = bloom->intensity;
-                  settings.bloomRadius = bloom->radius;
-              }
-
-              if (element.HasComponent<PostProcessingVignette>())
-              {
-                  auto vignette = element.GetComponent<PostProcessingVignette>();
-                  settings.vignetteIntensity = vignette->intensity;
-                  settings.vignetteRadius = vignette->radius;
-                  settings.vignetteSoftness = vignette->softness;
-              }
-
-              if (element.HasComponent<PostProcessingColorGrading>())
-              {
-                  auto colorGrade = element.GetComponent<PostProcessingColorGrading>();
-                  settings.colorBrightness = colorGrade->brightness;
-                  settings.colorContrast = colorGrade->contrast;
-                  settings.colorSaturation = colorGrade->saturation;
-                  //settings.lutTexturePath = colorGrade->lutTexturePath;
-              }
-
-              if (element.HasComponent<PostProcessingPixelate>())
-              {
-                  auto pixelate = element.GetComponent<PostProcessingPixelate>();
-                  settings.pixelWidth = pixelate->pixelWidth;
-                  settings.pixelHeight = pixelate->pixelHeight;
-              }
-
-              if (element.HasComponent<PostProcessingFilmGrain>())
-              {
-                  auto filmGrain = element.GetComponent<PostProcessingFilmGrain>();
-                  settings.filmGrainIntensity = filmGrain->grainIntensity;
-                  settings.filmGrainSize = filmGrain->grainSize;
-                  settings.filmGrainAnimate = filmGrain->animateGrain;
-              }
-
-              // Retrieve z-index if available.
-              int index = 0;
-              if (element.HasComponent<ZIndex>())
-                  index = element.GetComponent<ZIndex>()->z;
-
-              // Insert the global post-processing draw call into the game queue.
+              Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+              GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+              Matrix4x4 transform = element.GetComponent<Transform>()->transform;
               game_queue.Insert({
-                  [settings]() {
-                      OpenGLRenderer::DrawPostProcessing(settings);
+                  [texture, transform]() {
+                      OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), texture, transform);
                   },
-                  "", index
+                  "",
+                  ppIndex
               });
           }
+          OpenGLFrameBuffer::Unbind();
+          #pragma endregion
 
           game_queue.Flush();
-          #pragma endregion
+          
       }
       else
       {
