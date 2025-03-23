@@ -27,7 +27,7 @@ namespace Game
     // First, create a window
     FLX_COMMAND_OPEN_WINDOW(
       "Game", WindowProps(
-                "Chrono Drift", 1900, 1080,
+                "Chrono Drift", 1920, 1080,
                 {
                   FLX_DEFAULT_WINDOW_HINTS,
                   { GLFW_DECORATED, true },
