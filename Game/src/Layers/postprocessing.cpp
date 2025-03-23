@@ -49,6 +49,19 @@ namespace Game
             if (!element.GetComponent<Transform>()->is_active)
                 continue;
 
+            auto positionComponent = element.GetComponent<Position>();
+            positionComponent->position = Vector3(0, 0, 0);
+            auto rotationComponent = element.GetComponent<Rotation>();
+            auto scaleComponent = element.GetComponent<Scale>();
+            scaleComponent->scale = Vector3((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight(),0.0f);
+
+            Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, positionComponent->position);
+            Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotationComponent->rotation).ToRotationMatrix();
+            Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scaleComponent->scale);
+
+            // Update the transform
+            element.GetComponent<Transform>()->transform = translation_matrix * rotation_matrix * scale_matrix;
+
             // Retrieve the marker that holds the global toggles.
             const auto PPComponent = element.GetComponent<PostProcessingMarker>();
 

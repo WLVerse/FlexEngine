@@ -151,43 +151,43 @@ namespace Game
 
       if (!FlexPrefs::GetBool("game.batching"))
       {
-          #pragma region Sprite Renderer System
+          //#pragma region Sprite Renderer System
 
-          // render all sprites
-          for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
-          {
-              if (!element.GetComponent<Transform>()->is_active) continue;
+          //// render all sprites
+          //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
+          //{
+          //    if (!element.GetComponent<Transform>()->is_active) continue;
 
-              Sprite& sprite = *element.GetComponent<Sprite>();
-              Renderer2DProps props;
+          //    Sprite& sprite = *element.GetComponent<Sprite>();
+          //    Renderer2DProps props;
 
-              // overload for animator
-              if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
-              {
-                  Animator& animator = *element.GetComponent<Animator>();
+          //    // overload for animator
+          //    if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
+          //    {
+          //        Animator& animator = *element.GetComponent<Animator>();
 
-                  props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-                  props.texture_index = animator.current_frame;
-                  props.alpha = 1.0f; // Update pls
-              }
-              else
-              {
-                  props.asset = FLX_STRING_GET(sprite.sprite_handle);
-                  props.texture_index = -1;
-                  props.alpha = sprite.opacity;
-              }
+          //        props.asset = FLX_STRING_GET(animator.spritesheet_handle);
+          //        props.texture_index = animator.current_frame;
+          //        props.alpha = 1.0f; // Update pls
+          //    }
+          //    else
+          //    {
+          //        props.asset = FLX_STRING_GET(sprite.sprite_handle);
+          //        props.texture_index = -1;
+          //        props.alpha = sprite.opacity;
+          //    }
 
-              int index = 0;
-              if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+          //    int index = 0;
+          //    if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
 
-              props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+          //    props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
 
-              props.alignment = Renderer2DProps::Alignment_TopLeft;
-              props.world_transform = element.GetComponent<Transform>()->transform;
+          //    props.alignment = Renderer2DProps::Alignment_TopLeft;
+          //    props.world_transform = element.GetComponent<Transform>()->transform;
 
-              game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
-          }
-          #pragma endregion
+          //    game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+          //}
+          //#pragma endregion
 
           #pragma region Text Renderer System
 
@@ -232,19 +232,18 @@ namespace Game
           #pragma region Post Processing Render
          // Insert the global post-processing draw call into the game queue.
           auto ppIndex = PostProcessing::GetPostProcessZIndex();
-          int width = FlexEngine::Application::GetCurrentWindow()->GetWidth();
-          int height = FlexEngine::Application::GetCurrentWindow()->GetHeight();
+          Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
           for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
           {
               if (!element.GetComponent<Transform>()->is_active)
                   continue;
 
-              Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+              Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
               GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
               Matrix4x4 transform = element.GetComponent<Transform>()->transform;
               game_queue.Insert({
-                  [texture, transform]() {
-                      OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), texture, transform);
+                  [texture, transform, windowSize]() {
+                      OpenGLRenderer::DrawTexture2D(texture, transform, windowSize);
                   },
                   "",
                   ppIndex

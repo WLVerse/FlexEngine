@@ -116,7 +116,7 @@ namespace FlexEngine
     DrawTexture2D(props, cam);
   }
 
-  void OpenGLRenderer::DrawTexture2D(Camera const& cam, const GLuint& texture, const Matrix4x4& transform)
+  void OpenGLRenderer::DrawTexture2D(const GLuint& texture, const Matrix4x4& transform, const Vector2& screenDimensions)
   {
       // unit square
       static const float vertices[] = {
@@ -212,7 +212,8 @@ namespace FlexEngine
       asset_shader.SetUniform_mat4("u_model", transform);
 
       // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
-      asset_shader.SetUniform_mat4("u_projection_view", cam.GetProjViewMatrix());
+      
+      asset_shader.SetUniform_mat4("u_projection_view", Matrix4x4::Orthographic(-screenDimensions.x / 2, screenDimensions.x/2, -screenDimensions.y / 2, screenDimensions.y/2, -1, 1));
 
       // draw
       glDrawArrays(GL_TRIANGLES, 0, 6);

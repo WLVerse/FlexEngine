@@ -236,7 +236,7 @@ namespace FlexEngine
         /// @param cam The camera through which the texture is rendered.
         /// @param props Rendering properties for the texture.
         static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
-        static void DrawTexture2D(Camera const& cam, const GLuint& texture = {}, const Matrix4x4& transform = {});
+        static void DrawTexture2D(const GLuint& texture = {}, const Matrix4x4& transform = {}, const Vector2& screenDimensions = {});
 
         /// @brief Draws 2D text as a texture using the given camera and text settings.
         /// @param cam The camera through which the text is rendered.
