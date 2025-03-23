@@ -146,7 +146,7 @@ namespace FlexEngine
         // Gaussian Blur settings
         int   blurKernelSize = 12;    // Intensity
         float blurSigma = 10.0f; // Blur Distance
-        int   blurPasses = 3;    // Number of blur passes
+        int   blurPasses = 5;    // Number of blur passes
 
         // Chromatic Aberration settings
         float chromaIntensity = 1.0f;  // Overall effect intensity
@@ -301,7 +301,7 @@ namespace FlexEngine
         *
         * \param opacity The opacity level for the bloom composition.
         *****************************************************************************/
-        static void ApplyBloomFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f);
+        static void ApplyBloomFinalComposition(const GLuint& texture = {}, const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f);
         #pragma endregion
     };
 

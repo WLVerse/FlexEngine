@@ -316,12 +316,13 @@ namespace Game
                 else
                     Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
                 OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurSigma, m_globalsettings.blurKernelSize, horizontal);
-                inputTex = horizontal ? gaussianblurVerticaltexture : gaussianblurHorizontaltexture;
+                inputTex = horizontal ?  gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
                 horizontal = !horizontal;
             }
 
             // Step 4: Final Bloom Composition - combine the blurred highlights back with the original scene.
-            //OpenGLRenderer::ApplyBloomFinalComposition(gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity);
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+            OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity);
 
             // Step 5: Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
