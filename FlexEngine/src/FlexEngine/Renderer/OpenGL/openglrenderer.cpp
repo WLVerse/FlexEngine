@@ -219,7 +219,13 @@ namespace FlexEngine
     auto& asset_shader = AssetManager::Get<Asset::Shader>(props.shader);
     asset_shader.Use();
 
-    if (props.asset != "")
+    if (props.is_video)
+    {
+      asset_shader.SetUniform_bool("u_use_texture", true);
+      auto& asset_video = FLX_ASSET_GET(VideoFrame, props.asset);
+      asset_video.Bind(asset_shader, "u_texture", 0);
+    }
+    else if (props.asset != "")
     {
       if (!is_spritesheet)
       {

@@ -71,6 +71,18 @@ namespace FlexEngine
   FLX_REFL_REGISTER_PROPERTY(current_frame_time)
   FLX_REFL_REGISTER_END;
 
+  
+  FLX_REFL_REGISTER_START(VideoPlayer)
+    FLX_REFL_REGISTER_PROPERTY(video_file)
+    FLX_REFL_REGISTER_PROPERTY(should_play)
+    FLX_REFL_REGISTER_PROPERTY(should_stop)
+    FLX_REFL_REGISTER_PROPERTY(is_looping)
+    FLX_REFL_REGISTER_PROPERTY(change_mode)
+    FLX_REFL_REGISTER_PROPERTY(current_frame)
+    FLX_REFL_REGISTER_PROPERTY(time)
+  FLX_REFL_REGISTER_END
+
+
 
   FLX_REFL_REGISTER_START(ParticleSystem)
       FLX_REFL_REGISTER_PROPERTY(max_particles)

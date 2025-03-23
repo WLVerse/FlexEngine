@@ -1,4 +1,6 @@
 #pragma once
+#include "opengltexture.h"
+#include "Renderer/OpenGL/openglshader.h"
 #include "flx_api.h"
 #include "Utilities/file.h"
 
@@ -31,12 +33,19 @@ namespace FlexEngine
     int GetHeight() const { return m_height; }
     float GetLength() const { return m_length; }
     int GetTotalFrames() const { return m_totalframes; }
+    double GetNextFrameTime() const { return m_next_frame_time; }
+
+    bool DecodeNextFrame();
+    void Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const;
+
+    double m_current_time = 0.0;
 
   private:
     std::string m_filepath;
     int m_width = 0;
     int m_height = 0;
     int m_totalframes = 0;
+    double m_next_frame_time = 0.0; // in seconds, when this frame should be shown
     float m_length = 0; //in seconds
     int m_video_stream_index = -1;
 
@@ -48,13 +57,14 @@ namespace FlexEngine
     AVPacket* m_packet = nullptr;
 
     //Note that libavcodec only accepts arrays, even if its just one element in the array, therefore **char
-    uint8_t* m_flipped_data = nullptr; //array in memory for us to do flipping operations 
-    uint8_t** m_rgb_data = nullptr;
-    int* m_line_size = 0;
+    //uint8_t* m_flipped_data = nullptr; //array in memory for us to do flipping operations 
+    uint8_t** m_rgba_data = nullptr;
+    int* m_line_size = nullptr;
 
-    Frame m_frame_to_render;
+    //Frame m_frame_to_render;
 
-    bool DecodeFrame(uint8_t* outputRGB);
+    unsigned int m_texture;
+
   };
 
 }

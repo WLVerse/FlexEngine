@@ -66,6 +66,7 @@ namespace FlexEngine
         Vector2 window_size = Vector2(800.0f, 600.0f); ///< Current window dimensions.
         float alpha = 1.0f; ///< Opacity level.
         Alignment alignment = Alignment_Center; ///< Texture alignment setting.
+        bool is_video = false;
     };
 
     /**

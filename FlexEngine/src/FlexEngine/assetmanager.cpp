@@ -132,6 +132,13 @@ namespace FlexEngine
           //Log::Info("Loaded sound path: " + key);
           FLX_FLOW_ENDSCOPE();
         }
+        else if (file_extension.string() == ".mp4")
+        {
+          AssetKey key = file.path.string().substr(default_directory_length);
+          assets.emplace(key, VideoFrame());
+          VideoFrame& video = std::get<VideoFrame>(assets[key]);
+          video.Load(file.path);
+        }
         else if (file_extension.string() == ".ttf")
         {
           FLX_FLOW_BEGINSCOPE();

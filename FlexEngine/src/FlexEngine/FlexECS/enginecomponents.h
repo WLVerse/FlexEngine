@@ -169,6 +169,25 @@ namespace FlexEngine
   };
 
 
+  class __FLX_API VideoPlayer
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Scene::StringIndex video_file = FLX_STRING_NEW("");
+    bool should_play = false;
+    bool should_stop = false;
+    bool is_looping = false;
+    bool change_mode = false; // For tagging to flip
+
+    int current_frame = 0;
+    float time = 0.f;
+  };
+
+
+
+  /**************
+   * Particles
+   **************/
   // Grouping emission shape options
   enum ParticleEmitShape
   {
