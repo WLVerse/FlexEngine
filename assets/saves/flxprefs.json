@@ -6,6 +6,7 @@
         "editor.batching": false,
         "game.resolutionIndex": 3,
         "game.volume": 0.02500000037252903,
+        "game.sfx.volume": 0.02500000037252903,
         "game.fullscreen": true
     }
 }
