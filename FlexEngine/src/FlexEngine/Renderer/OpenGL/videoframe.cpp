@@ -8,8 +8,11 @@ namespace FlexEngine
 
 	VideoFrame::~VideoFrame()
 	{
-		if(m_rgba_data[0]) delete m_rgba_data[0];
-		if (m_rgba_data) delete m_rgba_data;
+		if (m_rgba_data)
+		{
+			delete m_rgba_data[0];
+			delete m_rgba_data;
+		}
 		if (m_line_size) delete m_line_size;
 
 		if (m_packet) av_packet_free(&m_packet);
