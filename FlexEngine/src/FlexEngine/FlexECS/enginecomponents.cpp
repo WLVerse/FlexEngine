@@ -246,6 +246,8 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(redOffset)
       FLX_REFL_REGISTER_PROPERTY(greenOffset)
       FLX_REFL_REGISTER_PROPERTY(blueOffset)
+      FLX_REFL_REGISTER_PROPERTY(edgeRadius)
+      FLX_REFL_REGISTER_PROPERTY(edgeSoftness)
       FLX_REFL_REGISTER_END;
 
   // Registration for PostProcessingBloom

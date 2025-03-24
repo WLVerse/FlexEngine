@@ -504,9 +504,11 @@ namespace FlexEngine
   public:
       float intensity = 1.0f;  // Overall intensity of the effect.
       // Optionally, individual channel offsets can be defined.
-      Vector2 redOffset = (5.0f, 0.0f);
-      Vector2 greenOffset = (0.0f, 5.0f);
-      Vector2 blueOffset = (-5.0f, 0.0f);
+      Vector2 redOffset = Vector2(5.0f, 0.0f);
+      Vector2 greenOffset = Vector2(0.0f, 5.0f);
+      Vector2 blueOffset = Vector2(-5.0f, 0.0f);
+      Vector2 edgeRadius = Vector2(0.2f, 0.2f);
+      Vector2 edgeSoftness = Vector2(0.1f, 0.1f);
   };
 
   // Bloom effect parameters.
@@ -525,8 +527,8 @@ namespace FlexEngine
       FLX_REFL_SERIALIZABLE
   public:
       float intensity = 0.5f;  // How dark the edges become.
-      float radius = 0.75f; // The size of the vignette effect (0 to 1).
-      float softness = 0.5f;  // How gradual the fall-off is at the edges.
+      Vector2 radius = Vector2(0.2f,0.2f); // The size of the vignette effect (0 to 1).
+      Vector2 softness = Vector2(0.1f, 0.1f);  // How gradual the fall-off is at the edges.
   };
 
   // Color Grading effect parameters.

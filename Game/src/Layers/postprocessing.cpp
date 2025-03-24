@@ -85,14 +85,14 @@ namespace Game
             const auto PPComponent = element.GetComponent<PostProcessingMarker>();
 
             // Global toggles from the marker.
-            //m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
-            //m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
-            //m_globalsettings.enableBloom = PPComponent->enableBloom;
-            //m_globalsettings.enableVignette = PPComponent->enableVignette;
-            //m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
-            //m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
-            //m_globalsettings.enablePixelate = PPComponent->enablePixelate;
-            //m_globalsettings.globalIntensity = PPComponent->globalIntensity;
+            m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
+            m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
+            m_globalsettings.enableBloom = PPComponent->enableBloom;
+            m_globalsettings.enableVignette = PPComponent->enableVignette;
+            m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
+            m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
+            m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
             if (element.HasComponent<PostProcessingGaussianBlur>())
@@ -110,6 +110,8 @@ namespace Game
                 m_globalsettings.chromaRedOffset = chroma->redOffset;
                 m_globalsettings.chromaGreenOffset = chroma->greenOffset;
                 m_globalsettings.chromaBlueOffset = chroma->blueOffset;
+                m_globalsettings.chromaEdgeRadius = chroma->edgeRadius;
+                m_globalsettings.chromaEdgeSoftness = chroma->edgeSoftness;
             }
 
             if (element.HasComponent<PostProcessingBloom>())
@@ -158,7 +160,7 @@ namespace Game
         #pragma endregion
 
         #pragma region Run Postprocessing Effects
-        // === Step 1: Process Local Post-Processing ===
+        // === Step 1: Process Local Post-Processing === // NOT YET DONE
         // Bind local framebuffer and render objects that have post-processing components.
         //m_LocalFramebuffer->Bind();
         // Clear local framebuffer as needed.
@@ -176,9 +178,9 @@ namespace Game
         DrawGlobalPostProcessing();
         #pragma endregion
 
-        #pragma region Master Control
+        #pragma region Master Control //Do not remove
         {
-            #if 1
+            #if 0
             // Toggle settings using bottom keys:
             if (Input::GetKeyDown(GLFW_KEY_Z)) // Toggle bloom
                 m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
@@ -414,7 +416,7 @@ namespace Game
 
             // Step 3: Final Bloom Composition - combine the blurred highlights back with the original scene.
             Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
-            OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity);
+            OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity, m_globalsettings.bloomRadius);
 
             // Step 4: Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
@@ -466,7 +468,9 @@ namespace Game
                 m_globalsettings.chromaIntensity,
                 m_globalsettings.chromaRedOffset,
                 m_globalsettings.chromaGreenOffset,
-                m_globalsettings.chromaBlueOffset
+                m_globalsettings.chromaBlueOffset,
+                m_globalsettings.chromaEdgeRadius,
+                m_globalsettings.chromaEdgeSoftness
             );
 
             // Update Global FrameBuffer

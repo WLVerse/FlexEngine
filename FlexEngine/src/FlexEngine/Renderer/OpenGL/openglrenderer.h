@@ -141,6 +141,7 @@ namespace FlexEngine
         bool enableColorGrading = false;
         bool enableFilmGrain = false;
         bool enablePixelate = false;
+        
         float globalIntensity = 1.0f;
 
         // Gaussian Blur settings
@@ -150,9 +151,11 @@ namespace FlexEngine
 
         // Chromatic Aberration settings
         float chromaIntensity = 1.0f;  // Overall effect intensity
-        Vector2 chromaRedOffset = (10.0f, 0.0f);
-        Vector2 chromaGreenOffset = (0.0f, 10.0f);
-        Vector2 chromaBlueOffset = (5.0f, 5.0f);
+        Vector2 chromaRedOffset = Vector2(10.0f, 0.0f);
+        Vector2 chromaGreenOffset = Vector2(0.0f, 10.0f);
+        Vector2 chromaBlueOffset = Vector2(5.0f, 5.0f);
+        Vector2 chromaEdgeRadius = Vector2(0.2f, 0.2f);
+        Vector2 chromaEdgeSoftness = Vector2(0.1f, 0.1f);
 
         // Bloom settings
         float bloomThreshold = 0.75f;  // Luminance threshold for bloom
@@ -160,9 +163,9 @@ namespace FlexEngine
         float bloomRadius = 1.2f; // Bloom spread radius
 
         // Vignette settings
-        float vignetteIntensity = 0.5f;  // How dark the edges get
-        float vignetteRadius = 0.75f; // Size of the vignette effect (0-1 range)
-        float vignetteSoftness = 0.5f;  // How gradual the fall-off is
+        float vignetteIntensity = 1.0f;  // How dark the edges get
+        Vector2 vignetteRadius = Vector2(0.002f, 0.002f); // Size of the vignette effect (0-1 range)
+        Vector2 vignetteSoftness = Vector2(0.08f, 0.08f);  // How gradual the fall-off is
 
         // Color Grading settings
         float colorBrightness = 0.0f;  // Brightness adjustment
@@ -299,7 +302,7 @@ namespace FlexEngine
         *
         * \param opacity The opacity level for the bloom composition.
         *****************************************************************************/
-        static void ApplyBloomFinalComposition(const GLuint& texture = {}, const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f);
+        static void ApplyBloomFinalComposition(const GLuint& texture = {}, const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f, float spread=1.0f);
 
         /*!***************************************************************************
        * \brief
@@ -307,9 +310,9 @@ namespace FlexEngine
        *****************************************************************************/
         static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
 
-        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& redOffset = {0.1f,0.1f}, const Vector2& greenOffset = {0.1f,0.1f}, const Vector2& blueOffset = {0.1f,0.1f});
+        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& redOffset = { 0.1f,0.1f }, const Vector2& greenOffset = { 0.1f,0.1f }, const Vector2& blueOffset = { 0.1f,0.1f }, const Vector2& EdgeRadius = {0.2f,0.2f}, const Vector2& EdgeSoftness = { 0.2f,0.2f });
         static void ApplyColorGrading(const GLuint& inputTex = {}, float brightness = 0.0f, float contrast = 0.0f, float saturation = 0.0f);
-        static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, float vignetteRadius = 0.0f, float vignetteSoftness = 0.0f);
+        static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, const Vector2& vignetteRadius = { 0.2f,0.2f }, const Vector2& vignetteSoftness = { 0.1f,0.1f });
         static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
         static void ApplyPixelate(const GLuint& inputTex = {}, float pixelWidth = 0.0f, float pixelHeight = 0.0f);
 

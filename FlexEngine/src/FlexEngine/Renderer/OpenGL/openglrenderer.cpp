@@ -1521,7 +1521,7 @@ namespace FlexEngine
   //*
   //* \param opacity The opacity level for the bloom composition.
   //*****************************************************************************/
-  void OpenGLRenderer::ApplyBloomFinalComposition(const GLuint& texture, const GLuint& blurtextureHorizontal, const GLuint& blurtextureVertical, float opacity)
+  void OpenGLRenderer::ApplyBloomFinalComposition(const GLuint& texture, const GLuint& blurtextureHorizontal, const GLuint& blurtextureVertical, float opacity, float spread)
   {
       #pragma region VAO setup
       // Full-screen quad covering clip space.
@@ -1577,7 +1577,8 @@ namespace FlexEngine
       glBindTexture(GL_TEXTURE_2D, blurtextureHorizontal); // Blur Horizontal
       asset_shader.SetUniform_int("bloomHTex", 2);
       asset_shader.SetUniform_float("opacity", opacity);
-      
+      asset_shader.SetUniform_float("bloomRadius", spread);
+
       glDrawArrays(GL_TRIANGLES, 0, 6);
       m_draw_calls++;
   }
@@ -1640,7 +1641,7 @@ namespace FlexEngine
   }
 
 
-  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset)
+  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset, const Vector2& EdgeRadius, const Vector2& EdgeSoftness)
   {
       #pragma region VAO Setup
       // Full-screen quad covering clip space.
@@ -1693,6 +1694,9 @@ namespace FlexEngine
       asset_shader.SetUniform_vec2("u_RedOffset", redOffset);
       asset_shader.SetUniform_vec2("u_GreenOffset", greenOffset);
       asset_shader.SetUniform_vec2("u_BlueOffset", blueOffset);
+
+      asset_shader.SetUniform_vec2("u_EdgeRadius", EdgeRadius);
+      asset_shader.SetUniform_vec2("u_EdgeSoftness", EdgeSoftness);
 
       // Draw the full-screen quad.
       glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1756,7 +1760,7 @@ namespace FlexEngine
       m_draw_calls++;
   }
 
-  void OpenGLRenderer::ApplyVignette(const GLuint& inputTex, float vignetteIntensity, float vignetteRadius, float vignetteSoftness)
+  void OpenGLRenderer::ApplyVignette(const GLuint& inputTex, float vignetteIntensity, const Vector2& vignetteRadius, const Vector2& vignetteSoftness)
   {
       #pragma region VAO Setup
       // Full-screen quad covering clip space.
@@ -1805,8 +1809,8 @@ namespace FlexEngine
 
       // Set the vignette parameters.
       asset_shader.SetUniform_float("u_VignetteIntensity", vignetteIntensity);
-      asset_shader.SetUniform_float("u_VignetteRadius", vignetteRadius);
-      asset_shader.SetUniform_float("u_VignetteSoftness", vignetteSoftness);
+      asset_shader.SetUniform_vec2("u_VignetteRadius", vignetteRadius);
+      asset_shader.SetUniform_vec2("u_VignetteSoftness", vignetteSoftness);
 
       // Draw the full-screen quad.
       glDrawArrays(GL_TRIANGLES, 0, 6);
