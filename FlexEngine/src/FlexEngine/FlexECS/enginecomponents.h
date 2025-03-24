@@ -503,11 +503,10 @@ namespace FlexEngine
       FLX_REFL_SERIALIZABLE
   public:
       float intensity = 1.0f;  // Overall intensity of the effect.
-      float maxOffset = 5.0f;  // Maximum channel offset in pixels.
       // Optionally, individual channel offsets can be defined.
-      float redOffset = 1.0f;
-      float greenOffset = 1.0f;
-      float blueOffset = 1.0f;
+      Vector2 redOffset = (5.0f, 0.0f);
+      Vector2 greenOffset = (0.0f, 5.0f);
+      Vector2 blueOffset = (-5.0f, 0.0f);
   };
 
   // Bloom effect parameters.

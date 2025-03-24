@@ -243,7 +243,6 @@ namespace FlexEngine
   // Registration for PostProcessingChromaticAbberation
   FLX_REFL_REGISTER_START(PostProcessingChromaticAbberation)
       FLX_REFL_REGISTER_PROPERTY(intensity)
-      FLX_REFL_REGISTER_PROPERTY(maxOffset)
       FLX_REFL_REGISTER_PROPERTY(redOffset)
       FLX_REFL_REGISTER_PROPERTY(greenOffset)
       FLX_REFL_REGISTER_PROPERTY(blueOffset)

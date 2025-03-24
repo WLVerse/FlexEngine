@@ -3,24 +3,26 @@
 in vec2 tex_coord;
 out vec4 FragColor;
 
-uniform sampler2D u_InputTex;      // Input texture
-uniform float u_ChromaIntensity;   // Global intensity multiplier
-uniform vec2 u_RedOffset;          // Base red offset
-uniform vec2 u_GreenOffset;        // Base green offset
-uniform vec2 u_BlueOffset;         // Base blue offset
-uniform vec2 u_MaxOffset;          // Maximum allowed offset for each channel
+uniform sampler2D u_InputTex;       // Input texture
+uniform float u_ChromaIntensity;    // Global intensity multiplier
+uniform vec2 u_RedOffset;           // Base red offset (in pixels)
+uniform vec2 u_GreenOffset;         // Base green offset (in pixels)
+uniform vec2 u_BlueOffset;          // Base blue offset (in pixels)
 
 void main()
 {
-    // Calculate per-channel offsets (scaled by intensity) and clamp them.
-    vec2 redOff   = clamp(u_RedOffset * u_ChromaIntensity, -u_MaxOffset, u_MaxOffset);
-    vec2 greenOff = clamp(u_GreenOffset * u_ChromaIntensity, -u_MaxOffset, u_MaxOffset);
-    vec2 blueOff  = clamp(u_BlueOffset * u_ChromaIntensity, -u_MaxOffset, u_MaxOffset);
+    ivec2 texSize = textureSize(u_InputTex, 0);
+    vec2 texDim = vec2(texSize);
 
-    // Sample the input texture for each color channel with its offset.
-    float red   = texture(u_InputTex, tex_coord + redOff).r;
-    float green = texture(u_InputTex, tex_coord + greenOff).g;
-    float blue  = texture(u_InputTex, tex_coord + blueOff).b;
-    
+    // Convert pixel-based offsets into normalized texture space.
+    vec2 normalizedRed = (u_RedOffset / texDim) * u_ChromaIntensity;
+    vec2 normalizedGreen = (u_GreenOffset / texDim) * u_ChromaIntensity;
+    vec2 normalizedBlue = (u_BlueOffset / texDim) * u_ChromaIntensity;
+
+    // Sample each channel with its offset.
+    float red   = texture(u_InputTex, tex_coord + normalizedRed).r;
+    float green = texture(u_InputTex, tex_coord + normalizedGreen).g;
+    float blue  = texture(u_InputTex, tex_coord + normalizedBlue).b;
+
     FragColor = vec4(red, green, blue, 1.0);
 }

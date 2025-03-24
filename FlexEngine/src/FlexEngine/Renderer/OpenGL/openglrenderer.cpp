@@ -1640,7 +1640,7 @@ namespace FlexEngine
   }
 
 
-  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& maxOffset, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset)
+  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset)
   {
       #pragma region VAO Setup
       // Full-screen quad covering clip space.
@@ -1693,7 +1693,6 @@ namespace FlexEngine
       asset_shader.SetUniform_vec2("u_RedOffset", redOffset);
       asset_shader.SetUniform_vec2("u_GreenOffset", greenOffset);
       asset_shader.SetUniform_vec2("u_BlueOffset", blueOffset);
-      asset_shader.SetUniform_vec2("u_MaxOffset", maxOffset);
 
       // Draw the full-screen quad.
       glDrawArrays(GL_TRIANGLES, 0, 6);

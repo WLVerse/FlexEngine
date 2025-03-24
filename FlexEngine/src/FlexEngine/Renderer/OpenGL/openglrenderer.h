@@ -150,10 +150,9 @@ namespace FlexEngine
 
         // Chromatic Aberration settings
         float chromaIntensity = 1.0f;  // Overall effect intensity
-        float chromaMaxOffset = 5.0f;  // Maximum pixel offset for channel shift
-        float chromaRedOffset = 1.0f;
-        float chromaGreenOffset = 1.0f;
-        float chromaBlueOffset = 1.0f;
+        Vector2 chromaRedOffset = (10.0f, 0.0f);
+        Vector2 chromaGreenOffset = (0.0f, 10.0f);
+        Vector2 chromaBlueOffset = (5.0f, 5.0f);
 
         // Bloom settings
         float bloomThreshold = 0.75f;  // Luminance threshold for bloom
@@ -167,8 +166,8 @@ namespace FlexEngine
 
         // Color Grading settings
         float colorBrightness = 0.0f;  // Brightness adjustment
-        float colorContrast = 1.0f;  // Contrast multiplier
-        float colorSaturation = 1.0f;  // Saturation multiplier
+        float colorContrast = 2.0f;  // Contrast multiplier
+        float colorSaturation = 2.0f;  // Saturation multiplier
         //std::string lutTexturePath = "";    // Path to lookup table (LUT) texture, if any
 
         // Pixelation settings
@@ -308,7 +307,7 @@ namespace FlexEngine
        *****************************************************************************/
         static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
 
-        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& maxOffset = {0.5f,0.5f}, const Vector2& redOffset = {0.1f,0.1f}, const Vector2& greenOffset = {0.1f,0.1f}, const Vector2& blueOffset = {0.1f,0.1f});
+        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& redOffset = {0.1f,0.1f}, const Vector2& greenOffset = {0.1f,0.1f}, const Vector2& blueOffset = {0.1f,0.1f});
         static void ApplyColorGrading(const GLuint& inputTex = {}, float brightness = 0.0f, float contrast = 0.0f, float saturation = 0.0f);
         static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, float vignetteRadius = 0.0f, float vignetteSoftness = 0.0f);
         static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
