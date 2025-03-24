@@ -144,8 +144,8 @@ namespace FlexEngine
         float globalIntensity = 1.0f;
 
         // Gaussian Blur settings
-        int   blurKernelSize = 12;    // Intensity
-        float blurSigma = 12.5f; // Blur Distance
+        int   blurIntensity = 12;    // Intensity
+        float blurDistance = 12.5f; // Blur Distance
         int   blurPasses = 5;    // Number of blur passes
 
         // Chromatic Aberration settings
@@ -293,7 +293,7 @@ namespace FlexEngine
         * \param blurDistance The distance factor for the blur effect.
         * \param intensity The intensity of the blur.
         *****************************************************************************/
-        static void ApplyGaussianBlur(const GLuint& texture = {}, float blurDistance = 10.0f, int intensity = 12, bool isHorizontal = false);
+        static void ApplyGaussianBlur(const GLuint& texture = {}, float blurDistance = 10.0f, int blurIntensity = 12, bool isHorizontal = false);
         
         /*!***************************************************************************
         * \brief
@@ -302,6 +302,12 @@ namespace FlexEngine
         * \param opacity The opacity level for the bloom composition.
         *****************************************************************************/
         static void ApplyBloomFinalComposition(const GLuint& texture = {}, const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f);
+
+        /*!***************************************************************************
+       * \brief
+       * Applies the final blur composition
+       *****************************************************************************/
+        static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
         #pragma endregion
     };
 

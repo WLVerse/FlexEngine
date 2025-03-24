@@ -1,6 +1,6 @@
 #include "PostProcessing.h"
 
-namespace Game 
+namespace Game
 {
     Renderer2D_GlobalPPSettings PostProcessing::m_globalsettings = Renderer2D_GlobalPPSettings();
     int PostProcessing::postProcessZIndex = INT_MAX;
@@ -24,12 +24,12 @@ namespace Game
         // Release or reset resources.
     }
 
-    void PostProcessing::Update() 
+    void PostProcessing::Update()
     {
         OpenGLFrameBuffer::Unbind();
 
         if (!CameraManager::has_main_camera) return;
-       
+
         #pragma region Clearing Framebuffers
         Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
         OpenGLRenderer::ClearFrameBuffer();
@@ -37,7 +37,9 @@ namespace Game
         OpenGLRenderer::ClearFrameBuffer();
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
         OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur");
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
         OpenGLRenderer::ClearFrameBuffer();
         Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
         OpenGLRenderer::ClearFrameBuffer();
@@ -55,7 +57,7 @@ namespace Game
             positionComponent->position = Vector3(0, 0, 0);
             auto rotationComponent = element.GetComponent<Rotation>();
             auto scaleComponent = element.GetComponent<Scale>();
-            scaleComponent->scale = Vector3(windowSize,0.0f);
+            scaleComponent->scale = Vector3(windowSize, 0.0f);
 
             Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, positionComponent->position);
             Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotationComponent->rotation).ToRotationMatrix();
@@ -68,21 +70,21 @@ namespace Game
             const auto PPComponent = element.GetComponent<PostProcessingMarker>();
 
             // Global toggles from the marker.
-            m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
-            m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
+            //m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
+            //m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
             //m_globalsettings.enableBloom = PPComponent->enableBloom;
-            m_globalsettings.enableVignette = PPComponent->enableVignette;
-            m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
-            m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
-            m_globalsettings.enablePixelate = PPComponent->enablePixelate;
-            m_globalsettings.globalIntensity = PPComponent->globalIntensity;
+            //m_globalsettings.enableVignette = PPComponent->enableVignette;
+            //m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
+            //m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
+            //m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            //m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
             if (element.HasComponent<PostProcessingGaussianBlur>())
             {
                 auto blur = element.GetComponent<PostProcessingGaussianBlur>();
-                m_globalsettings.blurKernelSize = blur->kernelSize;
-                m_globalsettings.blurSigma = blur->sigma;
+                m_globalsettings.blurIntensity = blur->intensity;
+                m_globalsettings.blurDistance = blur->distance;
                 m_globalsettings.blurPasses = blur->blurPasses;
             }
 
@@ -156,7 +158,21 @@ namespace Game
         // At this stage, your regular RenderingLayer might have rendered the scene.
         // You may now composite the local post-processed textures with the main scene.
         // For example, you can render the local processed texture onto m_GlobalFramebuffer.
-        if (Input::GetKeyDown(GLFW_KEY_Z)) m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
+        // Toggle settings using bottom keys:
+        if (Input::GetKeyDown(GLFW_KEY_Z)) // Toggle bloom
+            m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
+        if (Input::GetKeyDown(GLFW_KEY_X)) // Toggle Gaussian Blur
+            m_globalsettings.enableGaussianBlur = !m_globalsettings.enableGaussianBlur;
+        if (Input::GetKeyDown(GLFW_KEY_C)) // Toggle Chromatic Aberration
+            m_globalsettings.enableChromaticAberration = !m_globalsettings.enableChromaticAberration;
+        if (Input::GetKeyDown(GLFW_KEY_V)) // Toggle Vignette
+            m_globalsettings.enableVignette = !m_globalsettings.enableVignette;
+        if (Input::GetKeyDown(GLFW_KEY_B)) // Toggle Color Grading
+            m_globalsettings.enableColorGrading = !m_globalsettings.enableColorGrading;
+        if (Input::GetKeyDown(GLFW_KEY_N)) // Toggle Film Grain
+            m_globalsettings.enableFilmGrain = !m_globalsettings.enableFilmGrain;
+        if (Input::GetKeyDown(GLFW_KEY_M)) // Toggle Pixelate
+            m_globalsettings.enablePixelate = !m_globalsettings.enablePixelate;
 
         if (Input::GetKeyDown(GLFW_KEY_T)) m_globalsettings.bloomThreshold += 0.05f;
         if (Input::GetKeyDown(GLFW_KEY_G)) m_globalsettings.bloomThreshold -= 0.05f;
@@ -170,12 +186,12 @@ namespace Game
         if (Input::GetKeyDown(GLFW_KEY_J)) m_globalsettings.bloomRadius -= 1.0f;
 
         // Blur Kernel Size
-        if (Input::GetKeyDown(GLFW_KEY_I)) m_globalsettings.blurKernelSize = std::min(m_globalsettings.blurKernelSize + 1, 64);
-        if (Input::GetKeyDown(GLFW_KEY_K)) m_globalsettings.blurKernelSize = std::max(m_globalsettings.blurKernelSize - 1, 1);
+        if (Input::GetKeyDown(GLFW_KEY_I)) m_globalsettings.blurIntensity = std::min(m_globalsettings.blurIntensity + 1, 64);
+        if (Input::GetKeyDown(GLFW_KEY_K)) m_globalsettings.blurIntensity = std::max(m_globalsettings.blurIntensity - 1, 1);
 
         // Blur Sigma
-        if (Input::GetKeyDown(GLFW_KEY_O)) m_globalsettings.blurSigma += 0.5f;
-        if (Input::GetKeyDown(GLFW_KEY_L)) m_globalsettings.blurSigma -= 0.5f;
+        if (Input::GetKeyDown(GLFW_KEY_O)) m_globalsettings.blurDistance += 0.5f;
+        if (Input::GetKeyDown(GLFW_KEY_L)) m_globalsettings.blurDistance -= 0.5f;
 
         // Blur Passes
         if (Input::GetKeyDown(GLFW_KEY_P)) m_globalsettings.blurPasses = std::min(m_globalsettings.blurPasses + 1, 10);
@@ -199,7 +215,7 @@ namespace Game
         OpenGLFrameBuffer::Unbind();
     }
 
-    void PostProcessing::ProcessLocalPostProcessing() 
+    void PostProcessing::ProcessLocalPostProcessing()
     {
         // Example: For each object with a PostProcessingComponent, do:
         //   1. Retrieve its stackable post-processing effects.
@@ -219,10 +235,10 @@ namespace Game
         // }
     }
 
-    void PostProcessing::ProcessGlobalPostProcessing() 
+    void PostProcessing::ProcessGlobalPostProcessing()
     {
         Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-        
+
         // Apply global post-processing effects such as bloom, tone mapping, or color grading.
         auto scene = FlexECS::Scene::GetActiveScene();
 
@@ -312,25 +328,23 @@ namespace Game
         // Render all objects (sprites and text) that are below the post-process marker.
         prePostProcessingQueue.Flush();
     }
-    
+
     void PostProcessing::DrawGlobalPostProcessing()
     {
         Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+        GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
+        GLuint bloomtexture = Window::FrameBufferManager.GetFrameBuffer("Bloom")->GetColorAttachment();
+        GLuint gaussianblurHorizontaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Horizontal")->GetColorAttachment();
+        GLuint gaussianblurVerticaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Vertical")->GetColorAttachment();
 
         // ---------- Bloom Pipeline ----------
         if (m_globalsettings.enableBloom)
         {
-            // Step 1: Set to the bloom framebuffer to isolate the bloom effect.
-            GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
-            GLuint bloomtexture = Window::FrameBufferManager.GetFrameBuffer("Bloom")->GetColorAttachment();
-            GLuint gaussianblurHorizontaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Horizontal")->GetColorAttachment();
-            GLuint gaussianblurVerticaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Vertical")->GetColorAttachment();
-
-            // Step 2: Brightness Extraction - isolate bright areas based on the bloom threshold.
+            // Step 1: Brightness Extraction - isolate bright areas based on the bloom threshold.
             Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
             OpenGLRenderer::ApplyBrightnessPass(globaltexture, m_globalsettings.bloomThreshold);
 
-            // Step 3: Gaussian Blur as part of the bloom chain.
+            // Step 2: Gaussian Blur as part of the bloom chain.
             GLuint inputTex = bloomtexture;
             bool horizontal = true; // Start with a horizontal blur.
             for (int i = 0; i < m_globalsettings.blurPasses; ++i)
@@ -339,28 +353,54 @@ namespace Game
                     Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
                 else
                     Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
-                OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurSigma, m_globalsettings.blurKernelSize, horizontal);
-                inputTex = horizontal ?  gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurDistance, m_globalsettings.blurIntensity, horizontal);
+                inputTex = horizontal ? gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
                 horizontal = !horizontal;
             }
 
-            // Step 4: Final Bloom Composition - combine the blurred highlights back with the original scene.
+            // Step 3: Final Bloom Composition - combine the blurred highlights back with the original scene.
             Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
             OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity);
 
-            // Step 5: Update Global FrameBuffer
+            // Step 4: Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
             ReplicateFrameBufferAttachment(bloomtexture);
+
+            // Step 6: Reset
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+            OpenGLRenderer::ClearFrameBuffer();
         }
 
         // Apply a full-screen Gaussian blur on the scene if enabled.
-        //if (m_globalsettings.enableGaussianBlur)
-        //{
-        //    // (Optionally reset the framebuffer if needed.)
-        //    Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-        //
-        //    OpenGLRenderer::ApplyGaussianBlur(m_globalsettings.blurKernelSize, m_globalsettings.blurSigma, m_globalsettings.blurPasses);
-        //}
+        if (m_globalsettings.enableGaussianBlur)
+        {
+            GLuint inputTex = globaltexture;
+            bool horizontal = true; // Start with a horizontal blur.
+            for (int i = 0; i < m_globalsettings.blurPasses; ++i)
+            {
+                if (horizontal)
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+                else
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurDistance, m_globalsettings.blurIntensity, horizontal);
+                inputTex = horizontal ? gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
+                horizontal = !horizontal;
+            }
+
+            // Merge results
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            OpenGLRenderer::ApplyBlurFinalComposition(gaussianblurHorizontaltexture, gaussianblurVerticaltexture);
+
+            // Reset frame buffers
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
 
         //// Chromatic Aberration: apply color separation if enabled.
         //if (m_globalsettings.enableChromaticAberration)

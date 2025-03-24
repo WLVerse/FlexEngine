@@ -492,8 +492,8 @@ namespace FlexEngine
   {
       FLX_REFL_SERIALIZABLE
   public:
-      int   kernelSize = 5;    // Kernel size for the blur (odd number preferred).
-      float sigma = 1.0f; // Standard deviation for the Gaussian distribution.
+      int   intensity = 5;    // Blur Intensity
+      float distance = 1.0f; // Blur Distance
       int   blurPasses = 1;    // Number of passes to apply (higher for smoother blur).
   };
 

@@ -235,8 +235,8 @@ namespace FlexEngine
 
   // Registration for PostProcessingGaussianBlur
   FLX_REFL_REGISTER_START(PostProcessingGaussianBlur)
-      FLX_REFL_REGISTER_PROPERTY(kernelSize)
-      FLX_REFL_REGISTER_PROPERTY(sigma)
+      FLX_REFL_REGISTER_PROPERTY(intensity)
+      FLX_REFL_REGISTER_PROPERTY(distance)
       FLX_REFL_REGISTER_PROPERTY(blurPasses)
       FLX_REFL_REGISTER_END;
 
