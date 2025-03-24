@@ -17,6 +17,11 @@ namespace Game
         Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Horizontal", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Vertical", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Bloom", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Chromatic Aberration", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Color Grading", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Vignette", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Film Grain", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Pixelate", window_size);
     }
 
     void PostProcessing::Exit()
@@ -42,6 +47,16 @@ namespace Game
         Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
         OpenGLRenderer::ClearFrameBuffer();
         Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
         OpenGLRenderer::ClearFrameBuffer();
         #pragma endregion
 
@@ -336,6 +351,11 @@ namespace Game
         GLuint bloomtexture = Window::FrameBufferManager.GetFrameBuffer("Bloom")->GetColorAttachment();
         GLuint gaussianblurHorizontaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Horizontal")->GetColorAttachment();
         GLuint gaussianblurVerticaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Vertical")->GetColorAttachment();
+        GLuint chromaticaberration_texture = Window::FrameBufferManager.GetFrameBuffer("Chromatic Aberration")->GetColorAttachment();
+        GLuint colorgradingtexture = Window::FrameBufferManager.GetFrameBuffer("Color Grading")->GetColorAttachment();
+        GLuint vignettetexture = Window::FrameBufferManager.GetFrameBuffer("Vignette")->GetColorAttachment();
+        GLuint filmgraintexture = Window::FrameBufferManager.GetFrameBuffer("Film Grain")->GetColorAttachment();
+        GLuint pixelatetexture = Window::FrameBufferManager.GetFrameBuffer("Pixelate")->GetColorAttachment();
 
         // ---------- Bloom Pipeline ----------
         if (m_globalsettings.enableBloom)
@@ -402,57 +422,107 @@ namespace Game
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        //// Chromatic Aberration: apply color separation if enabled.
-        //if (m_globalsettings.enableChromaticAberration)
-        //{
-        //    OpenGLRenderer::ApplyChromaticAberration(
-        //        m_globalsettings.chromaIntensity,
-        //        m_globalsettings.chromaMaxOffset,
-        //        m_globalsettings.chromaRedOffset,
-        //        m_globalsettings.chromaGreenOffset,
-        //        m_globalsettings.chromaBlueOffset
-        //    );
-        //}
+        // Chromatic Aberration: apply color separation if enabled.
+        if (m_globalsettings.enableChromaticAberration)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
+            OpenGLRenderer::ApplyChromaticAberration(
+                inputTex,
+                m_globalsettings.chromaIntensity,
+                m_globalsettings.chromaMaxOffset,
+                m_globalsettings.chromaRedOffset,
+                m_globalsettings.chromaGreenOffset,
+                m_globalsettings.chromaBlueOffset
+            );
 
-        //// Color Grading / Tone Mapping: adjust brightness, contrast, and saturation.
-        //if (m_globalsettings.enableColorGrading)
-        //{
-        //    OpenGLRenderer::ApplyColorGrading(
-        //        m_globalsettings.colorBrightness,
-        //        m_globalsettings.colorContrast,
-        //        m_globalsettings.colorSaturation
-        //        //, m_globalsettings.lutTexturePath if required
-        //    );
-        //}
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(chromaticaberration_texture);
 
-        //// Vignette: darken edges to draw attention to the center.
-        //if (m_globalsettings.enableVignette)
-        //{
-        //    OpenGLRenderer::ApplyVignette(
-        //        m_globalsettings.vignetteIntensity,
-        //        m_globalsettings.vignetteRadius,
-        //        m_globalsettings.vignetteSoftness
-        //    );
-        //}
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
 
-        //// Film Grain: overlay a subtle noise effect.
-        //if (m_globalsettings.enableFilmGrain)
-        //{
-        //    OpenGLRenderer::ApplyFilmGrain(
-        //        m_globalsettings.filmGrainIntensity,
-        //        m_globalsettings.filmGrainSize,
-        //        m_globalsettings.filmGrainAnimate
-        //    );
-        //}
+        // Color Grading / Tone Mapping: adjust brightness, contrast, and saturation.
+        if (m_globalsettings.enableColorGrading)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
+            OpenGLRenderer::ApplyColorGrading(
+                inputTex,
+                m_globalsettings.colorBrightness,
+                m_globalsettings.colorContrast,
+                m_globalsettings.colorSaturation
+                //, m_globalsettings.lutTexturePath if required
+            );
 
-        //// Pixelate: optionally apply a pixelation effect as a final overlay.
-        //if (m_globalsettings.enablePixelate)
-        //{
-        //    OpenGLRenderer::ApplyPixelate(
-        //        m_globalsettings.pixelWidth,
-        //        m_globalsettings.pixelHeight
-        //    );
-        //}
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(chromaticaberration_texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Vignette: darken edges to draw attention to the center.
+        if (m_globalsettings.enableVignette)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
+            OpenGLRenderer::ApplyVignette(
+                inputTex,
+                m_globalsettings.vignetteIntensity,
+                m_globalsettings.vignetteRadius,
+                m_globalsettings.vignetteSoftness
+            );
+
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(vignettetexture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Film Grain: overlay a subtle noise effect.
+        if (m_globalsettings.enableFilmGrain)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
+            OpenGLRenderer::ApplyFilmGrain(
+                inputTex,
+                m_globalsettings.filmGrainIntensity,
+                m_globalsettings.filmGrainSize,
+                m_globalsettings.filmGrainAnimate
+            );
+
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(filmgraintexture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Pixelate: optionally apply a pixelation effect as a final overlay.
+        if (m_globalsettings.enablePixelate)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
+            OpenGLRenderer::ApplyPixelate(
+                inputTex,
+                m_globalsettings.pixelWidth,
+                m_globalsettings.pixelHeight
+            );
+
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(pixelatetexture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
     }
 
     void PostProcessing::ReplicateFrameBufferAttachment(GLuint texture)

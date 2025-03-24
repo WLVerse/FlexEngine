@@ -1,0 +1,2 @@
+vertex: assets/shaders/Shared.vert
+fragment: assets/shaders/color_grading.frag

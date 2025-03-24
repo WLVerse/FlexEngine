@@ -1676,5 +1676,245 @@ namespace FlexEngine
       m_draw_calls++;
   }
 
+
+  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& maxOffset, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the chromatic aberration shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Chromatic_aberration.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the chromatic aberration parameters.
+      asset_shader.SetUniform_float("u_ChromaIntensity", chromaIntensity);
+      asset_shader.SetUniform_vec2("u_RedOffset", redOffset);
+      asset_shader.SetUniform_vec2("u_GreenOffset", greenOffset);
+      asset_shader.SetUniform_vec2("u_BlueOffset", blueOffset);
+      asset_shader.SetUniform_vec2("u_MaxOffset", maxOffset);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyColorGrading(const GLuint& inputTex, float brightness, float contrast, float saturation)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]() {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the color grading shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Color_grading.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the color grading parameters.
+      asset_shader.SetUniform_float("u_Brightness", brightness);
+      asset_shader.SetUniform_float("u_Contrast", contrast);
+      asset_shader.SetUniform_float("u_Saturation", saturation);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyVignette(const GLuint& inputTex, float vignetteIntensity, float vignetteRadius, float vignetteSoftness)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position attribute
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoord attribute
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup code to your free queue.
+          FreeQueue::Push([=]() {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the vignette shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Vignette.flxshader");
+
+      // Bind the input texture (e.g., the current screen texture) to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex); 
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the vignette parameters.
+      asset_shader.SetUniform_float("u_VignetteIntensity", vignetteIntensity);
+      asset_shader.SetUniform_float("u_VignetteRadius", vignetteRadius);
+      asset_shader.SetUniform_float("u_VignetteSoftness", vignetteSoftness);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyFilmGrain(const GLuint& inputTex,float filmGrainIntensity,float filmGrainSize,bool filmGrainAnimate)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the film grain shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/FilmGrain.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set film grain parameters.
+      asset_shader.SetUniform_float("u_FilmGrainIntensity", filmGrainIntensity);
+      asset_shader.SetUniform_float("u_FilmGrainSize", filmGrainSize);
+      asset_shader.SetUniform_int("u_FilmGrainAnimate", filmGrainAnimate ? 1 : 0);
+
+      // If animating, pass a time uniform (replace with your engine's time function)
+      if (filmGrainAnimate)
+      {
+          float time = static_cast<float>(glfwGetTime());
+          asset_shader.SetUniform_float("u_Time", time);
+      }
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
   #pragma endregion
 }

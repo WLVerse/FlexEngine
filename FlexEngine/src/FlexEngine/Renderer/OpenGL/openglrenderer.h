@@ -294,7 +294,7 @@ namespace FlexEngine
         * \param intensity The intensity of the blur.
         *****************************************************************************/
         static void ApplyGaussianBlur(const GLuint& texture = {}, float blurDistance = 10.0f, int blurIntensity = 12, bool isHorizontal = false);
-        
+
         /*!***************************************************************************
         * \brief
         * Applies the final bloom composition with a specified opacity level.
@@ -308,7 +308,11 @@ namespace FlexEngine
        * Applies the final blur composition
        *****************************************************************************/
         static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
-        #pragma endregion
-    };
 
+        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& maxOffset = {0.5f,0.5f}, const Vector2& redOffset = {0.1,0.1}, const Vector2& greenOffset = {0.1,0.1}, const Vector2& blueOffset = {0.1,0.1});
+        static void ApplyColorGrading(const GLuint& inputTex = {}, float brightness = 0.0f, float contrast = 0.0f, float saturation = 0.0f);
+        static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, float vignetteRadius = 0.0f, float vignetteSoftness = 0.0f);
+        #pragma endregion
+
+    };
 }
