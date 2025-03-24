@@ -222,7 +222,7 @@ namespace Game
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
 
         GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
-        GLuint localtexture = Window::FrameBufferManager.GetFrameBuffer("Local Post Processing")->GetColorAttachment();
+        //GLuint localtexture = Window::FrameBufferManager.GetFrameBuffer("Local Post Processing")->GetColorAttachment();
         ReplicateFrameBufferAttachment(globaltexture);
 
         #pragma endregion
@@ -459,7 +459,7 @@ namespace Game
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(chromaticaberration_texture);
+            ReplicateFrameBufferAttachment(colorgradingtexture);
 
             Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
             OpenGLRenderer::ClearFrameBuffer();
@@ -512,8 +512,8 @@ namespace Game
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
             OpenGLRenderer::ApplyPixelate(
                 inputTex,
-                m_globalsettings.pixelWidth,
-                m_globalsettings.pixelHeight
+                (float)m_globalsettings.pixelWidth,
+                (float)m_globalsettings.pixelHeight
             );
 
             // Update Global FrameBuffer

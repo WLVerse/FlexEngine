@@ -1373,43 +1373,6 @@ namespace FlexEngine
   #pragma endregion
 
   #pragma region Post Processing
-  /*!***************************************************************************
-  * \brief
-  * Draws the post-processing layer after all other rendering operations.
-  *****************************************************************************/
-  void OpenGLRenderer::DrawPostProcessing(const Renderer2D_GlobalPPSettings& settings)
-  {
-      //OpenGLFrameBuffer::SetPostProcessingFrameBuffer(); // Initial Frame Buffer Setup
-
-      ////CURRENT POST-PROCESS(PP) BEING HANDLED:
-      //// 1) Blur / Focal Adjust
-      //{
-      //    //Pending
-      //}
-      //// 2) Bloom
-      //{
-      //    // Step 1: Set to bloom frame buffer -> you do not want to mess with the other effects textures
-      //    OpenGLFrameBuffer::SetBloomFrameBuffer();
-
-      //    // Step 2: Brightness Extraction
-      //    OpenGLPostProcessing::ApplyBrightnessPass(0.55f);
-
-      //    // Step 3: Gaussian Blur
-      //    OpenGLPostProcessing::ApplyGaussianBlur(4, 10.0f, 12);
-
-      //    // Step 4: Final Composition
-      //    OpenGLPostProcessing::ApplyBloomFinalComposition(0.8f);
-      //}
-      //// 4) Lens Flare
-      //{
-      //    //Pending
-      //}
-
-      //// Clean-up
-      //GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-      //glDrawBuffers(2, drawBuffers);
-      //glBindVertexArray(0);
-  }
 
   /*!***************************************************************************
   * \brief
@@ -1910,6 +1873,64 @@ namespace FlexEngine
           float time = static_cast<float>(glfwGetTime());
           asset_shader.SetUniform_float("u_Time", time);
       }
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+
+  void OpenGLRenderer::ApplyPixelate(const GLuint& inputTex, float pixelWidth, float pixelHeight)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoords
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Schedule cleanup of the buffers.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the pixelate shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Pixelate.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the pixelation parameters.
+      asset_shader.SetUniform_float("u_PixelWidth", pixelWidth);
+      asset_shader.SetUniform_float("u_PixelHeight", pixelHeight);
 
       // Draw the full-screen quad.
       glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec2 vTexCoord;
+in vec2 tex_coord;
 out vec4 FragColor;
 
 uniform sampler2D u_InputTex;    // The input texture
@@ -11,7 +11,7 @@ uniform float u_Saturation;      // Saturation multiplier (1.0 = unchanged, 0 = 
 void main()
 {
     // Sample the base color.
-    vec3 color = texture(u_InputTex, vTexCoord).rgb;
+    vec3 color = texture(u_InputTex, tex_coord).rgb;
 
     // Adjust brightness (add offset).
     color += u_Brightness;

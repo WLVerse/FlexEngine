@@ -277,7 +277,6 @@ namespace FlexEngine
         );
 
         #pragma region Post Processing
-        static void DrawPostProcessing(const Renderer2D_GlobalPPSettings& settings);
         /*!***************************************************************************
         * \brief
         * Applies a brightness threshold pass for the bloom effect.
@@ -309,9 +308,12 @@ namespace FlexEngine
        *****************************************************************************/
         static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
 
-        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& maxOffset = {0.5f,0.5f}, const Vector2& redOffset = {0.1,0.1}, const Vector2& greenOffset = {0.1,0.1}, const Vector2& blueOffset = {0.1,0.1});
+        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& maxOffset = {0.5f,0.5f}, const Vector2& redOffset = {0.1f,0.1f}, const Vector2& greenOffset = {0.1f,0.1f}, const Vector2& blueOffset = {0.1f,0.1f});
         static void ApplyColorGrading(const GLuint& inputTex = {}, float brightness = 0.0f, float contrast = 0.0f, float saturation = 0.0f);
         static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, float vignetteRadius = 0.0f, float vignetteSoftness = 0.0f);
+        static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
+        static void ApplyPixelate(const GLuint& inputTex = {}, float pixelWidth = 0.0f, float pixelHeight = 0.0f);
+
         #pragma endregion
 
     };

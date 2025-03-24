@@ -1,6 +1,6 @@
-#version 330 core
+#version 460 core
 
-in vec2 vTexCoord;    
+in vec2 tex_coord;    
 out vec4 FragColor;
 
 uniform sampler2D u_InputTex;       // Input texture (scene)
@@ -11,10 +11,10 @@ uniform float u_VignetteSoftness;     // Controls how gradually the effect trans
 void main()
 {
     // Sample the base color.
-    vec3 color = texture(u_InputTex, vTexCoord).rgb;
+    vec3 color = texture(u_InputTex, tex_coord).rgb;
     
     // Compute the distance from the center (0.5, 0.5) in normalized texture coordinates.
-    float dist = distance(vTexCoord, vec2(0.5, 0.5));
+    float dist = distance(tex_coord, vec2(0.5, 0.5));
     
     // Compute the vignette factor using smoothstep.
     // Pixels with a distance less than u_VignetteRadius are unaffected;

@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec2 vTexCoord;
+in vec2 tex_coord;
 out vec4 FragColor;
 
 uniform sampler2D u_InputTex;         // Input scene texture.
@@ -17,10 +17,10 @@ float rand(vec2 co) {
 void main()
 {
     // Sample the base color.
-    vec3 color = texture(u_InputTex, vTexCoord).rgb;
+    vec3 color = texture(u_InputTex, tex_coord).rgb;
     
     // Compute grain coordinates by scaling texture coordinates by the grain size.
-    vec2 grainUV = vTexCoord * u_FilmGrainSize;
+    vec2 grainUV = tex_coord * u_FilmGrainSize;
     if(u_FilmGrainAnimate == 1)
     {
         // Offset coordinates by time for animated noise.

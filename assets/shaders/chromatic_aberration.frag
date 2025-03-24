@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec2 vTexCoord;
+in vec2 tex_coord;
 out vec4 FragColor;
 
 uniform sampler2D u_InputTex;      // Input texture
@@ -18,9 +18,9 @@ void main()
     vec2 blueOff  = clamp(u_BlueOffset * u_ChromaIntensity, -u_MaxOffset, u_MaxOffset);
 
     // Sample the input texture for each color channel with its offset.
-    float red   = texture(u_InputTex, vTexCoord + redOff).r;
-    float green = texture(u_InputTex, vTexCoord + greenOff).g;
-    float blue  = texture(u_InputTex, vTexCoord + blueOff).b;
+    float red   = texture(u_InputTex, tex_coord + redOff).r;
+    float green = texture(u_InputTex, tex_coord + greenOff).g;
+    float blue  = texture(u_InputTex, tex_coord + blueOff).b;
     
     FragColor = vec4(red, green, blue, 1.0);
 }
