@@ -19,7 +19,7 @@ namespace Game
   class TownLayer : public FlexEngine::Layer
   {
   private:
-
+    float lerp(float a, float b, float t);
   public:
     TownLayer() : Layer("Town Scene Layer") {}
     ~TownLayer() = default;
