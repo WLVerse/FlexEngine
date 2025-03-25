@@ -17,6 +17,7 @@ namespace Editor
         Window::FrameBufferManager.AddFrameBuffer("Pass 1", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Pass 2", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Pass 3", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Pass 4", window_size);
     }
 
     void PostProcessing::Exit()
@@ -42,6 +43,8 @@ namespace Editor
         Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
         OpenGLRenderer::ClearFrameBuffer();
         Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 4");
         OpenGLRenderer::ClearFrameBuffer();
         #pragma endregion
 
@@ -145,21 +148,7 @@ namespace Editor
         #pragma endregion
 
         #pragma region Run Postprocessing Effects
-        // === Step 1: Process Local Post-Processing === // NOT YET DONE
-        // Bind local framebuffer and render objects that have post-processing components.
-        //m_LocalFramebuffer->Bind();
-        // Clear local framebuffer as needed.
-        // Here, you would iterate through all objects with a PostProcessingComponent,
-        // then apply their stack of post-processing effects.
-        //ProcessLocalPostProcessing();
-        //DrawLocalPostProcessing();
-        //m_LocalFramebuffer->Unbind();
-
-        // === Step 2: Render Scene to Global Framebuffer ===
-        // At this stage, your regular RenderingLayer might have rendered the scene.
-        // You may now composite the local post-processed textures with the main scene.
-        // For example, you can render the local processed texture onto m_GlobalFramebuffer.
-        ProcessGlobalPostProcessing();
+        ProcessLocalPostProcessing();
         DrawGlobalPostProcessing();
         #pragma endregion
 
@@ -169,8 +158,7 @@ namespace Editor
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
 
         GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
-        //GLuint localtexture = Window::FrameBufferManager.GetFrameBuffer("Local Post Processing")->GetColorAttachment();
-        ReplicateFrameBufferAttachment(globaltexture);
+       ReplicateFrameBufferAttachment(globaltexture);
 
         #pragma endregion
 
@@ -179,29 +167,8 @@ namespace Editor
 
     void PostProcessing::ProcessLocalPostProcessing()
     {
-        // Example: For each object with a PostProcessingComponent, do:
-        //   1. Retrieve its stackable post-processing effects.
-        //   2. For each effect in order:
-        //         - Bind the corresponding shader.
-        //         - Render a fullscreen quad using the object's local texture.
-        //         - Swap between intermediate textures as needed.
-        //
-        // Pseudocode:
-        // for (auto& obj : Scene::GetActiveScene()->QueryPostProcessingObjects()) {
-        //     auto& ppComponent = obj.GetComponent<PostProcessingComponent>();
-        //     Texture currentTexture = obj.GetRenderTexture();
-        //     for (auto& effect : ppComponent.GetEffectsStack()) {
-        //         currentTexture = effect.Apply(currentTexture);
-        //     }
-        //     // Store the final local texture back into the component or use it for composition.
-        // }
-    }
-
-    void PostProcessing::ProcessGlobalPostProcessing()
-    {
         Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
 
-        // Apply global post-processing effects such as bloom, tone mapping, or color grading.
         auto scene = FlexECS::Scene::GetActiveScene();
 
         FunctionQueue prePostProcessingQueue;
@@ -216,6 +183,20 @@ namespace Editor
 
             if (entityZIndex < postProcessZIndex)
             {
+                // If the entity has any post processing components, use the local post processing draw call.
+                if (element.HasComponent<PostProcessingGaussianBlur>() ||
+                    element.HasComponent<PostProcessingChromaticAbberation>() ||
+                    element.HasComponent<PostProcessingBloom>() ||
+                    element.HasComponent<PostProcessingVignette>() ||
+                    element.HasComponent<PostProcessingColorGrading>() ||
+                    element.HasComponent<PostProcessingPixelate>())
+                {
+                    prePostProcessingQueue.Insert({ [&element]() {
+                        PostProcessing::DrawLocalPostProcessing(element);
+                    }, "", entityZIndex });
+                    continue;
+                }
+
                 Sprite& sprite = *element.GetComponent<Sprite>();
                 Renderer2DProps props;
 
@@ -255,6 +236,20 @@ namespace Editor
 
             if (entityZIndex < postProcessZIndex)
             {
+                // If the entity has any post processing components, use the local post processing draw call.
+                if (element.HasComponent<PostProcessingGaussianBlur>() ||
+                    element.HasComponent<PostProcessingChromaticAbberation>() ||
+                    element.HasComponent<PostProcessingBloom>() ||
+                    element.HasComponent<PostProcessingVignette>() ||
+                    element.HasComponent<PostProcessingColorGrading>() ||
+                    element.HasComponent<PostProcessingPixelate>())
+                {
+                    prePostProcessingQueue.Insert({ [&element]() {
+                        PostProcessing::DrawLocalPostProcessing(element);
+                    }, "", entityZIndex });
+                    continue;
+                }
+
                 const auto textComponent = element.GetComponent<Text>();
                 Renderer2DText textProps;
                 textProps.m_window_size = Vector2(
@@ -291,8 +286,246 @@ namespace Editor
         prePostProcessingQueue.Flush();
     }
 
+    void PostProcessing::DrawLocalPostProcessing(FlexECS::Entity& entity)
+    {
+        if (!CameraManager::has_main_camera) return;
+
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+        GLuint localtexture = Window::FrameBufferManager.GetFrameBuffer("Local Post Processing")->GetColorAttachment();
+        GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
+        GLuint pass1texture = Window::FrameBufferManager.GetFrameBuffer("Pass 1")->GetColorAttachment();
+        GLuint pass2texture = Window::FrameBufferManager.GetFrameBuffer("Pass 2")->GetColorAttachment();
+        GLuint pass3texture = Window::FrameBufferManager.GetFrameBuffer("Pass 3")->GetColorAttachment();
+        GLuint pass4texture = Window::FrameBufferManager.GetFrameBuffer("Pass 4")->GetColorAttachment();
+        // Draw Entity in local framebuffer
+        if (entity.HasComponent<Sprite>())
+        {
+            Sprite& sprite = *entity.GetComponent<Sprite>();
+            Renderer2DProps props;
+
+            // Check if the sprite has an animator component.
+            if (entity.HasComponent<Animator>() && FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle) != "")
+            {
+                Animator& animator = *entity.GetComponent<Animator>();
+                props.asset = FLX_STRING_GET(animator.spritesheet_handle);
+                props.texture_index = animator.current_frame;
+                props.alpha = 1.0f;
+            }
+            else
+            {
+                props.asset = FLX_STRING_GET(sprite.sprite_handle);
+                props.texture_index = -1;
+                props.alpha = sprite.opacity;
+            }
+
+            props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(),
+                                         CameraManager::GetMainGameCamera()->GetOrthoHeight());
+            props.alignment = Renderer2DProps::Alignment_TopLeft;
+            props.world_transform = entity.GetComponent<Transform>()->transform;
+
+            OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props);
+        }
+        else if(entity.HasComponent<Text>())
+        {
+            const auto textComponent = entity.GetComponent<Text>();
+            Renderer2DText textProps;
+            textProps.m_window_size = Vector2(
+                static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+                static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+            );
+            textProps.m_words = FLX_STRING_GET(textComponent->text);
+            textProps.m_color = textComponent->color;
+            textProps.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+
+            // Construct a basic transform matrix using the Scale and Position components.
+            textProps.m_transform = Matrix4x4(
+                entity.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00,
+                0.00, entity.GetComponent<Scale>()->scale.y, 0.00, 0.00,
+                0.00, 0.00, entity.GetComponent<Scale>()->scale.z, 0.00,
+                entity.GetComponent<Position>()->position.x,
+                entity.GetComponent<Position>()->position.y,
+                entity.GetComponent<Position>()->position.z, 1.00
+            );
+            textProps.m_alignment = std::pair{
+                static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second)
+            };
+            textProps.m_textboxDimensions = textComponent->textboxDimensions;
+            textProps.m_linespacing = 12.0f;
+
+            OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), textProps);
+        }
+        else
+        {
+            return;
+        }
+
+        // ---------- Bloom Pipeline ---------- (GLOW)
+        if (entity.HasComponent<PostProcessingBloom>()) 
+        {
+            // Step 1: Brightness Extraction - isolate bright areas based on the bloom threshold.
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyBrightnessPass(localtexture, entity.GetComponent<PostProcessingBloom>()->threshold);
+
+            // Step 2: Gaussian Blur as part of the bloom chain.
+            GLuint inputTex = pass1texture;
+            bool horizontal = true; // Start with a horizontal blur.
+            for (int i = 0; i < m_globalsettings.blurPasses; ++i) // Uses generic values for this
+            {
+                if (horizontal)
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
+                else
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurDistance, m_globalsettings.blurIntensity, horizontal); // Uses generic values for this
+                inputTex = horizontal ? pass2texture : pass3texture;
+                horizontal = !horizontal;
+            }
+
+            // Step 3: Final Bloom Composition - combine the blurred highlights back with the original scene.
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyBloomFinalComposition(localtexture, pass2texture, pass3texture, entity.GetComponent<PostProcessingBloom>()->intensity, entity.GetComponent<PostProcessingBloom>()->radius);
+
+            // Step 4: Update Local FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            // Step 6: Reset
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Apply a full-screen Gaussian blur on the scene if enabled.
+        if (entity.HasComponent<PostProcessingGaussianBlur>())
+        {
+            GLuint inputTex = localtexture;
+            bool horizontal = true; // Start with a horizontal blur.
+            for (int i = 0; i < entity.GetComponent<PostProcessingGaussianBlur>()->blurPasses; ++i)
+            {
+                if (horizontal)
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+                else
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, entity.GetComponent<PostProcessingGaussianBlur>()->distance, 
+                    entity.GetComponent<PostProcessingGaussianBlur>()->intensity, horizontal);
+                inputTex = horizontal ? pass1texture : pass2texture;
+                horizontal = !horizontal;
+            }
+
+            // Merge results
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            OpenGLRenderer::ApplyBlurFinalComposition(pass1texture, pass2texture);
+
+            // Reset frame buffers
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Chromatic Aberration: apply color separation if enabled.
+        if (entity.HasComponent<PostProcessingChromaticAbberation>())
+        {
+            GLuint inputTex = localtexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyChromaticAberration(
+                inputTex,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->intensity,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->redOffset,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->greenOffset,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->blueOffset,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->edgeRadius,
+                entity.GetComponent<PostProcessingChromaticAbberation>()->edgeSoftness
+            );
+
+            // Update Local FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Color Grading / Tone Mapping: adjust brightness, contrast, and saturation.
+        if (entity.HasComponent<PostProcessingColorGrading>())
+        {
+            GLuint inputTex = localtexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyColorGrading(
+                inputTex,
+                entity.GetComponent<PostProcessingColorGrading>()->brightness,
+                entity.GetComponent<PostProcessingColorGrading>()->contrast,
+                entity.GetComponent<PostProcessingColorGrading>()->saturation
+            );
+
+            // Update Local FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Vignette: darken edges to draw attention to the center.
+        if (entity.HasComponent<PostProcessingVignette>())
+        {
+            GLuint inputTex = localtexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyVignette(
+                inputTex,
+                entity.GetComponent<PostProcessingVignette>()->intensity,
+                entity.GetComponent<PostProcessingVignette>()->radius,
+                entity.GetComponent<PostProcessingVignette>()->softness
+            );
+
+            // Update Local FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Pixelate: optionally apply a pixelation effect as a final overlay.
+        if (entity.HasComponent<PostProcessingPixelate>())
+        {
+            GLuint inputTex = localtexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyPixelate(
+                inputTex,
+                (float)entity.GetComponent<PostProcessingPixelate>()->pixelWidth,
+                (float)entity.GetComponent<PostProcessingPixelate>()->pixelHeight
+            );
+
+            // Update Local FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Merge results from local frame buffer to global frame buffer
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 4");
+        OpenGLRenderer::ApplyOverlay(globaltexture, localtexture);
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+        ReplicateFrameBufferAttachment(pass4texture);
+
+        // Clear local frame buffer
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Local Post Processing");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 4");
+        OpenGLRenderer::ClearFrameBuffer();
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+    }
+
     void PostProcessing::DrawGlobalPostProcessing()
     {
+        if (!CameraManager::has_main_camera) return;
+
         Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
         GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
         GLuint pass1texture = Window::FrameBufferManager.GetFrameBuffer("Pass 1")->GetColorAttachment();
