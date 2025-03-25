@@ -180,7 +180,7 @@ namespace Game
 
         #pragma region Master Control //Do not remove
         {
-            #if 0
+            #if 1
             // Toggle settings using bottom keys:
             if (Input::GetKeyDown(GLFW_KEY_Z)) // Toggle bloom
                 m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
@@ -198,7 +198,7 @@ namespace Game
                 m_globalsettings.enablePixelate = !m_globalsettings.enablePixelate;
             #endif
 
-            #if 0
+            #if 1
             if (Input::GetKeyDown(GLFW_KEY_T)) m_globalsettings.bloomThreshold += 0.05f;
             if (Input::GetKeyDown(GLFW_KEY_G)) m_globalsettings.bloomThreshold -= 0.05f;
 
@@ -247,6 +247,31 @@ namespace Game
             if (Input::GetKey(GLFW_KEY_COMMA)) m_globalsettings.chromaBlueOffset.x -= 1.0f;
             if (Input::GetKey(GLFW_KEY_PERIOD))  m_globalsettings.chromaBlueOffset.y += 1.0f;
             if (Input::GetKey(GLFW_KEY_SLASH))   m_globalsettings.chromaBlueOffset.y -= 1.0f;
+            #endif
+
+            #if 0
+            {
+
+                if (Input::GetKeyDown(GLFW_KEY_5)) m_globalsettings.colorBrightness += 0.1f;
+                if (Input::GetKeyDown(GLFW_KEY_6)) m_globalsettings.colorBrightness -= 0.1f;
+
+                if (Input::GetKeyDown(GLFW_KEY_2)) m_globalsettings.colorContrast += 0.1f;
+                if (Input::GetKeyDown(GLFW_KEY_4)) m_globalsettings.colorContrast -= 0.1f;
+
+                if (Input::GetKeyDown(GLFW_KEY_1)) m_globalsettings.colorSaturation += 0.1f;
+                if (Input::GetKeyDown(GLFW_KEY_3)) m_globalsettings.colorSaturation -= 0.1f;
+
+                // Toggle on/off by setting to 0 or restoring a default value
+                if (Input::GetKeyDown(GLFW_KEY_7))
+                    m_globalsettings.colorBrightness = (m_globalsettings.colorBrightness == 0.0f) ? 1.0f : 0.0f;
+
+                if (Input::GetKeyDown(GLFW_KEY_8))
+                    m_globalsettings.colorContrast = (m_globalsettings.colorContrast == 0.0f) ? 1.0f : 0.0f;
+
+                if (Input::GetKeyDown(GLFW_KEY_9))
+                    m_globalsettings.colorSaturation = (m_globalsettings.colorSaturation == 0.0f) ? 1.0f : 0.0f;
+
+            }
             #endif
         }
         #pragma endregion
