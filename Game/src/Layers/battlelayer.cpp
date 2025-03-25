@@ -15,7 +15,6 @@ namespace Game
 {
     extern std::string file_name;
 
-
     struct _Move
     {
         std::string name = "";
@@ -67,11 +66,14 @@ namespace Game
         FlexECS::Entity projected_character_text;
         FlexECS::Entity curr_char_highlight;
 
+        FlexECS::Entity projected_move;
+        FlexECS::Entity projected_move_text;
+
         //vector 3 positions to move things around
         std::array<Vector3, 7> sprite_slot_positions = {};
-        std::array<Vector3, 7> healthbar_slot_positions = {};
-        std::array<FlexECS::Entity, 7> speed_slot_position = {};
-        std::array<Vector3, 7> original_speed_slot_position = {};
+        //std::array<Vector3, 7> healthbar_slot_positions = {};
+        std::array<FlexECS::Entity, 7> speed_slot_icons = {};
+        std::array<Vector3, 7> speed_slot_position = {};
 
         // used during move selection and resolution
         _Character* current_character = nullptr;
@@ -103,8 +105,6 @@ namespace Game
         bool end_of_turn = false;
 
         bool change_phase = false;
-        // Return to original position
-        _Character* previous_character = nullptr;
     };
 
     struct _SpriteHandles
@@ -149,11 +149,14 @@ namespace Game
       battle.projected_character = FlexECS::Entity::Null;
       battle.projected_character_text = FlexECS::Entity::Null;
 
+      FlexECS::Entity projected_move;
+      FlexECS::Entity projected_move_text;
+
       //vector 3 positions to move things around
       battle.sprite_slot_positions = {};
-      battle.healthbar_slot_positions = {};
+      //battle.healthbar_slot_positions = {};
+      battle.speed_slot_icons = {};
       battle.speed_slot_position = {};
-      battle.original_speed_slot_position = {};
 
       battle.current_character = nullptr;
       battle.current_move = nullptr;
@@ -182,7 +185,6 @@ namespace Game
       battle.end_of_turn = false;
 
       battle.change_phase = false;
-      battle.previous_character = nullptr;
     }
         
     static void ReplaceUnderscoresWithSpaces(std::string& str) 
@@ -203,11 +205,11 @@ namespace Game
             auto& character_slot = *entity.GetComponent<CharacterSlot>();
             battle.sprite_slot_positions[character_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
         }
-        for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
+        /*for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<HealthbarSlot>())
         {
             auto& healthbar_slot = *entity.GetComponent<HealthbarSlot>();
             battle.healthbar_slot_positions[healthbar_slot.slot_number - 1] = entity.GetComponent<Position>()->position;
-        }
+        }*/
 
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
@@ -223,6 +225,17 @@ namespace Game
             if (*slot == "None")
             {
                 index++;
+
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Name").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Healthbar").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 1").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 2").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 3").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 4").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 5").GetComponent<Transform>()->is_active = false;
+
                 continue;
             }
             auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
@@ -286,8 +299,7 @@ namespace Game
             character.current_slot = index;
 
             battle.drifters_and_enemies.push_back(character);
-
-            FlexECS::Entity character_sprite = FlexECS::Scene::CreateEntity(character.name); // can always use GetEntityByName to find the entity
+            /*FlexECS::Entity character_sprite = FlexECS::Scene::CreateEntity(character.name); // can always use GetEntityByName to find the entity
             character_sprite.AddComponent<Transform>({});
             //character_sprite.AddComponent<Character>({});
 
@@ -379,12 +391,49 @@ namespace Game
             character_protect_buff.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
             character_protect_buff.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
             character_protect_buff.AddComponent<ZIndex>({ 21 + index });
-
+            */
             index++;
             temp_index++;
 
-            FlexECS::Scene::GetEntityByName("Speed slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
-            FlexECS::Scene::GetEntityByName("Drifter Healthbar Slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
+
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
+            switch (character.character_id)
+            {
+            case 1:
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Animator>()->default_spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)");
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Animator>()->spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Attack_Anim_Sheet.flxspritesheet)");
+                break;
+            case 2:
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Animator>()->default_spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)");
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index)).GetComponent<Animator>()->spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Idle_Attack_Anim_Sheet.flxspritesheet)");
+                break;
+            }
+
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Name").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Name").GetComponent<Text>()->text = FLX_STRING_NEW(character.name);
+
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Healthbar").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Healthbar>()->original_scale =
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Scale>()->scale;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Healthbar>()->original_position = 
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Current Healthbar").GetComponent<Position>()->position;
+
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 1").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 2").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 3").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 4").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(index) + " Buff 5").GetComponent<Transform>()->is_active = false;
+
+            FlexECS::Scene::GetEntityByName("Speed slot " + std::to_string(temp_index)).GetComponent<Transform>()->is_active = true;
+            if (temp_index != 1)
+            {
+                FlexECS::Scene::GetEntityByName("Speedbar Accent " + std::to_string(temp_index - 1)).GetComponent<Transform>()->is_active = true;
+            }
         }
 
         index = 0;
@@ -394,6 +443,18 @@ namespace Game
             if (*slot == "None")
             {
                 index++;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Name").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Healthbar").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Transform>()->is_active = false;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 1").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 2").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 3").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 4").GetComponent<Transform>()->is_active = false;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 5").GetComponent<Transform>()->is_active = false;
+
                 continue;
             }
             auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
@@ -458,7 +519,7 @@ namespace Game
             character.current_slot = index;
 
             battle.drifters_and_enemies.push_back(character);
-
+            /*
             FlexECS::Entity character_sprite = FlexECS::Scene::CreateEntity(character.name); // can always use GetEntityByName to find the entity
             character_sprite.AddComponent<Transform>({});
             //character_sprite.AddComponent<Character>({});
@@ -569,11 +630,53 @@ namespace Game
             character_protect_buff.AddComponent<Scale>({ Vector3(.05f, .05f, 0) });
             character_protect_buff.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal_+1.png)") });
             character_protect_buff.AddComponent<ZIndex>({ 21 + index });
-
+            */
             index++;
             temp_index++;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
+            switch (character.character_id)
+            {
+            case 3:
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->default_spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)");
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Idle_Anim_Sheet.flxspritesheet)");
+                break;
+            case 4:
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->default_spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)");
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Idle_Anim_Sheet.flxspritesheet)");
+                break;
+            case 5:
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->default_spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)");
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index)).GetComponent<Animator>()->spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)");
+                break;
+            }
+
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Name").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Name").GetComponent<Text>()->text = FLX_STRING_NEW(character.name);
+
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Healthbar").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Transform>()->is_active = true;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Healthbar>()->original_scale =
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Scale>()->scale;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Healthbar>()->original_position =
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Current Healthbar").GetComponent<Position>()->position;
+
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 1").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 2").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 3").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 4").GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(index) + " Buff 5").GetComponent<Transform>()->is_active = false;
+
             FlexECS::Scene::GetEntityByName("Speed slot " + std::to_string(temp_index)).GetComponent<Transform>()->is_active = true;
-            FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot " + std::to_string(index)).GetComponent<Transform>()->is_active = true;
+            if (temp_index != 1)
+            {
+                FlexECS::Scene::GetEntityByName("Speedbar Accent " + std::to_string(temp_index - 1)).GetComponent<Transform>()->is_active = true;
+            }
         }
 
         int player_num = 0;
@@ -619,29 +722,29 @@ namespace Game
         battle.projected_character_text.AddComponent<ZIndex>({ 21 + index });
         battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
-        FlexECS::Entity move_used_textbox = FlexECS::Scene::CreateEntity("move_used_textbox"); // can always use GetEntityByName to find the entity
-        move_used_textbox.AddComponent<Transform>({});
-        move_used_textbox.AddComponent<Position>({ Vector3(1595, 515, 0) });
-        move_used_textbox.AddComponent<Rotation>({});
-        move_used_textbox.AddComponent<Scale>({ Vector3(0.2f, 0.3f, 0) });
-        move_used_textbox.AddComponent<ZIndex>({ 21 + index });
-        move_used_textbox.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
-        move_used_textbox.GetComponent<Transform>()->is_active = false;
+        battle.projected_move = FlexECS::Scene::CreateEntity("move_used_textbox"); // can always use GetEntityByName to find the entity
+        battle.projected_move.AddComponent<Transform>({});
+        battle.projected_move.AddComponent<Position>({ Vector3(1595, 515, 0) });
+        battle.projected_move.AddComponent<Rotation>({});
+        battle.projected_move.AddComponent<Scale>({ Vector3(0.2f, 0.3f, 0) });
+        battle.projected_move.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_move.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
+        battle.projected_move.GetComponent<Transform>()->is_active = false;
 
-        FlexECS::Entity move_used_text = FlexECS::Scene::CreateEntity("move_used_text"); // can always use GetEntityByName to find the entity
-        move_used_text.AddComponent<Transform>({});
-        move_used_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
-        move_used_text.AddComponent<Rotation>({});
-        move_used_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-        move_used_text.AddComponent<ZIndex>({ 22 + index });
-        move_used_text.AddComponent<Text>({
+        battle.projected_move_text = FlexECS::Scene::CreateEntity("move_used_text"); // can always use GetEntityByName to find the entity
+        battle.projected_move_text.AddComponent<Transform>({});
+        battle.projected_move_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
+        battle.projected_move_text.AddComponent<Rotation>({});
+        battle.projected_move_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
+        battle.projected_move_text.AddComponent<ZIndex>({ 22 + index });
+        battle.projected_move_text.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(R"()"),
           Vector3(1.0f, 1.0, 1.0f),
           { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
           {                           1400,                              320 }
         });
-        move_used_text.GetComponent<Transform>()->is_active = false;
+        battle.projected_move_text.GetComponent<Transform>()->is_active = false;
 
         if (battle.is_tutorial)
         {
@@ -708,6 +811,10 @@ namespace Game
             else
             {
                 speed_bar_slot.character = 0;
+                if (speed_bar_slot.slot_number != 1)
+                {
+                    FlexECS::Scene::GetEntityByName("Speedbar Accent " + std::to_string(speed_bar_slot.slot_number - 1)).GetComponent<Transform>()->is_active = false;
+                }
                 entity.GetComponent<Transform>()->is_active = false;
             }
         }
@@ -748,6 +855,11 @@ namespace Game
         */
     }
 
+    bool Compare(int a, int b)
+    {
+        return a > b;
+    }
+
     void Update_Character_Status()
     {
         // update the healthbar display
@@ -755,11 +867,12 @@ namespace Game
         // there is the healthbarslot, the actual healthbar entity, and the character entity that are all needed
         for (auto& character : battle.drifters_and_enemies)
         {
-
-            auto entity = FlexECS::Scene::GetEntityByName(character.name + " Healthbar");
-
+            auto entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Current Healthbar");
+            if (character.character_id > 2)
+            entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Current Healthbar");
+            else entity = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Current Healthbar");
             // guard
-            if (!entity || !entity.HasComponent<Scale>() || !entity.HasComponent<Healthbar>()) continue;
+            if (!entity.HasComponent<Scale>() || !entity.HasComponent<Healthbar>()) continue;
 
             auto* scale = entity.GetComponent<Scale>();
             auto* healthbar = entity.GetComponent<Healthbar>();
@@ -772,20 +885,91 @@ namespace Game
             scale->scale.x = healthbar->original_scale.x * health_percentage;
 
             // Update Position
-            position->position.x = healthbar->original_position.x - static_cast<float>((healthbar->pixelLength / 2) * (1.0 - health_percentage));
+            //position->position.x = healthbar->original_position.x - static_cast<float>((15) * (1.0 - health_percentage));
 
-            entity = FlexECS::Scene::GetEntityByName(character.name + " Stats");
+            Log::Debug(std::to_string(healthbar->original_position.x));
+            Log::Debug(std::to_string(position->position.x));
+
+            /*entity = FlexECS::Scene::GetEntityByName(character.name + " Stats");
+            entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Stats");
+            if (character.character_id > 2)
+                entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Stats");
+            else entity = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Stats");
 
             // guard
-            if (!entity || !entity.HasComponent<Text>()) continue;
+            if (!entity.HasComponent<Text>()) continue;
 
             // get the character's current health
             std::string stats = ""; // ENABLE THE BOTTOM LINE IF YOU WANT TEXT FOR HP SPD ETC
             //std::string stats = "HP: " + std::to_string(character.current_health) + " / " + std::to_string(character.health) + " , " + "SPD: " + std::to_string(character.current_speed);
             entity.GetComponent<Text>()->text = FLX_STRING_NEW(stats);
+            */
 
+            std::vector<int> unsorted_buff_duration;
+            std::vector<int> sorted_buff_duration;
+            unsorted_buff_duration.clear();
+            sorted_buff_duration.clear();
+            unsorted_buff_duration.push_back(character.attack_buff_duration);
+            unsorted_buff_duration.push_back(character.attack_debuff_duration);
+            unsorted_buff_duration.push_back(character.stun_debuff_duration);
+            unsorted_buff_duration.push_back(character.shield_buff_duration);
+            unsorted_buff_duration.push_back(character.protect_buff_duration);
+            sorted_buff_duration = unsorted_buff_duration;
+            sort(sorted_buff_duration.begin(), sorted_buff_duration.end(), Compare);
 
-            entity = FlexECS::Scene::GetEntityByName(character.name + " Attack_Buff");
+            for (int i = 1; i < 6; i++)
+            {
+                int buff_type = 0;
+                for (int j = 0; j < unsorted_buff_duration.size(); j++)
+                {
+                    if (sorted_buff_duration[0] == unsorted_buff_duration[j])
+                    {
+                        if (sorted_buff_duration[0] == 0)
+                        {
+                            buff_type = 5;
+                        }
+                        else buff_type = j;
+
+                        sorted_buff_duration.erase(sorted_buff_duration.begin());
+                        unsorted_buff_duration[j] = -1;
+                        break;
+                    }
+                }
+
+                entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff " + std::to_string(i));
+                if (character.character_id > 2)
+                    entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff " + std::to_string(i));
+                else entity = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff " + std::to_string(i));
+
+                switch (buff_type)
+                {
+                case 0:
+                    entity.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_+1.png)");
+                    entity.GetComponent<Transform>()->is_active = true;
+                    break;
+                case 1:
+                    entity.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Attack_-1.png)");
+                    entity.GetComponent<Transform>()->is_active = true;
+                    break;
+                case 2:
+                    entity.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Stun.png)");
+                    entity.GetComponent<Transform>()->is_active = true;
+                    break;
+                case 3:
+                    entity.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Def.png)");
+                    entity.GetComponent<Transform>()->is_active = true;
+                    break;
+                case 4:
+                    entity.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Heal.png)");
+                    entity.GetComponent<Transform>()->is_active = true;
+                    break;
+                case 5:
+                    entity.GetComponent<Transform>()->is_active = false;
+                    break;
+
+                }
+            }
+            /*entity = FlexECS::Scene::GetEntityByName(character.name + " Attack_Buff");
 
             // guard
             if (!entity) continue;
@@ -837,7 +1021,7 @@ namespace Game
             // get the character's current health
             if (character.protect_buff_duration > 0)
                 entity.GetComponent<Transform>()->is_active = true;
-            else entity.GetComponent<Transform>()->is_active = false;
+            else entity.GetComponent<Transform>()->is_active = false;*/
         }
 
     }
@@ -847,13 +1031,21 @@ namespace Game
       //Update damage preview displays
       //As well as speed bar targeting icon
       //Turn off all previews is_active, then turn back on
-      for (auto character : battle.drifters_and_enemies)
+      /*for (auto character : battle.drifters_and_enemies)
       {
         if (character.character_id <= 2) continue;
 
-        auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+        //auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+        auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(character.current_slot + 1));
         entity.GetComponent<Transform>()->is_active = false;
-      }
+      }*/
+
+        for (int i = 1; i < 6; i++)
+        {
+            auto e = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
+            e.GetComponent<Transform>()->is_active = false;
+        }
+
       for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
       {
         entity.GetComponent<Transform>()->is_active = false;
@@ -898,12 +1090,13 @@ namespace Game
               }
             }
           }
-
           //Draw damage preview bar
           for (auto target : targets)
           {
-            auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
-            if (!entity && !entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
+              auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(target.current_slot + 1));
+
+            //auto entity = FlexECS::Scene::GetEntityByName(target.name + " DamagePreview");
+            if (!entity.HasComponent<Scale>() && !entity.HasComponent<Healthbar>()) continue;
 
             if (target.shield_buff_duration > 0)
             {
@@ -927,7 +1120,7 @@ namespace Game
             auto* position = entity.GetComponent<Position>();
 
             float current_health_percentage = static_cast<float>(target.current_health) / static_cast<float>(target.health);
-            float right_edge_pos = (healthbar->original_position.x - healthbar->pixelLength / 2.f * (1.0f - current_health_percentage))
+            float right_edge_pos = (healthbar->original_position.x - (15 * (1.0f - current_health_percentage)))
               + (healthbar->pixelLength / 2.f * (current_health_percentage));
 
             float damage_taken = 0;
@@ -979,7 +1172,7 @@ namespace Game
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
-            position->position.x = right_edge_pos - (healthbar->pixelLength / 2 * percentage_damage_taken);
+            //position->position.x = right_edge_pos - (15 * percentage_damage_taken);
           }
 
           
@@ -1051,7 +1244,7 @@ namespace Game
             float t = time_played / duration;
             t = std::clamp(t, 0.f, 1.f);
 
-            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
+            battle.speed_slot_icons[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f, HalfSinCurve(t) + 0.2f);
 
             time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 2.f;
             return;
@@ -1065,7 +1258,7 @@ namespace Game
           time_played = 0.f; // Reset from pulse played
 
             // Set the initial position of the element to move
-            dest[0] = battle.speed_slot_position[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
+            dest[0] = battle.speed_slot_icons[battle.curr_char_pos_after_taking_turn].GetComponent<Position>()->position;
 
             // Cache lerp values for all inbetween elements
             for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
@@ -1073,7 +1266,7 @@ namespace Game
                 if (i == battle.curr_char_pos_after_taking_turn + 1)
                     break;
 
-                dest[i] = battle.speed_slot_position[i - 1].GetComponent<Position>()->position;
+                dest[i] = battle.speed_slot_icons[i - 1].GetComponent<Position>()->position;
             }
 
             is_init = true;
@@ -1087,11 +1280,11 @@ namespace Game
 
             float arc_t = 1.f - (2.f * t - 1.f) * (2.f * t - 1.f); // Parabolic arc
 
-            battle.speed_slot_position[0].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[0].x, dest[0].x, t),
-                                                                                       Lerp(battle.original_speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
-                                                                                       Lerp(battle.original_speed_slot_position[0].z, dest[0].z, t));
+            battle.speed_slot_icons[0].GetComponent<Position>()->position = Vector3(Lerp(battle.speed_slot_position[0].x, dest[0].x, t),
+                                                                                       Lerp(battle.speed_slot_position[0].y, dest[0].y, t) + max_arc_height * arc_t,
+                                                                                       Lerp(battle.speed_slot_position[0].z, dest[0].z, t));
 
-            battle.speed_slot_position[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
+            battle.speed_slot_icons[0].GetComponent<Scale>()->scale = Vector3(HalfSinCurve(t), HalfSinCurve(t), HalfSinCurve(t));
 
             // Lerp the rest of the icons
             for (int i{ 1 }; i < battle.speed_slot_position.size(); ++i)
@@ -1101,9 +1294,9 @@ namespace Game
                     break;
                 }
 
-                battle.speed_slot_position[i].GetComponent<Position>()->position = Vector3(Lerp(battle.original_speed_slot_position[i].x, dest[i].x, t),
-                                                                                           Lerp(battle.original_speed_slot_position[i].y, dest[i].y, t),
-                                                                                           Lerp(battle.original_speed_slot_position[i].z, dest[i].z, t));
+                battle.speed_slot_icons[i].GetComponent<Position>()->position = Vector3(Lerp(battle.speed_slot_position[i].x, dest[i].x, t),
+                                                                                           Lerp(battle.speed_slot_position[i].y, dest[i].y, t),
+                                                                                           Lerp(battle.speed_slot_position[i].z, dest[i].z, t));
             }
 
             time_played += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
@@ -1118,7 +1311,7 @@ namespace Game
                 break;
             }
 
-            battle.speed_slot_position[i].GetComponent<Position>()->position = dest[i];
+            battle.speed_slot_icons[i].GetComponent<Position>()->position = dest[i];
         }
 
         // Reset for next animation
@@ -1132,43 +1325,51 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v8.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v9.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
 
         #pragma region Load _Battle Data
-        battle.speed_slot_position[0] = FlexECS::Scene::GetEntityByName("Speed slot 1");
-        battle.speed_slot_position[1] = FlexECS::Scene::GetEntityByName("Speed slot 2");
-        battle.speed_slot_position[2] = FlexECS::Scene::GetEntityByName("Speed slot 3");
-        battle.speed_slot_position[3] = FlexECS::Scene::GetEntityByName("Speed slot 4");
-        battle.speed_slot_position[4] = FlexECS::Scene::GetEntityByName("Speed slot 5");
-        battle.speed_slot_position[5] = FlexECS::Scene::GetEntityByName("Speed slot 6");
-        battle.speed_slot_position[6] = FlexECS::Scene::GetEntityByName("Speed slot 7");
+        battle.speed_slot_icons[0] = FlexECS::Scene::GetEntityByName("Speed slot 1");
+        battle.speed_slot_icons[1] = FlexECS::Scene::GetEntityByName("Speed slot 2");
+        battle.speed_slot_icons[2] = FlexECS::Scene::GetEntityByName("Speed slot 3");
+        battle.speed_slot_icons[3] = FlexECS::Scene::GetEntityByName("Speed slot 4");
+        battle.speed_slot_icons[4] = FlexECS::Scene::GetEntityByName("Speed slot 5");
+        battle.speed_slot_icons[5] = FlexECS::Scene::GetEntityByName("Speed slot 6");
+        battle.speed_slot_icons[6] = FlexECS::Scene::GetEntityByName("Speed slot 7");
 
-        battle.speed_slot_position[0].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[1].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[2].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[3].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[4].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[5].GetComponent<Transform>()->is_active = false;
-        battle.speed_slot_position[6].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[0].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[1].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[2].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[3].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[4].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[5].GetComponent<Transform>()->is_active = false;
+        battle.speed_slot_icons[6].GetComponent<Transform>()->is_active = false;
 
-        battle.original_speed_slot_position[0] = battle.speed_slot_position[0].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[1] = battle.speed_slot_position[1].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[2] = battle.speed_slot_position[2].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[3] = battle.speed_slot_position[3].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[4] = battle.speed_slot_position[4].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[5] = battle.speed_slot_position[5].GetComponent<Position>()->position;
-        battle.original_speed_slot_position[6] = battle.speed_slot_position[6].GetComponent<Position>()->position;
+        battle.speed_slot_position[0] = battle.speed_slot_icons[0].GetComponent<Position>()->position;
+        battle.speed_slot_position[1] = battle.speed_slot_icons[1].GetComponent<Position>()->position;
+        battle.speed_slot_position[2] = battle.speed_slot_icons[2].GetComponent<Position>()->position;
+        battle.speed_slot_position[3] = battle.speed_slot_icons[3].GetComponent<Position>()->position;
+        battle.speed_slot_position[4] = battle.speed_slot_icons[4].GetComponent<Position>()->position;
+        battle.speed_slot_position[5] = battle.speed_slot_icons[5].GetComponent<Position>()->position;
+        battle.speed_slot_position[6] = battle.speed_slot_icons[6].GetComponent<Position>()->position;
 
-        FlexECS::Scene::GetEntityByName("Drifter Healthbar Slot 1").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Drifter Healthbar Slot 2").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 1").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 2").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 3").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 4").GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Enemy Healthbar Slot 5").GetComponent<Transform>()->is_active = false;
+
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 1").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 2").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 3").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 4").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 5").GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName("Speedbar Accent 6").GetComponent<Transform>()->is_active = false;
+
+        for (int i = 1; i < 6; i++)
+        {
+            auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
+            entity.GetComponent<Healthbar>()->original_position = entity.GetComponent<Position>()->position;
+            entity.GetComponent<Healthbar>()->original_scale = entity.GetComponent<Scale>()->scale;
+            entity.GetComponent<Transform>()->is_active = false;
+        }
 
         Internal_ParseBattle(file_name);
         // load the battle
@@ -1232,7 +1433,7 @@ namespace Game
             // Resets to original position in case any animation happened to move the speedbar
             for (int i{}; i < battle.speed_slot_position.size(); ++i)
             {
-              battle.speed_slot_position[i].GetComponent<Position>()->position = battle.original_speed_slot_position[i];
+              battle.speed_slot_icons[i].GetComponent<Position>()->position = battle.speed_slot_position[i];
             }
 
             Update_Speed_Bar();
@@ -1642,6 +1843,35 @@ namespace Game
             FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) =
                 battle.current_move->description;
 
+            switch (battle.current_character->current_slot + 1)
+            {
+            case 1:
+                FlexECS::Scene::GetEntityByName("Move 1").GetComponent<Position>()->position = Vector3(475, 510, 0);
+                FlexECS::Scene::GetEntityByName("Move 2").GetComponent<Position>()->position = Vector3(475, 475, 0);
+                FlexECS::Scene::GetEntityByName("Move 3").GetComponent<Position>()->position = Vector3(475, 440, 0);
+                FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Position>()->position = Vector3(375, 500, 0);
+                FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Position>()->position = Vector3(375, 465, 0);
+                FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Position>()->position = Vector3(375, 430, 0);
+
+                FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Position>()->position = Vector3(615, 500, 0);
+                FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Position>()->position = Vector3(785, 420, 0);
+
+                FlexECS::Scene::GetEntityByName("Move Accent").GetComponent<Position>()->position = Vector3(423, 540, 0);
+                break;
+            case 2:
+                FlexECS::Scene::GetEntityByName("Move 1").GetComponent<Position>()->position = Vector3(475, 305, 0);
+                FlexECS::Scene::GetEntityByName("Move 2").GetComponent<Position>()->position = Vector3(475, 270, 0);
+                FlexECS::Scene::GetEntityByName("Move 3").GetComponent<Position>()->position = Vector3(475, 235, 0);
+                FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Position>()->position = Vector3(375, 295, 0);
+                FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Position>()->position = Vector3(375, 260, 0);
+                FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Position>()->position = Vector3(375, 225, 0);
+
+                FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Position>()->position = Vector3(615, 295, 0);
+                FlexECS::Scene::GetEntityByName("Move Description").GetComponent<Position>()->position = Vector3(785, 215, 0);
+
+                FlexECS::Scene::GetEntityByName("Move Accent").GetComponent<Position>()->position = Vector3(423, 335, 0);
+                break;
+            }
             //target UI
             for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
             {
@@ -1784,11 +2014,16 @@ namespace Game
                 battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
                 //Turn off damage and targetting previews
-                for (auto character : battle.drifters_and_enemies)
+                /*for (auto character : battle.drifters_and_enemies)
                 {
                     if (character.character_id <= 2) continue;
 
                     auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
+                    entity.GetComponent<Transform>()->is_active = false;
+                }*/
+                for (int i = 1; i < 6; i++)
+                {
+                    auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
                     entity.GetComponent<Transform>()->is_active = false;
                 }
                 for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlotTarget>())
@@ -2008,14 +2243,13 @@ namespace Game
                 }
                 else
                 {
-                  // Moves to the target
-                    battle.previous_character = battle.current_character;
-                    FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Position>()->position =
-                      battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3(-50, 90, 0);
+                    FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
+                        battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
+                    FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
                 }
 
                 //apply player attack animation based on move used
-                auto& current_character_animator = *FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Animator>();
+                auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1) ).GetComponent<Animator>();
                 switch (battle.move_num)
                 {
                 case 1:
@@ -2322,14 +2556,14 @@ namespace Game
                 }
                 else
                 {
-                    battle.previous_character = battle.current_character;
-                    FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
-                    character.GetComponent<Position>()->position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3(50, 40, 0);
-                    character.GetComponent<ZIndex>()->z = 500;
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
+                        battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };;
+
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
                 }
 
                 // play the attack animation
-                auto& current_character_animator = *FlexECS::Scene::GetEntityByName(battle.current_character->name).GetComponent<Animator>();
+                auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Animator>();
                 switch (battle.current_character->character_id)
                 {
                 case 3:
@@ -2427,7 +2661,7 @@ namespace Game
                         FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {FlexECS::Scene::GetEntityByName(battle.current_character->name)}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0.0f }, { 2.0f,2.0f,2.0f } });
+                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-75.0f, -100.0f, 0.0f}, {2.0f,2.0f,2.0f} });
                     break;
                 }
                 break;
@@ -2446,7 +2680,7 @@ namespace Game
                         {
                             if (character.current_slot == battle.target_num - 1 || character.current_slot == battle.target_num || character.current_slot == battle.target_num + 1)
                             {
-                                auto target_entity = FlexECS::Scene::GetEntityByName(character.name);
+                                auto target_entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1));
                                 auto& target_animator = *target_entity.GetComponent<Animator>();
                                 switch (character.character_id)
                                 {
@@ -2483,7 +2717,7 @@ namespace Game
                         }
                         else
                         {
-                            auto target_entity = FlexECS::Scene::GetEntityByName(character.name);
+                            auto target_entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1));
                             auto& target_animator = *target_entity.GetComponent<Animator>();
                             switch (character.character_id)
                             {
@@ -2528,7 +2762,7 @@ namespace Game
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
-                auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
+                auto target_entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
                 auto& target_animator = *target_entity.GetComponent<Animator>();
                 switch (battle.initial_target->character_id)
                 {
@@ -2604,7 +2838,7 @@ namespace Game
                 {
                     if (character.is_alive && character.character_id <= 2)
                     {
-                        auto target_entity = FlexECS::Scene::GetEntityByName(character.name);
+                        auto target_entity = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1));;
                         auto& target_animator = *target_entity.GetComponent<Animator>();
                         switch (character.character_id)
                         {
@@ -2651,7 +2885,7 @@ namespace Game
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
-                auto target_entity = FlexECS::Scene::GetEntityByName(battle.initial_target->name);
+                auto target_entity = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));;
                 auto& target_animator = *target_entity.GetComponent<Animator>();
                 switch (battle.initial_target->character_id)
                 {
@@ -2703,10 +2937,6 @@ namespace Game
 
     void End_Of_Turn()
     {
-        // Set back z index, hacky af
-        FlexECS::Entity character = FlexECS::Scene::GetEntityByName(battle.current_character->name);
-        character.GetComponent<ZIndex>()->z = 100;
-
         // wait for all prior animations to stop playing before continuing with phase change
         if (battle.disable_input_timer > 0.f)
         {
@@ -2757,77 +2987,117 @@ namespace Game
                     character.stun_debuff_duration = 0;
                     character.shield_buff_duration = 0;
                     character.protect_buff_duration = 0;
-                    FlexECS::Scene::GetEntityByName(character.name + " Healthbar").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Stats").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Attack_Buff").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Attack_Debuff").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Stun_Debuff").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Shield_Buff").GetComponent<Transform>()->is_active = false;
-                    FlexECS::Scene::GetEntityByName(character.name + " Protect_Buff").GetComponent<Transform>()->is_active = false;
 
-                    // play death animation
-                    auto& target_animator = *FlexECS::Scene::GetEntityByName(character.name).GetComponent<Animator>();
-                    switch (character.character_id)
+
+                    if (character.character_id > 2)
                     {
-                    case 1:
-                        target_animator.spritesheet_handle =
-                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Death_Anim_Sheet.flxspritesheet)");
-                        break;
-                    case 2:
-                        target_animator.spritesheet_handle =
-                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Death_Anim_Sheet.flxspritesheet)");
-                        break;
-                    case 3:
-                        target_animator.spritesheet_handle =
-                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
-                        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                        //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-                        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                        break;
-                    case 4:
-                        target_animator.spritesheet_handle =
-                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
-                        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                        //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
-                        // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                        break;
-                    case 5:
-                        // goto jack death cutscene
-                        break;
+                        //FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1)).GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Name").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Healthbar").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Current Healthbar").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff 1").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff 2").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff 3").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff 4").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Buff 5").GetComponent<Transform>()->is_active = false;
+
+                        auto& target_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1)).GetComponent<Animator>();
+                        switch (character.character_id)
+                        {
+                        case 3:
+                            target_animator.spritesheet_handle =
+                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Death_Anim_Sheet.flxspritesheet)");
+                            // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                            //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+                            // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                            break;
+                        case 4:
+                            target_animator.spritesheet_handle =
+                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Death_Anim_Sheet.flxspritesheet)");
+                            // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                            //   FLX_STRING_NEW(R"(/audio/robot death.mp3)");
+                            // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                            break;
+                        case 5:
+                            // goto jack death cutscene
+                            break;
+                        }
+
+                        // get the slowest animation time
+                        if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                            .total_frame_time > animation_time)
+                        {
+                            animation_time =
+                                FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                .total_frame_time;
+                        }
+
+                        target_animator.should_play = true;
+                        target_animator.is_looping = false;
+                        target_animator.return_to_default = false;
+                        target_animator.frame_time = 0.f;
+                        target_animator.current_frame = 0;
+
+
+                        switch (character.character_id)
+                        {
+                        case 3:
+                            FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                                FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
+                            FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                            break;
+                        case 4:
+                            FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                                FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
+                            FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                            break;
+                        case 5:
+                            //FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
+                               // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
+                           // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
+                            break;
+                        }
+
                     }
-
-                    // get the slowest animation time
-                    if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                        .total_frame_time > animation_time)
+                    else
                     {
-                        animation_time =
-                            FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
-                            .total_frame_time;
-                    }
+                        //FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1)).GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Name").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Healthbar").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Current Healthbar").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff 1").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff 2").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff 3").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff 4").GetComponent<Transform>()->is_active = false;
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1) + " Buff 5").GetComponent<Transform>()->is_active = false;
+                        auto& target_animator = *FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(character.current_slot + 1)).GetComponent<Animator>();
+                        switch (character.character_id)
+                        {
+                        case 1:
+                            target_animator.spritesheet_handle =
+                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Death_Anim_Sheet.flxspritesheet)");
+                            break;
+                        case 2:
+                            target_animator.spritesheet_handle =
+                                FLX_STRING_NEW(R"(/images/spritesheets/Char_Grace_Death_Anim_Sheet.flxspritesheet)");
+                            break;
+                        }
 
-                    target_animator.should_play = true;
-                    target_animator.is_looping = false;
-                    target_animator.return_to_default = false;
-                    target_animator.frame_time = 0.f;
-                    target_animator.current_frame = 0;
 
-                    switch (character.character_id)
-                    {
-                    case 3:
-                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                            FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
-                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                        break;
-                    case 4:
-                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                            FLX_STRING_NEW(R"(/audio/Robot Destroyed SFX_1.wav)");
-                        FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                        break;
-                    case 5:
-                        //FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
-                           // FLX_STRING_NEW(R"(/audio/jack attack (SCI-FI-IMPACT_GEN-HDF-20694).wav)");
-                       // FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
-                        break;
+                        // get the slowest animation time
+                        if (FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                            .total_frame_time > animation_time)
+                        {
+                            animation_time =
+                                FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(target_animator.spritesheet_handle))
+                                .total_frame_time;
+                        }
+
+                        target_animator.should_play = true;
+                        target_animator.is_looping = false;
+                        target_animator.return_to_default = false;
+                        target_animator.frame_time = 0.f;
+                        target_animator.current_frame = 0;
                     }
                 }
             }
@@ -2835,12 +3105,30 @@ namespace Game
 
             battle.current_character->previous_health = battle.current_character->current_health;
             //reset position, then delay a bit
-            if (battle.previous_character != nullptr) {
-                Vector3 original_position = (battle.previous_character->character_id <= 2) ?
-                    battle.sprite_slot_positions[battle.previous_character->current_slot] + Vector3(20, 120, 0) :
-                    battle.sprite_slot_positions[battle.previous_character->current_slot + 2] + Vector3(-18, 15, 0);
-                FlexECS::Scene::GetEntityByName(battle.previous_character->name).GetComponent<Position>()->position = original_position;
-            }
+                if (battle.current_character->character_id > 2)
+                {
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
+                        battle.sprite_slot_positions[battle.current_character->current_slot + 2];
+
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 10;
+                }
+                else
+                {
+                    switch (battle.current_character->current_slot + 1)
+                    {
+                    case 1:
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
+                            battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{100, 90, 0};
+                        break;
+                    case 2:
+                        FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
+                            battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{100, 10, 0};
+                        break;
+                    }
+
+
+                    FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 10;
+                }
             if (battle.disable_input_timer <= 0.f) battle.disable_input_timer += 1.f;
         }
 
@@ -2856,7 +3144,7 @@ namespace Game
             // check if any characters are dead
             if (!character.is_alive && character.character_id > 2)
             {
-                auto& target_animator = *FlexECS::Scene::GetEntityByName(character.name).GetComponent<Animator>();
+                auto& target_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1)).GetComponent<Animator>();
                 switch (character.character_id)
                 {
                 case 3:
@@ -3032,6 +3320,7 @@ namespace Game
                       Application::MessagingSystem::Send("Battle 1 win to Town", true);
                       break;
                   case 2:
+                      Input::Cleanup();
                       Application::MessagingSystem::Send("Battle Boss win to Menu", true);
                       break;
                   }
@@ -3047,6 +3336,7 @@ namespace Game
                       Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
                       break;
                   case 2:
+                      Input::Cleanup();
                       Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
                       break;
                   }

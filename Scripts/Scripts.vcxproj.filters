@@ -12,15 +12,6 @@
     <ClCompile Include="src\testbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\menubutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\exitbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\playermovement.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\moveone.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -45,70 +36,94 @@
     <ClCompile Include="src\targetone.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\bgmslider.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sfxslider.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\masterslider.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mastervolumeincrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mastervolumedecrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bgmvolumeincrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bgmvolumedecrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sfxvolumeincrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sfxvolumedecrease.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\resumebutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\settingsbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\quitbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\creditsbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sfxbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\displaymodebutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mastervolbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bgmbutton.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\cutscene_autoplaybutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\transitionhandler.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\mainmenuquit.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\mainmenureturn.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\movevfx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_sfx_rightbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_sfx_leftbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_master_sprite.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_master_slider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_master_knob.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_master_rightbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_master_leftbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_bgm_sprite.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_bgm_slider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_bgm_knob.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_bgm_rightbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_bgm_leftbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_game_settingsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_game_resumebutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_game_quitbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\town_playermovement.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenu_playbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_main_returnbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_main_quitbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenu_quitbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_display_sprite.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_game_creditsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_display_rightbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_display_leftbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_sfx_sprite.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_sfx_slider.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\volume_sfx_knob.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

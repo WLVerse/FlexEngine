@@ -366,7 +366,7 @@ namespace FlexEngine
   {
       FLX_REFL_SERIALIZABLE
   public:
-    int pixelLength = 140;
+    int pixelLength = 40;
     Vector3 original_position = Vector3::One;
     Vector3 original_scale = Vector3::One;
   };

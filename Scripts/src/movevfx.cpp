@@ -65,7 +65,7 @@ public:
         m_vfx_pool[i].first.AddComponent<Scale>({ Vector3(5.0f, 5.0f, 5.0f) });
         m_vfx_pool[i].first.AddComponent<Sprite>({ });
         m_vfx_pool[i].first.AddComponent<Animator>({ });
-        m_vfx_pool[i].first.AddComponent<ZIndex>({ 21 });
+        m_vfx_pool[i].first.AddComponent<ZIndex>({ 1 });
         
         auto& animator = *m_vfx_pool[i].first.GetComponent<Animator>();
         animator.should_play = false;

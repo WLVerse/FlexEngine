@@ -73,7 +73,7 @@ namespace Game
 
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Start Game"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Settings"));
-    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit"));
+    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit Game"));
     
     // find camera
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
@@ -82,7 +82,7 @@ namespace Game
       break;
     }
 
-    menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
+    FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
     Set_Up_Settings_Menu();
 
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
@@ -109,20 +109,19 @@ namespace Game
 
     if (Input::GetKeyDown(GLFW_KEY_S))
     {
-      menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)");
+      FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Normal.png";
       ++selected_button;
       if (selected_button > 2)
         selected_button = 0;
-
-      menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
+      FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
     }
     else if (Input::GetKeyDown(GLFW_KEY_W))
     {
-      menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)");
+      FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Normal.png";
       --selected_button;
       if (selected_button < 0)
         selected_button = 2;
-      menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
+      FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
     }
 
     if (Input::GetKeyDown(GLFW_KEY_SPACE))
