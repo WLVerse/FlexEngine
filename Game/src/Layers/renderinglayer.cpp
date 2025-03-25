@@ -165,14 +165,17 @@ namespace Game
 
   #pragma endregion
 
+    #pragma region Video Player System
     // Video player frame calculations
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
     {
       float deltatime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
       VideoPlayer& video_player = *element.GetComponent<VideoPlayer>();
+      if (FLX_STRING_GET(video_player.video_file) == "") continue;
+
       auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video_player.video_file));
 
-      if (!video_player.should_play || FLX_STRING_GET(video_player.video_file) == "") continue;
+      if (!video_player.should_play) continue;
 
       video_player.time += deltatime;
       video.m_current_time += deltatime;
@@ -188,7 +191,7 @@ namespace Game
       }
       
     }
-
+    #pragma endregion
    FunctionQueue game_queue;
 
   if (!FlexPrefs::GetBool("game.batching"))

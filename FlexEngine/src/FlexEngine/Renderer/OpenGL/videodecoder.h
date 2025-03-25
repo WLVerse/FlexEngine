@@ -27,6 +27,8 @@
 * How to use:
 * - Attach Video Player component to entity
 *   > Drop video file, set parameters
+* - Dont attach sprite and animator components.
+* - Recall the existence of the z-index component.
 * - Pray it works
 * - To restart video on scene load/exit, ownself need to settle in the layer (script dont work D:)
 *********************************/

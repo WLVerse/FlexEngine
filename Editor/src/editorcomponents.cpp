@@ -77,7 +77,6 @@ namespace Editor
   COMPONENT_VIEWER_START(VideoPlayer)
     COMPONENT_VIEWER_VIDEO_PATH(video_file)
     COMPONENT_VIEWER_CHECKBOX(should_play)
-    COMPONENT_VIEWER_CHECKBOX(should_stop)
     COMPONENT_VIEWER_CHECKBOX(is_looping)
   COMPONENT_VIEWER_END(VideoPlayer)
 
