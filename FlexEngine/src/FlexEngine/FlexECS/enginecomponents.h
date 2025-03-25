@@ -492,9 +492,9 @@ namespace FlexEngine
   {
       FLX_REFL_SERIALIZABLE
   public:
-      int   intensity = 5;    // Blur Intensity
-      float distance = 1.0f; // Blur Distance
-      int   blurPasses = 1;    // Number of passes to apply (higher for smoother blur).
+      int   intensity = 12;    // Blur Intensity
+      float distance = 12.5f; // Blur Distance
+      int   blurPasses = 5;    // Number of passes to apply (higher for smoother blur).
   };
 
   // Chromatic Aberration effect parameters.
@@ -504,9 +504,9 @@ namespace FlexEngine
   public:
       float intensity = 1.0f;  // Overall intensity of the effect.
       // Optionally, individual channel offsets can be defined.
-      Vector2 redOffset = Vector2(5.0f, 0.0f);
-      Vector2 greenOffset = Vector2(0.0f, 5.0f);
-      Vector2 blueOffset = Vector2(-5.0f, 0.0f);
+      Vector2 redOffset = Vector2(10.0f, 0.0f);
+      Vector2 greenOffset = Vector2(0.0f, 10.0f);
+      Vector2 blueOffset = Vector2(5.0f, 5.0f);
       Vector2 edgeRadius = Vector2(0.2f, 0.2f);
       Vector2 edgeSoftness = Vector2(0.1f, 0.1f);
   };
@@ -516,9 +516,9 @@ namespace FlexEngine
   {
       FLX_REFL_SERIALIZABLE
   public:
-      float threshold = 1.0f;  // Luminance threshold for bloom extraction.
-      float intensity = 1.0f;  // Bloom intensity multiplier.
-      float radius = 10.0f; // Spread radius of the bloom.
+      float threshold = 0.75f;  // Luminance threshold for bloom extraction.
+      float intensity = 0.25f;  // Bloom intensity multiplier.
+      float radius = 1.2f; // Spread radius of the bloom.
   };
 
   // Vignette effect parameters.
@@ -526,9 +526,9 @@ namespace FlexEngine
   {
       FLX_REFL_SERIALIZABLE
   public:
-      float intensity = 0.5f;  // How dark the edges become.
-      Vector2 radius = Vector2(0.2f,0.2f); // The size of the vignette effect (0 to 1).
-      Vector2 softness = Vector2(0.1f, 0.1f);  // How gradual the fall-off is at the edges.
+      float intensity = 1.0f;  // How dark the edges become.
+      Vector2 radius = Vector2(0.002f, 0.002f); // The size of the vignette effect (0 to 1).
+      Vector2 softness = Vector2(0.08f, 0.08f);  // How gradual the fall-off is at the edges.
   };
 
   // Color Grading effect parameters.
@@ -537,8 +537,8 @@ namespace FlexEngine
       FLX_REFL_SERIALIZABLE
   public:
       float brightness = 0.0f;  // Adjustment to brightness.
-      float contrast = 1.0f;  // Contrast multiplier.
-      float saturation = 1.0f;  // Saturation multiplier.
+      float contrast = 2.0f;  // Contrast multiplier.
+      float saturation = 2.0f;  // Saturation multiplier.
   };
 
   // Pixelation effect parameters.

@@ -1,6 +1,6 @@
 #include "PostProcessing.h"
 
-namespace Game
+namespace Editor
 {
     Renderer2D_GlobalPPSettings PostProcessing::m_globalsettings = Renderer2D_GlobalPPSettings();
     int PostProcessing::postProcessZIndex = INT_MAX;
@@ -85,14 +85,14 @@ namespace Game
             const auto PPComponent = element.GetComponent<PostProcessingMarker>();
 
             // Global toggles from the marker.
-            //m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
-            //m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
-            //m_globalsettings.enableBloom = PPComponent->enableBloom;
-            //m_globalsettings.enableVignette = PPComponent->enableVignette;
-            //m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
-            //m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
-            //m_globalsettings.enablePixelate = PPComponent->enablePixelate;
-            //m_globalsettings.globalIntensity = PPComponent->globalIntensity;
+            m_globalsettings.enableGaussianBlur = PPComponent->enableGaussianBlur;
+            m_globalsettings.enableChromaticAberration = PPComponent->enableChromaticAberration;
+            m_globalsettings.enableBloom = PPComponent->enableBloom;
+            m_globalsettings.enableVignette = PPComponent->enableVignette;
+            m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
+            m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
+            m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
             if (element.HasComponent<PostProcessingGaussianBlur>())
@@ -177,105 +177,6 @@ namespace Game
         ProcessGlobalPostProcessing();
         DrawGlobalPostProcessing();
         #pragma endregion
-
-        #pragma region Master Control //Do not remove
-        {
-            #if 1
-            // Toggle settings using bottom keys:
-            if (Input::GetKeyDown(GLFW_KEY_Z)) // Toggle bloom
-                m_globalsettings.enableBloom = !m_globalsettings.enableBloom;
-            if (Input::GetKeyDown(GLFW_KEY_X)) // Toggle Gaussian Blur
-                m_globalsettings.enableGaussianBlur = !m_globalsettings.enableGaussianBlur;
-            if (Input::GetKeyDown(GLFW_KEY_C)) // Toggle Chromatic Aberration
-                m_globalsettings.enableChromaticAberration = !m_globalsettings.enableChromaticAberration;
-            if (Input::GetKeyDown(GLFW_KEY_V)) // Toggle Vignette
-                m_globalsettings.enableVignette = !m_globalsettings.enableVignette;
-            if (Input::GetKeyDown(GLFW_KEY_B)) // Toggle Color Grading
-                m_globalsettings.enableColorGrading = !m_globalsettings.enableColorGrading;
-            if (Input::GetKeyDown(GLFW_KEY_N)) // Toggle Film Grain
-                m_globalsettings.enableFilmGrain = !m_globalsettings.enableFilmGrain;
-            if (Input::GetKeyDown(GLFW_KEY_M)) // Toggle Pixelate
-                m_globalsettings.enablePixelate = !m_globalsettings.enablePixelate;
-            #endif
-
-            #if 1
-            if (Input::GetKeyDown(GLFW_KEY_T)) m_globalsettings.bloomThreshold += 0.05f;
-            if (Input::GetKeyDown(GLFW_KEY_G)) m_globalsettings.bloomThreshold -= 0.05f;
-
-            // Bloom Intensity
-            if (Input::GetKeyDown(GLFW_KEY_Y)) m_globalsettings.bloomIntensity += 0.05f;
-            if (Input::GetKeyDown(GLFW_KEY_H)) m_globalsettings.bloomIntensity -= 0.05f;
-
-            // Bloom Radius
-            if (Input::GetKeyDown(GLFW_KEY_U)) m_globalsettings.bloomRadius += 1.0f;
-            if (Input::GetKeyDown(GLFW_KEY_J)) m_globalsettings.bloomRadius -= 1.0f;
-
-            // Blur Kernel Size
-            if (Input::GetKeyDown(GLFW_KEY_I)) m_globalsettings.blurIntensity = std::min(m_globalsettings.blurIntensity + 1, 64);
-            if (Input::GetKeyDown(GLFW_KEY_K)) m_globalsettings.blurIntensity = std::max(m_globalsettings.blurIntensity - 1, 1);
-
-            // Blur Sigma
-            if (Input::GetKeyDown(GLFW_KEY_O)) m_globalsettings.blurDistance += 0.5f;
-            if (Input::GetKeyDown(GLFW_KEY_L)) m_globalsettings.blurDistance -= 0.5f;
-
-            // Blur Passes
-            if (Input::GetKeyDown(GLFW_KEY_P)) m_globalsettings.blurPasses = std::min(m_globalsettings.blurPasses + 1, 10);
-            if (Input::GetKeyDown(GLFW_KEY_SEMICOLON)) m_globalsettings.blurPasses = std::max(m_globalsettings.blurPasses - 1, 1);
-            #endif
-
-            #if 0 // Chromatic Adjustment
-            // Example snippet to place alongside your existing input checks
-
-            // Chromatic Aberration Intensity
-            if (Input::GetKey(GLFW_KEY_Q)) m_globalsettings.chromaIntensity += 0.1f;
-            if (Input::GetKey(GLFW_KEY_E)) m_globalsettings.chromaIntensity = std::max(m_globalsettings.chromaIntensity - 0.1f, 0.0f);
-
-            // Red Offset
-            if (Input::GetKey(GLFW_KEY_A)) m_globalsettings.chromaRedOffset.x += 1.0f;  // Shift more to the right
-            if (Input::GetKey(GLFW_KEY_D)) m_globalsettings.chromaRedOffset.x -= 1.0f;  // Shift more to the left
-            if (Input::GetKey(GLFW_KEY_Z)) m_globalsettings.chromaRedOffset.y += 1.0f;  // Shift up
-            if (Input::GetKey(GLFW_KEY_X)) m_globalsettings.chromaRedOffset.y -= 1.0f;  // Shift down
-
-            // Green Offset
-            if (Input::GetKey(GLFW_KEY_C)) m_globalsettings.chromaGreenOffset.x += 1.0f;
-            if (Input::GetKey(GLFW_KEY_V)) m_globalsettings.chromaGreenOffset.x -= 1.0f;
-            if (Input::GetKey(GLFW_KEY_B)) m_globalsettings.chromaGreenOffset.y += 1.0f;
-            if (Input::GetKey(GLFW_KEY_N)) m_globalsettings.chromaGreenOffset.y -= 1.0f;
-
-            // Blue Offset
-            if (Input::GetKey(GLFW_KEY_M))   m_globalsettings.chromaBlueOffset.x += 1.0f;
-            if (Input::GetKey(GLFW_KEY_COMMA)) m_globalsettings.chromaBlueOffset.x -= 1.0f;
-            if (Input::GetKey(GLFW_KEY_PERIOD))  m_globalsettings.chromaBlueOffset.y += 1.0f;
-            if (Input::GetKey(GLFW_KEY_SLASH))   m_globalsettings.chromaBlueOffset.y -= 1.0f;
-            #endif
-
-            #if 0
-            {
-
-                if (Input::GetKeyDown(GLFW_KEY_5)) m_globalsettings.colorBrightness += 0.1f;
-                if (Input::GetKeyDown(GLFW_KEY_6)) m_globalsettings.colorBrightness -= 0.1f;
-
-                if (Input::GetKeyDown(GLFW_KEY_2)) m_globalsettings.colorContrast += 0.1f;
-                if (Input::GetKeyDown(GLFW_KEY_4)) m_globalsettings.colorContrast -= 0.1f;
-
-                if (Input::GetKeyDown(GLFW_KEY_1)) m_globalsettings.colorSaturation += 0.1f;
-                if (Input::GetKeyDown(GLFW_KEY_3)) m_globalsettings.colorSaturation -= 0.1f;
-
-                // Toggle on/off by setting to 0 or restoring a default value
-                if (Input::GetKeyDown(GLFW_KEY_7))
-                    m_globalsettings.colorBrightness = (m_globalsettings.colorBrightness == 0.0f) ? 1.0f : 0.0f;
-
-                if (Input::GetKeyDown(GLFW_KEY_8))
-                    m_globalsettings.colorContrast = (m_globalsettings.colorContrast == 0.0f) ? 1.0f : 0.0f;
-
-                if (Input::GetKeyDown(GLFW_KEY_9))
-                    m_globalsettings.colorSaturation = (m_globalsettings.colorSaturation == 0.0f) ? 1.0f : 0.0f;
-
-            }
-            #endif
-        }
-        #pragma endregion
-
 
         // === Step 3: Merging Global Post-Processing & Local Post-Processing ===
         // Bind global framebuffer if not already bound and apply global effects.

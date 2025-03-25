@@ -84,6 +84,9 @@
     <ClCompile Include="src\settingspanel.cpp">
       <Filter>src\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="src\Layers\postprocessing.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers.h">
@@ -167,6 +170,9 @@
     </ClInclude>
     <ClInclude Include="src\settingspanel.h">
       <Filter>src\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Layers\postprocessing.h">
+      <Filter>src\Layers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
