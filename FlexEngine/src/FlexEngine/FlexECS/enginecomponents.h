@@ -177,9 +177,6 @@ namespace FlexEngine
     bool should_play = false;
     bool should_stop = false;
     bool is_looping = false;
-    bool change_mode = false; // For tagging to flip
-
-    int current_frame = 0;
     float time = 0.f;
   };
 

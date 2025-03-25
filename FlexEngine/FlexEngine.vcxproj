@@ -231,7 +231,7 @@ xcopy "$(SolutionDir)third_party\lib\ffmpeg\bin\*.dll" "$(OutDir)" /e /r /y /q</
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\opengltexture.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglvertex.cpp" />
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\videoframe.cpp" />
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\videodecoder.cpp" />
     <ClCompile Include="src\FlexEngine\StateManager\statemanager.cpp" />
     <ClCompile Include="src\FlexEngine\Utilities\date.cpp" />
     <ClCompile Include="src\FlexEngine\Utilities\datetime.cpp" />
@@ -306,7 +306,7 @@ xcopy "$(SolutionDir)third_party\lib\ffmpeg\bin\*.dll" "$(OutDir)" /e /r /y /q</
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengltexture.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglvertex.h" />
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\videoframe.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\videodecoder.h" />
     <ClInclude Include="src\FlexEngine\StateManager\istate.h" />
     <ClInclude Include="src\FlexEngine\StateManager\statemanager.h" />
     <ClInclude Include="src\FlexEngine\Utilities\ansi_color.h" />

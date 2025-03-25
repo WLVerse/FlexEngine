@@ -247,7 +247,7 @@
     <ClCompile Include="src\FlexEngine\fsm.cpp">
       <Filter>src\FlexEngine</Filter>
     </ClCompile>
-    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\videoframe.cpp">
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\videodecoder.cpp">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
@@ -474,7 +474,7 @@
     <ClInclude Include="src\FlexEngine\fsm.h">
       <Filter>src\FlexEngine</Filter>
     </ClInclude>
-    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\videoframe.h">
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\videodecoder.h">
       <Filter>src\FlexEngine\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>

@@ -104,7 +104,7 @@ namespace Editor
           // "Model scale" in this case refers to the scale of the object itself...
           Matrix4x4 model = Matrix4x4::Identity;
 
-          auto& video_info = FLX_ASSET_GET(VideoFrame, FLX_STRING_GET(video->video_file));
+          auto& video_info = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video->video_file));
           model.Scale(Vector3(static_cast<float>(video_info.GetWidth()),
             static_cast<float>(video_info.GetHeight()),
             1.f));
@@ -188,7 +188,7 @@ namespace Editor
         {
           float deltatime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
           VideoPlayer& video_player = *element.GetComponent<VideoPlayer>();
-          auto& video = FLX_ASSET_GET(VideoFrame, FLX_STRING_GET(video_player.video_file));
+          auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video_player.video_file));
 
           if (!video_player.should_play || FLX_STRING_GET(video_player.video_file) == "") continue;
 

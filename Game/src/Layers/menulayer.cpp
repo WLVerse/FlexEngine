@@ -84,6 +84,12 @@ namespace Game
 
     menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
     Set_Up_Settings_Menu();
+
+    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
+    {
+      auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(element.GetComponent<VideoPlayer>()->video_file));
+      video.RestartVideo();
+    }
   }
 
   void MenuLayer::OnDetach()

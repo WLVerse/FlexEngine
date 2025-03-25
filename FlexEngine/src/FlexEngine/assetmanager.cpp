@@ -135,8 +135,8 @@ namespace FlexEngine
         else if (file_extension.string() == ".mp4")
         {
           AssetKey key = file.path.string().substr(default_directory_length);
-          assets.emplace(key, VideoFrame());
-          VideoFrame& video = std::get<VideoFrame>(assets[key]);
+          assets.emplace(key, VideoDecoder());
+          VideoDecoder& video = std::get<VideoDecoder>(assets[key]);
           video.Load(file.path);
         }
         else if (file_extension.string() == ".ttf")

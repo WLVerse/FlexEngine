@@ -222,7 +222,7 @@ namespace FlexEngine
     if (props.is_video)
     {
       asset_shader.SetUniform_bool("u_use_texture", true);
-      auto& asset_video = FLX_ASSET_GET(VideoFrame, props.asset);
+      auto& asset_video = FLX_ASSET_GET(VideoDecoder, props.asset);
       asset_video.Bind(asset_shader, "u_texture", 0);
     }
     else if (props.asset != "")

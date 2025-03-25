@@ -1,3 +1,36 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// videodecoder.h
+//
+// Video playback within engine.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
+/*********************************
+* What is supported:
+* - Uhh video
+*   > only tested with mp4, but theoretically, ffmpeg will automatically find a decoder
+*     that works for the video file loaded.
+* - Video seeking: go to xxx second in the video.
+* 
+* What is not supported, sory:
+* - Audio from video
+* - Multiple instances of the SAME video file at the same time
+*********************************/
+
+/*********************************
+* How to use:
+* - Attach Video Player component to entity
+*   > Drop video file, set parameters
+* - Pray it works
+* - To restart video on scene load/exit, ownself need to settle in the layer (script dont work D:)
+*********************************/
+
 #pragma once
 #include "opengltexture.h"
 #include "Renderer/OpenGL/openglshader.h"
@@ -20,10 +53,10 @@ namespace FlexEngine
     int width, height;
   };
 
-  class __FLX_API VideoFrame {
+  class __FLX_API VideoDecoder {
   public:
-    VideoFrame() = default;
-    ~VideoFrame();
+    VideoDecoder() = default;
+    ~VideoDecoder();
 
     bool Load(const Path& filepath);
     bool GetCurrentFrame(uint8_t* outputRGB);
@@ -35,19 +68,23 @@ namespace FlexEngine
     int GetTotalFrames() const { return m_totalframes; }
     double GetNextFrameTime() const { return m_next_frame_time; }
 
+    bool Seek(double time);
+    bool RestartVideo();
     bool DecodeNextFrame();
     void Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const;
 
     double m_current_time = 0.0;
 
   private:
-    std::string m_filepath;
+    std::string m_filepath; //filepath to video to decode
     int m_width = 0;
     int m_height = 0;
-    int m_totalframes = 0;
-    double m_next_frame_time = 0.0; // in seconds, when this frame should be shown
     float m_length = 0; //in seconds
     int m_video_stream_index = -1;
+    long m_totalframes = 0;
+    //int m_framerate = 0;  
+
+    double m_next_frame_time = 0.0; // in seconds, when this frame should be shown
 
     // FFmpeg Contexts
     AVFormatContext* m_format_ctx = nullptr;

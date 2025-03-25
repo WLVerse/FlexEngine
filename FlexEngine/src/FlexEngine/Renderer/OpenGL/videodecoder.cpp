@@ -1,4 +1,17 @@
-#include "videoframe.h"
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// videodecoder.cpp
+//
+// Video playback within engine.
+//
+// AUTHORS
+// [100%] Rocky Sutarius (rocky.sutarius@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
+#include "videodecoder.h"
 #include <FlexEngine.h>
 
 
@@ -6,7 +19,7 @@
 namespace FlexEngine
 {
 
-	VideoFrame::~VideoFrame()
+	VideoDecoder::~VideoDecoder()
 	{
 		if (m_rgba_data)
 		{
@@ -22,7 +35,7 @@ namespace FlexEngine
 	}
 
 	// Open file, find stream, initialize decoder
-	bool VideoFrame::Load(const Path& path)
+	bool VideoDecoder::Load(const Path& path)
 	{
 		// Intialize decoeders
 		m_format_ctx = avformat_alloc_context();
@@ -38,8 +51,6 @@ namespace FlexEngine
 			Log::Error("Could not retrieve stream info!");
 			return -1;
 		}
-		//Save video info:
-		m_length = m_format_ctx->duration / AV_TIME_BASE;
 
 		// Loop through streams to find a video stream
 		m_video_stream_index = -1;
@@ -57,6 +68,28 @@ namespace FlexEngine
 			return -1;
 		}
 
+		//Save video info - length and framerate
+		m_length = m_format_ctx->duration / AV_TIME_BASE;
+		
+		//Find out framerate of video
+		//AVStream* video_stream = m_format_ctx->streams[m_video_stream_index];
+		//// Try using avg_frame_rate first
+		//if (video_stream->avg_frame_rate.num != 0 && video_stream->avg_frame_rate.den != 0) 
+		//{
+		//	m_framerate = av_q2d(video_stream->avg_frame_rate);
+		//}
+		//// If avg_frame_rate is unavailable, fallback to r_frame_rate
+		//else if (video_stream->r_frame_rate.num != 0 && video_stream->r_frame_rate.den != 0) 
+		//{
+		//	m_framerate = av_q2d(video_stream->r_frame_rate);
+		//}
+		//// If no frame rate found, then just uhh default 30 lmao
+		//else 
+		//{
+		//	m_framerate = 30.0;
+		//}
+
+		// Find a codec that works for our video
 		AVCodecParameters* codec_params = m_format_ctx->streams[m_video_stream_index]->codecpar;
 		const AVCodec* codec = avcodec_find_decoder(codec_params->codec_id);
 		m_codec_ctx = avcodec_alloc_context3(codec);
@@ -120,18 +153,18 @@ namespace FlexEngine
 	}
 
 	//Returns current frame
-	bool VideoFrame::GetCurrentFrame(uint8_t* m_rgba_data)
+	bool VideoDecoder::GetCurrentFrame(uint8_t* m_rgba_data)
 	{
 		return false;
 	}
 
 	// Decodes and returns next frame
-	bool VideoFrame::GetNextFrame(uint8_t* m_rgba_data)
+	bool VideoDecoder::GetNextFrame(uint8_t* m_rgba_data)
 	{
 		return false;
 	}
 
-	void VideoFrame::Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const
+	void VideoDecoder::Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const
 	{
 		glActiveTexture(GL_TEXTURE0 + texture_unit);
 
@@ -143,21 +176,70 @@ namespace FlexEngine
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, m_rgba_data[0]);
 	}
 
+	bool VideoDecoder::Seek(double time)
+	{
+		if (!m_format_ctx || m_video_stream_index == -1) return false;
 
-	bool VideoFrame::DecodeNextFrame()
+		// Convert time in seconds to target frame
+		double time_base = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
+		int64_t target_timestamp = static_cast<int64_t>(time / time_base);
+
+		// Seek to the target timestamp
+		if (av_seek_frame(m_format_ctx, m_video_stream_index, target_timestamp, AVSEEK_FLAG_BACKWARD) < 0) 
+		{
+			Log::Error("Seek to time " + std::to_string(time_base) + " failed!");
+			return false;
+		}
+		// Flush the codec buffers to clear old frames
+		avcodec_flush_buffers(m_codec_ctx);
+
+		// Reset frame timing
+		m_current_time = time;
+		m_next_frame_time = time;
+
+		return true;
+	}
+
+	bool VideoDecoder::RestartVideo()
+	{
+		return Seek(0);
+	}
+
+	bool VideoDecoder::DecodeNextFrame()
 	{
 		if (av_read_frame(m_format_ctx, m_packet) >= 0)
 		{
 			if (m_packet->stream_index == m_video_stream_index)
 			{
-				// Send packet to decoder
 				if (avcodec_send_packet(m_codec_ctx, m_packet) == 0)
 				{
 					while (avcodec_receive_frame(m_codec_ctx, m_frame) == 0)
 					{
 						// Convert the frame to RGBA format
 						sws_scale(m_sws_ctx, m_frame->data, m_frame->linesize, 0, m_codec_ctx->height, m_rgba_data, m_line_size);
-						// Flip image manually
+						
+						// Compute presentation time for this frame:
+						double time_base = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
+						m_next_frame_time = m_frame->pts * time_base;
+						
+						av_packet_unref(m_packet);
+						return true;
+					}
+				}
+			}
+			av_packet_unref(m_packet);
+		}
+		else
+		{
+			return false;	//error, or EOF
+		}
+		
+		//Todo error handling bc idk what 
+		return true;
+	}
+}
+
+// Flip image manually
 
 						//for (int y = 0; y < m_codec_ctx->height; y++)
 						//{
@@ -170,25 +252,3 @@ namespace FlexEngine
 						//m_frame_to_render.data = m_rgba_data;
 						//m_frame_to_render.width = m_width;
 						//m_frame_to_render.height = m_height;
-
-						// Compute presentation time for this frame:
-						double timebase = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
-						m_next_frame_time = m_frame->pts * timebase;
-
-						// Upload texture
-						//glBindTexture(GL_TEXTURE_2D, videoTexture);
-						//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, codecCtx->width, codecCtx->height, GL_RGBA, GL_UNSIGNED_BYTE, flippedData);
-						
-						av_packet_unref(m_packet);
-						return true;
-					}
-				}
-			}
-			av_packet_unref(m_packet);
-		}
-		
-		
-		//Todo error handling bc idk what 
-		return false;
-	}
-}

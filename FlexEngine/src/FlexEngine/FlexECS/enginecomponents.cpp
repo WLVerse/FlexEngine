@@ -77,8 +77,6 @@ namespace FlexEngine
     FLX_REFL_REGISTER_PROPERTY(should_play)
     FLX_REFL_REGISTER_PROPERTY(should_stop)
     FLX_REFL_REGISTER_PROPERTY(is_looping)
-    FLX_REFL_REGISTER_PROPERTY(change_mode)
-    FLX_REFL_REGISTER_PROPERTY(current_frame)
     FLX_REFL_REGISTER_PROPERTY(time)
   FLX_REFL_REGISTER_END
 
