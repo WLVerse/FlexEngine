@@ -14,14 +14,9 @@ namespace Editor
         Window::FrameBufferManager.AddFrameBuffer("Local Post Processing", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Global Post Processing", window_size);
         Window::FrameBufferManager.AddFrameBuffer("Final Post Processing", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Horizontal", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Gaussian Blur Vertical", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Bloom", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Chromatic Aberration", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Color Grading", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Vignette", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Film Grain", window_size);
-        Window::FrameBufferManager.AddFrameBuffer("Pixelate", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Pass 1", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Pass 2", window_size);
+        Window::FrameBufferManager.AddFrameBuffer("Pass 3", window_size);
     }
 
     void PostProcessing::Exit()
@@ -42,21 +37,11 @@ namespace Editor
         OpenGLRenderer::ClearFrameBuffer();
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
         OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
         OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
         OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
-        OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
-        OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
-        OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
-        OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
-        OpenGLRenderer::ClearFrameBuffer();
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
         OpenGLRenderer::ClearFrameBuffer();
         #pragma endregion
 
@@ -310,50 +295,44 @@ namespace Editor
     {
         Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
         GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
-        GLuint bloomtexture = Window::FrameBufferManager.GetFrameBuffer("Bloom")->GetColorAttachment();
-        GLuint gaussianblurHorizontaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Horizontal")->GetColorAttachment();
-        GLuint gaussianblurVerticaltexture = Window::FrameBufferManager.GetFrameBuffer("Gaussian Blur Vertical")->GetColorAttachment();
-        GLuint chromaticaberration_texture = Window::FrameBufferManager.GetFrameBuffer("Chromatic Aberration")->GetColorAttachment();
-        GLuint colorgradingtexture = Window::FrameBufferManager.GetFrameBuffer("Color Grading")->GetColorAttachment();
-        GLuint vignettetexture = Window::FrameBufferManager.GetFrameBuffer("Vignette")->GetColorAttachment();
-        GLuint filmgraintexture = Window::FrameBufferManager.GetFrameBuffer("Film Grain")->GetColorAttachment();
-        GLuint pixelatetexture = Window::FrameBufferManager.GetFrameBuffer("Pixelate")->GetColorAttachment();
-
+        GLuint pass1texture = Window::FrameBufferManager.GetFrameBuffer("Pass 1")->GetColorAttachment();
+        GLuint pass2texture = Window::FrameBufferManager.GetFrameBuffer("Pass 2")->GetColorAttachment();
+        GLuint pass3texture = Window::FrameBufferManager.GetFrameBuffer("Pass 3")->GetColorAttachment();
         // ---------- Bloom Pipeline ----------
         if (m_globalsettings.enableBloom)
         {
             // Step 1: Brightness Extraction - isolate bright areas based on the bloom threshold.
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyBrightnessPass(globaltexture, m_globalsettings.bloomThreshold);
 
             // Step 2: Gaussian Blur as part of the bloom chain.
-            GLuint inputTex = bloomtexture;
+            GLuint inputTex = pass1texture;
             bool horizontal = true; // Start with a horizontal blur.
             for (int i = 0; i < m_globalsettings.blurPasses; ++i)
             {
                 if (horizontal)
-                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
                 else
-                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
                 OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurDistance, m_globalsettings.blurIntensity, horizontal);
-                inputTex = horizontal ? gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
+                inputTex = horizontal ? pass2texture : pass3texture;
                 horizontal = !horizontal;
             }
 
             // Step 3: Final Bloom Composition - combine the blurred highlights back with the original scene.
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
-            OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, gaussianblurHorizontaltexture, gaussianblurVerticaltexture, m_globalsettings.bloomIntensity, m_globalsettings.bloomRadius);
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyBloomFinalComposition(globaltexture, pass2texture, pass3texture, m_globalsettings.bloomIntensity, m_globalsettings.bloomRadius);
 
             // Step 4: Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(bloomtexture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
             // Step 6: Reset
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
             OpenGLRenderer::ClearFrameBuffer();
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Bloom");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 3");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -365,22 +344,22 @@ namespace Editor
             for (int i = 0; i < m_globalsettings.blurPasses; ++i)
             {
                 if (horizontal)
-                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
                 else
-                    Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+                    Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
                 OpenGLRenderer::ApplyGaussianBlur(inputTex, m_globalsettings.blurDistance, m_globalsettings.blurIntensity, horizontal);
-                inputTex = horizontal ? gaussianblurHorizontaltexture : gaussianblurVerticaltexture;
+                inputTex = horizontal ? pass1texture : pass2texture;
                 horizontal = !horizontal;
             }
 
             // Merge results
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            OpenGLRenderer::ApplyBlurFinalComposition(gaussianblurHorizontaltexture, gaussianblurVerticaltexture);
+            OpenGLRenderer::ApplyBlurFinalComposition(pass1texture, pass2texture);
 
             // Reset frame buffers
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Horizontal");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Gaussian Blur Vertical");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -388,7 +367,7 @@ namespace Editor
         if (m_globalsettings.enableChromaticAberration)
         {
             GLuint inputTex = globaltexture;
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyChromaticAberration(
                 inputTex,
                 m_globalsettings.chromaIntensity,
@@ -401,9 +380,9 @@ namespace Editor
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(chromaticaberration_texture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Chromatic Aberration");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -411,7 +390,7 @@ namespace Editor
         if (m_globalsettings.enableColorGrading)
         {
             GLuint inputTex = globaltexture;
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyColorGrading(
                 inputTex,
                 m_globalsettings.colorBrightness,
@@ -421,9 +400,9 @@ namespace Editor
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(colorgradingtexture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Color Grading");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -431,7 +410,7 @@ namespace Editor
         if (m_globalsettings.enableVignette)
         {
             GLuint inputTex = globaltexture;
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyVignette(
                 inputTex,
                 m_globalsettings.vignetteIntensity,
@@ -441,9 +420,9 @@ namespace Editor
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(vignettetexture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Vignette");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -451,7 +430,7 @@ namespace Editor
         if (m_globalsettings.enableFilmGrain)
         {
             GLuint inputTex = globaltexture;
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyFilmGrain(
                 inputTex,
                 m_globalsettings.filmGrainIntensity,
@@ -461,9 +440,9 @@ namespace Editor
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(filmgraintexture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Film Grain");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
 
@@ -471,7 +450,7 @@ namespace Editor
         if (m_globalsettings.enablePixelate)
         {
             GLuint inputTex = globaltexture;
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ApplyPixelate(
                 inputTex,
                 (float)m_globalsettings.pixelWidth,
@@ -480,9 +459,9 @@ namespace Editor
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
-            ReplicateFrameBufferAttachment(pixelatetexture);
+            ReplicateFrameBufferAttachment(pass1texture);
 
-            Window::FrameBufferManager.SetCurrentFrameBuffer("Pixelate");
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
     }
