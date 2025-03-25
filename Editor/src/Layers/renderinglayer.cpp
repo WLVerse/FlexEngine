@@ -184,23 +184,6 @@ namespace Editor
 
         #pragma endregion
 
-
-        // Video player frame calculations
-        //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
-        //{
-        //  float deltatime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-        //  VideoPlayer& video_player = *element.GetComponent<VideoPlayer>();
-        //  auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video_player.video_file));
-        //  if (!video_player.should_play || FLX_STRING_GET(video_player.video_file) == "") continue;
-        //  //video_player.time += deltatime;
-        //  //video.m_current_time += deltatime;
-        //  if (video.m_current_time >= video.GetNextFrameTime())
-        //  {
-        //    video.DecodeNextFrame();
-        //  }
-        //}
-
-
         FunctionQueue editor_queue, game_queue;
 
         if (!FlexPrefs::GetBool("editor.batching"))
@@ -244,28 +227,6 @@ namespace Editor
                 editor_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, props); }, "", index });
             }
             #pragma endregion
-
-            //Render video
-            //for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, VideoPlayer, Position, Rotation, Scale>())
-            //{
-            //  if (!element.GetComponent<Transform>()->is_active) continue;
-
-            //  VideoPlayer& video = *element.GetComponent<VideoPlayer>();
-            //  Renderer2DProps props;
-            //  if (FLX_STRING_GET(video_player.video_file) == "") continue;
-
-            //  props.asset = FLX_STRING_GET(video.video_file);
-            //  props.texture_index = -1;
-            //  props.is_video = true;
-
-            //  int index = 0;
-            //  if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
-
-            //  props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
-            //  props.world_transform = element.GetComponent<Transform>()->transform;
-
-            //  game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
-            //}
 
             #pragma region Text Renderer System
 
