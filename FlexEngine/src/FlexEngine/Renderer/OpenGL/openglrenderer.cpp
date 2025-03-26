@@ -1940,7 +1940,7 @@ namespace FlexEngine
       m_draw_calls++;
   }
 
-  void OpenGLRenderer::ApplyZoomEffect(const GLuint& inputTex, float zoomValue)
+  void OpenGLRenderer::ApplyWarpEffect(const GLuint& inputTex, float warpStrength, float warpRadius)
   {
       #pragma region VAO Setup
       // Full-screen quad covering clip space.
@@ -1981,13 +1981,14 @@ namespace FlexEngine
       #pragma endregion
 
       // Retrieve the overlay shader asset.
-      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Zoom.flxshader");
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Warp.flxshader");
 
       // Bind the input texture to texture unit 0.
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, inputTex);
       asset_shader.SetUniform_int("screenTexture", 0);
-      asset_shader.SetUniform_float("warpStrength", zoomValue);
+      asset_shader.SetUniform_float("warpStrength", warpStrength);
+      asset_shader.SetUniform_float("maxRadius", warpRadius);
 
       // Draw the full-screen quad.
       glDrawArrays(GL_TRIANGLES, 0, 6);

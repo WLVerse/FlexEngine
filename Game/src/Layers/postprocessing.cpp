@@ -80,6 +80,7 @@ namespace Game
             m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
             m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
             m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            m_globalsettings.enableWarp = PPComponent->enableWarp;
             m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
@@ -139,6 +140,13 @@ namespace Game
                 m_globalsettings.filmGrainIntensity = filmGrain->grainIntensity;
                 m_globalsettings.filmGrainSize = filmGrain->grainSize;
                 m_globalsettings.filmGrainAnimate = filmGrain->animateGrain;
+            }
+
+            if (element.HasComponent<PostProcessingWarp>())
+            {
+                auto warp = element.GetComponent<PostProcessingWarp>();
+                m_globalsettings.warpStrength = warp->warpStrength;
+                m_globalsettings.warpRadius = warp->warpRadius;
             }
 
             // Retrieve z-index if available.
@@ -680,6 +688,25 @@ namespace Game
                 inputTex,
                 (float)m_globalsettings.pixelWidth,
                 (float)m_globalsettings.pixelHeight
+            );
+
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+        }
+
+        // Warp: add a warp effect on the overlay
+        if (m_globalsettings.enableWarp)
+        {
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyWarpEffect(
+                inputTex,
+                m_globalsettings.warpStrength,
+                m_globalsettings.warpRadius
             );
 
             // Update Global FrameBuffer

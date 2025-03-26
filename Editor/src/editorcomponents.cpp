@@ -200,6 +200,7 @@ namespace Editor
   COMPONENT_VIEWER_BOOL(enableColorGrading)
   COMPONENT_VIEWER_BOOL(enableFilmGrain)
   COMPONENT_VIEWER_BOOL(enablePixelate)
+  COMPONENT_VIEWER_BOOL(enableWarp)
   COMPONENT_VIEWER_DRAG_FLOAT(globalIntensity)
   COMPONENT_VIEWER_END(PostProcessingMarker)
   COMPONENT_VIEWER_START(PostProcessingGaussianBlur)
@@ -239,6 +240,10 @@ namespace Editor
   COMPONENT_VIEWER_DRAG_FLOAT(grainSize)
   COMPONENT_VIEWER_BOOL(animateGrain)
   COMPONENT_VIEWER_END(PostProcessingFilmGrain)
+  COMPONENT_VIEWER_START(PostProcessingWarp)
+  COMPONENT_VIEWER_DRAG_FLOAT(warpStrength)
+  COMPONENT_VIEWER_DRAG_FLOAT(warpRadius)
+  COMPONENT_VIEWER_END(PostProcessingWarp)
 
   void RegisterComponents()
   {
@@ -283,5 +288,6 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(PostProcessingColorGrading);
     REGISTER_COMPONENT_VIEWER(PostProcessingPixelate);
     REGISTER_COMPONENT_VIEWER(PostProcessingFilmGrain);
+    REGISTER_COMPONENT_VIEWER(PostProcessingWarp);
   }
 } // namespace Editor

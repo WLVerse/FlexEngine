@@ -80,6 +80,7 @@ namespace Editor
             m_globalsettings.enableColorGrading = PPComponent->enableColorGrading;
             m_globalsettings.enableFilmGrain = PPComponent->enableFilmGrain;
             m_globalsettings.enablePixelate = PPComponent->enablePixelate;
+            m_globalsettings.enableWarp = PPComponent->enableWarp;
             m_globalsettings.globalIntensity = PPComponent->globalIntensity;
 
             // Override global default with effect component settings if present.
@@ -139,6 +140,13 @@ namespace Editor
                 m_globalsettings.filmGrainIntensity = filmGrain->grainIntensity;
                 m_globalsettings.filmGrainSize = filmGrain->grainSize;
                 m_globalsettings.filmGrainAnimate = filmGrain->animateGrain;
+            }
+
+            if (element.HasComponent<PostProcessingWarp>())
+            {
+                auto warp = element.GetComponent<PostProcessingWarp>();
+                m_globalsettings.warpStrength = warp->warpStrength;
+                m_globalsettings.warpRadius = warp->warpRadius;
             }
 
             // Retrieve z-index if available.
@@ -690,18 +698,16 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Zoom: add a zoom effect on the overlay to simulate speed 
-        //if (m_globalsettings.enableZoom)
+        // Warp: add a warp effect on the overlay
+        if (m_globalsettings.enableWarp)
         {
-            static float value = 1.2f;
-
             GLuint inputTex = globaltexture;
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
-            OpenGLRenderer::ApplyZoomEffect(
+            OpenGLRenderer::ApplyWarpEffect(
                 inputTex,
-                value
+                m_globalsettings.warpStrength,
+                m_globalsettings.warpRadius
             );
-
 
             // Update Global FrameBuffer
             Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
@@ -709,9 +715,6 @@ namespace Editor
 
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
-
-            if (Input::GetKey(GLFW_KEY_Z))value -= 0.1f;
-            if (Input::GetKey(GLFW_KEY_C))value += 0.1f;
         }
 
         
