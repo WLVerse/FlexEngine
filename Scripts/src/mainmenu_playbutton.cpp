@@ -31,7 +31,7 @@ public:
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
       //Application::MessagingSystem::Send("Start Cutscene", true);
-        Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+        Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.0 });
     }
   }
 

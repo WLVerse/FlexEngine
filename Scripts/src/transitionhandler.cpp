@@ -183,10 +183,10 @@ namespace Game
     #pragma region Encounter Transition from town to battle
 
     // EncounterBattleTransition implements a multi-stage transition effect:
-    // 1) Camera zooms out slightly.
+    // 1) Camera zooms in to specified ortho width, lerping over time.
     // 2) Global chromatic aberration intensifies over time.
-    // 3) Camera zooms in dramatically.
-    // 4) A fade effect occurs as the camera zoom in
+    // 3) Warping strength lerps to slight negative before to positive 1.
+    // 4) A fade effect occurs as the camera zoom in and transitions to next scem
     class EncounterBattleTransition : public ITransitionEffect
     {
     private:
@@ -204,6 +204,11 @@ namespace Game
         float m_initialAlpha;      // Starting opacity.
         float m_targetAlpha;       // Ending opacity.
         float m_currentAlpha;      // Current fade opacity.
+
+        // Warp parameters
+        float m_warpStart;
+        float m_warpMid;
+        float m_warpTarget;
 
         // For fade, a full-screen entity is used.
         FlexECS::Entity m_fadeEntity;
@@ -226,7 +231,10 @@ namespace Game
             m_targetAlpha(targetAlpha),
             m_currentAlpha(initialAlpha),
             m_chromaticStartIntensity(0.0f),
-            m_chromaticTargetIntensity(1.0f)
+            m_chromaticTargetIntensity(1.0f),
+            m_warpStart(0.0f),
+            m_warpMid(1.5f),
+            m_warpTarget(-3.7f)
         {
             m_zoomOutDuration = totalDuration * 0.3f;
             m_zoomInDuration = totalDuration * 0.7f;  // Fade runs during this phase.
@@ -252,15 +260,26 @@ namespace Game
 
                     auto marker = element.GetComponent<PostProcessingMarker>();
                     if (marker)
+                    {
                         marker->enableChromaticAberration = true;
+                        marker->enableWarp = true;
+                    }
+
                     if (!element.HasComponent<PostProcessingChromaticAbberation>())
                         element.AddComponent<PostProcessingChromaticAbberation>({});
+                    if (!element.HasComponent<PostProcessingWarp>())
+                        element.AddComponent<PostProcessingWarp>({});
 
                     if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
                     {
                         aberration->redOffset.y = 0.0f;
                         aberration->greenOffset.y = 0.0f;
                         aberration->blueOffset.y = 0.0f;
+                    }
+                    if (auto warp = element.GetComponent<PostProcessingWarp>())
+                    {
+                        warp->warpStrength = m_warpStart;
+                        warp->warpRadius = 1.0f;
                     }
                 }
             }
@@ -271,8 +290,8 @@ namespace Game
 
             // Stage 1: Initiate zoom-out.
             Application::MessagingSystem::Send("CameraZoomStart",
-                std::pair<double, double>{ static_cast<double>(m_zoomOutDuration),
-                                           Application::GetCurrentWindow()->GetWidth() * 1.2 });
+                std::pair<double, double>{ m_zoomOutDuration + m_zoomInDuration,
+                                           Application::GetCurrentWindow()->GetWidth() * 0.5 });
             Log::Info("EncounterBattleTransition: Started zoom-out stage.");
         }
 
@@ -286,6 +305,7 @@ namespace Game
             m_stageElapsed += dt;
 
             // Update global chromatic aberration concurrently.
+            #pragma region Chromatic Aberration
             float totalDuration = m_zoomOutDuration + m_zoomInDuration;
             float chromaticProgress = m_totalElapsed / totalDuration;
             float currentIntensity = FlexMath::Lerp(m_chromaticStartIntensity, m_chromaticTargetIntensity, chromaticProgress);
@@ -301,35 +321,45 @@ namespace Game
                     auto transform = element.GetComponent<Transform>();
                     if (!transform || !transform->is_active)
                         continue;
-                    if (element.HasComponent<PostProcessingChromaticAbberation>())
+                    if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
                     {
-                        if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
-                        {
-                            aberration->intensity = currentIntensity;
-                            // Glitch effect: randomized offset per frame.
-                            float amount = (rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
-                            aberration->redOffset.x = amount;
-                            aberration->greenOffset.x = 0.0f;
-                            aberration->blueOffset.x = -amount;
-                        }
+                        aberration->intensity = currentIntensity;
+                        // Glitch effect: randomized offset per frame.
+                        float amount = (rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
+                        aberration->redOffset.x = amount;
+                        aberration->greenOffset.x = 0.0f;
+                        aberration->blueOffset.x = -amount;
                     }
                 }
             }
+            #pragma endregion
 
             // Process states.
             switch (m_state)
             {
             case EBState::ZOOM_OUT:
             {
+                // Initiate warp to negative.
+                auto activeScene = FlexECS::Scene::GetActiveScene();
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpStart, m_warpMid, m_stageElapsed / m_zoomOutDuration);
+                    }
+                }
+
                 // Triggers once dont worry
                 if (m_stageElapsed >= m_zoomOutDuration)
                 {
                     m_state = EBState::ZOOM_IN_FADE;
                     m_stageElapsed = 0.0f;
-                    // Initiate zoom-in.
-                    Application::MessagingSystem::Send("CameraZoomStart",
-                        std::pair<double, double>{ static_cast<double>(m_zoomInDuration),
-                                                   Application::GetCurrentWindow()->GetWidth() * 0.5 });
+
                     // Create fade entity at the start of zoom-in.
                     auto activeScene = FlexECS::Scene::GetActiveScene();
                     if (activeScene)
@@ -355,7 +385,20 @@ namespace Game
             }
             case EBState::ZOOM_IN_FADE:
             {
-                // Fade effect runs concurrently with zoom-in.
+                // Fade effect runs concurrently with zoom-in & warp.
+                auto activeScene = FlexECS::Scene::GetActiveScene();
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpMid, m_warpTarget, m_stageElapsed/ m_zoomInDuration);
+                    }
+                }
                 if (m_stageElapsed >= (m_zoomInDuration / 2.0f)) 
                 {
                     float fadeProgress = (m_stageElapsed - (m_zoomInDuration / 2.0f)) / (m_zoomInDuration / 2.0f);
