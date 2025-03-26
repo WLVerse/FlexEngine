@@ -51,7 +51,7 @@ namespace Game
         #pragma region Update Settings
         // Finalizing Post Processing
         Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
-        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>())
         {
             if (!element.GetComponent<Transform>()->is_active)
                 continue;
