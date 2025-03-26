@@ -152,16 +152,6 @@ namespace Editor
         DrawGlobalPostProcessing();
         #pragma endregion
 
-        // === Step 3: Merging Global Post-Processing & Local Post-Processing ===
-        // Bind global framebuffer if not already bound and apply global effects.
-        #pragma region Merge Results
-        Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
-
-        GLuint globaltexture = Window::FrameBufferManager.GetFrameBuffer("Global Post Processing")->GetColorAttachment();
-       ReplicateFrameBufferAttachment(globaltexture);
-
-        #pragma endregion
-
         OpenGLFrameBuffer::Unbind();
     }
 
@@ -398,7 +388,7 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Apply a full-screen Gaussian blur on the scene if enabled.
+        // Apply a full-screen Gaussian blur on the scene if enabled. (Avoid using, looks weird)
         if (entity.HasComponent<PostProcessingGaussianBlur>())
         {
             GLuint inputTex = localtexture;
@@ -426,7 +416,7 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Chromatic Aberration: apply color separation if enabled.
+        // Chromatic Aberration: apply color separation if enabled. (Glitching effect)
         if (entity.HasComponent<PostProcessingChromaticAbberation>())
         {
             GLuint inputTex = localtexture;
@@ -449,7 +439,7 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Color Grading / Tone Mapping: adjust brightness, contrast, and saturation.
+        // Color Grading / Tone Mapping: adjust brightness, contrast, and saturation. (Not ideal, supposed to use color add to sprite, use vignette instead for brightness)
         if (entity.HasComponent<PostProcessingColorGrading>())
         {
             GLuint inputTex = localtexture;
@@ -469,8 +459,8 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Vignette: darken edges to draw attention to the center.
-        if (entity.HasComponent<PostProcessingVignette>())
+        // Vignette: darken edges to draw attention to the center. (Make brighter or darker)
+        if (entity.HasComponent<PostProcessingVignette>()) 
         {
             GLuint inputTex = localtexture;
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
@@ -489,8 +479,8 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        // Pixelate: optionally apply a pixelation effect as a final overlay.
-        if (entity.HasComponent<PostProcessingPixelate>())
+        // Pixelate: optionally apply a pixelation effect as a final overlay. (Pixelate)
+        if (entity.HasComponent<PostProcessingPixelate>()) 
         {
             GLuint inputTex = localtexture;
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
@@ -508,6 +498,8 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
+        // Film Grain is not needed here (Not going to implement)
+        
         // Merge results from local frame buffer to global frame buffer
         Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 4");
         OpenGLRenderer::ApplyOverlay(globaltexture, localtexture);
@@ -697,6 +689,10 @@ namespace Editor
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
             OpenGLRenderer::ClearFrameBuffer();
         }
+
+        // Draw to final post processing buffer
+        Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+        ReplicateFrameBufferAttachment(globaltexture);
     }
 
     void PostProcessing::ReplicateFrameBufferAttachment(GLuint texture)

@@ -22,8 +22,8 @@ namespace Game
         // Process entities for local post-processing (per-object effects)
         static void ProcessLocalPostProcessing();
 
-        // Process entities for global post-processing (applied to the full scene)
-        static void ProcessGlobalPostProcessing();
+        // Starts applying local post-processing (applied to individual entity)
+        static void DrawLocalPostProcessing(FlexECS::Entity& entity);
 
         // Starts applying global post-processing (applied to the full scene)
         static void DrawGlobalPostProcessing();
