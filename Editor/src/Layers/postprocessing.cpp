@@ -717,7 +717,6 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
-        
         // Draw to final post processing buffer
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
         ReplicateFrameBufferAttachment(globaltexture);
