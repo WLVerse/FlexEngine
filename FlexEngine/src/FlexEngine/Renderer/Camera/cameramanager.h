@@ -29,6 +29,8 @@ namespace FlexEngine
         static Camera* GetMainGameCamera();
         static FlexECS::EntityID GetMainGameCameraID();
 
+        static const Vector4& GetMouseToWorld();
+
         static void RemoveMainCamera();
         
         /*!************************************************************************

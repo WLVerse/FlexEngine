@@ -73,7 +73,7 @@ namespace Game
 
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Start Game"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Settings"));
-    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit Game"));
+    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit"));
     
     // find camera
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())

@@ -14,6 +14,8 @@
 #include "cameramanager.h"
 #include <stdexcept>
 #include "FlexEngine/FlexECS/enginecomponents.h"
+#include "application.h"
+#include "input.h"
 
 namespace FlexEngine
 {
@@ -60,5 +62,17 @@ namespace FlexEngine
         Log::Debug("Setting main game camera with Entity ID: " + std::to_string(id));
         m_mainGameCameraID = id;
         Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
+    }
+
+    const Vector4& CameraManager::GetMouseToWorld()
+    {
+      Vector4 clip = {
+        (2.0f * Input::GetMousePosition().x) / Application::GetCurrentWindow()->GetWidth() - 1.0f,
+        1.0f - (2.0f * Input::GetMousePosition().y) / Application::GetCurrentWindow()->GetHeight(),
+        1.0f,
+        1.0f
+      };
+
+      return GetMainGameCamera()->GetProjViewMatrix().Inverse() * clip;
     }
 }
