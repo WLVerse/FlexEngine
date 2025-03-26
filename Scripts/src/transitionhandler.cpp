@@ -417,6 +417,9 @@ namespace Game
                 {
                     m_state = EBState::COMPLETE;
                     Log::Info("EncounterBattleTransition: Zoom-in and fade stage complete.");
+                    Application::MessagingSystem::Send("CameraZoomStart",
+                                           std::pair<double, double>{0.0001,
+                                          Application::GetCurrentWindow()->GetWidth()});
                 }
                 break;
             }
