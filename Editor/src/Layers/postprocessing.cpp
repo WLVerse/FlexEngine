@@ -690,6 +690,31 @@ namespace Editor
             OpenGLRenderer::ClearFrameBuffer();
         }
 
+        // Zoom: add a zoom effect on the overlay to simulate speed 
+        //if (m_globalsettings.enableZoom)
+        {
+            static float value = 1.2f;
+
+            GLuint inputTex = globaltexture;
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ApplyZoomEffect(
+                inputTex,
+                value
+            );
+
+
+            // Update Global FrameBuffer
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Global Post Processing");
+            ReplicateFrameBufferAttachment(pass1texture);
+
+            Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
+            OpenGLRenderer::ClearFrameBuffer();
+
+            if (Input::GetKey(GLFW_KEY_Z))value -= 0.1f;
+            if (Input::GetKey(GLFW_KEY_C))value += 0.1f;
+        }
+
+        
         // Draw to final post processing buffer
         Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
         ReplicateFrameBufferAttachment(globaltexture);
