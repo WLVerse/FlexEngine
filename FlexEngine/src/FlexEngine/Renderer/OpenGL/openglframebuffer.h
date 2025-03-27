@@ -36,7 +36,7 @@ namespace FlexEngine
     // Resize the current framebuffer
     void Resize(int newWidth, int newHeight);
 
-    GLuint GetColorAttachment() const;
+    GLuint GetColorAttachment() const; //Get Texture
 
     void Clear() const;
 

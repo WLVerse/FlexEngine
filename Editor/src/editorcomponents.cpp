@@ -189,8 +189,56 @@ namespace Editor
   COMPONENT_VIEWER_END(CharacterSlot)
 
 
-
-
+  /****************
+  * Post_Processing
+  ****************/
+  COMPONENT_VIEWER_START(PostProcessingMarker)
+  COMPONENT_VIEWER_BOOL(enableGaussianBlur)
+  COMPONENT_VIEWER_BOOL(enableChromaticAberration)
+  COMPONENT_VIEWER_BOOL(enableBloom)
+  COMPONENT_VIEWER_BOOL(enableVignette)
+  COMPONENT_VIEWER_BOOL(enableColorGrading)
+  COMPONENT_VIEWER_BOOL(enableFilmGrain)
+  COMPONENT_VIEWER_BOOL(enablePixelate)
+  COMPONENT_VIEWER_DRAG_FLOAT(globalIntensity)
+  COMPONENT_VIEWER_END(PostProcessingMarker)
+  COMPONENT_VIEWER_START(PostProcessingGaussianBlur)
+  COMPONENT_VIEWER_DRAG_INT(intensity)
+  COMPONENT_VIEWER_DRAG_FLOAT(distance)
+  COMPONENT_VIEWER_DRAG_INT(blurPasses)
+  COMPONENT_VIEWER_END(PostProcessingGaussianBlur)
+  COMPONENT_VIEWER_START(PostProcessingChromaticAbberation)
+  COMPONENT_VIEWER_DRAG_FLOAT(intensity)
+  COMPONENT_VIEWER_DRAG_VECTOR2(redOffset)
+  COMPONENT_VIEWER_DRAG_VECTOR2(greenOffset)
+  COMPONENT_VIEWER_DRAG_VECTOR2(blueOffset)
+  COMPONENT_VIEWER_DRAG_VECTOR2(edgeRadius)
+  COMPONENT_VIEWER_DRAG_VECTOR2(edgeSoftness)
+  COMPONENT_VIEWER_END(PostProcessingChromaticAbberation)
+  COMPONENT_VIEWER_START(PostProcessingBloom)
+  COMPONENT_VIEWER_DRAG_FLOAT(threshold)
+  COMPONENT_VIEWER_DRAG_FLOAT(intensity)
+  COMPONENT_VIEWER_DRAG_FLOAT(radius)
+  COMPONENT_VIEWER_END(PostProcessingBloom)
+  COMPONENT_VIEWER_START(PostProcessingVignette)
+  COMPONENT_VIEWER_DRAG_FLOAT(intensity)
+  COMPONENT_VIEWER_DRAG_VECTOR2(radius)
+  COMPONENT_VIEWER_DRAG_VECTOR2(softness)
+  COMPONENT_VIEWER_END(PostProcessingVignette)
+  COMPONENT_VIEWER_START(PostProcessingColorGrading)
+  COMPONENT_VIEWER_DRAG_FLOAT(brightness)
+  COMPONENT_VIEWER_DRAG_FLOAT(contrast)
+  COMPONENT_VIEWER_DRAG_FLOAT(saturation)
+  COMPONENT_VIEWER_END(PostProcessingColorGrading)
+  COMPONENT_VIEWER_START(PostProcessingPixelate)
+  COMPONENT_VIEWER_DRAG_INT(pixelWidth)
+  COMPONENT_VIEWER_DRAG_INT(pixelHeight)
+  COMPONENT_VIEWER_END(PostProcessingPixelate)
+  COMPONENT_VIEWER_START(PostProcessingFilmGrain)
+  COMPONENT_VIEWER_DRAG_FLOAT(grainIntensity)
+  COMPONENT_VIEWER_DRAG_FLOAT(grainSize)
+  COMPONENT_VIEWER_BOOL(animateGrain)
+  COMPONENT_VIEWER_END(PostProcessingFilmGrain)
 
   void RegisterComponents()
   {
@@ -226,5 +274,14 @@ namespace Editor
     REGISTER_COMPONENT_VIEWER(SpeedBarSlot);
     REGISTER_COMPONENT_VIEWER(SpeedBarSlotTarget);
     REGISTER_COMPONENT_VIEWER(CharacterSlot);
+
+    REGISTER_COMPONENT_VIEWER(PostProcessingMarker);
+    REGISTER_COMPONENT_VIEWER(PostProcessingGaussianBlur);
+    REGISTER_COMPONENT_VIEWER(PostProcessingChromaticAbberation);
+    REGISTER_COMPONENT_VIEWER(PostProcessingBloom);
+    REGISTER_COMPONENT_VIEWER(PostProcessingVignette);
+    REGISTER_COMPONENT_VIEWER(PostProcessingColorGrading);
+    REGISTER_COMPONENT_VIEWER(PostProcessingPixelate);
+    REGISTER_COMPONENT_VIEWER(PostProcessingFilmGrain);
   }
 } // namespace Editor

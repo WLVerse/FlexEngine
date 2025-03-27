@@ -1342,7 +1342,7 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v9.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v10_pp.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
@@ -3408,6 +3408,7 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
+       
         if (battle.is_win || battle.is_lose)
         {
           if (Input::AnyKeyDown())
