@@ -3246,10 +3246,9 @@ namespace Game
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->return_to_default = false;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
-        FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
+        FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
-      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
     }
 
     void Lose_Battle()
