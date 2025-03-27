@@ -99,7 +99,7 @@ namespace Game
         FlexECS::Entity tutorial_text;
 
         bool start_of_turn = false;
-        bool play_battle_start = false;
+        bool play_battle_start = true;
         bool move_select = false;
         bool move_resolution = false;
         bool speedbar_animating = false;
@@ -180,6 +180,7 @@ namespace Game
       battle.tutorial_text;
 
       battle.start_of_turn = false;
+      battle.play_battle_start = true;
       battle.move_select = false;
       battle.move_resolution = false;
       battle.speedbar_animating = false;
@@ -1218,16 +1219,19 @@ namespace Game
         time_played = 3.f;
         is_init = true;
         FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
-        /*overlay.GetComponent<Animator>()->spritesheet_handle
-          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");*/
+        overlay.GetComponent<Animator>()->spritesheet_handle
+          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");
         overlay.GetComponent<Transform>()->is_active = true;
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->is_looping = false;
         overlay.GetComponent<Animator>()->return_to_default = false;
+        overlay.GetComponent<Animator>()->current_frame = 0;
       }
 
       if (time_played > 0.f)
       {
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+
         time_played -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
       }
       else
@@ -1236,6 +1240,8 @@ namespace Game
         is_init = false;
         battle.play_battle_start = false;
         battle.start_of_turn = true;
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = false;
       }
     }
 
@@ -3241,8 +3247,9 @@ namespace Game
 
         // A bit lame, but need to find by name to set, like the old Unity days
         FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = true;
         overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)");
-        overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Victory/Screen_Overlays/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
+        overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->return_to_default = false;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
