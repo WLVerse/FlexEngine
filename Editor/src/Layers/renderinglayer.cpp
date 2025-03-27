@@ -32,6 +32,7 @@ namespace Editor
     void RenderingLayer::OnAttach()
     {
         OpenGLRenderer::EnableBlending();
+        PostProcessing::Init();
     }
 
     void RenderingLayer::OnDetach()
@@ -184,6 +185,8 @@ namespace Editor
 
         #pragma endregion
 
+        PostProcessing::Update();
+
         FunctionQueue editor_queue, game_queue;
 
         if (!FlexPrefs::GetBool("editor.batching"))
@@ -264,6 +267,29 @@ namespace Editor
                 editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
             }
 
+            #pragma endregion
+
+            #pragma region Post Processing Render
+            // Insert the global post-processing draw call into the game queue.
+            auto ppIndex = PostProcessing::GetPostProcessZIndex();
+            Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
+            for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
+            {
+                if (!element.GetComponent<Transform>()->is_active)
+                    continue;
+
+                Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+                GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+                Matrix4x4 transform = element.GetComponent<Transform>()->transform;
+                game_queue.Insert({
+                    [texture, transform, windowSize]() {
+                        OpenGLRenderer::DrawTexture2D(texture, transform, windowSize);
+                    },
+                    "",
+                    ppIndex
+                });
+            }
+            OpenGLFrameBuffer::Unbind();
             #pragma endregion
 
         }

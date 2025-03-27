@@ -1,7 +1,7 @@
-CharacterName: EnemyOne
+CharacterName: Training_Bot_1
 CharacterID: 3
 Health: 30
-Speed: 35
+Speed: 5
 MoveOne: /data/Self_Repair.flxmove
 MoveTwo: /data/Self_Repair.flxmove
 MoveThree: /data/Full_Burst.flxmove

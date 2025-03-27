@@ -1,6 +1,0 @@
-Name: Speed_Up
-Speed: 30
-Effect: Speed_Up
-Value: 10
-Target: ALL_ALLIES
-Description: Accelerate all allies' next turn.

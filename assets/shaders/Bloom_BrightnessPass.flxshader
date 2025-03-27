@@ -1,0 +1,2 @@
+vertex: assets/shaders/Shared.vert
+fragment: assets/shaders/bloom_bright_extraction.frag

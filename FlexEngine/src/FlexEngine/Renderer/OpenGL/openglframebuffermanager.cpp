@@ -44,7 +44,7 @@ namespace FlexEngine
     {
         // Initialize with a default framebuffer.
         OpenGLFrameBuffer* defaultFramebuffer = new OpenGLFrameBuffer();
-        defaultFramebuffer->Init(800, 600); // Default size.
+        defaultFramebuffer->Init(1920, 1080); // Default size.
         m_FrameBuffers["default"] = defaultFramebuffer;
         m_CurrentFrameBuffer = defaultFramebuffer;
     }

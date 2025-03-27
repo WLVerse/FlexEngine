@@ -24,5 +24,7 @@
 #include "Layers/audiolayer.h"
 #include "Layers/profilelayer.h"
 
+#include "Layers/postprocessing.h"
+
 // Profiling enabled for all layers under editor
 #include "flexprofiler.h"

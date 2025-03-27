@@ -176,6 +176,7 @@ xcopy /Y "$(SolutionDir)imgui.ini" "$(TargetDir)"</Command>
     <ClCompile Include="src\Layers\editorwindowlayer.cpp" />
     <ClCompile Include="src\Layers\particlesystemlayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
+    <ClCompile Include="src\Layers\postprocessing.cpp" />
     <ClCompile Include="src\Layers\profilelayer.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
@@ -206,6 +207,7 @@ xcopy /Y "$(SolutionDir)imgui.ini" "$(TargetDir)"</Command>
     <ClInclude Include="src\Layers\editorwindowlayer.h" />
     <ClInclude Include="src\Layers\particlesystemlayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />
+    <ClInclude Include="src\Layers\postprocessing.h" />
     <ClInclude Include="src\Layers\profilelayer.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />

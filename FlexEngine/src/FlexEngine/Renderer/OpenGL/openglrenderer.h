@@ -125,6 +125,66 @@ namespace FlexEngine
     };
 
     /**
+    * @brief Encapsulates data for batching multiple sprite instances in a single draw call.
+    *
+    * This structure aggregates essential per-instance data, including transformation matrices,
+    * z-index values for depth ordering, UV mapping for animated sprites, and opacity levels.
+    * It also holds references to shader programs and other rendering state necessary to efficiently
+    * render a large number of sprites while minimizing draw calls.
+    */
+    struct __FLX_API Renderer2D_GlobalPPSettings
+    {
+        // Global toggles and multiplier
+        bool enableGaussianBlur = false;
+        bool enableChromaticAberration = false;
+        bool enableBloom = false;
+        bool enableVignette = false;
+        bool enableColorGrading = false;
+        bool enableFilmGrain = false;
+        bool enablePixelate = false;
+        
+        float globalIntensity = 1.0f;
+
+        // Gaussian Blur settings
+        int   blurIntensity = 12;    // Intensity
+        float blurDistance = 12.5f; // Blur Distance
+        int   blurPasses = 5;    // Number of blur passes
+
+        // Chromatic Aberration settings
+        float chromaIntensity = 1.0f;  // Overall effect intensity
+        Vector2 chromaRedOffset = Vector2(10.0f, 0.0f);
+        Vector2 chromaGreenOffset = Vector2(0.0f, 10.0f);
+        Vector2 chromaBlueOffset = Vector2(5.0f, 5.0f);
+        Vector2 chromaEdgeRadius = Vector2(0.2f, 0.2f);
+        Vector2 chromaEdgeSoftness = Vector2(0.1f, 0.1f);
+
+        // Bloom settings
+        float bloomThreshold = 0.75f;  // Luminance threshold for bloom
+        float bloomIntensity = 0.25f;  // Intensity multiplier for bloom
+        float bloomRadius = 1.2f; // Bloom spread radius
+
+        // Vignette settings
+        float vignetteIntensity = 1.0f;  // How dark the edges get
+        Vector2 vignetteRadius = Vector2(0.002f, 0.002f); // Size of the vignette effect (0-1 range)
+        Vector2 vignetteSoftness = Vector2(0.08f, 0.08f);  // How gradual the fall-off is
+
+        // Color Grading settings
+        float colorBrightness = 0.0f;  // Brightness adjustment
+        float colorContrast = 2.0f;  // Contrast multiplier
+        float colorSaturation = 2.0f;  // Saturation multiplier
+        //std::string lutTexturePath = "";    // Path to lookup table (LUT) texture, if any
+
+        // Pixelation settings
+        int   pixelWidth = 8;     // Pixel block width
+        int   pixelHeight = 8;     // Pixel block height
+
+        // Film Grain settings
+        float filmGrainIntensity = 0.5f;  // Grain intensity
+        float filmGrainSize = 1.0f;  // Grain size
+        bool  filmGrainAnimate = true;  // Whether grain is animated over time
+    };
+
+    /**
      * @brief Provides a suite of static methods for 2D rendering using OpenGL.
      *
      * The OpenGLRenderer class offers functionality for drawing 2D textures, text,
@@ -179,11 +239,13 @@ namespace FlexEngine
         /// @param cam The camera through which the texture is rendered.
         /// @param props Rendering properties for the texture.
         static void DrawTexture2D(Camera const& cam, const Renderer2DProps& props = {});
+        static void DrawTexture2D(const GLuint& texture = {}, const Matrix4x4& transform = {}, const Vector2& screenDimensions = {});
 
         /// @brief Draws 2D text as a texture using the given camera and text settings.
         /// @param cam The camera through which the text is rendered.
         /// @param text Text rendering properties.
         static void DrawTexture2D(Camera const& cam, const Renderer2DText& text = {});
+
 
         /// @brief Draws a 2D texture using the provided rendering properties and camera data.
         /// @param props Rendering properties for the texture.
@@ -216,6 +278,46 @@ namespace FlexEngine
           const Vector2& window_size = Vector2(1600.0f, 900.0f),
           Renderer2DProps::Alignment alignment = Renderer2DProps::Alignment_TopLeft
         );
-    };
 
+        #pragma region Post Processing
+        /*!***************************************************************************
+        * \brief
+        * Applies a brightness threshold pass for the bloom effect.
+        *
+        * \param threshold The brightness threshold to apply.
+        *****************************************************************************/
+        static void ApplyBrightnessPass(const GLuint& texture = {}, float threshold = 1.0f);
+        /*!***************************************************************************
+        * \brief
+        * Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
+        *
+        * \param blurDrawPasses The number of passes to apply for the blur.
+        * \param blurDistance The distance factor for the blur effect.
+        * \param intensity The intensity of the blur.
+        *****************************************************************************/
+        static void ApplyGaussianBlur(const GLuint& texture = {}, float blurDistance = 10.0f, int blurIntensity = 12, bool isHorizontal = false);
+
+        /*!***************************************************************************
+        * \brief
+        * Applies the final bloom composition with a specified opacity level.
+        *
+        * \param opacity The opacity level for the bloom composition.
+        *****************************************************************************/
+        static void ApplyBloomFinalComposition(const GLuint& texture = {}, const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {}, float opacity = 1.0f, float spread=1.0f);
+
+        /*!***************************************************************************
+       * \brief
+       * Applies the final blur composition
+       *****************************************************************************/
+        static void ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal = {}, const GLuint& blurtextureVertical = {});
+
+        static void ApplyChromaticAberration(const GLuint& inputTex = {}, float chromaIntensity = 0.0f, const Vector2& redOffset = { 0.1f,0.1f }, const Vector2& greenOffset = { 0.1f,0.1f }, const Vector2& blueOffset = { 0.1f,0.1f }, const Vector2& EdgeRadius = {0.2f,0.2f}, const Vector2& EdgeSoftness = { 0.2f,0.2f });
+        static void ApplyColorGrading(const GLuint& inputTex = {}, float brightness = 0.0f, float contrast = 0.0f, float saturation = 0.0f);
+        static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, const Vector2& vignetteRadius = { 0.2f,0.2f }, const Vector2& vignetteSoftness = { 0.1f,0.1f });
+        static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
+        static void ApplyPixelate(const GLuint& inputTex = {}, float pixelWidth = 0.0f, float pixelHeight = 0.0f);
+        static void ApplyOverlay(const GLuint& backgroundTex = {}, const GLuint& inputTex = {});
+        #pragma endregion
+
+    };
 }
