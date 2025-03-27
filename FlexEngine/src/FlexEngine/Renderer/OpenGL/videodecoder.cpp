@@ -42,14 +42,14 @@ namespace FlexEngine
 		if (avformat_open_input(&m_format_ctx, path.string().c_str(), nullptr, nullptr) != 0)
 		{
 			Log::Error("Could not open video file!");
-			return -1;
+			return false;
 		}
 
 		// Get video info
 		if (avformat_find_stream_info(m_format_ctx, nullptr) < 0)
 		{
 			Log::Error("Could not retrieve stream info!");
-			return -1;
+			return false;
 		}
 
 		// Loop through streams to find a video stream
@@ -65,11 +65,11 @@ namespace FlexEngine
 		if (m_video_stream_index == -1)
 		{
 			Log::Error("No video stream found!");
-			return -1;
+			return false;
 		}
 
 		//Save video info - length and framerate
-		m_length = m_format_ctx->duration / AV_TIME_BASE;
+		m_length = static_cast<float>(m_format_ctx->duration) / AV_TIME_BASE;
 		
 		//Find out framerate of video
 		//AVStream* video_stream = m_format_ctx->streams[m_video_stream_index];
@@ -97,20 +97,20 @@ namespace FlexEngine
 		if (!codec || !m_codec_ctx)
 		{
 			Log::Error("Could not find codec!");
-			return -1;
+			return false;
 		}
 		// Copy codec parameters
 		if (avcodec_parameters_to_context(m_codec_ctx, codec_params) < 0)
 		{
 			Log::Error("Could not copy codec parameters!");
-			return -1;
+			return false;
 		}
 
 		// Open the codec
 		if (avcodec_open2(m_codec_ctx, codec, nullptr) < 0)
 		{
 			Log::Error("Could not open codec!");
-			return -1;
+			return false;
 		}
 
 		//Save video resolution
@@ -150,18 +150,6 @@ namespace FlexEngine
 		#pragma endregion
 
 		return true;
-	}
-
-	//Returns current frame
-	bool VideoDecoder::GetCurrentFrame(uint8_t* m_rgba_data)
-	{
-		return false;
-	}
-
-	// Decodes and returns next frame
-	bool VideoDecoder::GetNextFrame(uint8_t* m_rgba_data)
-	{
-		return false;
 	}
 
 	void VideoDecoder::Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const
@@ -238,6 +226,18 @@ namespace FlexEngine
 		return true;
 	}
 }
+
+
+
+//bool VideoDecoder::GetCurrentFrame(uint8_t* m_rgba_data)
+//{
+//	return false;
+//}
+//
+//bool VideoDecoder::GetNextFrame(uint8_t* m_rgba_data)
+//{
+//	return false;
+//}
 
 // Flip image manually
 
