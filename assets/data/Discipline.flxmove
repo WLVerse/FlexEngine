@@ -1,5 +1,5 @@
 Name: Discipline
-Speed: 20
+Speed: 3
 Effect: Damage
 Value: 10
 Target: SINGLE_ENEMY

@@ -1,9 +1,9 @@
 Name: Self_Repair
-Speed: 18
+Speed: 6
 Effect: Heal
-Value: 8
+Value: 10
 Target: SELF
 Effect: Attack_Up
 Value: 3
 Target: SELF
-Description: Heal yourself for 8 HP and increase your ATK for 2 turns.
+Description: Heal yourself and increase your ATK for 2 turns.
