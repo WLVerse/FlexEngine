@@ -3,7 +3,7 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-namespace Game
+namespace Editor
 {
     // Handles both local and global post-processing
     class PostProcessing

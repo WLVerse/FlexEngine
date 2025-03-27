@@ -315,7 +315,7 @@ namespace FlexEngine
         static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, const Vector2& vignetteRadius = { 0.2f,0.2f }, const Vector2& vignetteSoftness = { 0.1f,0.1f });
         static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
         static void ApplyPixelate(const GLuint& inputTex = {}, float pixelWidth = 0.0f, float pixelHeight = 0.0f);
-
+        static void ApplyOverlay(const GLuint& backgroundTex = {}, const GLuint& inputTex = {});
         #pragma endregion
 
     };

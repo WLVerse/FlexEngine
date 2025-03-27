@@ -26,23 +26,18 @@ void main()
     vec2 normBlue  = (u_BlueOffset  / texDim) * u_ChromaIntensity;
 
     // Compute the distance from the fragment to each edge.
-    // For a texture with coordinates in [0, 1], the distance from left is tex_coord.x,
-    // from right is (1 - tex_coord.x), similarly for top and bottom.
     float distX = min(tex_coord.x, 1.0 - tex_coord.x);
     float distY = min(tex_coord.y, 1.0 - tex_coord.y);
 
     // Compute an edge factor for horizontal and vertical directions.
-    // If the distance is greater than (edgeRadius + edgeSoftness), smoothstep returns 1 (full effect).
-    // If less than edgeRadius, smoothstep returns 0 (no effect).
     float factorX = smoothstep(u_EdgeRadius.x, u_EdgeRadius.x + u_EdgeSoftness.x, distX);
     float factorY = smoothstep(u_EdgeRadius.y, u_EdgeRadius.y + u_EdgeSoftness.y, distY);
 
-    // Since we want full effect at the edges, invert the factors:
+    // Invert the factors so effect is strongest at the edges.
     factorX = 1.0 - factorX;
     factorY = 1.0 - factorY;
-    
-    // Combine the horizontal and vertical factors.
-    // Using max means if the fragment is close to any edge, the aberration is fully applied.
+
+    // Combine edge factors.
     float edgeFactor = max(factorX, factorY);
 
     // Scale each channel's offset by the edge factor.
@@ -51,9 +46,12 @@ void main()
     normBlue  *= edgeFactor;
 
     // Sample the input texture for each color channel using its offset.
+    vec4 originalColor = texture(u_InputTex, tex_coord);
     float red   = texture(u_InputTex, tex_coord + normRed).r;
     float green = texture(u_InputTex, tex_coord + normGreen).g;
     float blue  = texture(u_InputTex, tex_coord + normBlue).b;
+    float alpha = originalColor.a;  // Preserve the original alpha channel
 
-    FragColor = vec4(red, green, blue, 1.0);
+    // Output final color with transparency
+    FragColor = vec4(red, green, blue, alpha);
 }

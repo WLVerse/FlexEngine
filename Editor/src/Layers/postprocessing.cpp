@@ -1,6 +1,6 @@
 #include "PostProcessing.h"
 
-namespace Game
+namespace Editor
 {
     Renderer2D_GlobalPPSettings PostProcessing::m_globalsettings = Renderer2D_GlobalPPSettings();
     int PostProcessing::postProcessZIndex = INT_MAX;
@@ -315,7 +315,7 @@ namespace Game
 
             OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props);
         }
-        else if (entity.HasComponent<Text>())
+        else if(entity.HasComponent<Text>())
         {
             const auto textComponent = entity.GetComponent<Text>();
             Renderer2DText textProps;
@@ -351,7 +351,7 @@ namespace Game
         }
 
         // ---------- Bloom Pipeline ---------- (GLOW)
-        if (entity.HasComponent<PostProcessingBloom>())
+        if (entity.HasComponent<PostProcessingBloom>()) 
         {
             // Step 1: Brightness Extraction - isolate bright areas based on the bloom threshold.
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
@@ -399,7 +399,7 @@ namespace Game
                     Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
                 else
                     Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 2");
-                OpenGLRenderer::ApplyGaussianBlur(inputTex, entity.GetComponent<PostProcessingGaussianBlur>()->distance,
+                OpenGLRenderer::ApplyGaussianBlur(inputTex, entity.GetComponent<PostProcessingGaussianBlur>()->distance, 
                     entity.GetComponent<PostProcessingGaussianBlur>()->intensity, horizontal);
                 inputTex = horizontal ? pass1texture : pass2texture;
                 horizontal = !horizontal;
@@ -460,7 +460,7 @@ namespace Game
         }
 
         // Vignette: darken edges to draw attention to the center. (Make brighter or darker)
-        if (entity.HasComponent<PostProcessingVignette>())
+        if (entity.HasComponent<PostProcessingVignette>()) 
         {
             GLuint inputTex = localtexture;
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
@@ -480,7 +480,7 @@ namespace Game
         }
 
         // Pixelate: optionally apply a pixelation effect as a final overlay. (Pixelate)
-        if (entity.HasComponent<PostProcessingPixelate>())
+        if (entity.HasComponent<PostProcessingPixelate>()) 
         {
             GLuint inputTex = localtexture;
             Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 1");
@@ -499,7 +499,7 @@ namespace Game
         }
 
         // Film Grain is not needed here (Not going to implement)
-
+        
         // Merge results from local frame buffer to global frame buffer
         Window::FrameBufferManager.SetCurrentFrameBuffer("Pass 4");
         OpenGLRenderer::ApplyOverlay(globaltexture, localtexture);
