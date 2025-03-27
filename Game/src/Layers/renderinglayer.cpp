@@ -178,7 +178,6 @@ namespace Game
 
         if (!video_player.should_play) continue;
 
-        video_player.time += deltatime;
         video.m_current_time += deltatime;
         if (video.m_current_time >= video.GetNextFrameTime())
         {
@@ -202,6 +201,7 @@ namespace Game
 
       if (!FlexPrefs::GetBool("game.batching"))
       {
+        /*
           #pragma region Sprite Renderer System
 
           // render all sprites
@@ -301,6 +301,7 @@ namespace Game
                                   "", index });
           }
           #pragma endregion
+        */
 
           #pragma region Post Processing Render
          // Insert the global post-processing draw call into the game queue.

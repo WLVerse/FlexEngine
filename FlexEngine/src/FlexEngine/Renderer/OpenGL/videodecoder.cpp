@@ -137,6 +137,7 @@ namespace FlexEngine
 		#pragma region OpenGL 
 		// Create a OpenGL texture identifier
 		glGenTextures(1, &m_texture);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // GL_NEAREST for pixel art, find some way to toggle this for non-pixel art
@@ -146,7 +147,9 @@ namespace FlexEngine
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		// Upload pixels into opengl texture
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		if (!DecodeNextFrame()) Log::Error("Video first frame Decode failed");
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_rgba_data[0]);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		#pragma endregion
 
 		return true;
