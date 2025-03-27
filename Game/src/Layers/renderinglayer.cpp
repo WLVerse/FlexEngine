@@ -201,7 +201,7 @@ namespace Game
 
       if (!FlexPrefs::GetBool("game.batching"))
       {
-        /*
+        #if 0
           #pragma region Sprite Renderer System
 
           // render all sprites
@@ -301,7 +301,7 @@ namespace Game
                                   "", index });
           }
           #pragma endregion
-        */
+        #endif
 
           #pragma region Post Processing Render
          // Insert the global post-processing draw call into the game queue.
