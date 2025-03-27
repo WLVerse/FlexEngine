@@ -49,20 +49,14 @@ extern "C"
 
 namespace FlexEngine
 {
-  struct __FLX_API Frame
-  {
-    uint8_t** data = nullptr;
-    int width, height;
-  };
-
   class __FLX_API VideoDecoder {
   public:
     VideoDecoder() = default;
     ~VideoDecoder();
 
     bool Load(const Path& filepath);
-    bool GetCurrentFrame(uint8_t* outputRGB);
-    bool GetNextFrame(uint8_t* outputRGB);
+    //bool GetCurrentFrame(uint8_t* outputRGB);
+    //bool GetNextFrame(uint8_t* outputRGB);
 
     int GetWidth() const { return m_width; }
     int GetHeight() const { return m_height; }
@@ -102,7 +96,7 @@ namespace FlexEngine
 
     //Frame m_frame_to_render;
 
-    unsigned int m_texture;
+    unsigned int m_texture = 0;
 
   };
 
