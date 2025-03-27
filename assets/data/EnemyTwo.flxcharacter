@@ -1,7 +1,7 @@
-CharacterName: EnemyTwo
+CharacterName: Hacked_Robot_1
 CharacterID: 4
-Health: 30
-Speed: 40
-MoveOne: /data/Speed_Up.flxmove
+Health: 50
+Speed: 6
+MoveOne: /data/Rush_Down.flxmove
 MoveTwo: /data/Covering_Fire.flxmove
 MoveThree: /data/Exterminate.flxmove
