@@ -1206,7 +1206,7 @@ namespace Game
 
       }
     }
-
+    
     // Just delay the fucking battle start anim
     void Play_Battle_Start() 
     {
@@ -1218,8 +1218,8 @@ namespace Game
         time_played = 3.f;
         is_init = true;
         FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
-        overlay.GetComponent<Animator>()->spritesheet_handle
-          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");
+        /*overlay.GetComponent<Animator>()->spritesheet_handle
+          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");*/
         overlay.GetComponent<Transform>()->is_active = true;
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->is_looping = false;
@@ -3263,10 +3263,16 @@ namespace Game
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
-      //FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-      //FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
-      //FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
-      //FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
+
+      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
+
+      static float opacity = 1.f;
+      float fade_speed = -1.f;
+      // Pingpong between opacity 0 and 1
+      if (opacity <= 0.f || opacity >= 1.f) 
+        fade_speed *= -1;
+      opacity += fade_speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      //FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Text>()->color = opacity;
     }
 
     void Set_Up_Pause_Menu() {
