@@ -1,6 +1,6 @@
 Name: Full_Burst
-Speed: 12
+Speed: 7
 Effect: Damage
-Value: 6
+Value: 10
 Target: ALL_ENEMIES
 Description: Deal damage to all enemies.
