@@ -210,8 +210,10 @@ namespace Game
         float m_warpMid;
         float m_warpTarget;
 
+        // Camera Original Ortho dimensions
         float m_originalWidth;
         float m_originalHeight;
+
         // For fade, a full-screen entity is used.
         FlexECS::Entity m_fadeEntity;
 

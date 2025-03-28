@@ -26,7 +26,7 @@ namespace Game
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
 
-    if (town_version == "assets/saves/town_v5_pp.flxscene")
+    if (town_version == "assets/saves/town_v6_2.flxscene")
     {
         FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
@@ -81,7 +81,7 @@ namespace Game
      Application::MessagingSystem::Send("Enter Boss", true);
    }*/
     static bool startcombat = false;
-    if (town_version == "assets/saves/town_v5_pp.flxscene")
+    if (town_version == "assets/saves/town_v6_2.flxscene")
     {
         if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
         {
@@ -100,20 +100,30 @@ namespace Game
         if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Boss", true);
+            startcombat = false;
         }
     }
     else
     {
 
-        if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
+        if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding && !startcombat)
+        {
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
+            startcombat = true;
+        }
+
+
+        int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Battle 1", true);
+            startcombat = false;
         }
     }
 #pragma endregion
 
     // Randomly toggle light on and off between range 1 to 2 seconds only in the other scene, but of course when added this can be added to the other scene as well
-    if (town_version == "assets/saves/town_v4_2.flxscene")
+    if (town_version == "assets/saves/town_v6_2.flxscene")
     {
       static float light_timer = rand() % 1 + 1;
       light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
