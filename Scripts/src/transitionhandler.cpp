@@ -315,7 +315,6 @@ namespace Game
             {
                 // Use m_startTime for glitch timing.
                 auto now = std::chrono::high_resolution_clock::now();
-                double elapsedTime = std::chrono::duration_cast<std::chrono::duration<double>>(now - m_startTime).count();
                 for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
                 {
                     auto transform = element.GetComponent<Transform>();
@@ -325,7 +324,7 @@ namespace Game
                     {
                         aberration->intensity = currentIntensity;
                         // Glitch effect: randomized offset per frame.
-                        float amount = (rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
+                        float amount = (float)(rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
                         aberration->redOffset.x = amount;
                         aberration->greenOffset.x = 0.0f;
                         aberration->blueOffset.x = -amount;
@@ -340,7 +339,6 @@ namespace Game
             case EBState::ZOOM_OUT:
             {
                 // Initiate warp to negative.
-                auto activeScene = FlexECS::Scene::GetActiveScene();
                 if (activeScene)
                 {
                     for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
@@ -361,7 +359,6 @@ namespace Game
                     m_stageElapsed = 0.0f;
 
                     // Create fade entity at the start of zoom-in.
-                    auto activeScene = FlexECS::Scene::GetActiveScene();
                     if (activeScene)
                     {
                         m_fadeEntity = activeScene->CreateEntity("EncounterFadeFrame");
@@ -386,7 +383,6 @@ namespace Game
             case EBState::ZOOM_IN_FADE:
             {
                 // Fade effect runs concurrently with zoom-in & warp.
-                auto activeScene = FlexECS::Scene::GetActiveScene();
                 if (activeScene)
                 {
                     for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
@@ -466,7 +462,7 @@ namespace Game
         bool m_completionNotified;  ///< Ensures only one notification is sent per transition.
     public:
         // Constructs the TransitionHandlerScript and registers it with the script registry.
-        TransitionHandlerScript()
+        TransitionHandlerScript() : m_completionNotified(false)
         {
             ScriptRegistry::RegisterScript(this);
         }
