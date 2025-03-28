@@ -201,9 +201,8 @@ namespace Game
 
       if (!FlexPrefs::GetBool("game.batching"))
       {
-        #if 0
           #pragma region Sprite Renderer System
-
+         auto ppIndex = PostProcessing::GetPostProcessZIndex();
           // render all sprites
           for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
           {
@@ -230,6 +229,7 @@ namespace Game
 
               int index = 0;
               if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+              if (ppIndex > index) continue;
 
               props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
 
@@ -254,6 +254,7 @@ namespace Game
 
             int index = 0;
             if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+            if (ppIndex > index) continue;
 
             props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
             props.world_transform = element.GetComponent<Transform>()->transform;
@@ -279,6 +280,7 @@ namespace Game
 
               int index = 0;
               if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+              if (ppIndex > index) continue;
 
               sample.m_words = FLX_STRING_GET(textComponent->text);
               sample.m_color = textComponent->color;
@@ -301,11 +303,9 @@ namespace Game
                                   "", index });
           }
           #pragma endregion
-        #endif
 
           #pragma region Post Processing Render
          // Insert the global post-processing draw call into the game queue.
-          auto ppIndex = PostProcessing::GetPostProcessZIndex();
           Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
           for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
           {
