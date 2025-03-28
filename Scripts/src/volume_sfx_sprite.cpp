@@ -92,9 +92,6 @@ public:
         }
         if (timer == 0.f) current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
       }
-
-      FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX, current_volume_value);
-
       knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
   }
