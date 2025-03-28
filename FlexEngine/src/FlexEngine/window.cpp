@@ -116,10 +116,12 @@ namespace FlexEngine
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
       m_glfwwindow = glfwCreateWindow(mode->width, mode->height, m_props.title.c_str(), monitor, nullptr);
+      m_is_full_screen = true;
     }
     else
     {
       m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
+      m_is_full_screen = false;
     }
 
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
@@ -338,6 +340,7 @@ namespace FlexEngine
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
       glfwSetWindowMonitor(m_glfwwindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+      m_is_full_screen = true;
     }
     else
     {
@@ -346,6 +349,7 @@ namespace FlexEngine
 
       glfwSetWindowMonitor(m_glfwwindow, nullptr, 0, 0, m_props.width, m_props.height, 0);
       glfwSetWindowPos(m_glfwwindow, mode->width / 2 - m_props.width/2, mode->height/2 - m_props.height/2); // Center to the screen
+      m_is_full_screen = false;
     }
 
     // Set the preference

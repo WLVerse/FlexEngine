@@ -157,7 +157,6 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Battle\character.h" />
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\assetlayer.h" />
     <ClInclude Include="src\Layers\audiolayer.h" />

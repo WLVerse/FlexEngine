@@ -174,6 +174,8 @@ namespace FlexEngine
     // Window properties
     WindowProps m_props = {};
 
+    bool m_is_full_screen;
+
   public:
     std::string GetName() const { return name; }
 
@@ -283,6 +285,8 @@ namespace FlexEngine
     #endif
 
     #pragma endregion
+
+    inline bool GetFullScreen() const { return m_is_full_screen; }
 
     #pragma region OLE Drag & Drop 
   public:

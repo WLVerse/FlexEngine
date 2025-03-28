@@ -43,9 +43,6 @@
     <ClInclude Include="src\Layers\assetlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Battle\character.h">
-      <Filter>src\Battle</Filter>
-    </ClInclude>
     <ClInclude Include="src\Layers\camerasystemlayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
