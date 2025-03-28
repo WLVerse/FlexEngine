@@ -22,7 +22,7 @@ namespace Game
 
     void CutsceneLayer::OnAttach()
     {
-        File& file = File::Open(Path::current("assets/saves/cutscene_v2_pp.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/cutscene.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),

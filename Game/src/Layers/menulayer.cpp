@@ -65,7 +65,7 @@ namespace Game
 
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v7_PP.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v8.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
     
     // Trigger music to start
