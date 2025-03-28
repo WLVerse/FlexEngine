@@ -109,6 +109,10 @@ namespace Game
         bool end_of_turn = false;
 
         bool change_phase = false;
+
+        // Camera Original Ortho dimensions
+        float m_originalWidth;
+        float m_originalHeight;
     };
 
     struct _SpriteHandles
@@ -1470,6 +1474,9 @@ namespace Game
 
         battle.change_phase = true;
 
+        battle.m_originalWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+        battle.m_originalHeight = CameraManager::GetMainGameCamera()->GetOrthoHeight();
+
       //Scripting initialize
       Application::MessagingSystem::Send<bool>("Initialize VFX", true);
 
@@ -2749,6 +2756,26 @@ namespace Game
             }
         }
         
+        // Camera Animation
+        if (battle.current_move->target[0] == "ALL_ENEMIES" ||
+            battle.current_move->target[0] == "ADJACENT_ENEMIES" ||
+            battle.current_move->target[0] == "NEXT_ENEMY" ||
+            battle.current_move->target[0] == "SINGLE_ENEMY")
+        {
+            if (battle.current_character->character_id > 2)
+            {
+                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            else
+            {
+                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            //call camera code based on attackers and defender                                }
+
+        }
+
         //let attack animation play finish
         if (battle.disable_input_timer > 0.f)
         {
