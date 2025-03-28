@@ -1,3 +1,15 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// character.h
+//
+// Character declaration. This struct is used to store metadata about a character
+// 
+// AUTHORS
+// [100%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
+//   - Main Author
+//
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "flx_api.h"

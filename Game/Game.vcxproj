@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(SolutionDir)third_party\inc\ffmpeg;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(SolutionDir)third_party\lib\ffmpeg\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Game\src;$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(SolutionDir)third_party\inc\ffmpeg;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)third_party\lib\ImGui;$(SolutionDir)third_party\lib\ffmpeg\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -118,7 +118,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGuid.lib;fmodL_vc.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;ImGuid.lib;fmodL_vc.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -145,7 +145,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;ImGui.lib;fmod_vc.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FlexEngine.lib;opengl32.lib;glfw3.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;ImGui.lib;fmod_vc.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -157,7 +157,6 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Battle\character.h" />
     <ClInclude Include="src\Layers.h" />
     <ClInclude Include="src\Layers\assetlayer.h" />
     <ClInclude Include="src\Layers\audiolayer.h" />
@@ -169,6 +168,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\gamelayer.h" />
     <ClInclude Include="src\Layers\menulayer.h" />
     <ClInclude Include="src\Layers\physicslayer.h" />
+    <ClInclude Include="src\Layers\postprocessing.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
     <ClInclude Include="src\Layers\townlayer.h" />
@@ -184,6 +184,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\gamelayer.cpp" />
     <ClCompile Include="src\Layers\menulayer.cpp" />
     <ClCompile Include="src\Layers\physicslayer.cpp" />
+    <ClCompile Include="src\Layers\postprocessing.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
     <ClCompile Include="src\Layers\townlayer.cpp" />

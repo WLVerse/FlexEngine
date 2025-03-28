@@ -70,6 +70,7 @@ void FMODWrapper::Load()
   fmod_system->createChannelGroup("SFX", &FMODWrapper::sfx_group);
 
   // Set the volume of the channel groups
+  FlexPrefs::Load(); // Load the settings in case they aren't open
   FMODWrapper::bgm_group->setVolume(FlexPrefs::GetFloat("game.volume", 0.0f));
   FMODWrapper::sfx_group->setVolume(FlexPrefs::GetFloat("game.sfx.volume", 0.0f));
 }

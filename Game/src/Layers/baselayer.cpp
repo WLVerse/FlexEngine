@@ -27,7 +27,7 @@ namespace Game
     // First, create a window
     FLX_COMMAND_OPEN_WINDOW(
       "Game", WindowProps(
-                "Chrono Drift", 1900, 1080,
+                "Chrono Drift", 1920, 1080,
                 {
                   FLX_DEFAULT_WINDOW_HINTS,
                   { GLFW_DECORATED, true },
@@ -104,7 +104,7 @@ namespace Game
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
       battleLayer = nullptr;
       
-      town_version = "assets/saves/town_v4.flxscene";
+      town_version = "assets/saves/town_v5_pp.flxscene";
       townLayer = std::make_shared<TownLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
@@ -137,7 +137,7 @@ namespace Game
         FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
         battleLayer = nullptr;
 
-        town_version = "assets/saves/town_v4_2.flxscene";
+        town_version = "assets/saves/town_v5_pp.flxscene";
         townLayer = std::make_shared<TownLayer>();
         FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
@@ -194,7 +194,7 @@ namespace Game
     }
     #endif
 
-    #if 0
+    #if 1
     if (Input::GetKeyDown(GLFW_KEY_L))
         Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 2, 10.0 });
     if (Input::GetKeyDown(GLFW_KEY_P))

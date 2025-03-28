@@ -1,7 +1,7 @@
-CharacterName: EnemyOneAlt
+CharacterName: Rampaging_Robot_2
 CharacterID: 3
-Health: 30
-Speed: 35
+Health: 50
+Speed: 5
 MoveOne: /data/Self_Repair.flxmove
 MoveTwo: /data/Weakening_Shot.flxmove
 MoveThree: /data/Full_Burst.flxmove

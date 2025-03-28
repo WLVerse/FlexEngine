@@ -34,6 +34,7 @@
 #include "FlexEngine/flexprefs.h"
 #include "FlexEngine/FlexMath/quaternion.h"
 
+#include "window.h"
 namespace FlexEngine
 {
 
@@ -106,7 +107,7 @@ namespace FlexEngine
     glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
     m_draw_calls++;
   }
-  
+
   #pragma region Sprite Rendering
   // TODO: cache the vao and vbo
   // Draws to default camera
@@ -115,6 +116,87 @@ namespace FlexEngine
     DrawTexture2D(props, cam);
   }
 
+  void OpenGLRenderer::DrawTexture2D(const GLuint& texture, const Matrix4x4& transform, const Vector2& screenDimensions)
+  {
+      #pragma region VAO setup
+      // unit square
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -0.5f, 0.5f, 0.0f,   0.0f, 1.0f, // Bottom-left
+           0.5f, 0.5f, 0.0f,   1.0f, 1.0f, // Bottom-right
+           0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // Top-right
+           0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // Top-right
+          -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // Top-left
+          -0.5f, 0.5f, 0.0f,   0.0f, 1.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // guard
+      if (vao == 0) return; // hey, might need to check if scale is 0 because thats what the old code does idk
+
+      // bind all
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      auto& asset_shader = AssetManager::Get<Asset::Shader>(R"(/shaders/texture.flxshader)");
+      asset_shader.Use();
+
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture);
+
+      asset_shader.SetUniform_bool("u_use_texture", true);
+      asset_shader.SetUniform_int("u_texture", 0);
+      asset_shader.SetUniform_vec3("u_color_to_add", Vector3(0.0f, 0.0f, 0.0f));
+      asset_shader.SetUniform_vec3("u_color_to_multiply", Vector3(1.0f, 1.0f, 1.0f));
+      asset_shader.SetUniform_float("u_alpha", 1.0f);
+
+      asset_shader.SetUniform_mat4("u_model", transform);
+
+      // For 2D rendering, we use an orthographic projection matrix, but this one uses the window as the viewfinder
+      
+      asset_shader.SetUniform_mat4("u_projection_view", Matrix4x4::Orthographic(-screenDimensions.x / 2, screenDimensions.x/2, -screenDimensions.y / 2, screenDimensions.y/2, -1, 1));
+
+      // draw
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+
+      // error checking
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+          Log::Fatal("OpenGL Error: " + std::to_string(error));
+      }
+
+      glBindVertexArray(0);
+  }
+
+ 
   void OpenGLRenderer::DrawTexture2D(const Renderer2DProps& props, const Camera& cameraData)
   {
     // unit square
@@ -219,7 +301,13 @@ namespace FlexEngine
     auto& asset_shader = AssetManager::Get<Asset::Shader>(props.shader);
     asset_shader.Use();
 
-    if (props.asset != "")
+    if (props.is_video)
+    {
+      asset_shader.SetUniform_bool("u_use_texture", true);
+      auto& asset_video = FLX_ASSET_GET(VideoDecoder, props.asset);
+      asset_video.Bind(asset_shader, "u_texture", 0);
+    }
+    else if (props.asset != "")
     {
       if (!is_spritesheet)
       {
@@ -1290,5 +1378,685 @@ namespace FlexEngine
   }
   #pragma endregion
 
+  #pragma region Post Processing
 
+  /*!***************************************************************************
+  * \brief
+  * Applies a brightness threshold pass for the bloom effect.
+  *
+  * \param threshold The brightness threshold to apply.
+  *****************************************************************************/
+  void OpenGLRenderer::ApplyBrightnessPass(const GLuint& texture, float threshold)
+  {
+      #pragma region VAO setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // Bind our VAO for drawing.
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Use the brightness pass shader.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Bloom_BrightnessPass.flxshader");
+      asset_shader.Use();
+      asset_shader.SetUniform_float("u_Threshold", threshold);
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      asset_shader.SetUniform_int("u_texture", 0);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+
+      // Error checking.
+      GLenum error = glGetError();
+      if (error != GL_NO_ERROR)
+      {
+          Log::Fatal("OpenGL Error: " + std::to_string(error));
+      }
+
+      glBindVertexArray(0);
+  }
+
+  ///*!***************************************************************************
+  //* \brief
+  //* Applies a Gaussian blur effect with specified passes, blur distance, and intensity.
+  //*
+  //* \param blurDrawPasses The number of passes to apply for the blur.
+  //* \param blurDistance The distance factor for the blur effect.
+  //* \param intensity The intensity of the blur.
+  //*****************************************************************************/
+  void OpenGLRenderer::ApplyGaussianBlur(const GLuint& texture, float blurDistance, int blurIntensity, bool isHorizontal)
+  {
+      #pragma region VAO setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // Bind our VAO for drawing.
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Gaussian_Blur.flxshader");
+     
+      asset_shader.SetUniform_int("horizontal", isHorizontal);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      asset_shader.SetUniform_int("u_texture", 0);
+      asset_shader.SetUniform_float("blurDistance", blurDistance);
+      asset_shader.SetUniform_int("intensity", blurIntensity);
+      
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  ///*!***************************************************************************
+  //* \brief
+  //* Applies the final bloom composition with a specified opacity level.
+  //*
+  //* \param opacity The opacity level for the bloom composition.
+  //*****************************************************************************/
+  void OpenGLRenderer::ApplyBloomFinalComposition(const GLuint& texture, const GLuint& blurtextureHorizontal, const GLuint& blurtextureVertical, float opacity, float spread)
+  {
+      #pragma region VAO setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // Bind our VAO for drawing.
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Bloom_final_composite.flxshader");
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, texture); // Original scene texture
+      asset_shader.SetUniform_int("screenTex", 0);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, blurtextureVertical); // Blur Vertical
+      asset_shader.SetUniform_int("bloomVTex", 1);
+      glActiveTexture(GL_TEXTURE2);
+      glBindTexture(GL_TEXTURE_2D, blurtextureHorizontal); // Blur Horizontal
+      asset_shader.SetUniform_int("bloomHTex", 2);
+      asset_shader.SetUniform_float("opacity", opacity);
+      asset_shader.SetUniform_float("bloomRadius", spread);
+
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyBlurFinalComposition(const GLuint& blurtextureHorizontal, const GLuint& blurtextureVertical)
+  {
+      #pragma region VAO setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Position           // TexCoords
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,   0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // free in freequeue
+          FreeQueue::Push(
+            [=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          }
+          );
+      }
+
+      // Bind our VAO for drawing.
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Blur_final_composite.flxshader");
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, blurtextureHorizontal); // Original scene texture
+      asset_shader.SetUniform_int("blurHTex", 0);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, blurtextureVertical); // Blur Vertical
+      asset_shader.SetUniform_int("blurVTex", 1);
+
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+
+  void OpenGLRenderer::ApplyChromaticAberration(const GLuint& inputTex, float chromaIntensity, const Vector2& redOffset, const Vector2& greenOffset, const Vector2& blueOffset, const Vector2& EdgeRadius, const Vector2& EdgeSoftness)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the chromatic aberration shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Chromatic_aberration.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the chromatic aberration parameters.
+      asset_shader.SetUniform_float("u_ChromaIntensity", chromaIntensity);
+      asset_shader.SetUniform_vec2("u_RedOffset", redOffset);
+      asset_shader.SetUniform_vec2("u_GreenOffset", greenOffset);
+      asset_shader.SetUniform_vec2("u_BlueOffset", blueOffset);
+
+      asset_shader.SetUniform_vec2("u_EdgeRadius", EdgeRadius);
+      asset_shader.SetUniform_vec2("u_EdgeSoftness", EdgeSoftness);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyColorGrading(const GLuint& inputTex, float brightness, float contrast, float saturation)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]() {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the color grading shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Color_grading.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the color grading parameters.
+      asset_shader.SetUniform_float("u_Brightness", brightness);
+      asset_shader.SetUniform_float("u_Contrast", contrast);
+      asset_shader.SetUniform_float("u_Saturation", saturation);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyVignette(const GLuint& inputTex, float vignetteIntensity, const Vector2& vignetteRadius, const Vector2& vignetteSoftness)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position attribute
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoord attribute
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup code to your free queue.
+          FreeQueue::Push([=]() {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the vignette shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Vignette.flxshader");
+
+      // Bind the input texture (e.g., the current screen texture) to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex); 
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the vignette parameters.
+      asset_shader.SetUniform_float("u_VignetteIntensity", vignetteIntensity);
+      asset_shader.SetUniform_vec2("u_VignetteRadius", vignetteRadius);
+      asset_shader.SetUniform_vec2("u_VignetteSoftness", vignetteSoftness);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyFilmGrain(const GLuint& inputTex,float filmGrainIntensity,float filmGrainSize,bool filmGrainAnimate)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1);
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Push cleanup into your free queue.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the film grain shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/FilmGrain.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set film grain parameters.
+      asset_shader.SetUniform_float("u_FilmGrainIntensity", filmGrainIntensity);
+      asset_shader.SetUniform_float("u_FilmGrainSize", filmGrainSize);
+      asset_shader.SetUniform_int("u_FilmGrainAnimate", filmGrainAnimate ? 1 : 0);
+
+      // If animating, pass a time uniform (replace with your engine's time function)
+      if (filmGrainAnimate)
+      {
+          float time = static_cast<float>(glfwGetTime());
+          asset_shader.SetUniform_float("u_Time", time);
+      }
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+
+  void OpenGLRenderer::ApplyPixelate(const GLuint& inputTex, float pixelWidth, float pixelHeight)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoords
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Schedule cleanup of the buffers.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the pixelate shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Pixelate.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("u_InputTex", 0);
+
+      // Set the pixelation parameters.
+      asset_shader.SetUniform_float("u_PixelWidth", pixelWidth);
+      asset_shader.SetUniform_float("u_PixelHeight", pixelHeight);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyWarpEffect(const GLuint& inputTex, float warpStrength, float warpRadius)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoords
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Schedule cleanup of the buffers.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the overlay shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Warp.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("screenTexture", 0);
+      asset_shader.SetUniform_float("warpStrength", warpStrength);
+      asset_shader.SetUniform_float("maxRadius", warpRadius);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  void OpenGLRenderer::ApplyOverlay(const GLuint& backgroundTex, const GLuint& inputTex)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoords
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Schedule cleanup of the buffers.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the overlay shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Overlay.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, backgroundTex);
+      asset_shader.SetUniform_int("backgroundTex", 0);
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("objTex", 1);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
+  
+  #pragma endregion
 }

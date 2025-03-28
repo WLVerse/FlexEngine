@@ -191,6 +191,10 @@ void COMPONENT_VIEWER_##TYPE(FlexEngine::FlexECS::Entity entity) \
 	std::string& path_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
 	EditorGUI::FontPath(path_##name);
 
+	#define COMPONENT_VIEWER_VIDEO_PATH(name) \
+	std::string& path_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
+	EditorGUI::VideoPath(path_##name);
+
 	#define COMPONENT_VIEWER_STRING(name) \
 	std::string& str_##name = FLX_STRING_GET(entity.GetComponent<T>()->name); \
 	EditorGUI::TextField(str_##name);

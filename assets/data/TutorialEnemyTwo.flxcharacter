@@ -1,7 +1,7 @@
-CharacterName: EnemyTwo
+CharacterName: Training_Bot_2
 CharacterID: 4
 Health: 30
-Speed: 40
-MoveOne: /data/Speed_Up.flxmove
-MoveTwo: /data/Speed_Up.flxmove
+Speed: 6
+MoveOne: /data/Rush_Down.flxmove
+MoveTwo: /data/Rush_Down.flxmove
 MoveThree: /data/Exterminate.flxmove

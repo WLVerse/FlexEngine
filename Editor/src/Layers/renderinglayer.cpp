@@ -32,6 +32,7 @@ namespace Editor
     void RenderingLayer::OnAttach()
     {
         OpenGLRenderer::EnableBlending();
+        PostProcessing::Init();
     }
 
     void RenderingLayer::OnDetach()
@@ -90,6 +91,32 @@ namespace Editor
             Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
 
             transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
+        }
+        
+
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer, Position, Rotation, Scale, Transform>())
+        {
+          auto video = element.GetComponent<VideoPlayer>();
+          auto position = element.GetComponent<Position>()->position;
+          auto rotation = element.GetComponent<Rotation>()->rotation;
+          auto scale = element.GetComponent<Scale>()->scale;
+          auto transform = element.GetComponent<Transform>();
+
+          if (FLX_STRING_GET(video->video_file) == "") continue;
+
+          // "Model scale" in this case refers to the scale of the object itself...
+          Matrix4x4 model = Matrix4x4::Identity;
+
+          auto& video_info = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video->video_file));
+          model.Scale(Vector3(static_cast<float>(video_info.GetWidth()),
+            static_cast<float>(video_info.GetHeight()),
+            1.f));
+
+          Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+          Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+          Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+          transform->transform = translation_matrix * rotation_matrix * scale_matrix * model;
         }
         #pragma endregion 
 
@@ -157,6 +184,8 @@ namespace Editor
         }
 
         #pragma endregion
+
+        PostProcessing::Update();
 
         FunctionQueue editor_queue, game_queue;
 
@@ -238,6 +267,29 @@ namespace Editor
                 editor_queue.Insert({ [sample]() {OpenGLRenderer::DrawTexture2D(Editor::GetInstance().m_editorCamera, sample); }, "", index });
             }
 
+            #pragma endregion
+
+            #pragma region Post Processing Render
+            // Insert the global post-processing draw call into the game queue.
+            auto ppIndex = PostProcessing::GetPostProcessZIndex();
+            Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
+            for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
+            {
+                if (!element.GetComponent<Transform>()->is_active)
+                    continue;
+
+                Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+                GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+                Matrix4x4 transform = element.GetComponent<Transform>()->transform;
+                game_queue.Insert({
+                    [texture, transform, windowSize]() {
+                        OpenGLRenderer::DrawTexture2D(texture, transform, windowSize);
+                    },
+                    "",
+                    ppIndex
+                });
+            }
+            OpenGLFrameBuffer::Unbind();
             #pragma endregion
 
         }

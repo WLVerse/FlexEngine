@@ -51,6 +51,7 @@ namespace Game
         int current_slot = 0;          // 0-4, 0-1 for drifters, 0-4 for enemies
 
         int previous_health = 0;
+        int speed_change = 0;
         bool is_alive = true;
     };
 
@@ -92,6 +93,8 @@ namespace Game
         bool is_win = false;
         bool is_lose = false;
 
+        bool god_mode = false;
+
         int battle_num = 0;
         int tutorial_info = 0;
         bool is_tutorial = true;
@@ -99,6 +102,7 @@ namespace Game
         FlexECS::Entity tutorial_text;
 
         bool start_of_turn = false;
+        bool play_battle_start = true;
         bool move_select = false;
         bool move_resolution = false;
         bool speedbar_animating = false;
@@ -172,6 +176,8 @@ namespace Game
       battle.is_win = false;
       battle.is_lose = false;
 
+      battle.god_mode = false;
+
       battle.battle_num = 0;
       battle.tutorial_info = 0;
       battle.is_tutorial = true;
@@ -179,6 +185,7 @@ namespace Game
       battle.tutorial_text;
 
       battle.start_of_turn = false;
+      battle.play_battle_start = true;
       battle.move_select = false;
       battle.move_resolution = false;
       battle.speedbar_animating = false;
@@ -693,6 +700,10 @@ namespace Game
             {
                 enemy_num++;
             }
+            if (character.character_id == 5)
+            {
+                character.protect_buff_duration = 4;
+            }
         }
         FLX_ASSERT(player_num > 0, "Drifter slots cannot be empty.");
         FLX_ASSERT(enemy_num > 0, "Enemy slots cannot be empty.");
@@ -787,8 +798,9 @@ namespace Game
 
     void Update_Speed_Bar()
     {
+
         //speed bar update
-        std::sort(
+        std::stable_sort(
       battle.speed_bar.begin(), battle.speed_bar.end(),
       [](const _Character* a, const _Character* b)
         {
@@ -799,7 +811,10 @@ namespace Game
         // resolve the speed bar (just minus the speed by the value of the first character)
         int first_speed = battle.speed_bar[0]->current_speed;
         if (first_speed > 0)
-            for (auto& character : battle.speed_bar) character->current_speed -= first_speed;
+            for (auto& character : battle.speed_bar)
+            {
+                character->current_speed -= first_speed;
+            }
 
         // update the character id in the slot based on the speed bar order
         for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, SpeedBarSlot>())
@@ -885,10 +900,7 @@ namespace Game
             scale->scale.x = healthbar->original_scale.x * health_percentage;
 
             // Update Position
-            //position->position.x = healthbar->original_position.x - static_cast<float>((15) * (1.0 - health_percentage));
-
-            Log::Debug(std::to_string(healthbar->original_position.x));
-            Log::Debug(std::to_string(position->position.x));
+            position->position.x = healthbar->original_position.x - static_cast<float>((70) * (1.0 - health_percentage));
 
             /*entity = FlexECS::Scene::GetEntityByName(character.name + " Stats");
             entity = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(character.current_slot + 1) + " Stats");
@@ -1104,7 +1116,7 @@ namespace Game
               bool stripping_effect = false;
               for (size_t j = 0; j < battle.current_move->effect.size(); j++)
               {
-                if (battle.current_move->effect[j] == "Strip")
+                if (battle.current_move->effect[j] == "Strip" || battle.god_mode)
                 {
                   stripping_effect = true;
                   break;
@@ -1120,8 +1132,8 @@ namespace Game
             auto* position = entity.GetComponent<Position>();
 
             float current_health_percentage = static_cast<float>(target.current_health) / static_cast<float>(target.health);
-            float right_edge_pos = (healthbar->original_position.x - (15 * (1.0f - current_health_percentage)))
-              + (healthbar->pixelLength / 2.f * (current_health_percentage));
+            float right_edge_pos = (healthbar->original_position.x - (70 * (1.0f - current_health_percentage)))
+              + (70 * (current_health_percentage));
 
             float damage_taken = 0;
             for (int k = 0; k < battle.current_move->effect.size(); k++)
@@ -1139,18 +1151,26 @@ namespace Game
                         {
                             current_damage -= current_damage / 2;
                         }
+                        if (battle.god_mode)
+                        {
+                            current_damage *= 10;
+                        }
                         damage_taken += current_damage;
                     }
                     else if (battle.current_move->target[k] == "ALL_ENEMIES")
                     {
                         float current_damage = static_cast<float>(battle.current_move->value[k]);
-                            if (battle.current_character->attack_buff_duration > 0)
-                            {
-                                current_damage += current_damage / 2;
-                            }
+                        if (battle.current_character->attack_buff_duration > 0)
+                        {
+                            current_damage += current_damage / 2;
+                        }
                         if (battle.current_character->attack_debuff_duration > 0)
                         {
                             current_damage -= current_damage / 2;
+                        }
+                        if (battle.god_mode)
+                        {
+                            current_damage *= 10;
                         }
                         damage_taken += current_damage;
                     }
@@ -1172,7 +1192,7 @@ namespace Game
             float percentage_damage_taken = static_cast<float>(damage_taken) / static_cast<float>(target.health);
 
             scale->scale.x = healthbar->original_scale.x * percentage_damage_taken;
-            //position->position.x = right_edge_pos - (15 * percentage_damage_taken);
+            position->position.x = right_edge_pos - (70 * percentage_damage_taken);
           }
 
           
@@ -1205,6 +1225,43 @@ namespace Game
 
       }
     }
+    
+    // Just delay the fucking battle start anim
+    void Play_Battle_Start() 
+    {
+      static float time_played = 3.f;
+      static bool is_init = false;
+
+      if (!is_init)
+      {
+        time_played = 3.f;
+        is_init = true;
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Animator>()->spritesheet_handle
+          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");
+        overlay.GetComponent<Transform>()->is_active = true;
+        overlay.GetComponent<Animator>()->should_play = true;
+        overlay.GetComponent<Animator>()->is_looping = false;
+        overlay.GetComponent<Animator>()->return_to_default = false;
+        overlay.GetComponent<Animator>()->current_frame = 0;
+      }
+
+      if (time_played > 0.f)
+      {
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+
+        time_played -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      }
+      else
+      {
+        // Flag to start the battle, and reset this outdated value
+        is_init = false;
+        battle.play_battle_start = false;
+        battle.start_of_turn = true;
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = false;
+      }
+    }
 
     // Lerp function from a to b
     static float Lerp(float a, float b, float t)
@@ -1215,8 +1272,9 @@ namespace Game
     // Returns a value of 1-sin with a lowest value of 0.5. i.e Goes from 0.5 to 1 to 0.5
    float HalfSinCurve(float t) 
    {
-      float constexpr M_PI = 3.14f;
-      return std::max(1 - std::sinf(t * M_PI), 0.5f); // Sin function maps t to 0 to pi
+      //float constexpr M_PI = 3.14f;
+      float constexpr pi = 3.14f;
+      return std::max(1 - std::sinf(t * pi), 0.5f); // Sin function maps t to 0 to pi
    }
 
     void PlaySpeedbarAnimation()
@@ -1402,7 +1460,8 @@ namespace Game
           FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_Jack.png)");
 
         //start function cycle
-        battle.start_of_turn = true;
+        //battle.start_of_turn = true;  // This is commented out because we want to play the battle start animation first
+        battle.play_battle_start = true;
         battle.current_move = nullptr;
         battle.move_select = false;
         battle.move_resolution = false;
@@ -1518,13 +1577,11 @@ namespace Game
                 Update_Character_Status();
 
                 //projected character UI
-                int projected_speed = battle.current_character->speed + 10;
+                int projected_speed = battle.current_character->speed_change;
                 int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
-                if (projected_speed > 0)
-                {
                     for (auto character : battle.speed_bar)
                     {
-                        if (projected_speed < character->current_speed)
+                        if (projected_speed <= character->current_speed)
                         {
                             //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
                             break;
@@ -1534,11 +1591,15 @@ namespace Game
                             slot_number++;
                         }
                     }
-                }
 
+                    if (slot_number < 0)
+                    {
+                        slot_number = 0;
+                    }
                 battle.curr_char_pos_after_taking_turn = slot_number; // might need to -1
 
-                battle.current_character->current_speed += battle.current_character->speed + 10;
+                battle.current_character->current_speed = battle.current_character->speed_change;
+                battle.current_character->speed_change = 0;
 
                 battle.start_of_turn = false;
                 battle.move_select = false;
@@ -1631,13 +1692,11 @@ namespace Game
                     }
 
                     //projected character UI
-                    int projected_speed = battle.current_character->speed + battle.current_move->speed;
+                    int projected_speed = battle.current_move->speed + battle.current_character->speed_change;
                     int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
-                    if (projected_speed > 0)
-                    {
                         for (auto character : battle.speed_bar)
                         {
-                            if (projected_speed < character->current_speed)
+                            if (projected_speed <= character->current_speed)
                             {
                                 //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
                                 break;
@@ -1647,7 +1706,10 @@ namespace Game
                                 slot_number++;
                             }
                         }
-                    }
+                        if (slot_number < 0)
+                        {
+                            slot_number = 0;
+                        }
                     battle.curr_char_pos_after_taking_turn = slot_number; // might need to -1
                 }
             }
@@ -1892,15 +1954,13 @@ namespace Game
             }
 
             //projected character UI
-            int projected_speed = battle.current_character->speed + battle.current_move->speed;
+            int projected_speed = battle.current_move->speed + battle.current_character->speed_change;
             int slot_number = -1; //will always be bigger than first element (itself), account for +1 for slot 0.
-            if (projected_speed > 0)
-            {
                 battle.projected_character.GetComponent<Transform>()->is_active = true;
                 battle.projected_character_text.GetComponent<Transform>()->is_active = true;
                 for (auto character : battle.speed_bar)
                 {
-                    if (projected_speed < character->current_speed)
+                    if (projected_speed <= character->current_speed)
                     {
                         //if smaller than slot 1, -1 + 1 = 0 (always bigger than slot 0, aka itself, it will be displayed on slot 0 + offset to the right, between slot 0 and slot 1
                         break;
@@ -1910,7 +1970,10 @@ namespace Game
                         slot_number++;
                     }
                 }
-
+                if (slot_number < 0)
+                {
+                    slot_number = 0;
+                }
                 battle.curr_char_pos_after_taking_turn = slot_number; // might need to -1
                 bool checkFirst = true; //grabs current character's icon, slot 0
                 for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, SpeedBarSlot>())
@@ -1931,7 +1994,6 @@ namespace Game
                         slot_number--; //counts backwards to the slot it's supposed to be
                     }
                 }
-            }
 
             //tutorial only
             if (battle.is_tutorial_running)
@@ -2127,7 +2189,22 @@ namespace Game
                     {
                         for (auto character : targets)
                         {
-                            if (character->shield_buff_duration > 0)
+
+                            if (battle.god_mode)
+                            {
+                                int final_damage = battle.current_move->value[i];
+                                if (battle.current_character->attack_buff_duration > 0)
+                                {
+                                    final_damage += battle.current_move->value[i] / 2;
+                                }
+                                if (battle.current_character->attack_debuff_duration > 0)
+                                {
+                                    final_damage -= battle.current_move->value[i] / 2;
+                                }
+                                final_damage *= 10;
+                                character->current_health -= final_damage;
+                            }
+                            else if (character->shield_buff_duration > 0)
                             {
                                 continue;
                             }
@@ -2161,18 +2238,23 @@ namespace Game
                     {
                         for (auto character : targets)
                         {
-                            if (character->current_speed - battle.current_move->value[i] < 0)
+                            character->speed_change -= battle.current_move->value[i];
+                            /*if (character->current_speed - battle.current_move->value[i] < 0)
                             {
                                 character->current_speed = 0;
                             }
-                            else character->current_speed -= battle.current_move->value[i];
+                            else character->current_speed -= battle.current_move->value[i];*/
                         }
                     }
                     else if (battle.current_move->effect[i] == "Speed_Down")
                     {
                         for (auto character : targets)
                         {
-                            character->current_speed += battle.current_move->value[i];
+                            character->speed_change += battle.current_move->value[i];
+                            /*for (auto character : targets)
+                            {
+                                character->current_speed += battle.current_move->value[i];
+                            }*/
                         }
                     }
                     else if (battle.current_move->effect[i] == "Attack_Up")
@@ -2180,6 +2262,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->attack_buff_duration += battle.current_move->value[i];
+                            if (character->attack_buff_duration > battle.current_move->value[i])
+                            {
+                                character->attack_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Attack_Down")
@@ -2187,7 +2273,14 @@ namespace Game
                         for (auto character : targets)
                         {
                             if (character->protect_buff_duration > 0) continue;
-                            else character->attack_debuff_duration += battle.current_move->value[i];
+                            else 
+                            {
+                                character->attack_debuff_duration += battle.current_move->value[i];
+                                if (character->attack_debuff_duration > battle.current_move->value[i])
+                                {
+                                    character->attack_debuff_duration = battle.current_move->value[i];
+                                }
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Stun")
@@ -2195,7 +2288,14 @@ namespace Game
                         for (auto character : targets)
                         {
                             if (character->protect_buff_duration > 0) continue;
-                            else character->stun_debuff_duration += battle.current_move->value[i];
+                            else
+                            {
+                                character->stun_debuff_duration += battle.current_move->value[i];
+                                if (character->stun_debuff_duration > battle.current_move->value[i])
+                                {
+                                    character->stun_debuff_duration = battle.current_move->value[i];
+                                }
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Shield")
@@ -2203,6 +2303,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->shield_buff_duration += battle.current_move->value[i];
+                            if (character->shield_buff_duration > battle.current_move->value[i])
+                            {
+                                character->shield_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Protect")
@@ -2210,6 +2314,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->protect_buff_duration += battle.current_move->value[i];
+                            if (character->protect_buff_duration > battle.current_move->value[i])
+                            {
+                                character->protect_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Strip")
@@ -2233,7 +2341,8 @@ namespace Game
                 }
 
                 //add speed based on move used
-                battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
+                battle.current_character->current_speed = battle.current_move->speed + battle.current_character->speed_change;
+                battle.current_character->speed_change = 0;
 
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
@@ -2438,9 +2547,13 @@ namespace Game
 
                     if (battle.current_move->effect[i] == "Damage")
                     {
-                        for (auto& character : targets)
+                        for (auto character : targets)
                         {
-                            if (character->shield_buff_duration > 0)
+                            if (battle.god_mode)
+                            {
+                                continue;
+                            }
+                            else if (character->shield_buff_duration > 0)
                             {
                                 continue;
                             }
@@ -2474,18 +2587,23 @@ namespace Game
                     {
                         for (auto character : targets)
                         {
-                            if (character->current_speed - battle.current_move->value[i] < 0)
+                            character->speed_change -= battle.current_move->value[i];
+                            /*if (character->current_speed - battle.current_move->value[i] < 0)
                             {
                                 character->current_speed = 0;
                             }
-                            else character->current_speed -= battle.current_move->value[i];
+                            else character->current_speed -= battle.current_move->value[i];*/
                         }
                     }
                     else if (battle.current_move->effect[i] == "Speed_Down")
                     {
                         for (auto character : targets)
                         {
-                            character->current_speed += battle.current_move->value[i];
+                            character->speed_change += battle.current_move->value[i];
+                            /*for (auto character : targets)
+                            {
+                                character->current_speed += battle.current_move->value[i];
+                            }*/
                         }
                     }
                     else if (battle.current_move->effect[i] == "Attack_Up")
@@ -2493,6 +2611,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->attack_buff_duration += battle.current_move->value[i];
+                            if (character->attack_buff_duration > battle.current_move->value[i])
+                            {
+                                character->attack_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Attack_Down")
@@ -2500,7 +2622,14 @@ namespace Game
                         for (auto character : targets)
                         {
                             if (character->protect_buff_duration > 0) continue;
-                            else character->attack_debuff_duration += battle.current_move->value[i];
+                            else
+                            {
+                                character->attack_debuff_duration += battle.current_move->value[i];
+                                if (character->attack_debuff_duration > battle.current_move->value[i])
+                                {
+                                    character->attack_debuff_duration = battle.current_move->value[i];
+                                }
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Stun")
@@ -2508,7 +2637,14 @@ namespace Game
                         for (auto character : targets)
                         {
                             if (character->protect_buff_duration > 0) continue;
-                            else character->stun_debuff_duration += battle.current_move->value[i];
+                            else
+                            {
+                                character->stun_debuff_duration += battle.current_move->value[i];
+                                if (character->stun_debuff_duration > battle.current_move->value[i])
+                                {
+                                    character->stun_debuff_duration = battle.current_move->value[i];
+                                }
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Shield")
@@ -2516,6 +2652,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->shield_buff_duration += battle.current_move->value[i];
+                            if (character->shield_buff_duration > battle.current_move->value[i])
+                            {
+                                character->shield_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Protect")
@@ -2523,6 +2663,10 @@ namespace Game
                         for (auto character : targets)
                         {
                             character->protect_buff_duration += battle.current_move->value[i];
+                            if (character->protect_buff_duration > battle.current_move->value[i])
+                            {
+                                character->protect_buff_duration = battle.current_move->value[i];
+                            }
                         }
                     }
                     else if (battle.current_move->effect[i] == "Strip")
@@ -2546,7 +2690,8 @@ namespace Game
                 }
 
                 //update speed based on move used
-                battle.current_character->current_speed += battle.current_character->speed + battle.current_move->speed;
+                battle.current_character->current_speed = battle.current_move->speed + battle.current_character->speed_change;
+                battle.current_character->speed_change = 0;
 
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
@@ -3204,32 +3349,42 @@ namespace Game
     void Win_Battle()
     {
         battle.is_win = true;
+
         // A bit lame, but need to find by name to set, like the old Unity days
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = true;
+        overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)");
+        overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
+        overlay.GetComponent<Animator>()->should_play = true;
+        overlay.GetComponent<Animator>()->return_to_default = false;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
-        FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
+        FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
-      FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("dmg dealt").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Win base").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Player Stats").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Lose_Battle()
     {
       battle.is_lose = true;
+      FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+      overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)");
+      overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
+      overlay.GetComponent<Animator>()->should_play = true;
+      overlay.GetComponent<Animator>()->return_to_default = false;
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
+
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
+
+      static float opacity = 1.f;
+      float fade_speed = -1.f;
+      // Pingpong between opacity 0 and 1
+      if (opacity <= 0.f || opacity >= 1.f) 
+        fade_speed *= -1;
+      opacity += fade_speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      //FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Text>()->color = opacity;
     }
 
     void Set_Up_Pause_Menu() {
@@ -3304,6 +3459,7 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
+       
         if (battle.is_win || battle.is_lose)
         {
           if (Input::AnyKeyDown())
@@ -3369,13 +3525,13 @@ namespace Game
                 text_to_show = "The turn bar shows the order in which characters will take their turns, from left to right.";
                 break;
             case 1:
-                text_to_show = "Press W & S to swap moves. Press A & D to swap targets. Press SPACEBAR to confirm move.";
+                text_to_show = "Press W & S to swap moves. Press A & D to swap targets. Try it out!";
                 break;
             case 2:
-                text_to_show = "The smaller icon of your character on the turn bar indicates when you will take your next turn. Stronger moves tend to put you further back on the turn bar.";
+                text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to put you further back on the turn bar.";
                 break;
             case 3:
-                text_to_show = "Remember, press SPACEBAR to confirm your move.";
+                text_to_show = "Press SPACEBAR to confirm your move.";
                 break;
             case 4:
               text_to_show = "You're a natural. Looks like we may still have a shot at saving the world after all. Now, finish this!";
@@ -3394,13 +3550,25 @@ namespace Game
             FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Text>()->text = FLX_STRING_NEW(text_to_show);
         }
 
+        if (Input::GetKeyDown(GLFW_KEY_X))
+        {
+            if (!battle.god_mode)
+                battle.god_mode = true;
+            else battle.god_mode = false;
+        }
+
         if (battle.disable_input_timer > 0.f)
         {
             battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
             return;
         }
 
-        if (battle.start_of_turn)
+        
+        if (battle.play_battle_start)
+        {
+          Play_Battle_Start();
+        }
+        else if (battle.start_of_turn)
         {
             Start_Of_Turn();
         }

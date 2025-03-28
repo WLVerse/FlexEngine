@@ -25,6 +25,7 @@ namespace Editor
 		SCENE,
 		AUDIO,
 		FONT,
+		VIDEO,
 
 		PAYLOADTAGS_LAST
 	};
@@ -41,6 +42,7 @@ namespace Editor
 		case PayloadTags::SCENE: return "SCENE";
 		case PayloadTags::AUDIO: return "AUDIO";
 		case PayloadTags::FONT: return "FONT";
+		case PayloadTags::VIDEO: return "VIDEO";
 		default: return "UNKNOWN";
 		}
 	}

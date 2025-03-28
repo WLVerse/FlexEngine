@@ -1,7 +1,7 @@
 Name: Revolution
-Speed: 30
+Speed: 4
 Effect: Damage
-Value: 8
+Value: 10
 Target: ALL_ENEMIES
 Effect: Protect
 Value: 1

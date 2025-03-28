@@ -169,6 +169,21 @@ namespace FlexEngine
   };
 
 
+  class __FLX_API VideoPlayer
+  {
+    FLX_REFL_SERIALIZABLE
+  public:
+    FlexECS::Scene::StringIndex video_file = FLX_STRING_NEW("");
+    bool should_play = true;
+    bool is_looping = false;
+    float time = 0.f;
+  };
+
+
+
+  /**************
+   * Particles
+   **************/
   // Grouping emission shape options
   enum ParticleEmitShape
   {
@@ -463,6 +478,111 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
+  };
+
+#pragma endregion
+
+#pragma region Post-processing
+  // Marker class to designate where and which global post-processing effects are enabled.
+ // You can attach this to a dedicated render target.
+  class __FLX_API PostProcessingMarker 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      // Global toggles for various effects.
+      bool enableGaussianBlur = false;
+      bool enableChromaticAberration = false;
+      bool enableBloom = false;
+      bool enableVignette = false;
+      bool enableColorGrading = false;
+      bool enableFilmGrain = false;
+      bool enablePixelate = false;
+      bool enableWarp = false;
+
+      // A global blend or intensity multiplier that can influence all effects.
+      float globalIntensity = 1.0f;
+  };
+
+  // Gaussian Blur effect parameters.
+  class __FLX_API PostProcessingGaussianBlur 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int   intensity = 12;    // Blur Intensity
+      float distance = 12.5f; // Blur Distance
+      int   blurPasses = 5;    // Number of passes to apply (higher for smoother blur).
+  };
+
+  // Chromatic Aberration effect parameters.
+  class __FLX_API PostProcessingChromaticAbberation 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float intensity = 1.0f;  // Overall intensity of the effect.
+      // Optionally, individual channel offsets can be defined.
+      Vector2 redOffset = Vector2(10.0f, 0.0f);
+      Vector2 greenOffset = Vector2(0.0f, 10.0f);
+      Vector2 blueOffset = Vector2(5.0f, 5.0f);
+      Vector2 edgeRadius = Vector2(0.2f, 0.2f);
+      Vector2 edgeSoftness = Vector2(0.1f, 0.1f);
+  };
+
+  // Bloom effect parameters.
+  class __FLX_API PostProcessingBloom 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float threshold = 0.75f;  // Luminance threshold for bloom extraction.
+      float intensity = 0.25f;  // Bloom intensity multiplier.
+      float radius = 1.2f; // Spread radius of the bloom.
+  };
+
+  // Vignette effect parameters.
+  class __FLX_API PostProcessingVignette 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float intensity = 1.0f;  // How dark the edges become.
+      Vector2 radius = Vector2(0.002f, 0.002f); // The size of the vignette effect (0 to 1).
+      Vector2 softness = Vector2(0.08f, 0.08f);  // How gradual the fall-off is at the edges.
+  };
+
+  // Color Grading effect parameters.
+  class __FLX_API PostProcessingColorGrading 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float brightness = 0.0f;  // Adjustment to brightness.
+      float contrast = 2.0f;  // Contrast multiplier.
+      float saturation = 2.0f;  // Saturation multiplier.
+  };
+
+  // Pixelation effect parameters.
+  class __FLX_API PostProcessingPixelate 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      int pixelWidth = 8;     // Width of a pixel block.
+      int pixelHeight = 8;     // Height of a pixel block.
+  };
+
+  // Film Grain effect parameters.
+  class __FLX_API PostProcessingFilmGrain 
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float grainIntensity = 0.5f; // How pronounced the grain is.
+      float grainSize = 1.0f; // Size of individual grain particles.
+      bool  animateGrain = true; // Whether the grain is animated over time.
+  };
+
+  // Warp effect parameters.
+  class __FLX_API PostProcessingWarp
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float warpStrength = 1.2f; // How strong the warp gets
+      float warpRadius = 1.0f; // Max Size of warp on screen
   };
 
 #pragma endregion

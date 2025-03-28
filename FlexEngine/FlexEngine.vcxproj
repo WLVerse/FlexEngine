@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)\third_party\lib\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(SolutionDir)third_party\inc\ffmpeg;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(SolutionDir)third_party\lib\assimp;$(SolutionDir)third_party\lib\fmod\core;$(SolutionDir)third_party\lib\fmod\studio;$(SolutionDir)third_party\lib\freetype;$(SolutionDir)third_party\lib\GLFW;$(SolutionDir)\third_party\lib\ffmpeg\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\freetype;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb;$(SolutionDir)third_party\inc\ffmpeg;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -124,7 +124,7 @@
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;libcmt.lib;msvcrt.lib</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;fmodL_vc.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;fmodL_vc.lib;ImGuid.lib;fmodstudioL_vc.lib;assimp-vc143-mtd.lib;freetyped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>glfw3.lib;Crypt32.lib;ImGuid.lib;fmodstudioL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -132,7 +132,8 @@
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmodL.dll" "$(OutDir)" /e /r /y /q
-xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q</Command>
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\ffmpeg\binaries\*.dll" "$(OutDir)" /e /r /y /q</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
@@ -156,7 +157,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;fmod_vc.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;crypt32.lib;avcodec.lib;avformat.lib;avutil.lib;swscale.lib;fmod_vc.lib;ImGui.lib;fmodstudio_vc.lib;assimp-vc143-mt.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -168,7 +169,8 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudioL.dll" "$(OutDir)" /e
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)assets" "$(OutDir)assets" /e /r /y /q /i
 xcopy "$(SolutionDir)third_party\lib\fmod\core\fmod.dll" "$(OutDir)" /e /r /y /q
-xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q</Command>
+xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e /r /y /q
+xcopy "$(SolutionDir)third_party\lib\ffmpeg\binaries\*.dll" "$(OutDir)" /e /r /y /q</Command>
     </PostBuildEvent>
     <PreLinkEvent>
       <Command>
@@ -229,6 +231,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\opengltexture.cpp" />
     <ClCompile Include="src\FlexEngine\Renderer\OpenGL\openglvertex.cpp" />
+    <ClCompile Include="src\FlexEngine\Renderer\OpenGL\videodecoder.cpp" />
     <ClCompile Include="src\FlexEngine\StateManager\statemanager.cpp" />
     <ClCompile Include="src\FlexEngine\Utilities\date.cpp" />
     <ClCompile Include="src\FlexEngine\Utilities\datetime.cpp" />
@@ -303,6 +306,7 @@ xcopy "$(SolutionDir)third_party\lib\fmod\studio\fmodstudio.dll" "$(OutDir)" /e 
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglspritesheet.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\opengltexture.h" />
     <ClInclude Include="src\FlexEngine\Renderer\OpenGL\openglvertex.h" />
+    <ClInclude Include="src\FlexEngine\Renderer\OpenGL\videodecoder.h" />
     <ClInclude Include="src\FlexEngine\StateManager\istate.h" />
     <ClInclude Include="src\FlexEngine\StateManager\statemanager.h" />
     <ClInclude Include="src\FlexEngine\Utilities\ansi_color.h" />

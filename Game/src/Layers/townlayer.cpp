@@ -26,7 +26,7 @@ namespace Game
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
 
-    if (town_version == "assets/saves/town_v4_2.flxscene")
+    if (town_version == "assets/saves/town_v5_pp.flxscene")
     {
         FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
@@ -80,7 +80,8 @@ namespace Game
      // transition lorhhhhhhhh
      Application::MessagingSystem::Send("Enter Boss", true);
    }*/
-    if (town_version == "assets/saves/town_v4_2.flxscene")
+    static bool startcombat = false;
+    if (town_version == "assets/saves/town_v5_pp.flxscene")
     {
         if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
         {
@@ -88,7 +89,15 @@ namespace Game
             FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active = true;
         }
 
-        if (FlexECS::Scene::GetEntityByName("Jack").GetComponent<BoundingBox2D>()->is_colliding)
+        
+        if (FlexECS::Scene::GetEntityByName("Jack").GetComponent<BoundingBox2D>()->is_colliding && !startcombat)
+        {
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
+            startcombat = true;
+        }
+
+        int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Boss", true);
         }
@@ -102,21 +111,22 @@ namespace Game
         }
     }
 #pragma endregion
-    /*
-#pragma region Renko X Barrel z-index resolver
 
-    //// resolve z-index of renko and barrel
-    //FlexECS::Entity barrel = FlexECS::Scene::GetEntityByName("Stranded Flaming Barrel");
-    //float character_y = main_character.GetComponent<Position>()->position.y - main_character.GetComponent<Scale>()->scale.y / 2;
-    //float barrel_y = barrel.GetComponent<Position>()->position.y - barrel.GetComponent<Scale>()->scale.y / 2;
-    //main_character.GetComponent<ZIndex>()->z =
-    //  (character_y < barrel_y) ? barrel.GetComponent<ZIndex>()->z + 1 : barrel.GetComponent<ZIndex>()->z - 1;
-
-#pragma endregion
-
-
+    // Randomly toggle light on and off between range 1 to 2 seconds only in the other scene, but of course when added this can be added to the other scene as well
+    if (town_version == "assets/saves/town_v4_2.flxscene")
+    {
+      static float light_timer = rand() % 1 + 1;
+      light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      if (light_timer <= 0)
+      {
+        // Lazy toggle, on and off
+        FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active = 
+          !FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active;
+      
+        light_timer = rand() % 1 + 1;
+      }
+    }
     
-    */
   }
   float TownLayer::lerp(float a, float b, float t) {
     return a + t * (b - a);
