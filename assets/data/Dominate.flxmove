@@ -1,12 +1,12 @@
 Name: Dominate
-Speed: 50
+Speed: 7
 Effect: Damage
-Value: 12
+Value: 20
 Target: ALL_ENEMIES
 Effect: Attack_Down
 Value: 2
 Target: ALL_ENEMIES
 Effect: Protect
-Value: 3
+Value: 4
 Target: SELF
 Description: Deal damage to all enemies and decrease their ATK for 1 turn.  Protect yourself from debuffs for 3 turns.

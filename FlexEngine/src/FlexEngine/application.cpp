@@ -351,10 +351,12 @@ namespace FlexEngine
 
     // initialize glfw
     FLX_CORE_ASSERT(glfwInit(), "Failed to initialize GLFW!");
-    FMODWrapper::Load();
 
     // Load the saved preferences from file.
     FlexPrefs::Load();
+
+    FMODWrapper::Load();
+
   }
 
   Application::~Application()

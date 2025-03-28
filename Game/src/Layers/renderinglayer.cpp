@@ -22,308 +22,412 @@ namespace Game
   void RenderingLayer::OnAttach()
   {
     OpenGLRenderer::EnableBlending();
+    PostProcessing::Init();
   }
 
   void RenderingLayer::OnDetach()
   {
     OpenGLRenderer::DisableBlending();
+    PostProcessing::Exit();
   }
 
   void RenderingLayer::Update()
   {
-    OpenGLFrameBuffer::Unbind();
+      #pragma region Transformation Calculations
+      // Update Transform component to obtain the true world representation of the entity
+      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
+      {
+          auto sprite = element.GetComponent<Sprite>();
+          auto position = element.GetComponent<Position>()->position;
+          auto rotation = element.GetComponent<Rotation>()->rotation;
+          auto scale = element.GetComponent<Scale>()->scale;
+          auto transform = element.GetComponent<Transform>();
 
-   #pragma region Transformation Calculations
-    // Update Transform component to obtain the true world representation of the entity
-    for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Sprite, Position, Rotation, Scale, Transform>())
-    {
-      auto sprite = element.GetComponent<Sprite>();
-      auto position = element.GetComponent<Position>()->position;
-      auto rotation = element.GetComponent<Rotation>()->rotation;
-      auto scale = element.GetComponent<Scale>()->scale;
-      auto transform = element.GetComponent<Transform>();
+          // "Model scale" in this case refers to the scale of the object itself...
+          Matrix4x4 model = Matrix4x4::Identity;
 
-      // "Model scale" in this case refers to the scale of the object itself...
-      Matrix4x4 model = Matrix4x4::Identity;
+          // However, spritesheets have a different scale...
+          if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
+          {
+              auto& animator = *element.GetComponent<Animator>();
+              auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+              auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+
+              model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth() / asset_spritesheet.columns),
+                  static_cast<float>(sprite_info.GetHeight() / asset_spritesheet.rows),
+                  1.f));
+              sprite->model_matrix = model;
+          }
+          else if (FLX_STRING_GET(sprite->sprite_handle) != "")
+          {
+              auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
+              model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()),
+                  static_cast<float>(sprite_info.GetHeight()),
+                  1.f));
+              sprite->model_matrix = model;
+          }
+
+          Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+          Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+          Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+          transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
+      }
       
-      // However, spritesheets have a different scale...
-      if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
+      //For videos
+      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer, Position, Rotation, Scale, Transform>())
       {
-        auto& animator = *element.GetComponent<Animator>();
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
-        auto& sprite_info = FLX_ASSET_GET(Asset::Texture, asset_spritesheet.texture);
+        auto video = element.GetComponent<VideoPlayer>();
+        auto position = element.GetComponent<Position>()->position;
+        auto rotation = element.GetComponent<Rotation>()->rotation;
+        auto scale = element.GetComponent<Scale>()->scale;
+        auto transform = element.GetComponent<Transform>();
 
-        model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth() / asset_spritesheet.columns),
-                            static_cast<float>(sprite_info.GetHeight() / asset_spritesheet.rows),
-                            1.f));
-        sprite->model_matrix = model;
+        // "Model scale" in this case refers to the scale of the object itself...
+        Matrix4x4 model = Matrix4x4::Identity;
+
+        auto& video_info = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video->video_file));
+        model.Scale(Vector3(static_cast<float>(video_info.GetWidth()),
+          static_cast<float>(video_info.GetHeight()),
+          1.f));
+
+        Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+        Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+        Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+        transform->transform = translation_matrix * rotation_matrix * scale_matrix * model;
       }
-      else if (FLX_STRING_GET(sprite->sprite_handle) != "")
-      {
-        auto& sprite_info = FLX_ASSET_GET(Asset::Texture, FLX_STRING_GET(sprite->sprite_handle));
-        model.Scale(Vector3(static_cast<float>(sprite_info.GetWidth()), 
-                            static_cast<float>(sprite_info.GetHeight()), 
-                            1.f));
-        sprite->model_matrix = model;
-      }
+      #pragma endregion 
 
-      Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
-      Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
-      Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+      if (!CameraManager::has_main_camera) return;
 
-      transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
-    }
-    #pragma endregion 
-
-    if (!CameraManager::has_main_camera) return;
-
-   #pragma region Animator System
+      #pragma region Animator System
 
       // animator system updates the time for all animators
       // TODO: move this to a different layer
       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Animator, Sprite>())
       {
-        Animator& animator = *element.GetComponent<Animator>();
+          Animator& animator = *element.GetComponent<Animator>();
 
-         if (!animator.should_play || FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) == "") continue;
+          if (!animator.should_play || FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) == "") continue;
 
-        animator.frame_time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+          animator.frame_time += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
-        auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
+          auto& asset_spritesheet = FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(animator.spritesheet_handle));
 
-        // calculate the total frames
-        if (animator.total_frames != asset_spritesheet.columns * asset_spritesheet.rows)
-          animator.total_frames = asset_spritesheet.columns * asset_spritesheet.rows;
+          // calculate the total frames
+          if (animator.total_frames != asset_spritesheet.columns * asset_spritesheet.rows)
+              animator.total_frames = asset_spritesheet.columns * asset_spritesheet.rows;
 
-        // TODO: debug why this is happening
-        if (animator.current_frame >= asset_spritesheet.frame_times.size()) animator.current_frame = 0;
+          // TODO: debug why this is happening
+          if (animator.current_frame >= asset_spritesheet.frame_times.size()) animator.current_frame = 0;
 
-        // get the current frame time
-        animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
+          // get the current frame time
+          animator.current_frame_time = asset_spritesheet.frame_times[animator.current_frame];
 
-        // handling of animations
-        // move to the next frame
-        // loop if looping
-        // stop if not looping
-        // return to default and continue looping if return_to_default is true
-        if (animator.frame_time >= animator.current_frame_time)
+          // handling of animations
+          // move to the next frame
+          // loop if looping
+          // stop if not looping
+          // return to default and continue looping if return_to_default is true
+          if (animator.frame_time >= animator.current_frame_time)
+          {
+              // skip frames if needed
+              while (animator.frame_time >= animator.current_frame_time)
+              {
+                  animator.current_frame++;
+                  animator.frame_time -= animator.current_frame_time;
+              }
+
+              // loop
+              if (animator.is_looping && animator.current_frame >= animator.total_frames)
+              {
+                  animator.current_frame = 0;
+              }
+
+              // not looping
+              if (!animator.is_looping && animator.current_frame >= animator.total_frames)
+              {
+                  // return to default and continue looping
+                  if (animator.return_to_default)
+                  {
+                      animator.spritesheet_handle = animator.default_spritesheet_handle;
+                      animator.is_looping = true;
+                  }
+                  // stop at the last frame
+                  else
+                  {
+                      animator.current_frame = animator.total_frames - 1;
+                      animator.should_play = false;
+                  }
+              }
+          }
+      }
+
+      #pragma endregion
+
+      #pragma region Video Player System
+      // Video player frame calculations
+      for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
+      {
+        float deltatime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+        VideoPlayer& video_player = *element.GetComponent<VideoPlayer>();
+        if (FLX_STRING_GET(video_player.video_file) == "") continue;
+
+        auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video_player.video_file));
+
+        if (!video_player.should_play) continue;
+
+        video.m_current_time += deltatime;
+        if (video.m_current_time >= video.GetNextFrameTime())
         {
-          // skip frames if needed
-          while (animator.frame_time >= animator.current_frame_time)
+          if (!video.DecodeNextFrame())
           {
-            animator.current_frame++;
-            animator.frame_time -= animator.current_frame_time;
-          }
-
-          // loop
-          if (animator.is_looping && animator.current_frame >= animator.total_frames)
-          {
-            animator.current_frame = 0;
-          }
-
-          // not looping
-          if (!animator.is_looping && animator.current_frame >= animator.total_frames)
-          {
-            // return to default and continue looping
-            if (animator.return_to_default)
+            if (video_player.is_looping)
             {
-              animator.spritesheet_handle = animator.default_spritesheet_handle;
-              animator.is_looping = true;
-            }
-            // stop at the last frame
-            else
-            {
-              animator.current_frame = animator.total_frames - 1;
-              animator.should_play = false;
+              video.Seek(0.0);
             }
           }
         }
       }
+      #pragma endregion
 
-  #pragma endregion
+      PostProcessing::Update();
 
-   FunctionQueue game_queue;
+      #pragma region Render Game
+      OpenGLFrameBuffer::Unbind();
 
-   if (!FlexPrefs::GetBool("game.batching"))
-   {
-       #pragma region Sprite Renderer System
+      FunctionQueue game_queue;
 
-       // render all sprites
-       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
-       {
-           if (!element.GetComponent<Transform>()->is_active) continue;
-
-           Sprite& sprite = *element.GetComponent<Sprite>();
-           Renderer2DProps props;
-
-           // overload for animator
-           if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
-           {
-               Animator& animator = *element.GetComponent<Animator>();
-
-               props.asset = FLX_STRING_GET(animator.spritesheet_handle);
-               props.texture_index = animator.current_frame;
-               props.alpha = 1.0f; // Update pls
-           }
-           else
-           {
-               props.asset = FLX_STRING_GET(sprite.sprite_handle);
-               props.texture_index = -1;
-               props.alpha = sprite.opacity;
-           }
-
-           int index = 0;
-           if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
-
-           props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
-
-           props.alignment = Renderer2DProps::Alignment_TopLeft;
-           props.world_transform = element.GetComponent<Transform>()->transform;
-
-           game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
-       }
-       #pragma endregion
-
-       #pragma region Text Renderer System
-
-       // Text
-       for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
-       {
-           if (!element.GetComponent<Transform>()->is_active) continue;
-
-           const auto textComponent = element.GetComponent<Text>();
-
-           Renderer2DText sample;
-           sample.m_window_size = Vector2(
-             static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-             static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
-           );
-
-           int index = 0;
-           if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
-
-           sample.m_words = FLX_STRING_GET(textComponent->text);
-           sample.m_color = textComponent->color;
-           sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
-           // TODO: Need to convert text to similar to camera class
-           // Temp
-           sample.m_transform = Matrix4x4(
-             element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
-             0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
-             element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
-           );
-           sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
-                                           static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
-           sample.m_textboxDimensions = textComponent->textboxDimensions;
-           sample.m_linespacing = 12.0f;
-           game_queue.Insert({ [sample]()
-                               {
-                                 OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
-                               },
-                               "", index });
-       }
-
-       game_queue.Flush();
-       #pragma endregion
-   }
-   else
-   {
-  #pragma region Batch Sprite Renderer System
-    
-      FunctionQueue batch_render_queue;
-      std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
-      //Sprite
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
+      if (!FlexPrefs::GetBool("game.batching"))
       {
-          if (!entity.GetComponent<Transform>()->is_active) continue;
+        #if 0
+          #pragma region Sprite Renderer System
 
-          if (entity.HasComponent<Animator>())
-              sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle), entity);
-          else
-              sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Sprite>()->sprite_handle), entity);
-      }
-      //Text
-      for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Text, Position, Rotation, Scale>())
-      {
-          if (!entity.GetComponent<Transform>()->is_active) continue;
-
-          sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Text>()->fonttype), entity);
-      }
-
-      //SORT
-      std::sort(sortedEntities.begin(), sortedEntities.end(),
-          [](auto& a, auto& b) {
-          int zA = a.second.HasComponent<ZIndex>() ? a.second.GetComponent<ZIndex>()->z : 0;
-          int zB = b.second.HasComponent<ZIndex>() ? b.second.GetComponent<ZIndex>()->z : 0;
-          return zA < zB; // Compare based on z-index or default value
-      });
-
-      //QUEUE
-      Renderer2DSpriteBatch currentBatch;
-      std::string currentTexture = "";
-
-      for (auto& [batchKey, entity] : sortedEntities)
-      {
-          // Exception: Text -> To be done at later date (Remove this portion once properly implemented in future
+          // render all sprites
+          for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
           {
-              if (entity.HasComponent<Text>())
+              if (!element.GetComponent<Transform>()->is_active) continue;
+
+              Sprite& sprite = *element.GetComponent<Sprite>();
+              Renderer2DProps props;
+
+              // overload for animator
+              if (element.HasComponent<Animator>() && FLX_STRING_GET(element.GetComponent<Animator>()->spritesheet_handle) != "")
               {
-                  // Flush the current sprite batch if it isnt empty.
-                  if (!currentBatch.m_zindex.empty())
-                  {
-                      AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
-                      currentBatch = Renderer2DSpriteBatch(); // Reset the batch
-                      currentTexture = ""; // Reset current texture key (or a default value)
-                  }
+                  Animator& animator = *element.GetComponent<Animator>();
 
-                  const auto textComponent = entity.GetComponent<Text>();
-
-                  Renderer2DText sample;
-                  sample.m_window_size = Vector2(
-                    static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
-                    static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
-                  );
-
-                  int index = 0;
-                  if (entity.HasComponent<ZIndex>()) index = entity.GetComponent<ZIndex>()->z;
-                  sample.m_words = FLX_STRING_GET(textComponent->text);
-                  sample.m_color = textComponent->color;
-                  sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
-
-                  sample.m_transform = Matrix4x4(
-                    entity.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.y, 0.00,
-                    0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.z, 0.00, entity.GetComponent<Position>()->position.x,
-                    entity.GetComponent<Position>()->position.y, entity.GetComponent<Position>()->position.z, 1.00
-                  );
-                  sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
-                                                  static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
-                  sample.m_textboxDimensions = textComponent->textboxDimensions;
-                  sample.m_linespacing = 12.0f;
-                  batch_render_queue.Insert({ [sample]()
-                                      {
-                                        OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
-                                      },
-                                      "", index });
-                  continue;
+                  props.asset = FLX_STRING_GET(animator.spritesheet_handle);
+                  props.texture_index = animator.current_frame;
+                  props.alpha = 1.0f; // Update pls
               }
-          }
+              else
+              {
+                  props.asset = FLX_STRING_GET(sprite.sprite_handle);
+                  props.texture_index = -1;
+                  props.alpha = sprite.opacity;
+              }
 
-          if (batchKey != currentTexture)
+              int index = 0;
+              if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+              props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+
+              props.alignment = Renderer2DProps::Alignment_TopLeft;
+              props.world_transform = element.GetComponent<Transform>()->transform;
+
+              game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+          }
+          #pragma endregion
+
+          #pragma region Render Video
+          for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, VideoPlayer, Position, Rotation, Scale>())
           {
-              AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
-              currentBatch = Renderer2DSpriteBatch(); // Reset the batch
-              currentTexture = batchKey;
+            if (!element.GetComponent<Transform>()->is_active) continue;
+
+            VideoPlayer& video = *element.GetComponent<VideoPlayer>();
+            Renderer2DProps props;
+
+            props.asset = FLX_STRING_GET(video.video_file);
+            props.texture_index = -1;
+            props.is_video = true;
+
+            int index = 0;
+            if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+            props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+            props.world_transform = element.GetComponent<Transform>()->transform;
+
+            game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
           }
-          AddEntityToBatch(entity, currentBatch);
+          #pragma endregion
+
+          #pragma region Text Renderer System
+
+          // Text
+          for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Text>())
+          {
+              if (!element.GetComponent<Transform>()->is_active) continue;
+
+              const auto textComponent = element.GetComponent<Text>();
+
+              Renderer2DText sample;
+              sample.m_window_size = Vector2(
+                static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+                static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+              );
+
+              int index = 0;
+              if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+              sample.m_words = FLX_STRING_GET(textComponent->text);
+              sample.m_color = textComponent->color;
+              sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+              // TODO: Need to convert text to similar to camera class
+              // Temp
+              sample.m_transform = Matrix4x4(
+                element.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.y, 0.00,
+                0.00, 0.00, 0.00, element.GetComponent<Scale>()->scale.z, 0.00, element.GetComponent<Position>()->position.x,
+                element.GetComponent<Position>()->position.y, element.GetComponent<Position>()->position.z, 1.00
+              );
+              sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                              static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+              sample.m_textboxDimensions = textComponent->textboxDimensions;
+              sample.m_linespacing = 12.0f;
+              game_queue.Insert({ [sample]()
+                                  {
+                                    OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
+                                  },
+                                  "", index });
+          }
+          #pragma endregion
+        #endif
+
+          #pragma region Post Processing Render
+         // Insert the global post-processing draw call into the game queue.
+          auto ppIndex = PostProcessing::GetPostProcessZIndex();
+          Vector2 windowSize = Vector2((float)FlexEngine::Application::GetCurrentWindow()->GetWidth(), (float)FlexEngine::Application::GetCurrentWindow()->GetHeight());
+          for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker>())
+          {
+              if (!element.GetComponent<Transform>()->is_active)
+                  continue;
+
+              Window::FrameBufferManager.SetCurrentFrameBuffer("Final Post Processing");
+              GLuint texture = Window::FrameBufferManager.GetCurrentFrameBuffer()->GetColorAttachment();
+              Matrix4x4 transform = element.GetComponent<Transform>()->transform;
+              game_queue.Insert({
+                  [texture, transform, windowSize]() {
+                      OpenGLRenderer::DrawTexture2D(texture, transform, windowSize);
+                  },
+                  "",
+                  ppIndex
+              });
+          }
+          OpenGLFrameBuffer::Unbind();
+          #pragma endregion
+
+          game_queue.Flush();
+          
       }
-      // Add the last batch to the queue
-      AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+      else
+      {
+          #pragma region Batch Sprite Renderer System
 
-      batch_render_queue.Flush();
-   #pragma endregion
-   }
+          FunctionQueue batch_render_queue;
+          std::vector<std::pair<std::string, FlexECS::Entity>> sortedEntities;
+          //Sprite
+          for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
+          {
+              if (!entity.GetComponent<Transform>()->is_active) continue;
 
-    OpenGLFrameBuffer::Unbind();
+              if (entity.HasComponent<Animator>())
+                  sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Animator>()->spritesheet_handle), entity);
+              else
+                  sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Sprite>()->sprite_handle), entity);
+          }
+          //Text
+          for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Text, Position, Rotation, Scale>())
+          {
+              if (!entity.GetComponent<Transform>()->is_active) continue;
+
+              sortedEntities.emplace_back(FLX_STRING_GET(entity.GetComponent<Text>()->fonttype), entity);
+          }
+
+          //SORT
+          std::sort(sortedEntities.begin(), sortedEntities.end(),
+              [](auto& a, auto& b) {
+              int zA = a.second.HasComponent<ZIndex>() ? a.second.GetComponent<ZIndex>()->z : 0;
+              int zB = b.second.HasComponent<ZIndex>() ? b.second.GetComponent<ZIndex>()->z : 0;
+              return zA < zB; // Compare based on z-index or default value
+          });
+
+          //QUEUE
+          Renderer2DSpriteBatch currentBatch;
+          std::string currentTexture = "";
+
+          for (auto& [batchKey, entity] : sortedEntities)
+          {
+              // Exception: Text -> To be done at later date (Remove this portion once properly implemented in future
+              {
+                  if (entity.HasComponent<Text>())
+                  {
+                      // Flush the current sprite batch if it isnt empty.
+                      if (!currentBatch.m_zindex.empty())
+                      {
+                          AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+                          currentBatch = Renderer2DSpriteBatch(); // Reset the batch
+                          currentTexture = ""; // Reset current texture key (or a default value)
+                      }
+
+                      const auto textComponent = entity.GetComponent<Text>();
+
+                      Renderer2DText sample;
+                      sample.m_window_size = Vector2(
+                        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetWidth()),
+                        static_cast<float>(FlexEngine::Application::GetCurrentWindow()->GetHeight())
+                      );
+
+                      int index = 0;
+                      if (entity.HasComponent<ZIndex>()) index = entity.GetComponent<ZIndex>()->z;
+                      sample.m_words = FLX_STRING_GET(textComponent->text);
+                      sample.m_color = textComponent->color;
+                      sample.m_fonttype = FLX_STRING_GET(textComponent->fonttype);
+
+                      sample.m_transform = Matrix4x4(
+                        entity.GetComponent<Scale>()->scale.x, 0.00, 0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.y, 0.00,
+                        0.00, 0.00, 0.00, entity.GetComponent<Scale>()->scale.z, 0.00, entity.GetComponent<Position>()->position.x,
+                        entity.GetComponent<Position>()->position.y, entity.GetComponent<Position>()->position.z, 1.00
+                      );
+                      sample.m_alignment = std::pair{ static_cast<Renderer2DText::AlignmentX>(textComponent->alignment.first),
+                                                      static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
+                      sample.m_textboxDimensions = textComponent->textboxDimensions;
+                      sample.m_linespacing = 12.0f;
+                      batch_render_queue.Insert({ [sample]()
+                                          {
+                                            OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
+                                          },
+                                          "", index });
+                      continue;
+                  }
+              }
+
+              if (batchKey != currentTexture)
+              {
+                  AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+                  currentBatch = Renderer2DSpriteBatch(); // Reset the batch
+                  currentTexture = batchKey;
+              }
+              AddEntityToBatch(entity, currentBatch);
+          }
+          // Add the last batch to the queue
+          AddBatchToQueue(batch_render_queue, currentTexture, currentBatch);
+
+          batch_render_queue.Flush();
+          #pragma endregion
+      }
+
+      OpenGLFrameBuffer::Unbind();
+      #pragma endregion
   }
 
   #pragma region Batch helper

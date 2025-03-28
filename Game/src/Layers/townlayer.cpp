@@ -26,7 +26,7 @@ namespace Game
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
 
-    if (town_version == "assets/saves/town_v4_2.flxscene")
+    if (town_version == "assets/saves/town_v5_pp.flxscene")
     {
         FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
@@ -80,7 +80,7 @@ namespace Game
      // transition lorhhhhhhhh
      Application::MessagingSystem::Send("Enter Boss", true);
    }*/
-    if (town_version == "assets/saves/town_v4_2.flxscene")
+    if (town_version == "assets/saves/town_v5_pp.flxscene")
     {
         if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
         {
