@@ -3011,6 +3011,9 @@ namespace Game
                         target_animator.frame_time = 0.f;
                         target_animator.current_frame = 0;
 
+                        // Screen Shake
+                        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+
                         hit_entities.push_back(target_entity);
                     }
                 }
@@ -3055,6 +3058,9 @@ namespace Game
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
         
+                // Screen Shake
+                Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+
                 //Hit VFX
                 //Specific check for Jack's attack
                 if (battle.current_character->character_id == 5)
