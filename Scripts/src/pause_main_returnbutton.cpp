@@ -32,21 +32,15 @@ public:
 
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active Display Mode", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active Master Volume", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_D) || Input::GetKeyDown(GLFW_KEY_A)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Quit Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Quit Button Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active Quit Button", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetKeyDown(GLFW_KEY_ENTER)) {
         Input::Cleanup();
@@ -57,7 +51,10 @@ public:
 
   void OnMouseEnter() override
   {
-
+    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+      && !FlexECS::Scene::GetEntityByName("Return Button Sprite").GetComponent<Transform>()->is_active) {
+      Application::MessagingSystem::Send("Active Return Button", true);
+    }
   }
 
   void OnMouseStay() override
