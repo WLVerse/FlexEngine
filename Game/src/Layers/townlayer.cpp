@@ -100,14 +100,24 @@ namespace Game
         if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Boss", true);
+            startcombat = false;
         }
     }
     else
     {
 
-        if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding)
+        if (FlexECS::Scene::GetEntityByName("Encounter1").GetComponent<BoundingBox2D>()->is_colliding && !startcombat)
+        {
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
+            startcombat = true;
+        }
+
+
+        int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Battle 1", true);
+            startcombat = false;
         }
     }
 #pragma endregion
