@@ -210,6 +210,8 @@ namespace Game
         float m_warpMid;
         float m_warpTarget;
 
+        float m_originalWidth;
+        float m_originalHeight;
         // For fade, a full-screen entity is used.
         FlexECS::Entity m_fadeEntity;
 
@@ -238,6 +240,8 @@ namespace Game
         {
             m_zoomOutDuration = totalDuration * 0.3f;
             m_zoomInDuration = totalDuration * 0.7f;  // Fade runs during this phase.
+            m_originalWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+            m_originalHeight = CameraManager::GetMainGameCamera()->GetOrthoHeight();
         }
 
         // Initializes the transition effect.
@@ -415,7 +419,7 @@ namespace Game
                     Log::Info("EncounterBattleTransition: Zoom-in and fade stage complete.");
                     Application::MessagingSystem::Send("CameraZoomStart",
                                            std::pair<double, double>{0.0001,
-                                          Application::GetCurrentWindow()->GetWidth()});
+                                            m_originalWidth});
                 }
                 break;
             }
