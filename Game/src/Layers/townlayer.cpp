@@ -111,21 +111,22 @@ namespace Game
         }
     }
 #pragma endregion
-    /*
-#pragma region Renko X Barrel z-index resolver
 
-    //// resolve z-index of renko and barrel
-    //FlexECS::Entity barrel = FlexECS::Scene::GetEntityByName("Stranded Flaming Barrel");
-    //float character_y = main_character.GetComponent<Position>()->position.y - main_character.GetComponent<Scale>()->scale.y / 2;
-    //float barrel_y = barrel.GetComponent<Position>()->position.y - barrel.GetComponent<Scale>()->scale.y / 2;
-    //main_character.GetComponent<ZIndex>()->z =
-    //  (character_y < barrel_y) ? barrel.GetComponent<ZIndex>()->z + 1 : barrel.GetComponent<ZIndex>()->z - 1;
-
-#pragma endregion
-
-
+    // Randomly toggle light on and off between range 1 to 4 seconds only in the other scene, but of course when added this can be added to the other scene as well
+    if (town_version == "assets/saves/town_v4_2.flxscene")
+    {
+      static float light_timer = rand() % 3 + 1;
+      light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      if (light_timer <= 0)
+      {
+        // Lazy toggle, on and off
+        FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active = 
+          !FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active;
+      
+        light_timer = rand() % 3 + 1;
+      }
+    }
     
-    */
   }
   float TownLayer::lerp(float a, float b, float t) {
     return a + t * (b - a);
