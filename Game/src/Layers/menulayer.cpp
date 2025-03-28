@@ -50,6 +50,19 @@ namespace Game
       sliderEntity.GetComponent<Slider>()->max_position = max_value;
       sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
       sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
+      
+      // Set Up Volume Positions
+      if (i == 0) {
+        FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX) * (max_value - min_value) + min_value;
+      }
+      else if (i == 3) {
+        FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM) * (max_value - min_value) + min_value;
+      }
+      else if (i == 6) {
+        FlexECS::Scene::GetEntityByName("Master Knob").GetComponent<Position>()->position.x = max_value;
+      }
     }
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
       entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
@@ -72,7 +85,7 @@ namespace Game
 
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v8.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v9.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
     
     // Trigger music to start
@@ -80,7 +93,7 @@ namespace Game
 
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Start Game"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Settings"));
-    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit"));
+    menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit Game"));
     
     // find camera
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
