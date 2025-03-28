@@ -92,6 +92,32 @@ namespace Editor
 
             transform->transform = translation_matrix * rotation_matrix * scale_matrix * sprite->model_matrix;
         }
+        
+
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer, Position, Rotation, Scale, Transform>())
+        {
+          auto video = element.GetComponent<VideoPlayer>();
+          auto position = element.GetComponent<Position>()->position;
+          auto rotation = element.GetComponent<Rotation>()->rotation;
+          auto scale = element.GetComponent<Scale>()->scale;
+          auto transform = element.GetComponent<Transform>();
+
+          if (FLX_STRING_GET(video->video_file) == "") continue;
+
+          // "Model scale" in this case refers to the scale of the object itself...
+          Matrix4x4 model = Matrix4x4::Identity;
+
+          auto& video_info = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(video->video_file));
+          model.Scale(Vector3(static_cast<float>(video_info.GetWidth()),
+            static_cast<float>(video_info.GetHeight()),
+            1.f));
+
+          Matrix4x4 translation_matrix = Matrix4x4::Translate(Matrix4x4::Identity, position);
+          Matrix4x4 rotation_matrix = Quaternion::FromEulerAnglesDeg(rotation).ToRotationMatrix();
+          Matrix4x4 scale_matrix = Matrix4x4::Scale(Matrix4x4::Identity, scale);
+
+          transform->transform = translation_matrix * rotation_matrix * scale_matrix * model;
+        }
         #pragma endregion 
 
         #pragma region Animator System

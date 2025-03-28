@@ -1233,8 +1233,9 @@ namespace Game
     // Returns a value of 1-sin with a lowest value of 0.5. i.e Goes from 0.5 to 1 to 0.5
    float HalfSinCurve(float t) 
    {
-      float constexpr M_PI = 3.14f;
-      return std::max(1 - std::sinf(t * M_PI), 0.5f); // Sin function maps t to 0 to pi
+      //float constexpr M_PI = 3.14f;
+      float constexpr pi = 3.14f;
+      return std::max(1 - std::sinf(t * pi), 0.5f); // Sin function maps t to 0 to pi
    }
 
     void PlaySpeedbarAnimation()
