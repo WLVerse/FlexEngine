@@ -275,6 +275,14 @@ void FMODWrapper::Core::AdjustGroupVolume(CHANNELGROUP channelGroup, float volPe
   }
 }
 
+float FMODWrapper::Core::GetGroupVolume(CHANNELGROUP channelGroup)
+{
+  float volume = 0.f;
+  if (channelGroup == CHANNELGROUP::BGM) FMODWrapper::bgm_group->getVolume(&volume);
+  else if (channelGroup == CHANNELGROUP::SFX) FMODWrapper::sfx_group->getVolume(&volume);
+  return volume;
+}
+
 }// namespace FlexEngine
 
   //// Sample code to get if the channel is playing...
