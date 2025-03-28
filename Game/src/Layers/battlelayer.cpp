@@ -3391,6 +3391,7 @@ namespace Game
         overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->return_to_default = false;
+        overlay.GetComponent<Animator>()->current_frame = 0;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
@@ -3401,10 +3402,14 @@ namespace Game
     {
       battle.is_lose = true;
       FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+      overlay.GetComponent<Transform>()->is_active = true;
       overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)");
       overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
       overlay.GetComponent<Animator>()->should_play = true;
       overlay.GetComponent<Animator>()->return_to_default = false;
+      overlay.GetComponent<Animator>()->is_looping = false;
+      overlay.GetComponent<Animator>()->current_frame = 0;
+
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
