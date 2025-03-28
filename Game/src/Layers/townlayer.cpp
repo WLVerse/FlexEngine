@@ -80,6 +80,7 @@ namespace Game
      // transition lorhhhhhhhh
      Application::MessagingSystem::Send("Enter Boss", true);
    }*/
+    static bool startcombat = false;
     if (town_version == "assets/saves/town_v5_pp.flxscene")
     {
         if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
@@ -88,7 +89,15 @@ namespace Game
             FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active = true;
         }
 
-        if (FlexECS::Scene::GetEntityByName("Jack").GetComponent<BoundingBox2D>()->is_colliding)
+        
+        if (FlexECS::Scene::GetEntityByName("Jack").GetComponent<BoundingBox2D>()->is_colliding && !startcombat)
+        {
+            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
+            startcombat = true;
+        }
+
+        int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+        if (transitionMSG == 3)
         {
             Application::MessagingSystem::Send("Enter Boss", true);
         }

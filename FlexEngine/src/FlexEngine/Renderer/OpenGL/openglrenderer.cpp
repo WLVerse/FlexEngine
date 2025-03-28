@@ -1946,6 +1946,61 @@ namespace FlexEngine
       m_draw_calls++;
   }
 
+  void OpenGLRenderer::ApplyWarpEffect(const GLuint& inputTex, float warpStrength, float warpRadius)
+  {
+      #pragma region VAO Setup
+      // Full-screen quad covering clip space.
+      static const float vertices[] = {
+          // Positions           // TexCoords
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f, // Bottom-left
+           1.0f, -1.0f, 0.0f,     1.0f, 0.0f, // Bottom-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+           1.0f,  1.0f, 0.0f,     1.0f, 1.0f, // Top-right
+          -1.0f,  1.0f, 0.0f,     0.0f, 1.0f, // Top-left
+          -1.0f, -1.0f, 0.0f,     0.0f, 0.0f  // Bottom-left
+      };
+
+      static GLuint vao = 0, vbo = 0;
+      if (vao == 0)
+      {
+          glGenVertexArrays(1, &vao);
+          glGenBuffers(1, &vbo);
+
+          glBindVertexArray(vao);
+          glBindBuffer(GL_ARRAY_BUFFER, vbo);
+          glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+          glEnableVertexAttribArray(0); // Position
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+          glEnableVertexAttribArray(1); // TexCoords
+          glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+          glBindVertexArray(0);
+
+          // Schedule cleanup of the buffers.
+          FreeQueue::Push([=]()
+          {
+              glDeleteBuffers(1, &vbo);
+              glDeleteVertexArrays(1, &vao);
+          });
+      }
+      glBindVertexArray(vao);
+      #pragma endregion
+
+      // Retrieve the overlay shader asset.
+      auto& asset_shader = FLX_ASSET_GET(Asset::Shader, "/shaders/Warp.flxshader");
+
+      // Bind the input texture to texture unit 0.
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, inputTex);
+      asset_shader.SetUniform_int("screenTexture", 0);
+      asset_shader.SetUniform_float("warpStrength", warpStrength);
+      asset_shader.SetUniform_float("maxRadius", warpRadius);
+
+      // Draw the full-screen quad.
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      m_draw_calls++;
+  }
+
   void OpenGLRenderer::ApplyOverlay(const GLuint& backgroundTex, const GLuint& inputTex)
   {
       #pragma region VAO Setup
@@ -2002,5 +2057,6 @@ namespace FlexEngine
       m_draw_calls++;
   }
 
+  
   #pragma endregion
 }
