@@ -142,7 +142,8 @@ namespace FlexEngine
         bool enableColorGrading = false;
         bool enableFilmGrain = false;
         bool enablePixelate = false;
-        
+        bool enableWarp = false;
+
         float globalIntensity = 1.0f;
 
         // Gaussian Blur settings
@@ -182,6 +183,10 @@ namespace FlexEngine
         float filmGrainIntensity = 0.5f;  // Grain intensity
         float filmGrainSize = 1.0f;  // Grain size
         bool  filmGrainAnimate = true;  // Whether grain is animated over time
+    
+        // Zoom Settings
+        float warpStrength = 1.2f;
+        float warpRadius = 1.2f;
     };
 
     /**
@@ -316,6 +321,7 @@ namespace FlexEngine
         static void ApplyVignette(const GLuint& inputTex = {}, float vignetteIntensity = 0.0f, const Vector2& vignetteRadius = { 0.2f,0.2f }, const Vector2& vignetteSoftness = { 0.1f,0.1f });
         static void ApplyFilmGrain(const GLuint& inputTex = {}, float filmGrainIntensity = 0.0f, float filmGrainSize = 0.0f, bool filmGrainAnimate = 0.0f);
         static void ApplyPixelate(const GLuint& inputTex = {}, float pixelWidth = 0.0f, float pixelHeight = 0.0f);
+        static void ApplyWarpEffect(const GLuint& inputTex = {}, float warpStrength = 1.2f, float warpRadius = 1.0f);
         static void ApplyOverlay(const GLuint& backgroundTex = {}, const GLuint& inputTex = {});
         #pragma endregion
 

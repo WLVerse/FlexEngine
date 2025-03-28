@@ -20,7 +20,6 @@
 #include "FlexECS/datastructures.h"
 #include <memory>
 #include <queue>
-
 using namespace FlexEngine;
 
 namespace Game
@@ -32,6 +31,8 @@ namespace Game
     {
         FADE_IN = 1,
         FADE_OUT = 2,
+
+        ENCOUNTER_TRANSITION_BATTLE_IN = 3,
         // Extend with additional types as needed.
     };
 
@@ -179,6 +180,278 @@ namespace Game
     };
     #pragma endregion
 
+    #pragma region Encounter Transition from town to battle
+
+    // EncounterBattleTransition implements a multi-stage transition effect:
+    // 1) Camera zooms in to specified ortho width, lerping over time.
+    // 2) Global chromatic aberration intensifies over time.
+    // 3) Warping strength lerps to slight negative before to positive 1.
+    // 4) A fade effect occurs as the camera zoom in and transitions to next scem
+    class EncounterBattleTransition : public ITransitionEffect
+    {
+    private:
+        enum class EBState { ZOOM_OUT, ZOOM_IN_FADE, COMPLETE };
+
+        EBState m_state;
+        float m_totalElapsed;      // Total elapsed time since the transition started.
+        float m_stageElapsed;      // Elapsed time in the current stage.
+
+        // Stage durations (in seconds)
+        float m_zoomOutDuration;
+        float m_zoomInDuration;    // Zoom in duration is also used for fade animation.
+
+        // Fade parameters (fade anim runs concurrently with zoom-in).
+        float m_initialAlpha;      // Starting opacity.
+        float m_targetAlpha;       // Ending opacity.
+        float m_currentAlpha;      // Current fade opacity.
+
+        // Warp parameters
+        float m_warpStart;
+        float m_warpMid;
+        float m_warpTarget;
+
+        // For fade, a full-screen entity is used.
+        FlexECS::Entity m_fadeEntity;
+
+        // Chromatic aberration parameters.
+        float m_chromaticStartIntensity;
+        float m_chromaticTargetIntensity;
+
+        // For glitch timing.
+        std::chrono::high_resolution_clock::time_point m_startTime;
+
+    public:
+        // Constructs the EncounterBattleTransition.
+        // totalDuration is split: e.g. 40% for zoom-out and 60% for zoom-in (with fade concurrent).
+        EncounterBattleTransition(float totalDuration, float initialAlpha, float targetAlpha)
+            : m_state(EBState::ZOOM_OUT),
+            m_totalElapsed(0.0f),
+            m_stageElapsed(0.0f),
+            m_initialAlpha(initialAlpha),
+            m_targetAlpha(targetAlpha),
+            m_currentAlpha(initialAlpha),
+            m_chromaticStartIntensity(0.0f),
+            m_chromaticTargetIntensity(1.0f),
+            m_warpStart(0.0f),
+            m_warpMid(1.5f),
+            m_warpTarget(-3.7f)
+        {
+            m_zoomOutDuration = totalDuration * 0.3f;
+            m_zoomInDuration = totalDuration * 0.7f;  // Fade runs during this phase.
+        }
+
+        // Initializes the transition effect.
+        void Start() override
+        {
+            m_state = EBState::ZOOM_OUT;
+            m_totalElapsed = 0.0f;
+            m_stageElapsed = 0.0f;
+            m_startTime = std::chrono::high_resolution_clock::now();
+
+            // Initialize chromatic aberration on all active post-processing entities.
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene)
+            {
+                for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                {
+                    auto transform = element.GetComponent<Transform>();
+                    if (!transform || !transform->is_active)
+                        continue;
+
+                    auto marker = element.GetComponent<PostProcessingMarker>();
+                    if (marker)
+                    {
+                        marker->enableChromaticAberration = true;
+                        marker->enableWarp = true;
+                    }
+
+                    if (!element.HasComponent<PostProcessingChromaticAbberation>())
+                        element.AddComponent<PostProcessingChromaticAbberation>({});
+                    if (!element.HasComponent<PostProcessingWarp>())
+                        element.AddComponent<PostProcessingWarp>({});
+
+                    if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
+                    {
+                        aberration->redOffset.y = 0.0f;
+                        aberration->greenOffset.y = 0.0f;
+                        aberration->blueOffset.y = 0.0f;
+                    }
+                    if (auto warp = element.GetComponent<PostProcessingWarp>())
+                    {
+                        warp->warpStrength = m_warpStart;
+                        warp->warpRadius = 1.0f;
+                    }
+                }
+            }
+            else
+            {
+                Log::Error("EncounterBattleTransition: Active scene not found during Start.");
+            }
+
+            // Stage 1: Initiate zoom-out.
+            Application::MessagingSystem::Send("CameraZoomStart",
+                std::pair<double, double>{ m_zoomOutDuration + m_zoomInDuration,
+                                           Application::GetCurrentWindow()->GetWidth() * 0.5 });
+            Log::Info("EncounterBattleTransition: Started zoom-out stage.");
+        }
+
+        // Updates the transition effect over time.
+        void Update(float dt) override
+        {
+            if (m_state == EBState::COMPLETE)
+                return;
+
+            m_totalElapsed += dt;
+            m_stageElapsed += dt;
+
+            // Update global chromatic aberration concurrently.
+            #pragma region Chromatic Aberration
+            float totalDuration = m_zoomOutDuration + m_zoomInDuration;
+            float chromaticProgress = m_totalElapsed / totalDuration;
+            float currentIntensity = FlexMath::Lerp(m_chromaticStartIntensity, m_chromaticTargetIntensity, chromaticProgress);
+
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene)
+            {
+                // Use m_startTime for glitch timing.
+                auto now = std::chrono::high_resolution_clock::now();
+                for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                {
+                    auto transform = element.GetComponent<Transform>();
+                    if (!transform || !transform->is_active)
+                        continue;
+                    if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
+                    {
+                        aberration->intensity = currentIntensity;
+                        // Glitch effect: randomized offset per frame.
+                        float amount = (float)(rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
+                        aberration->redOffset.x = amount;
+                        aberration->greenOffset.x = 0.0f;
+                        aberration->blueOffset.x = -amount;
+                    }
+                }
+            }
+            #pragma endregion
+
+            // Process states.
+            switch (m_state)
+            {
+            case EBState::ZOOM_OUT:
+            {
+                // Initiate warp to negative.
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpStart, m_warpMid, m_stageElapsed / m_zoomOutDuration);
+                    }
+                }
+
+                // Triggers once dont worry
+                if (m_stageElapsed >= m_zoomOutDuration)
+                {
+                    m_state = EBState::ZOOM_IN_FADE;
+                    m_stageElapsed = 0.0f;
+
+                    // Create fade entity at the start of zoom-in.
+                    if (activeScene)
+                    {
+                        m_fadeEntity = activeScene->CreateEntity("EncounterFadeFrame");
+                        m_fadeEntity.AddComponent<Position>({});
+                        m_fadeEntity.AddComponent<Rotation>({});
+                        m_fadeEntity.AddComponent<Scale>({ Vector3(9999, 9999, 0) });
+                        m_fadeEntity.AddComponent<Transform>({});
+                        m_fadeEntity.AddComponent<ZIndex>({ 9999 });
+                        m_fadeEntity.AddComponent<Sprite>({});
+                        if (auto sprite = m_fadeEntity.GetComponent<Sprite>()) {
+                            sprite->opacity = 0.f;
+                        }
+                        else 
+                        {
+                            Log::Warning("EncounterBattleTransition: Sprite component not found on fade entity.");
+                        }
+                    }
+                    Log::Info("EncounterBattleTransition: Transitioning to zoom-in (with fade) stage.");
+                }
+                break;
+            }
+            case EBState::ZOOM_IN_FADE:
+            {
+                // Fade effect runs concurrently with zoom-in & warp.
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpMid, m_warpTarget, m_stageElapsed/ m_zoomInDuration);
+                    }
+                }
+                if (m_stageElapsed >= (m_zoomInDuration / 2.0f)) 
+                {
+                    float fadeProgress = (m_stageElapsed - (m_zoomInDuration / 2.0f)) / (m_zoomInDuration / 2.0f);
+                    if (fadeProgress > 1.0f)
+                        fadeProgress = 1.0f; 
+                    m_currentAlpha = FlexMath::Lerp(m_initialAlpha, m_targetAlpha, fadeProgress);
+                }
+                if (m_fadeEntity)
+                {
+                    if (auto sprite = m_fadeEntity.GetComponent<Sprite>())
+                        sprite->opacity = m_currentAlpha;
+                    else
+                        Log::Warning("EncounterBattleTransition: Sprite missing during fade update.");
+                }
+                if (m_stageElapsed >= m_zoomInDuration)
+                {
+                    m_state = EBState::COMPLETE;
+                    Log::Info("EncounterBattleTransition: Zoom-in and fade stage complete.");
+                    Application::MessagingSystem::Send("CameraZoomStart",
+                                           std::pair<double, double>{0.0001,
+                                          Application::GetCurrentWindow()->GetWidth()});
+                }
+                break;
+            }
+            case EBState::COMPLETE:
+            default:
+                break;
+            }
+        }
+
+        // Returns whether the encounter transition is complete.
+        bool IsComplete() const override
+        {
+            return m_state == EBState::COMPLETE;
+        }
+
+        // Returns the transition type.
+        // For encounter transitions we can choose a custom type.
+        TransitionType GetType() const override
+        {
+            // Here we choose ENCOUNTER_TRANSITION_BATTLE_IN to indicate this special effect.
+            return TransitionType::ENCOUNTER_TRANSITION_BATTLE_IN;
+        }
+
+        // Stops the transition and cleans up the fade entity.
+        void Stop() override
+        {
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene && m_fadeEntity)
+            {
+                m_fadeEntity = FlexECS::Entity();
+            }
+        }
+    };
+
+    #pragma endregion
+    
     #pragma endregion
 
     // TransitionHandlerScript manages queued transition effects and processes them.
@@ -189,7 +462,7 @@ namespace Game
         bool m_completionNotified;  ///< Ensures only one notification is sent per transition.
     public:
         // Constructs the TransitionHandlerScript and registers it with the script registry.
-        TransitionHandlerScript()
+        TransitionHandlerScript() : m_completionNotified(false)
         {
             ScriptRegistry::RegisterScript(this);
         }
@@ -229,6 +502,10 @@ namespace Game
                 else if (requestedType == TransitionType::FADE_OUT)
                 {
                     newTransition = std::make_unique<FadeTransition>(duration, 0.0f, 1.0f);
+                }
+                else if (requestedType == TransitionType::ENCOUNTER_TRANSITION_BATTLE_IN)
+                {
+                    newTransition = std::make_unique<EncounterBattleTransition>(duration, 0.0f, 1.0f);
                 }
                 else
                 {

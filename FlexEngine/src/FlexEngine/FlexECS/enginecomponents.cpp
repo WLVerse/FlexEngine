@@ -239,6 +239,7 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(enableColorGrading)
       FLX_REFL_REGISTER_PROPERTY(enableFilmGrain)
       FLX_REFL_REGISTER_PROPERTY(enablePixelate)
+      FLX_REFL_REGISTER_PROPERTY(enableWarp)
       FLX_REFL_REGISTER_PROPERTY(globalIntensity)
       FLX_REFL_REGISTER_END;
 
@@ -293,4 +294,9 @@ namespace FlexEngine
       FLX_REFL_REGISTER_PROPERTY(animateGrain)
       FLX_REFL_REGISTER_END;
 
+  // Registration for PostProcessingWarp
+  FLX_REFL_REGISTER_START(PostProcessingWarp)
+      FLX_REFL_REGISTER_PROPERTY(warpStrength)
+      FLX_REFL_REGISTER_PROPERTY(warpRadius)
+      FLX_REFL_REGISTER_END;
 } // namespace FlexEngine

@@ -497,6 +497,7 @@ namespace FlexEngine
       bool enableColorGrading = false;
       bool enableFilmGrain = false;
       bool enablePixelate = false;
+      bool enableWarp = false;
 
       // A global blend or intensity multiplier that can influence all effects.
       float globalIntensity = 1.0f;
@@ -573,6 +574,15 @@ namespace FlexEngine
       float grainIntensity = 0.5f; // How pronounced the grain is.
       float grainSize = 1.0f; // Size of individual grain particles.
       bool  animateGrain = true; // Whether the grain is animated over time.
+  };
+
+  // Warp effect parameters.
+  class __FLX_API PostProcessingWarp
+  {
+      FLX_REFL_SERIALIZABLE
+  public:
+      float warpStrength = 1.2f; // How strong the warp gets
+      float warpRadius = 1.0f; // Max Size of warp on screen
   };
 
 #pragma endregion
