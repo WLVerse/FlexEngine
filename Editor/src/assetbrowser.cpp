@@ -275,6 +275,7 @@ namespace Editor
 					std::string payload(file.generic_string());
 					payload.insert(0, "/");	//to fit the AssetKey format
 					std::string extension = file.extension().string();
+					std::cout << extension << "\n";
 					//hardcode for now
 					if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
 					{
@@ -295,6 +296,11 @@ namespace Editor
 					else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
 					{
 						EditorGUI::StartPayload(PayloadTags::AUDIO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+						EditorGUI::EndPayload();
+					}
+					else if (extension == ".mp4")
+					{
+						EditorGUI::StartPayload(PayloadTags::VIDEO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 						EditorGUI::EndPayload();
 					}
 					else if (extension == ".flxprefab")
@@ -684,6 +690,11 @@ namespace Editor
 				else if (extension == ".mp3" || extension == ".wav" || extension == ".ogg" || extension == ".flac")
 				{
 					EditorGUI::StartPayload(PayloadTags::AUDIO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
+					EditorGUI::EndPayload();
+				}
+				else if (extension == ".mp4")
+				{
+					EditorGUI::StartPayload(PayloadTags::VIDEO, payload.c_str(), payload.size() + 1, file.filename().string().c_str());
 					EditorGUI::EndPayload();
 				}
 				else if (extension == ".flxprefab")

@@ -97,6 +97,8 @@ namespace Editor
 
 		static void FontDropdown(std::string& path, std::string title = "Font");
 
+		static void VideoPath(std::string& path, std::string title = "Video");
+
 		static void SpritesheetPath(std::string& path, std::string title = "Spritesheet");
 
 

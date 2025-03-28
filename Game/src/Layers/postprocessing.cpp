@@ -272,6 +272,40 @@ namespace Game
             }
         }
 
+        // Render video objects
+        for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, VideoPlayer, Position, Rotation, Scale>())
+        {
+          if (!element.GetComponent<Transform>()->is_active) continue;
+
+          int index = 0;
+          if (element.HasComponent<ZIndex>()) index = element.GetComponent<ZIndex>()->z;
+
+          if (element.HasComponent<PostProcessingGaussianBlur>() ||
+              element.HasComponent<PostProcessingChromaticAbberation>() ||
+              element.HasComponent<PostProcessingBloom>() ||
+              element.HasComponent<PostProcessingVignette>() ||
+              element.HasComponent<PostProcessingColorGrading>() ||
+              element.HasComponent<PostProcessingPixelate>())
+          {
+            prePostProcessingQueue.Insert({ [&element]() {
+                PostProcessing::DrawLocalPostProcessing(element);
+            }, "", index });
+            continue;
+          }
+
+          VideoPlayer& video = *element.GetComponent<VideoPlayer>();
+          Renderer2DProps props;
+
+          props.asset = FLX_STRING_GET(video.video_file);
+          props.texture_index = -1;
+          props.is_video = true;
+
+          props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+          props.world_transform = element.GetComponent<Transform>()->transform;
+
+          prePostProcessingQueue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+        }
+
         // Render all objects (sprites and text) that are below the post-process marker.
         prePostProcessingQueue.Flush();
     }
@@ -344,6 +378,23 @@ namespace Game
             textProps.m_linespacing = 12.0f;
 
             OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), textProps);
+        }
+        else if (entity.HasComponent<VideoPlayer>())
+        {
+          VideoPlayer& video = *entity.GetComponent<VideoPlayer>();
+          Renderer2DProps props;
+
+          props.asset = FLX_STRING_GET(video.video_file);
+          props.texture_index = -1;
+          props.is_video = true;
+
+          int index = 0;
+          if (entity.HasComponent<ZIndex>()) index = entity.GetComponent<ZIndex>()->z;
+
+          props.window_size = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth(), CameraManager::GetMainGameCamera()->GetOrthoHeight());
+          props.world_transform = entity.GetComponent<Transform>()->transform;
+
+          OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props);
         }
         else
         {
