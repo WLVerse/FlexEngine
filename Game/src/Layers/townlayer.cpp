@@ -112,10 +112,10 @@ namespace Game
     }
 #pragma endregion
 
-    // Randomly toggle light on and off between range 1 to 4 seconds only in the other scene, but of course when added this can be added to the other scene as well
+    // Randomly toggle light on and off between range 1 to 2 seconds only in the other scene, but of course when added this can be added to the other scene as well
     if (town_version == "assets/saves/town_v4_2.flxscene")
     {
-      static float light_timer = rand() % 3 + 1;
+      static float light_timer = rand() % 1 + 1;
       light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
       if (light_timer <= 0)
       {
@@ -123,7 +123,7 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active = 
           !FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active;
       
-        light_timer = rand() % 3 + 1;
+        light_timer = rand() % 1 + 1;
       }
     }
     

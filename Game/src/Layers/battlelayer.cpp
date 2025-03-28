@@ -102,6 +102,7 @@ namespace Game
         FlexECS::Entity tutorial_text;
 
         bool start_of_turn = false;
+        bool play_battle_start = true;
         bool move_select = false;
         bool move_resolution = false;
         bool speedbar_animating = false;
@@ -184,6 +185,7 @@ namespace Game
       battle.tutorial_text;
 
       battle.start_of_turn = false;
+      battle.play_battle_start = true;
       battle.move_select = false;
       battle.move_resolution = false;
       battle.speedbar_animating = false;
@@ -1223,6 +1225,43 @@ namespace Game
 
       }
     }
+    
+    // Just delay the fucking battle start anim
+    void Play_Battle_Start() 
+    {
+      static float time_played = 3.f;
+      static bool is_init = false;
+
+      if (!is_init)
+      {
+        time_played = 3.f;
+        is_init = true;
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Animator>()->spritesheet_handle
+          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");
+        overlay.GetComponent<Transform>()->is_active = true;
+        overlay.GetComponent<Animator>()->should_play = true;
+        overlay.GetComponent<Animator>()->is_looping = false;
+        overlay.GetComponent<Animator>()->return_to_default = false;
+        overlay.GetComponent<Animator>()->current_frame = 0;
+      }
+
+      if (time_played > 0.f)
+      {
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+
+        time_played -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      }
+      else
+      {
+        // Flag to start the battle, and reset this outdated value
+        is_init = false;
+        battle.play_battle_start = false;
+        battle.start_of_turn = true;
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = false;
+      }
+    }
 
     // Lerp function from a to b
     static float Lerp(float a, float b, float t)
@@ -1421,7 +1460,8 @@ namespace Game
           FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_EnemyProfile_Jack.png)");
 
         //start function cycle
-        battle.start_of_turn = true;
+        //battle.start_of_turn = true;  // This is commented out because we want to play the battle start animation first
+        battle.play_battle_start = true;
         battle.current_move = nullptr;
         battle.move_select = false;
         battle.move_resolution = false;
@@ -3309,32 +3349,42 @@ namespace Game
     void Win_Battle()
     {
         battle.is_win = true;
+
         // A bit lame, but need to find by name to set, like the old Unity days
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Transform>()->is_active = true;
+        overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)");
+        overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
+        overlay.GetComponent<Animator>()->should_play = true;
+        overlay.GetComponent<Animator>()->return_to_default = false;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
-        FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
+        FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->should_play = true;
-      FlexECS::Scene::GetEntityByName("renko text").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("completion time value").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("dmg value").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("dmg dealt").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Win base").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Player Stats").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
     }
 
     void Lose_Battle()
     {
       battle.is_lose = true;
+      FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+      overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)");
+      overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
+      overlay.GetComponent<Animator>()->should_play = true;
+      overlay.GetComponent<Animator>()->return_to_default = false;
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
+
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("Lose Base").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("git gud noob").GetComponent<Transform>()->is_active = true;
-      FlexECS::Scene::GetEntityByName("UI_Lose_V").GetComponent<Transform>()->is_active = true;
+
+      static float opacity = 1.f;
+      float fade_speed = -1.f;
+      // Pingpong between opacity 0 and 1
+      if (opacity <= 0.f || opacity >= 1.f) 
+        fade_speed *= -1;
+      opacity += fade_speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      //FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Text>()->color = opacity;
     }
 
     void Set_Up_Pause_Menu() {
@@ -3513,7 +3563,12 @@ namespace Game
             return;
         }
 
-        if (battle.start_of_turn)
+        
+        if (battle.play_battle_start)
+        {
+          Play_Battle_Start();
+        }
+        else if (battle.start_of_turn)
         {
             Start_Of_Turn();
         }
