@@ -109,6 +109,10 @@ namespace Game
         bool end_of_turn = false;
 
         bool change_phase = false;
+
+        // Camera Original Ortho dimensions
+        float m_originalWidth;
+        float m_originalHeight;
     };
 
     struct _SpriteHandles
@@ -1382,7 +1386,8 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v9.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v11.flxscene"));
+
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
         battle.curr_char_highlight = FlexECS::Scene::GetEntityByName("Curr Char Highlight");
@@ -1468,6 +1473,9 @@ namespace Game
         battle.end_of_turn = false;
 
         battle.change_phase = true;
+
+        battle.m_originalWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+        battle.m_originalHeight = CameraManager::GetMainGameCamera()->GetOrthoHeight();
 
       //Scripting initialize
       Application::MessagingSystem::Send<bool>("Initialize VFX", true);
@@ -2748,6 +2756,26 @@ namespace Game
             }
         }
         
+        // Camera Animation
+        if (battle.current_move->target[0] == "ALL_ENEMIES" ||
+            battle.current_move->target[0] == "ADJACENT_ENEMIES" ||
+            battle.current_move->target[0] == "NEXT_ENEMY" ||
+            battle.current_move->target[0] == "SINGLE_ENEMY")
+        {
+            if (battle.current_character->character_id > 2)
+            {
+                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            else
+            {
+                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            //call camera code based on attackers and defender                                }
+
+        }
+
         //let attack animation play finish
         if (battle.disable_input_timer > 0.f)
         {
@@ -3010,6 +3038,9 @@ namespace Game
                         target_animator.frame_time = 0.f;
                         target_animator.current_frame = 0;
 
+                        // Screen Shake
+                        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+
                         hit_entities.push_back(target_entity);
                     }
                 }
@@ -3054,6 +3085,9 @@ namespace Game
 
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
         
+                // Screen Shake
+                Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+
                 //Hit VFX
                 //Specific check for Jack's attack
                 if (battle.current_character->character_id == 5)
@@ -3357,6 +3391,7 @@ namespace Game
         overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Victory/Victory_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->return_to_default = false;
+        overlay.GetComponent<Animator>()->current_frame = 0;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
@@ -3367,10 +3402,14 @@ namespace Game
     {
       battle.is_lose = true;
       FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+      overlay.GetComponent<Transform>()->is_active = true;
       overlay.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)");
       overlay.GetComponent<Animator>()->default_spritesheet_handle = FLX_STRING_NEW(R"(/images/Screen_Overlays/Lose/Lose_Sprite_Sheet.flxspritesheet)"); // Dont think this is needed but laze, in case.
       overlay.GetComponent<Animator>()->should_play = true;
       overlay.GetComponent<Animator>()->return_to_default = false;
+      overlay.GetComponent<Animator>()->is_looping = false;
+      overlay.GetComponent<Animator>()->current_frame = 0;
+
       FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->audio_file =
           FLX_STRING_NEW(R"(/audio/Lose Musical SFX.wav)");
