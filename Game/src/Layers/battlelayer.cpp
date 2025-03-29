@@ -110,6 +110,10 @@ namespace Game
 
         bool change_phase = false;
 
+        // Pause Buttons
+        std::array<bool, 4> pause_buttons;
+        FlexECS::Entity& active_pause_button = FlexECS::Entity::Null;
+
         // Camera Original Ortho dimensions
         float m_originalWidth;
         float m_originalHeight;
@@ -3450,6 +3454,19 @@ namespace Game
         sliderEntity.GetComponent<Slider>()->max_position = max_value;
         sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
         sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
+        
+        // Set Up Volume Positions
+        if (i == 0) {
+          FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x =
+            FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX) * (max_value - min_value) + min_value;
+        }
+        else if (i == 3) {
+          FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Position>()->position.x =
+            FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM) * (max_value - min_value) + min_value;
+        }
+        else if (i == 6) {
+          FlexECS::Scene::GetEntityByName("Master Knob").GetComponent<Position>()->position.x = max_value;
+        }
       }
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
         entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
@@ -3465,7 +3482,10 @@ namespace Game
       }
 
       battle.is_paused ^= true;
-      if (battle.is_paused) FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
+      if (battle.is_paused) {
+        battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+        FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
+      }
     }
     
     void BattleLayer::OnAttach()
@@ -3488,6 +3508,12 @@ namespace Game
         {
           FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
         }
+
+        battle.pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
+        battle.pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active Settings Button");
+        battle.pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active How Button");
+        battle.pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Quit Game Button");
+
         /*bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
         bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
         bool move_three_click = Application::MessagingSystem::Receive<bool>("MoveThree clicked");
@@ -3548,12 +3574,34 @@ namespace Game
 
         bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
         // check for escape key
-        if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || resume_game)
+        if ((Input::GetKeyDown(GLFW_KEY_ESCAPE) && !battle.is_paused) || resume_game)
         {
           Pause_Functionality();
         }
 
-        if (battle.is_paused) return;
+        if (battle.is_paused) {
+          if (std::any_of(battle.pause_buttons.begin(), battle.pause_buttons.end(), [](bool state) {
+            return state;
+          })) {
+            battle.active_pause_button.GetComponent<Transform>()->is_active = false;
+            if (battle.pause_buttons[0]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+            else if (battle.pause_buttons[1]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Settings Button Sprite");
+            else if (battle.pause_buttons[2]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("How Button Sprite");
+            else if (battle.pause_buttons[3]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
+            battle.active_pause_button.GetComponent<Scale>()->scale.x = 0.f;
+            battle.active_pause_button.GetComponent<Transform>()->is_active = true;
+          }
+
+          if (battle.active_pause_button.GetComponent<Scale>()->scale.x !=
+            battle.active_pause_button.GetComponent<Slider>()->original_scale.x) {
+            battle.active_pause_button.GetComponent<Scale>()->scale.x += 
+              Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+            battle.active_pause_button.GetComponent<Scale>()->scale.x =
+              std::clamp(battle.active_pause_button.GetComponent<Scale>()->scale.x, 0.f,
+                battle.active_pause_button.GetComponent<Slider>()->original_scale.x);
+          }
+          return;
+        }
 
         if (battle.is_tutorial && battle.is_tutorial_running)
         {

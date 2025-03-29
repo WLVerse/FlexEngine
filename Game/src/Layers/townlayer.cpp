@@ -17,6 +17,70 @@
 namespace Game
 {
   extern std::string town_version;
+
+  // Pause Buttons
+  std::array<bool, 4> pause_buttons = { false, false, false, false };
+  FlexECS::Entity& active_pause_button = FlexECS::Entity::Null;
+  bool is_paused = false;
+
+  void Set_Up_Town_Pause_Menu() {
+    #pragma region Load pause menu data
+    std::array<std::string, 9> slider_names = {
+      "SFX Slider Background",
+      "SFX Slider Fill",
+      "SFX Knob",
+      "BGM Slider Background",
+      "BGM Slider Fill",
+      "BGM Knob",
+      "Master Slider Background",
+      "Master Slider Fill",
+      "Master Knob"
+    };
+    for (int i = 0; i < 9; i += 3) {
+      FlexECS::Entity tempEntity = FlexECS::Scene::GetEntityByName(slider_names[i]);
+
+      float min_value = tempEntity.GetComponent<Position>()->position.x - tempEntity.GetComponent<Sprite>()->scale.x - 20.f;
+      float max_value = tempEntity.GetComponent<Position>()->position.x + tempEntity.GetComponent<Sprite>()->scale.x + 15.f;
+
+      FlexECS::Entity sliderEntity = FlexECS::Scene::GetEntityByName(slider_names[i + 1]);
+      sliderEntity.GetComponent<Slider>()->min_position = min_value;
+      sliderEntity.GetComponent<Slider>()->max_position = max_value;
+      sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
+      sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
+
+      // Set Up Volume Positions
+      if (i == 0) {
+        FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX) * (max_value - min_value) + min_value;
+      }
+      else if (i == 3) {
+        FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM) * (max_value - min_value) + min_value;
+      }
+      else if (i == 6) {
+        FlexECS::Scene::GetEntityByName("Master Knob").GetComponent<Position>()->position.x = max_value;
+      }
+    }
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
+      entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
+    }
+    #pragma endregion
+  }
+
+  void Town_Pause_Functionality() {
+    for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
+      bool& state_to_set = entity.GetComponent<Transform>()->is_active;
+      if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<SettingsUI>()) state_to_set = false;
+      else state_to_set ^= true;
+    }
+
+    is_paused ^= true;
+    if (is_paused) {
+      active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+      FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
+    }
+  }
+
   void TownLayer::OnAttach()
   {
     //File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
@@ -32,6 +96,8 @@ namespace Game
     }
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
     camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
+
+    Set_Up_Town_Pause_Menu();
   }
 
   void TownLayer::OnDetach()
@@ -42,6 +108,43 @@ namespace Game
 
   void TownLayer::Update()
   {
+    if (town_version == "assets/saves/town_v7.flxscene") {
+      pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
+      pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active Settings Button");
+      pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active How Button");
+      pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Quit Game Button");
+
+      bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
+      // check for escape key
+      if ((Input::GetKeyDown(GLFW_KEY_ESCAPE) && !is_paused) || resume_game)
+      {
+        Town_Pause_Functionality();
+      }
+
+      if (is_paused) {
+        if (std::any_of(pause_buttons.begin(), pause_buttons.end(), [](bool state) {
+          return state;
+        })) {
+          active_pause_button.GetComponent<Transform>()->is_active = false;
+          if (pause_buttons[0]) active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+          else if (pause_buttons[1]) active_pause_button = FlexECS::Scene::GetEntityByName("Settings Button Sprite");
+          else if (pause_buttons[2]) active_pause_button = FlexECS::Scene::GetEntityByName("How Button Sprite");
+          else if (pause_buttons[3]) active_pause_button = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
+          active_pause_button.GetComponent<Scale>()->scale.x = 0.f;
+          active_pause_button.GetComponent<Transform>()->is_active = true;
+        }
+
+        if (active_pause_button.GetComponent<Scale>()->scale.x !=
+          active_pause_button.GetComponent<Slider>()->original_scale.x) {
+          active_pause_button.GetComponent<Scale>()->scale.x +=
+            Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+          active_pause_button.GetComponent<Scale>()->scale.x =
+            std::clamp(active_pause_button.GetComponent<Scale>()->scale.x, 0.f,
+              active_pause_button.GetComponent<Slider>()->original_scale.x);
+        }
+        return;
+      }
+    }
     
 #pragma region Camera Follow System
 
