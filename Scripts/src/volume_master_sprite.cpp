@@ -42,10 +42,10 @@ public:
         }
         Application::MessagingSystem::Send(message_to_send, true);
       }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
+      /*if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
         self.GetComponent<Transform>()->is_active = false;
-      }
+      }*/
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
         Application::MessagingSystem::Send("Active BGM Volume", true);
@@ -103,7 +103,7 @@ public:
 
   void OnMouseEnter() override
   {
-    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active
       && !FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active) {
       Application::MessagingSystem::Send("Active Master Volume", true);
     }

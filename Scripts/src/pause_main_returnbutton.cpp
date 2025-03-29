@@ -51,7 +51,7 @@ public:
 
   void OnMouseEnter() override
   {
-    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active
       && !FlexECS::Scene::GetEntityByName("Return Button Sprite").GetComponent<Transform>()->is_active) {
       Application::MessagingSystem::Send("Active Return Button", true);
     }

@@ -30,40 +30,41 @@ public:
   void Update() override
   {
     if (self.GetComponent<Transform>()->is_active) {
-      if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
-        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
-          0.f, self.GetComponent<Slider>()->original_scale.x);
-      }
-
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        self.GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Credits Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Credits Button Sprite").GetComponent<Transform>()->is_active = true;
+        Application::MessagingSystem::Send("Active How Button", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        self.GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
+        Application::MessagingSystem::Send("Active Resume Button", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_ENTER) || Input::GetKeyDown(GLFW_KEY_SPACE)) {
         Application::QueueCommand(Application::Command::QuitApplication);
+      }
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+        Input::Cleanup();
+        Application::MessagingSystem::Send("Resume Game", true);
       }
     }
   }
 
   void OnMouseEnter() override
   {
-    /*if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
-      self.GetComponent<Transform>()->is_active = true;*/
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
+      !self.GetComponent<Transform>()->is_active) {
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
+        entity.GetComponent<Transform>()->is_active = false;
+      }
+      Application::MessagingSystem::Send("Active Quit Game Button", true);
+    }
   }
 
   void OnMouseStay() override
   {
-    //if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
-    //  Application::QueueCommand(Application::Command::QuitApplication);
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
+      FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active) {
+      Application::QueueCommand(Application::Command::QuitApplication);
+    }
   }
 
   void OnMouseExit() override
