@@ -17,6 +17,7 @@ using namespace FlexEngine;
 class BGMButtonScript : public IScript
 {
 private:
+  bool is_exit = false;
   bool inc_selected = false;
   bool dec_selected = false;
   float timer = 0.f;
@@ -33,24 +34,14 @@ public:
 
   void Update() override
   {
-    if (self.GetComponent<Transform>()->is_active) {
-      if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
-        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
-          0.f, self.GetComponent<Slider>()->original_scale.x);
-      }
-
+    if (FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active) {
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active Master Volume", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active SFX Volume", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
@@ -103,21 +94,21 @@ public:
         if (timer == 0.f) current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
       }
 
-      FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM, current_volume_value);
-
       knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
   }
 
   void OnMouseEnter() override
   {
-    /*if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
-      self.GetComponent<Transform>()->is_active = true;*/
+    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+      && !FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active) {
+      Application::MessagingSystem::Send("Active BGM Volume", true);
+    }
   }
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
       // TODO: Insert Quit Game Function
       // Application::MessagingSystem::Send("MoveOne clicked", true);
@@ -126,7 +117,7 @@ public:
 
   void OnMouseExit() override
   {
-    //self.GetComponent<Transform>()->is_active = false;
+    // FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active = false;
   }
 };
 

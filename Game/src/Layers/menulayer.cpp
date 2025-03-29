@@ -23,6 +23,10 @@ namespace Game
   int selected_button = 0;
   bool open_settings = false;
 
+  std::array<bool, 6> pause_buttons;
+
+  FlexECS::Entity& active_entity = FlexECS::Entity::Null;
+
   void Set_Up_Settings_Menu() {
     std::array<std::string, 9> slider_names = {
       "SFX Slider Background",
@@ -46,6 +50,19 @@ namespace Game
       sliderEntity.GetComponent<Slider>()->max_position = max_value;
       sliderEntity.GetComponent<Slider>()->slider_length = max_value - min_value;
       sliderEntity.GetComponent<Slider>()->original_value = ((FlexECS::Scene::GetEntityByName(slider_names[i + 2]).GetComponent<Position>()->position.x - min_value)) / (max_value - min_value);
+      
+      // Set Up Volume Positions
+      if (i == 0) {
+        FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX) * (max_value - min_value) + min_value;
+      }
+      else if (i == 3) {
+        FlexECS::Scene::GetEntityByName("BGM Knob").GetComponent<Position>()->position.x =
+          FMODWrapper::Core::GetGroupVolume(FMODWrapper::Core::CHANNELGROUP::BGM) * (max_value - min_value) + min_value;
+      }
+      else if (i == 6) {
+        FlexECS::Scene::GetEntityByName("Master Knob").GetComponent<Position>()->position.x = max_value;
+      }
     }
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
       entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
@@ -60,12 +77,15 @@ namespace Game
     }
 
     open_settings ^= true;
-    if (open_settings) FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
+    if (open_settings) {
+      active_entity = FlexECS::Scene::GetEntityByName("Master Volume Sprite");
+      FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
+    }
   }
 
   void MenuLayer::OnAttach()
   {
-    File& file = File::Open(Path::current("assets/saves/mainmenu_v8.flxscene"));
+    File& file = File::Open(Path::current("assets/saves/mainmenu_v9.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
     
     // Trigger music to start
@@ -96,16 +116,47 @@ namespace Game
   {
     // No longer need to stop sound as the cutscene is using it...
     // Make sure nothing carries over in the way of sound
-    //FMODWrapper::Core::ForceStop();
+    // FMODWrapper::Core::ForceStop();
   }
 
   void MenuLayer::Update()
   {
     bool return_to_menu = Application::MessagingSystem::Receive<bool>("Return to Menu");
+    pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Master Volume");
+    pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active BGM Volume");
+    pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active SFX Volume");
+    pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Display Mode");
+    pause_buttons[4] = Application::MessagingSystem::Receive<bool>("Active Return Button");
+    pause_buttons[5] = Application::MessagingSystem::Receive<bool>("Active Quit Button");
+
     // check for escape key
     if (return_to_menu) Settings_Menu_Functionality();
 
-    if (open_settings) return;
+    if (open_settings) {
+      if (std::any_of(pause_buttons.begin(), pause_buttons.end(), [](bool state) {
+        return state;
+      })) {
+        active_entity.GetComponent<Transform>()->is_active = false;
+        
+        if (pause_buttons[0]) active_entity = FlexECS::Scene::GetEntityByName("Master Volume Sprite");
+        else if (pause_buttons[1]) active_entity = FlexECS::Scene::GetEntityByName("BGM Volume Sprite");
+        else if (pause_buttons[2]) active_entity = FlexECS::Scene::GetEntityByName("SFX Volume Sprite");
+        else if (pause_buttons[3]) active_entity = FlexECS::Scene::GetEntityByName("Display Mode Sprite");
+        else if (pause_buttons[4]) active_entity = FlexECS::Scene::GetEntityByName("Return Button Sprite");
+        else if (pause_buttons[5]) active_entity = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
+          
+        active_entity.GetComponent<Scale>()->scale.x = 0.f;
+        active_entity.GetComponent<Transform>()->is_active = true;
+      }
+      
+      if (active_entity.GetComponent<Scale>()->scale.x != active_entity.GetComponent<Slider>()->original_scale.x) {
+        active_entity.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+        active_entity.GetComponent<Scale>()->scale.x = std::clamp(active_entity.GetComponent<Scale>()->scale.x,
+          0.f, active_entity.GetComponent<Slider>()->original_scale.x);
+      }
+
+      return;
+    }
 
     if (Input::GetKeyDown(GLFW_KEY_S))
     {

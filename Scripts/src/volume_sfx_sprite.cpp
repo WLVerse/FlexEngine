@@ -34,23 +34,14 @@ public:
   void Update() override
   {
     if (self.GetComponent<Transform>()->is_active) {
-      if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
-        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
-          0.f, self.GetComponent<Slider>()->original_scale.x);
-      }
 
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active BGM Volume", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active = true;
-        self.GetComponent<Transform>()->is_active = false;
+        Application::MessagingSystem::Send("Active Display Mode", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
@@ -101,17 +92,16 @@ public:
         }
         if (timer == 0.f) current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
       }
-
-      FMODWrapper::Core::AdjustGroupVolume(FMODWrapper::Core::CHANNELGROUP::SFX, current_volume_value);
-
       knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
   }
 
   void OnMouseEnter() override
   {
-   /* if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
-      self.GetComponent<Transform>()->is_active = true;*/
+    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+      && !FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
+      Application::MessagingSystem::Send("Active SFX Volume", true);
+    }
   }
 
   void OnMouseStay() override

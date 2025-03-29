@@ -30,6 +30,9 @@ public:
 
   void Update() override
   {
+    if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
+      if (Input::GetKeyDown(GLFW_KEY_D)) Application::GetCurrentWindow()->ToggleFullScreen(false);
+    }
   }
 
   void OnMouseEnter() override
@@ -40,7 +43,11 @@ public:
   void OnMouseStay() override
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+      self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
       Application::GetCurrentWindow()->ToggleFullScreen(false);
+    }
+    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+      self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
     }
   }
 

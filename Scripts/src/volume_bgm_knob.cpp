@@ -31,26 +31,32 @@ public:
 
   void Update() override
   {
-    if (is_draggable) {
-      if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) is_draggable = false;
-      // Update slider knob position
-      Vector3& new_position = self.GetComponent<Position>()->position;
-      new_position.x += Input::GetMousePositionDelta().x;
+    FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("BGM Slider Fill");
+    FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
 
-      FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("BGM Slider Fill");
-      FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
+    Vector3& new_position = self.GetComponent<Position>()->position;
+
+    if (is_draggable) {
+      new_position.x += Input::GetMousePositionDelta().x;
       new_position.x = std::clamp(new_position.x, slider_details->min_position, slider_details->max_position);
+    }
+    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+      is_draggable = false;
     }
   }
 
   void OnMouseEnter() override
   {
-    self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
+    if (!is_draggable) self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
   }
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) is_draggable = true;
+    if (!is_draggable) self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.25f);
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+      self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+      is_draggable = true;
+    }
   }
 
   void OnMouseExit() override

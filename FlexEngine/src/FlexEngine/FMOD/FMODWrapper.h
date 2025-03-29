@@ -100,6 +100,8 @@ public:
     // Adjusts the volume of the group belonging to the channelgroup.
     static void AdjustGroupVolume(CHANNELGROUP channelGroup, float volPercent);
 
+    static float GetGroupVolume(CHANNELGROUP channelGroup);
+
   private:
     // The below 2 functions are used for manually silencing FMOD. This is meant for things like alt tabbing.
     static void StopAll();
