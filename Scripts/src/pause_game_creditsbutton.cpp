@@ -15,52 +15,51 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-class CreditsButtonScript : public IScript
+class HowButtonScript : public IScript
 {
 public:
-  CreditsButtonScript()
+  HowButtonScript()
   {
     ScriptRegistry::RegisterScript(this);
   }
 
   std::string GetName() const override
   {
-    return "CreditsButton";
+    return "HowButton";
   }
 
   void Update() override
   {
     if (self.GetComponent<Transform>()->is_active) {
-      if (self.GetComponent<Scale>()->scale.x != self.GetComponent<Slider>()->original_scale.x) {
-        self.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        self.GetComponent<Scale>()->scale.x = std::clamp(self.GetComponent<Scale>()->scale.x,
-          0.f, self.GetComponent<Slider>()->original_scale.x);
-      }
-
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
           if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()) entity.GetComponent<Transform>()->is_active = true;
         }
-        self.GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active = true;
+        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
+        Application::MessagingSystem::Send("Active Settings Button", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        self.GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName("Quit Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName("Quit Button Sprite").GetComponent<Transform>()->is_active = true;
+        Application::MessagingSystem::Send("Active Quit Game Button", true);
       }
-      
+      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+        Input::Cleanup();
+        Application::MessagingSystem::Send("Resume Game", true);
+      }
     }
   }
 
   void OnMouseEnter() override
   {
-
-    /*if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active)
-      self.GetComponent<Transform>()->is_active = true;*/
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
+      !self.GetComponent<Transform>()->is_active) {
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
+        // if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()
+        entity.GetComponent<Transform>()->is_active = false;
+      }
+      Application::MessagingSystem::Send("Active How Button", true);
+    }
   }
 
   void OnMouseStay() override
@@ -81,4 +80,4 @@ public:
 };
 
 // Static instance to ensure registration
-static CreditsButtonScript CreditsButton;
+static HowButtonScript HowButton;

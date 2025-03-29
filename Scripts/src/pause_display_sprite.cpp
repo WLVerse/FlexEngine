@@ -36,10 +36,10 @@ public:
         Input::Cleanup();
         Application::MessagingSystem::Send("Active SFX Volume", true);
       }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
+      /*if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
         Input::Cleanup();
         self.GetComponent<Transform>()->is_active = false;
-      }
+      }*/
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
         std::string message_to_send = "Active Return Button";
@@ -53,7 +53,7 @@ public:
 
   void OnMouseEnter() override
   {
-    if (FlexECS::Scene::GetEntityByName("Settings Menu Background").GetComponent<Transform>()->is_active
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active
       && !FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
       Application::MessagingSystem::Send("Active Display Mode", true);
     }
