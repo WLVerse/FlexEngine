@@ -201,8 +201,10 @@ namespace Game
 
       if (!FlexPrefs::GetBool("game.batching"))
       {
+          FlexECS::Entity UICam = FlexECS::Scene::GetActiveScene()->GetEntityByName("UI Camera");
+
           #pragma region Sprite Renderer System
-         auto ppIndex = PostProcessing::GetPostProcessZIndex();
+          auto ppIndex = PostProcessing::GetPostProcessZIndex();
           // render all sprites
           for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
           {
@@ -236,7 +238,15 @@ namespace Game
               props.alignment = Renderer2DProps::Alignment_TopLeft;
               props.world_transform = element.GetComponent<Transform>()->transform;
 
-              game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+              // This is a very hard fix for combat UI following combat cam
+              if (UICam != FlexECS::Entity::Null && index >= 1000)
+              {
+                  game_queue.Insert({ [props, &UICam]() {OpenGLRenderer::DrawTexture2D(*UICam.GetComponent<Camera>(), props); }, "", index});
+              }
+              else
+              {
+                  game_queue.Insert({ [props]() {OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props); }, "", index });
+              }
           }
           #pragma endregion
 

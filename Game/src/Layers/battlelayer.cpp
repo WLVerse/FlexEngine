@@ -230,6 +230,17 @@ namespace Game
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
 
+        // Retrieve the current camera entity by name (assuming it's named "Camera")
+        FlexECS::Entity currentCamera = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+
+        // Create a new entity for the UI Camera.
+        FlexECS::Entity uiCamera = FlexECS::Scene::CreateEntity("UI Camera");
+        uiCamera.AddComponent<Position>(*currentCamera.GetComponent<Position>());
+        uiCamera.AddComponent<Scale>(*currentCamera.GetComponent<Scale>());
+        uiCamera.AddComponent<Rotation>(*currentCamera.GetComponent<Rotation>());
+        uiCamera.AddComponent<Transform>(*currentCamera.GetComponent<Transform>());
+        uiCamera.AddComponent<Camera>(*currentCamera.GetComponent<Camera>());
+
         battle.battle_num = asset.battle_num;
         battle.is_tutorial = !asset.battle_num;
         // parse the battle data
@@ -1391,7 +1402,7 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v11.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v12.flxscene"));
 
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
