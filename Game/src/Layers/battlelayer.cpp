@@ -10,7 +10,6 @@
 
 #include "Layers.h"
 #include "battlestuff.h"
-
 namespace Game
 {
     extern std::string file_name;
@@ -107,7 +106,9 @@ namespace Game
         bool move_resolution = false;
         bool speedbar_animating = false;
         bool end_of_turn = false;
-
+        bool enable_combat_camera = false;
+        bool force_disable_combat_camera = false;
+        bool jerk_towards_defender = false;
         bool change_phase = false;
 
         // Pause Buttons
@@ -2049,6 +2050,7 @@ namespace Game
             battle.end_of_turn = false;
 
             battle.change_phase = true;
+            
         }
         
     }
@@ -2708,11 +2710,11 @@ namespace Game
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
                 {
-                  // Do nothing if enemy targets its own allies
+                    // Do nothing if enemy targets its own allies
                 }
                 else
                 {
-                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
                         battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };;
 
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
@@ -2752,33 +2754,125 @@ namespace Game
                 current_character_animator.return_to_default = true;
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
+                battle.force_disable_combat_camera = true;
 
                 // Delay for machine gun 
                 if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
-                  battle.disable_input_timer += 1.5f;
+                    battle.disable_input_timer += 1.5f;
                 else battle.disable_input_timer += 0.5f;
             }
         }
-        
+
+        #if 0
+        {
         // Camera Animation
         if (battle.current_move->target[0] == "ALL_ENEMIES" ||
             battle.current_move->target[0] == "ADJACENT_ENEMIES" ||
             battle.current_move->target[0] == "NEXT_ENEMY" ||
             battle.current_move->target[0] == "SINGLE_ENEMY")
         {
+            // First, calculate the attacker and defender positions based on character id.
+            FlexECS::Entity attacker, defender;
             if (battle.current_character->character_id > 2)
             {
-                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
-                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+                attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
             }
             else
             {
-                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
-                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+                attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
             }
-            //call camera code based on attackers and defender                                }
+
+            Vector3 attackerPos = attacker.GetComponent<Position>()->position;
+            Vector3 defenderPos = defender.GetComponent<Position>()->position;
+            Vector3 centerPos = (attackerPos + defenderPos) * 0.5f;
+
+            // Compute a normalized direction from center towards defender and offset for jerk.
+            Vector3 direction = (defenderPos - centerPos).Normalize();
+            float jerkDistance = 2.0f; // Adjust as needed.
+            Vector3 jerkPos = centerPos + direction * jerkDistance;
+
+            // A static container to hold active camera animations (lambdas).
+            static std::vector<std::function<bool(float)>> animations;
+
+            // For each camera, create a lambda that tracks its animation progress.
+            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
+            {
+                auto posComp = elem.GetComponent<Position>();
+                Vector3 originalPos = posComp->position;
+
+                // Initialize per-animation state variables.
+                int stage = 0;                      // 0: move to center, 1: jerk toward defender, 2: jerk back, 3: return to original.
+                float elapsed = 0.0f;
+                float durations[4] = { 1.0f, 0.2f, 0.2f, 1.0f };
+
+                // Create a lambda that will be updated every frame.
+                auto anim = [=, &posComp](float deltaTime) mutable -> bool
+                {
+                    // When all stages are done, return true to signal removal.
+                    if (stage >= 4)
+                        return true;
+
+                    // Update the elapsed time.
+                    elapsed += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+                    float t = std::min(elapsed / durations[stage], 1.0f);
+                    Vector3 startPos, targetPos;
+
+                    // Determine the start and target positions for the current stage.
+                    switch (stage)
+                    {
+                    case 0:
+                        startPos = originalPos;
+                        targetPos = centerPos;
+                        break;
+                    case 1:
+                        startPos = centerPos;
+                        targetPos = jerkPos;
+                        break;
+                    case 2:
+                        startPos = jerkPos;
+                        targetPos = centerPos;
+                        break;
+                    case 3:
+                        startPos = centerPos;
+                        targetPos = originalPos;
+                        break;
+                    }
+
+                    // Update the camera position.
+                    posComp->position = Lerp(startPos, targetPos, t);
+
+                    // If the current stage is complete, move to the next one.
+                    if (t >= 1.0f)
+                    {
+                        stage++;
+                        elapsed = 0.0f;
+                    }
+
+                    // Return whether the animation is finished.
+                    return (stage >= 4);
+                };
+
+                // Add the lambda to the animations container.
+                animations.push_back(anim);
+            }
+
+            // Update all active animations. Remove any that have finished.
+            for (auto it = animations.begin(); it != animations.end(); )
+            {
+                if ((*it)(Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime()))
+                    it = animations.erase(it);
+                else
+                    ++it;
+            }
+        }
 
         }
+        #endif
+
+        battle.enable_combat_camera = true;
+        battle.force_disable_combat_camera = false;
 
         //let attack animation play finish
         if (battle.disable_input_timer > 0.f)
@@ -2935,6 +3029,7 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
+                battle.jerk_towards_defender = true;
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2972,6 +3067,7 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
+                battle.jerk_towards_defender = true;
             }
         }
         else //secondary animation of players getting hit
@@ -3044,6 +3140,7 @@ namespace Game
 
                         // Screen Shake
                         Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                        battle.jerk_towards_defender = true;
 
                         hit_entities.push_back(target_entity);
                     }
@@ -3091,6 +3188,7 @@ namespace Game
         
                 // Screen Shake
                 Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                battle.jerk_towards_defender = true;
 
                 //Hit VFX
                 //Specific check for Jack's attack
@@ -3524,7 +3622,12 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
-       
+        // Special Combat Camera
+        if (battle.enable_combat_camera)
+        {
+            UpdateCombatCamera();
+        }
+
         if (battle.is_win || battle.is_lose)
         {
           if (Input::AnyKeyDown())
@@ -3651,9 +3754,10 @@ namespace Game
         }
 
         
+
         if (battle.play_battle_start)
         {
-          Play_Battle_Start();
+           Play_Battle_Start();
         }
         else if (battle.start_of_turn)
         {
@@ -3676,6 +3780,157 @@ namespace Game
         {
             End_Of_Turn();
         }
+
     }
+
+    void BattleLayer::UpdateCombatCamera()
+    {
+        // --- Static variables to store original values ---
+        static Vector3 originalPos;
+        static bool hasStoredOriginalPos = false;
+
+        static bool hasStoredOriginalZoom = false;
+        static float originalOrthoWidth = 0.0f;
+        static float originalOrthoHeight = 0.0f;
+        static float currentOrthoWidth = 0.0f;
+        static float baseAspectRatio = 1.0f;
+        static float minOrthoWidth = 0.0f;
+
+        // --- Static variable to handle the jerk effect ---
+        static Vector3 jerkEffect(0, 0, 0);
+
+        // --- Early out if neither combat camera nor force disable is active ---
+        if (!battle.enable_combat_camera && !battle.force_disable_combat_camera)
+            return;
+
+        // --- Get the camera entity and its position component ---
+        FlexECS::Entity cameraEntity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+        auto posComp = cameraEntity.GetComponent<Position>();
+        if (!posComp)
+            return;
+
+        // --- Store original camera position once ---
+        if (!hasStoredOriginalPos)
+        {
+            originalPos = posComp->position;
+            hasStoredOriginalPos = true;
+        }
+
+        // --- Retrieve main camera for zoom controls ---
+        Camera* mainCam = CameraManager::GetMainGameCamera();
+        if (!mainCam)
+            return;
+
+        // --- Store original zoom values once ---
+        if (!hasStoredOriginalZoom)
+        {
+            // Assuming the camera provides these getter functions.
+            originalOrthoWidth = mainCam->GetOrthoWidth();
+            originalOrthoHeight = mainCam->GetOrthoHeight();
+            currentOrthoWidth = originalOrthoWidth;
+            baseAspectRatio = originalOrthoWidth / originalOrthoHeight;
+            minOrthoWidth = originalOrthoWidth * 0.5f; // Example: allow zooming in to half the width.
+            hasStoredOriginalZoom = true;
+        }
+
+        // --- If battle pointers are invalid, force disable the combat camera ---
+        if (!battle.initial_target || !battle.current_character)
+        {
+            battle.force_disable_combat_camera = true;
+        }
+
+        // --- Determine the base target position (for camera movement) ---
+        Vector3 baseTargetPos = originalPos;
+        FlexECS::Entity attacker, defender;
+        if (battle.enable_combat_camera && battle.initial_target && battle.current_character)
+        {
+            if (battle.current_character->character_id > 2)
+            {
+                attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            else
+            {
+                attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            if (attacker.GetComponent<Position>() && defender.GetComponent<Position>())
+            {
+                Vector3 attackerPos = attacker.GetComponent<Position>()->position;
+                Vector3 defenderPos = defender.GetComponent<Position>()->position;
+                baseTargetPos = (attackerPos + defenderPos) * 0.5f;
+            }
+        }
+
+        float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+        float lerpSpeed = 5.0f; // Adjust for smoother or snappier interpolation.
+
+        // --- Handle the jerk effect ---
+        // When the jerk flag is set, compute and store a sudden jerk offset.
+        if (battle.jerk_towards_defender && battle.enable_combat_camera && battle.initial_target && battle.current_character)
+        {
+            if (defender.GetComponent<Position>())
+            {
+                Vector3 defenderPos = defender.GetComponent<Position>()->position;
+                Vector3 direction = (defenderPos - baseTargetPos).Normalize();
+                float jerkMagnitude = 400.f; // Adjust for desired sudden jerk intensity.
+                jerkEffect = direction * jerkMagnitude;
+            }
+            // Reset the flag so the jerk is applied only once.
+            battle.jerk_towards_defender = false;
+        }
+        else
+        {
+            // Decay the jerk effect smoothly back to zero.
+            float jerkDecay = 10.0f; // Adjust decay speed as needed.
+            jerkEffect = Lerp(jerkEffect, Vector3(0, 0, 0), 1.0f - exp(-jerkDecay * deltaTime));
+        }
+
+        // Final target position includes both the base target and the jerk offset.
+        Vector3 finalTargetPos = baseTargetPos + jerkEffect;
+
+        // --- Lerp the camera position toward the final target ---
+        posComp->position = Lerp(posComp->position, finalTargetPos, 1.0f - exp(-lerpSpeed * deltaTime));
+
+        // --- Integrate zooming as part of the lerp ---
+        // Define a delta zoom value; for example, a negative value zooms in.
+        float deltaZoom = -500.0f; // Adjust as needed.
+        float targetOrthoWidth = originalOrthoWidth;
+        if (!battle.force_disable_combat_camera && baseTargetPos != originalPos)
+        {
+            // Calculate the target width, ensuring it does not go below the minimum allowed.
+            float newWidth = originalOrthoWidth + deltaZoom;
+            if (newWidth < minOrthoWidth)
+                newWidth = minOrthoWidth;
+            targetOrthoWidth = newWidth;
+        }
+        // If not enabled (or force disabling), target zoom is the original zoom.
+        else
+        {
+            targetOrthoWidth = originalOrthoWidth;
+        }
+        // Lerp the current orthographic width toward the target.
+        currentOrthoWidth = Lerp(currentOrthoWidth, targetOrthoWidth, 1.0f - exp(-lerpSpeed * deltaTime));
+        float effectiveOrthoHeight = currentOrthoWidth / baseAspectRatio;
+        mainCam->SetOrthographic(-currentOrthoWidth / 2, currentOrthoWidth / 2,
+                                   -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
+
+        // --- When force disabling, check if both position and zoom have nearly returned to their original values ---
+        if (battle.force_disable_combat_camera)
+        {
+            if ((posComp->position - originalPos).Length() < 0.01f && fabs(currentOrthoWidth - originalOrthoWidth) < 0.01f)
+            {
+                posComp->position = originalPos;
+                currentOrthoWidth = originalOrthoWidth;
+                battle.enable_combat_camera = false;
+                battle.force_disable_combat_camera = false;
+                battle.jerk_towards_defender = false;
+                hasStoredOriginalPos = false;
+                hasStoredOriginalZoom = false;
+            }
+        }
+    }
+
+
 
 } // namespace Game
