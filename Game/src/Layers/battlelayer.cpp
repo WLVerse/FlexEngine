@@ -814,6 +814,9 @@ namespace Game
         }
 
         Update_Character_Status();
+
+        //Fade in
+        Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 1, 1.0 });
     }
 
     void Update_Speed_Bar()
@@ -1249,7 +1252,7 @@ namespace Game
     // Just delay the fucking battle start anim
     void Play_Battle_Start() 
     {
-      static float time_played = 3.f;
+      static float time_played = 2.f;
       static bool is_init = false;
 
       if (!is_init)
@@ -3612,10 +3615,10 @@ namespace Game
 
     void BattleLayer::Update()
     {
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text) =  "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text) = "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
         if (Input::GetKeyDown(GLFW_KEY_F1))
         {
-          FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
+            FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
         }
 
         battle.pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
@@ -3641,43 +3644,52 @@ namespace Game
 
         if (battle.is_win || battle.is_lose)
         {
-          if (Input::AnyKeyDown())
-          {
-              if (battle.is_win)
-              {
-                  switch (battle.battle_num)
-                  {
-                  case 0:
-                      Application::MessagingSystem::Send("Tutorial win to Town", true);
-                      break;
-                  case 1:
-                      Application::MessagingSystem::Send("Battle 1 win to Town", true);
-                      break;
-                  case 2:
-                      Input::Cleanup();
-                      Application::MessagingSystem::Send("Battle Boss win to Menu", true);
-                      break;
-                  }
-              }
-              else
-              {
-                  switch (battle.battle_num)
-                  {
-                  case 0:
-                      Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
-                      break;
-                  case 1:
-                      Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
-                      break;
-                  case 2:
-                      Input::Cleanup();
-                      Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
-                      break;
-                  }
-              }
-          }
-          else return;
+            if (Input::AnyKeyDown())
+            {
+                //Fade in
+                Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
+            }
+            
+            int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+            if (transitionMSG == 2)
+            {
+                if (battle.is_win)
+                {
+                    switch (battle.battle_num)
+                    {
+                    case 0:
+                        Application::MessagingSystem::Send("Tutorial win to Town", true);
+                        break;
+                    case 1:
+                        Application::MessagingSystem::Send("Battle 1 win to Town", true);
+                        break;
+                    case 2:
+                        Input::Cleanup();
+                        Application::MessagingSystem::Send("Battle Boss win to Menu", true);
+                        break;
+                    }
+                }
+                else
+                {
+                    switch (battle.battle_num)
+                    {
+                    case 0:
+                        Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
+                        break;
+                    case 1:
+                        Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
+                        break;
+                    case 2:
+                        Input::Cleanup();
+                        Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
+                        break;
+                    }
+                }
+
+            }
+            else return;
         }
+
 
         // insta win
         if (Input::GetKeyDown(GLFW_KEY_F4))
