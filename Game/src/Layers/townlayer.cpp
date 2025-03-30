@@ -97,7 +97,7 @@ namespace Game
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
     camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
 
-    Set_Up_Town_Pause_Menu();
+    //Set_Up_Town_Pause_Menu();
   }
 
   void TownLayer::OnDetach()

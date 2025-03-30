@@ -306,11 +306,19 @@ namespace Game
                                               static_cast<Renderer2DText::AlignmentY>(textComponent->alignment.second) };
               sample.m_textboxDimensions = textComponent->textboxDimensions;
               sample.m_linespacing = 12.0f;
-              game_queue.Insert({ [sample]()
-                                  {
-                                    OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
-                                  },
-                                  "", index });
+
+              if (UICam != FlexECS::Entity::Null && index >= 1000)
+              {
+                  game_queue.Insert({ [sample, &UICam]() {OpenGLRenderer::DrawTexture2D(*UICam.GetComponent<Camera>(), sample); }, "", index });
+              }
+              else
+              {
+                  game_queue.Insert({ [sample]()
+                                      {
+                                        OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), sample);
+                                      },
+                                      "", index });
+              }
           }
           #pragma endregion
 

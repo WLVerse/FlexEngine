@@ -735,7 +735,7 @@ namespace Game
         battle.projected_character.AddComponent<Rotation>({});
         battle.projected_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
         battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
-        battle.projected_character.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_character.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_character.GetComponent<Transform>()->is_active = false;
 
         // Text that just says next for the projected character lol
@@ -750,7 +750,7 @@ namespace Game
                                                                  { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
                                                                  {                            600,                              320 }
                                                                  });
-        battle.projected_character_text.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_character_text.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
         battle.projected_move = FlexECS::Scene::CreateEntity("move_used_textbox"); // can always use GetEntityByName to find the entity
@@ -758,7 +758,7 @@ namespace Game
         battle.projected_move.AddComponent<Position>({ Vector3(1595, 515, 0) });
         battle.projected_move.AddComponent<Rotation>({});
         battle.projected_move.AddComponent<Scale>({ Vector3(0.2f, 0.3f, 0) });
-        battle.projected_move.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_move.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_move.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
         battle.projected_move.GetComponent<Transform>()->is_active = false;
 
@@ -767,7 +767,7 @@ namespace Game
         battle.projected_move_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
         battle.projected_move_text.AddComponent<Rotation>({});
         battle.projected_move_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-        battle.projected_move_text.AddComponent<ZIndex>({ 22 + index });
+        battle.projected_move_text.AddComponent<ZIndex>({ 1022 + index });
         battle.projected_move_text.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(R"()"),
@@ -787,7 +787,7 @@ namespace Game
             tutorial_box.AddComponent<Position>({ Vector3(845, 110, 0) });
             tutorial_box.AddComponent<Rotation>({});
             tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
-            tutorial_box.AddComponent<ZIndex>({ 21 + index });
+            tutorial_box.AddComponent<ZIndex>({ 1021 + index });
             tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
 
             FlexECS::Entity tutorial_press = FlexECS::Scene::CreateEntity("tutorial_press_button"); // can always use GetEntityByName to find the entity
@@ -795,7 +795,7 @@ namespace Game
             tutorial_press.AddComponent<Position>({ Vector3(850, -20, 0) });
             tutorial_press.AddComponent<Rotation>({});
             tutorial_press.AddComponent<Scale>({ Vector3(0.9f, 0.75f, 0) });
-            tutorial_press.AddComponent<ZIndex>({ 21 + index });
+            tutorial_press.AddComponent<ZIndex>({ 1021 + index });
             tutorial_press.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_Win_Text_Press Any Button To Continue.png)") });
 
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
@@ -803,7 +803,7 @@ namespace Game
             battle.tutorial_text.AddComponent<Position>({ Vector3(525, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-            battle.tutorial_text.AddComponent<ZIndex>({ 22 + index });
+            battle.tutorial_text.AddComponent<ZIndex>({ 1022 + index });
             battle.tutorial_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
@@ -3601,7 +3601,7 @@ namespace Game
     {
       ClearBattleStruct();
       Start_Of_Game();
-      Set_Up_Pause_Menu();
+      //Set_Up_Pause_Menu();
     }
 
     void BattleLayer::OnDetach()
@@ -3865,12 +3865,16 @@ namespace Game
                 attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
                 defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
             }
-            if (attacker.GetComponent<Position>() && defender.GetComponent<Position>())
+            if (attacker != FlexECS::Entity::Null && defender != FlexECS::Entity::Null)
             {
-                Vector3 attackerPos = attacker.GetComponent<Position>()->position;
-                Vector3 defenderPos = defender.GetComponent<Position>()->position;
-                baseTargetPos = (attackerPos + defenderPos) * 0.5f;
+                if (attacker.GetComponent<Position>() && defender.GetComponent<Position>())
+                {
+                    Vector3 attackerPos = attacker.GetComponent<Position>()->position;
+                    Vector3 defenderPos = defender.GetComponent<Position>()->position;
+                    baseTargetPos = (attackerPos + defenderPos) * 0.5f;
+                }
             }
+
         }
 
         float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
