@@ -2938,6 +2938,7 @@ namespace Game
                 case 1:
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                         FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+                    Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     break;
                 case 2:
@@ -2946,6 +2947,7 @@ namespace Game
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                     { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-75.0f, -100.0f, 0.0f}, {2.0f,2.0f,2.0f} });
+                    Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     break;
                 }
                 break;
@@ -3043,6 +3045,7 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 battle.jerk_towards_defender = true;
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
@@ -3081,6 +3084,7 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 battle.jerk_towards_defender = true;
             }
         }
@@ -3202,6 +3206,7 @@ namespace Game
         
                 // Screen Shake
                 Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 battle.jerk_towards_defender = true;
 
                 //Hit VFX
@@ -3957,7 +3962,5 @@ namespace Game
             }
         }
     }
-
-
 
 } // namespace Game
