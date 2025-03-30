@@ -113,7 +113,7 @@ private:
                 // (Bright Distortion)
                 colorGrading->saturation = 0.3f; 
                 colorGrading->contrast = -0.9f;   
-                colorGrading->brightness = 0.3f; 
+                colorGrading->brightness = 0.2f; 
             }
             else
             {
@@ -129,12 +129,39 @@ private:
     }
 
     // Stub for Jack Ult effects.
-    void UpdateJackUltEffect(float elapsedTime)
+    void UpdateJackUltEffect(float elapsedTime, float totalDuration)
     {
-        // TODO: Implement the Jack Ult effect update (e.g., fade to black, adjust contrast) using elapsedTime.
-        //colorGrading->saturation = 0.0f;
-        //colorGrading->contrast = 3.7f;
-        //colorGrading->brightness = 1.0f;
+        float progress = FlexMath::Clamp(elapsedTime / totalDuration, 0.0f, 1.0f); // Normalize progress (0 to 1)
+
+        for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>())
+        {
+            if (!entity.GetComponent<Transform>()->is_active)
+                continue;
+
+            // Ensure the entity has a Color Grading component
+            if (!entity.HasComponent<PostProcessingColorGrading>())
+            {
+                entity.AddComponent<PostProcessingColorGrading>({});
+            }
+
+            auto colorGrading = entity.GetComponent<PostProcessingColorGrading>();
+            if (!colorGrading)
+                continue;
+
+            // **Lerp to target values**
+            colorGrading->saturation = FlexMath::Lerp(1.0f, 0.0f, progress);
+            colorGrading->contrast = FlexMath::Lerp(1.0f, 3.7f, progress);
+            colorGrading->brightness = FlexMath::Lerp(1.0f, 1.0f, progress);
+
+            // Enable the effect marker
+            entity.GetComponent<PostProcessingMarker>()->enableColorGrading = true;
+        }
+
+        // **Trigger pseudo color distortion at the start of the effect**
+        if (elapsedTime <= 0.1f) // Ensure it only triggers once
+        {
+            Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
+        }
     }
 
 public:
@@ -256,7 +283,7 @@ public:
         }
         ProcessEffect(m_jackUltActive, m_jackUltTimer, m_jackUltDuration, dt,
           [this](float elapsed) {
-            UpdateJackUltEffect(elapsed);
+            UpdateJackUltEffect(elapsed, m_jackUltTimer);
         });
     }
 

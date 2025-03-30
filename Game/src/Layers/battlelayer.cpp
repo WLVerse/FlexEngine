@@ -1574,6 +1574,7 @@ namespace Game
         battle.move_select = true;
         battle.move_resolution = false;
         battle.end_of_turn = false;
+        battle.enable_combat_camera = true;
     }
 
     void Move_Select()
@@ -3214,8 +3215,11 @@ namespace Game
                 if (battle.current_character->character_id == 5)
                 {
                     if (battle.move_num == 3)
-                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                    {
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        Application::MessagingSystem::Send("ActivateJackUlt", true);
+                    }
                 }
                 else
                 {

@@ -134,6 +134,33 @@ namespace Game
             // Compute the current opacity using linear interpolation.
             m_currentAlpha = FlexMath::Lerp(m_initialAlpha, m_targetAlpha, progress);
 
+            // Fix bug with transition frame not being created properly
+            m_transitionFrame = FlexECS::Scene::GetEntityByName("TransitionFrame");
+            if (m_transitionFrame == FlexECS::Entity::Null)
+            {
+                auto currentScene = FlexECS::Scene::GetActiveScene();
+                if (currentScene)
+                {
+                    m_transitionFrame = currentScene->CreateEntity("TransitionFrame");
+                    m_transitionFrame.AddComponent<Position>({});
+                    m_transitionFrame.AddComponent<Rotation>({});
+                    m_transitionFrame.AddComponent<Scale>({ Vector3(9999, 9999, 0) });
+                    m_transitionFrame.AddComponent<Transform>({});
+                    m_transitionFrame.AddComponent<ZIndex>({ 9999 });
+                    m_transitionFrame.AddComponent<Sprite>({});
+
+                    auto sprite = m_transitionFrame.GetComponent<Sprite>();
+                    if (sprite)
+                    {
+                        sprite->opacity = m_currentAlpha;
+                    }
+                    else
+                    {
+                        Log::Warning("FadeTransition: Sprite component not found on transition entity.");
+                    }
+                }
+            }
+
             auto sprite = m_transitionFrame.GetComponent<Sprite>();
             if (sprite)
             {
@@ -757,7 +784,7 @@ namespace Game
             // Listen for transition commands (using an int and double pair).
             std::pair<int, double> transitionStartCommand = Application::MessagingSystem::Receive<std::pair<int, double>>("TransitionStart");
 
-            if (transitionStartCommand.first != 0 && transitionStartCommand.second > 0.0)
+            if (transitionStartCommand.first != 0 && transitionStartCommand.second > 0.0 && m_transitionQueue.empty())
             {
                 TransitionType requestedType = static_cast<TransitionType>(transitionStartCommand.first);
                 float duration = static_cast<float>(transitionStartCommand.second);
