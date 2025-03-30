@@ -103,7 +103,7 @@ namespace Game
     }
 
     FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
-    Set_Up_Settings_Menu();
+    //Set_Up_Settings_Menu();
 
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
     {

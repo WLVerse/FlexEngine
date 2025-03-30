@@ -32,7 +32,8 @@ namespace Game
         FADE_IN = 1,
         FADE_OUT = 2,
 
-        ENCOUNTER_TRANSITION_BATTLE_IN = 3,
+        ENCOUNTER_TRANSITION_TOWN_TOBATTLE = 3,
+        ENCOUNTER_TRANSITION_BATTLE_TOTOWN = 4,
         // Extend with additional types as needed.
     };
 
@@ -132,6 +133,33 @@ namespace Game
 
             // Compute the current opacity using linear interpolation.
             m_currentAlpha = FlexMath::Lerp(m_initialAlpha, m_targetAlpha, progress);
+
+            // Fix bug with transition frame not being created properly
+            m_transitionFrame = FlexECS::Scene::GetEntityByName("TransitionFrame");
+            if (m_transitionFrame == FlexECS::Entity::Null)
+            {
+                auto currentScene = FlexECS::Scene::GetActiveScene();
+                if (currentScene)
+                {
+                    m_transitionFrame = currentScene->CreateEntity("TransitionFrame");
+                    m_transitionFrame.AddComponent<Position>({});
+                    m_transitionFrame.AddComponent<Rotation>({});
+                    m_transitionFrame.AddComponent<Scale>({ Vector3(9999, 9999, 0) });
+                    m_transitionFrame.AddComponent<Transform>({});
+                    m_transitionFrame.AddComponent<ZIndex>({ 9999 });
+                    m_transitionFrame.AddComponent<Sprite>({});
+
+                    auto sprite = m_transitionFrame.GetComponent<Sprite>();
+                    if (sprite)
+                    {
+                        sprite->opacity = m_currentAlpha;
+                    }
+                    else
+                    {
+                        Log::Warning("FadeTransition: Sprite component not found on transition entity.");
+                    }
+                }
+            }
 
             auto sprite = m_transitionFrame.GetComponent<Sprite>();
             if (sprite)
@@ -442,7 +470,7 @@ namespace Game
         TransitionType GetType() const override
         {
             // Here we choose ENCOUNTER_TRANSITION_BATTLE_IN to indicate this special effect.
-            return TransitionType::ENCOUNTER_TRANSITION_BATTLE_IN;
+            return TransitionType::ENCOUNTER_TRANSITION_TOWN_TOBATTLE;
         }
 
         // Stops the transition and cleans up the fade entity.
@@ -458,6 +486,268 @@ namespace Game
 
     #pragma endregion
     
+    #pragma region Encounter Transition from battle to town
+
+    // EncounterBattleTransitionReverse implements a multi-stage reverse transition effect:
+    // 1) Reverse fade & warp correction: Warping strength lerps from battle value back to a mid-value,
+    //    while the fade opacity goes from battle fade back to town’s original opacity.
+    // 2) Reverse zoom-out: Warping strength continues to reverse from the mid-value back to the original value,
+    //    and the camera zoom interpolates back to its original orthographic dimensions.
+    class EncounterBattleTransitionReverse : public ITransitionEffect
+    {
+    private:
+        enum class EBState { REVERSE_ZOOM_IN_FADE, REVERSE_ZOOM_OUT, COMPLETE };
+
+        EBState m_state;
+        float m_totalElapsed;      // Total elapsed time since the transition started.
+        float m_stageElapsed;      // Elapsed time in the current stage.
+
+        // Stage durations (in seconds)
+        float m_zoomInDuration;    // Reverse fade & warp correction stage.
+        float m_zoomOutDuration;   // Reverse zoom-out stage.
+
+        // Fade parameters (fade anim runs concurrently with zoom-out).
+        float m_initialAlpha;      // Town opacity (target to restore).
+        float m_targetAlpha;       // Battle fade opacity (starting value).
+        float m_currentAlpha;      // Current fade opacity.
+
+        // Warp parameters (reversed):
+        // In the original, warp lerped: m_warpStart (0.0) -> m_warpMid (1.5) -> m_warpTarget (-3.7)
+        // In reverse, we go from battle state back:
+        //   stage 1: warp: m_warpTarget -> m_warpMid
+        //   stage 2: warp: m_warpMid -> m_warpStart
+        float m_warpStart;         // Original (town) warp value.
+        float m_warpMid;           // Mid-level warp value.
+        float m_warpTarget;        // Battle warp value.
+
+        // Camera Original Ortho dimensions (town view).
+        float m_originalWidth;
+        float m_originalHeight;
+
+        // For fade, a full-screen entity is used.
+        FlexECS::Entity m_fadeEntity;
+
+        // Chromatic aberration parameters.
+        float m_chromaticStartIntensity;   // Starting intensity (battle level, e.g. 1.0f).
+        float m_chromaticTargetIntensity;    // Target intensity (town, 0.0f).
+
+        // For glitch timing.
+        std::chrono::high_resolution_clock::time_point m_startTime;
+
+    public:
+        // Constructs the reverse transition effect.
+        // totalDuration is split: e.g. 70% for reverse zoom-in/fade and 30% for reverse zoom-out.
+        EncounterBattleTransitionReverse(float totalDuration, float initialAlpha, float targetAlpha)
+            : m_state(EBState::REVERSE_ZOOM_IN_FADE),
+            m_totalElapsed(0.0f),
+            m_stageElapsed(0.0f),
+            m_initialAlpha(initialAlpha),
+            m_targetAlpha(targetAlpha),
+            m_currentAlpha(targetAlpha), // Starting from the battle fade opacity.
+            m_chromaticStartIntensity(1.0f),
+            m_chromaticTargetIntensity(0.0f),
+            m_warpStart(0.0f),
+            m_warpMid(1.5f),
+            m_warpTarget(-3.7f)
+        {
+            m_zoomInDuration = totalDuration * 0.7f;
+            m_zoomOutDuration = totalDuration * 0.3f;
+            // Capture the town camera's original orthographic dimensions.
+            m_originalWidth = CameraManager::GetMainGameCamera()->GetOrthoWidth();
+            m_originalHeight = CameraManager::GetMainGameCamera()->GetOrthoHeight();
+        }
+
+        // Initializes the reverse transition.
+        void Start() override
+        {
+            m_state = EBState::REVERSE_ZOOM_IN_FADE;
+            m_totalElapsed = 0.0f;
+            m_stageElapsed = 0.0f;
+            m_startTime = std::chrono::high_resolution_clock::now();
+
+            // Initialize chromatic aberration on all active post-processing entities.
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene)
+            {
+                for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                {
+                    auto transform = element.GetComponent<Transform>();
+                    if (!transform || !transform->is_active)
+                        continue;
+
+                    auto marker = element.GetComponent<PostProcessingMarker>();
+                    if (marker)
+                    {
+                        marker->enableChromaticAberration = true;
+                        marker->enableWarp = true;
+                    }
+
+                    if (!element.HasComponent<PostProcessingChromaticAbberation>())
+                        element.AddComponent<PostProcessingChromaticAbberation>({});
+                    if (!element.HasComponent<PostProcessingWarp>())
+                        element.AddComponent<PostProcessingWarp>({});
+
+                    if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
+                    {
+                        aberration->redOffset.y = 0.0f;
+                        aberration->greenOffset.y = 0.0f;
+                        aberration->blueOffset.y = 0.0f;
+                    }
+                    if (auto warp = element.GetComponent<PostProcessingWarp>())
+                    {
+                        // Start at battle warp value.
+                        warp->warpStrength = m_warpTarget;
+                        warp->warpRadius = 1.0f;
+                    }
+                }
+            }
+            else
+            {
+                Log::Error("EncounterBattleTransitionReverse: Active scene not found during Start.");
+            }
+
+            Log::Info("EncounterBattleTransitionReverse: Started reverse zoom-in fade stage.");
+
+            // Optionally, create the fade entity at the start.
+            if (activeScene)
+            {
+                m_fadeEntity = activeScene->CreateEntity("ReverseEncounterFadeFrame");
+                m_fadeEntity.AddComponent<Position>({});
+                m_fadeEntity.AddComponent<Rotation>({});
+                m_fadeEntity.AddComponent<Scale>({ Vector3(9999, 9999, 0) });
+                m_fadeEntity.AddComponent<Transform>({});
+                m_fadeEntity.AddComponent<ZIndex>({ 9999 });
+                m_fadeEntity.AddComponent<Sprite>({});
+                if (auto sprite = m_fadeEntity.GetComponent<Sprite>())
+                    sprite->opacity = m_initialAlpha; // Start at battle fade opacity.
+                else
+                    Log::Warning("EncounterBattleTransitionReverse: Sprite component not found on fade entity.");
+            }
+        }
+
+        // Updates the reverse transition over time.
+        void Update(float dt) override
+        {
+            if (m_state == EBState::COMPLETE)
+                return;
+
+            m_totalElapsed += dt;
+            m_stageElapsed += dt;
+
+            // Update global chromatic aberration concurrently (reverse lerp from intense to zero).
+            float totalDuration = m_zoomInDuration + m_zoomOutDuration;
+            float chromaticProgress = m_totalElapsed / totalDuration;
+            float currentIntensity = FlexMath::Lerp(m_chromaticStartIntensity, m_chromaticTargetIntensity, chromaticProgress);
+
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene)
+            {
+                for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                {
+                    auto transform = element.GetComponent<Transform>();
+                    if (!transform || !transform->is_active)
+                        continue;
+                    if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
+                    {
+                        aberration->intensity = currentIntensity;
+                        float amount = (float)(rand() % (int)FlexMath::Lerp(1.0f, 100.0f, chromaticProgress));
+                        aberration->redOffset.x = amount;
+                        aberration->greenOffset.x = 0.0f;
+                        aberration->blueOffset.x = -amount;
+                    }
+                }
+            }
+
+            // Process states.
+            switch (m_state)
+            {
+            case EBState::REVERSE_ZOOM_IN_FADE:
+            {
+                // Lerp warp strength from battle value (m_warpTarget) back to mid-level (m_warpMid).
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpTarget, m_warpMid, m_stageElapsed / m_zoomInDuration);
+                    }
+                }
+
+                // Reverse fade: from battle fade (m_targetAlpha) to town fade (m_initialAlpha).
+                if (m_stageElapsed >= (m_zoomInDuration / 2.0f))
+                {
+                    float fadeProgress = (m_stageElapsed - (m_zoomInDuration / 2.0f)) / (m_zoomInDuration / 2.0f);
+                    if (fadeProgress > 1.0f)
+                        fadeProgress = 1.0f;
+                    m_currentAlpha = FlexMath::Lerp(m_initialAlpha, m_targetAlpha, fadeProgress);
+                }
+                if (m_fadeEntity)
+                {
+                    if (auto sprite = m_fadeEntity.GetComponent<Sprite>())
+                        sprite->opacity = m_currentAlpha;
+                    else
+                        Log::Warning("EncounterBattleTransitionReverse: Sprite missing during fade update.");
+                }
+                if (m_stageElapsed >= m_zoomInDuration)
+                {
+                    m_state = EBState::REVERSE_ZOOM_OUT;
+                    m_stageElapsed = 0.0f;
+                    Log::Info("EncounterBattleTransitionReverse: Transitioning to reverse zoom-out stage.");
+                }
+                break;
+            }
+            case EBState::REVERSE_ZOOM_OUT:
+            {
+                // Lerp warp strength from mid-level (m_warpMid) back to original (m_warpStart).
+                if (activeScene)
+                {
+                    for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
+                    {
+                        auto transform = element.GetComponent<Transform>();
+                        if (!transform || !transform->is_active)
+                            continue;
+                        if (auto warp = element.GetComponent<PostProcessingWarp>())
+                            warp->warpStrength = FlexMath::Lerp(m_warpMid, m_warpStart, m_stageElapsed / m_zoomOutDuration);
+                    }
+                }
+                if (m_stageElapsed >= m_zoomOutDuration)
+                {
+                    m_state = EBState::COMPLETE;
+                    Log::Info("EncounterBattleTransitionReverse: Reverse transition complete.");
+                }
+                break;
+            }
+            case EBState::COMPLETE:
+            default:
+                break;
+            }
+        }
+
+        bool IsComplete() const override
+        {
+            return m_state == EBState::COMPLETE;
+        }
+
+        TransitionType GetType() const override
+        {
+            return TransitionType::ENCOUNTER_TRANSITION_BATTLE_TOTOWN;
+        }
+
+        void Stop() override
+        {
+            auto activeScene = FlexECS::Scene::GetActiveScene();
+            if (activeScene && m_fadeEntity)
+            {
+                m_fadeEntity = FlexECS::Entity();
+            }
+        }
+    };
+
+    #pragma endregion
+
     #pragma endregion
 
     // TransitionHandlerScript manages queued transition effects and processes them.
@@ -494,7 +784,7 @@ namespace Game
             // Listen for transition commands (using an int and double pair).
             std::pair<int, double> transitionStartCommand = Application::MessagingSystem::Receive<std::pair<int, double>>("TransitionStart");
 
-            if (transitionStartCommand.first != 0 && transitionStartCommand.second > 0.0)
+            if (transitionStartCommand.first != 0 && transitionStartCommand.second > 0.0 && m_transitionQueue.empty())
             {
                 TransitionType requestedType = static_cast<TransitionType>(transitionStartCommand.first);
                 float duration = static_cast<float>(transitionStartCommand.second);
@@ -509,9 +799,13 @@ namespace Game
                 {
                     newTransition = std::make_unique<FadeTransition>(duration, 0.0f, 1.0f);
                 }
-                else if (requestedType == TransitionType::ENCOUNTER_TRANSITION_BATTLE_IN)
+                else if (requestedType == TransitionType::ENCOUNTER_TRANSITION_TOWN_TOBATTLE)
                 {
                     newTransition = std::make_unique<EncounterBattleTransition>(duration, 0.0f, 1.0f);
+                }
+                else if (requestedType == TransitionType::ENCOUNTER_TRANSITION_BATTLE_TOTOWN)
+                {
+                    newTransition = std::make_unique<EncounterBattleTransitionReverse>(duration, 1.0f, 0.0f);
                 }
                 else
                 {

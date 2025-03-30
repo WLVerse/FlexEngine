@@ -97,6 +97,8 @@ namespace Game
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
     camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
 
+    Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 4, 1.2 });
+    
     if (town_version == "assets/saves/town_v7.flxscene") Set_Up_Town_Pause_Menu();
   }
 
@@ -174,7 +176,7 @@ namespace Game
 
     //camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
     camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 730.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -80.f, 730.f);
 
 #pragma endregion
 #pragma region Scene Transition
