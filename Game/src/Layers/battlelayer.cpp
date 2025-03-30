@@ -2447,8 +2447,8 @@ namespace Game
                 {
                   switch (battle.move_num)
                   {
-                  case 3:
-                    battle.disable_input_timer -= 0.5f;
+                  case 3: // Renko ult
+                    battle.disable_input_timer += 1.f;
                     break;
 
                   default:
