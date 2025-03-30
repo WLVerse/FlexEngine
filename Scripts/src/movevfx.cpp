@@ -43,7 +43,7 @@ private:
 
     bool m_pseudoColorActive = false;
     float m_pseudoColorTimer = 0.0f;
-    const float m_pseudoColorDuration = 0.1f; // seconds
+    const float m_pseudoColorDuration = 0.2f; // seconds
 
     bool m_jackUltActive = false;
     float m_jackUltTimer = 0.0f;
@@ -118,9 +118,9 @@ private:
             else
             {
                 // **Revert to normal instantly**
-                colorGrading->saturation = 1.0f;
-                colorGrading->contrast = 1.0f;
-                colorGrading->brightness = 1.0f;
+                colorGrading->saturation = 3.0f;
+                colorGrading->contrast = 1.5f;
+                colorGrading->brightness = 0.8f;
             }
 
             // Enable the effect marker
