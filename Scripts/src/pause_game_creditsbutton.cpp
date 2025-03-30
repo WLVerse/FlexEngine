@@ -36,12 +36,11 @@ public:
         for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
           if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()) entity.GetComponent<Transform>()->is_active = true;
         }
-        FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
-        Application::MessagingSystem::Send("Active Settings Button", true);
+        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Settings Button Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Active Quit Game Button", true);
+        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Quit Button Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
         Input::Cleanup();
@@ -55,10 +54,9 @@ public:
     if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
       !self.GetComponent<Transform>()->is_active) {
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-        // if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()
         entity.GetComponent<Transform>()->is_active = false;
       }
-      Application::MessagingSystem::Send("Active How Button", true);
+      Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "How Button Sprite", true});
     }
   }
 
