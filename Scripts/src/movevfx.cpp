@@ -47,7 +47,7 @@ private:
 
     bool m_jackUltActive = false;
     float m_jackUltTimer = 0.0f;
-    const float m_jackUltDuration = 4.0f; // seconds
+    const float m_jackUltDuration = 1.2f; // seconds
 
     // --- Effect Functions ---
 
@@ -149,16 +149,16 @@ private:
                 continue;
 
             // **Lerp to target values**
-            colorGrading->saturation = FlexMath::Lerp(1.0f, 0.0f, progress);
+            colorGrading->brightness = 0.0f;
+            colorGrading->saturation = 1.0f;
             colorGrading->contrast = FlexMath::Lerp(1.0f, 3.7f, progress);
-            colorGrading->brightness = FlexMath::Lerp(1.0f, 1.0f, progress);
 
             // Enable the effect marker
             entity.GetComponent<PostProcessingMarker>()->enableColorGrading = true;
         }
 
         // **Trigger pseudo color distortion at the start of the effect**
-        if (elapsedTime <= 0.1f) // Ensure it only triggers once
+        if (elapsedTime >= totalDuration - 0.3f) // Ensure it only triggers once
         {
             Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
         }
@@ -283,7 +283,7 @@ public:
         }
         ProcessEffect(m_jackUltActive, m_jackUltTimer, m_jackUltDuration, dt,
           [this](float elapsed) {
-            UpdateJackUltEffect(elapsed, m_jackUltTimer);
+            UpdateJackUltEffect(elapsed, m_jackUltDuration);
         });
     }
 

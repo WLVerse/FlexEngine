@@ -1677,6 +1677,7 @@ namespace Game
                 {
                     //default select move 1-3
                     battle.move_num = Range<int>(1, 3).Get();
+                    battle.current_move = &battle.current_character->move_three;
                     switch (battle.move_num)
                     {
                     case 1:
@@ -3169,8 +3170,11 @@ namespace Game
                 if (battle.current_character->character_id == 5)
                 {
                     if (battle.move_num == 3)
+                    {
                         Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        Application::MessagingSystem::Send("ActivateJackUlt", true);
+                    }
                 }
                 else
                 {
@@ -3653,9 +3657,11 @@ namespace Game
 
         if (battle.is_win || battle.is_lose)
         {
-            if (Input::AnyKeyDown())
+            static bool SendMSG = false;
+            if (Input::AnyKeyDown() && !SendMSG)
             {
                 //Fade in
+                SendMSG = true;
                 Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
             }
             
@@ -3694,7 +3700,7 @@ namespace Game
                         break;
                     }
                 }
-
+                SendMSG = false;
             }
             else return;
         }
