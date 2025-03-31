@@ -30,7 +30,8 @@ public:
 
   void Update() override
   {
-    if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
+    if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active &&
+      !FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
       if (Input::GetKeyDown(GLFW_KEY_D)) Application::GetCurrentWindow()->ToggleFullScreen(false);
     }
   }
@@ -42,11 +43,13 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
+      !FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
       self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
       Application::GetCurrentWindow()->ToggleFullScreen(false);
     }
-    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT) &&
+      !FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
       self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
     }
   }
