@@ -60,9 +60,6 @@ public:
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
       FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active) {
-      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-        entity.GetComponent<Transform>()->is_active = false;
-      }
       Application::QueueCommand(Application::Command::QuitApplication);
     }
   }

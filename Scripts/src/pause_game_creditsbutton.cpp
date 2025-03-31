@@ -17,6 +17,8 @@ using namespace FlexEngine;
 
 class HowButtonScript : public IScript
 {
+  bool is_tutorial = false;
+  int active_page = 1;
 public:
   HowButtonScript()
   {
@@ -31,20 +33,49 @@ public:
   void Update() override
   {
     if (self.GetComponent<Transform>()->is_active) {
-      if (Input::GetKeyDown(GLFW_KEY_W)) {
-        Input::Cleanup();
-        for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-          if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()) entity.GetComponent<Transform>()->is_active = true;
+      if (!is_tutorial) {
+        if (Input::GetKeyDown(GLFW_KEY_W)) {
+          Input::Cleanup();
+          Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Settings Button Sprite", true});
         }
-        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Settings Button Sprite", true});
+        if (Input::GetKeyDown(GLFW_KEY_S)) {
+          Input::Cleanup();
+          Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Quit Button Sprite", true});
+        }
+        if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+          Input::Cleanup();
+          Application::MessagingSystem::Send("Resume Game", true);
+        }
+        if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
+          is_tutorial = true;
+          active_page = 1;
+          FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active = true;
+          FlexECS::Scene::GetEntityByName("How To Play Dark Background").GetComponent<Transform>()->is_active = true;
+          FlexECS::Scene::GetEntityByName("Tutorial P1").GetComponent<Transform>()->is_active = true;
+        }
       }
-      if (Input::GetKeyDown(GLFW_KEY_S)) {
-        Input::Cleanup();
-        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Quit Button Sprite", true});
-      }
-      if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
-        Input::Cleanup();
-        Application::MessagingSystem::Send("Resume Game", true);
+      else {
+        if (Input::GetKeyDown(GLFW_KEY_A)) {
+          if (active_page != 1) {
+            FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
+            --active_page;
+            FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = true;
+          }
+        }
+        if (Input::GetKeyDown(GLFW_KEY_D)) {
+          if (active_page != 5) {
+            FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
+            ++active_page;
+            FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = true;
+          }
+        }
+        if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+          Input::Cleanup();
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, CreditsUI>()) {
+            entity.GetComponent<Transform>()->is_active = false;
+          }
+          is_tutorial = false;
+        }
       }
     }
   }
@@ -53,22 +84,20 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
       !self.GetComponent<Transform>()->is_active) {
-      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-        entity.GetComponent<Transform>()->is_active = false;
-      }
       Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "How Button Sprite", true});
     }
   }
 
   void OnMouseStay() override
   {
-    //if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
-    //{
-    //  // TODO: Send message to display different assets (Either settings or credits)
-    //  for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-    //    entity.GetComponent<Transform>()->is_active = false;
-    //  }
-    //}
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
+    {
+      is_tutorial = true;
+      active_page = 1;
+      FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("How To Play Dark Background").GetComponent<Transform>()->is_active = true;
+      FlexECS::Scene::GetEntityByName("Tutorial P1").GetComponent<Transform>()->is_active = true;
+    }
   }
 
   void OnMouseExit() override
