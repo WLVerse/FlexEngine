@@ -3158,7 +3158,7 @@ namespace Game
                         target_animator.current_frame = 0;
 
                         // Screen Shake
-                        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 3 });
                         battle.jerk_towards_defender = true;
 
                         hit_entities.push_back(target_entity);
@@ -3209,7 +3209,7 @@ namespace Game
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
         
                 // Screen Shake
-                Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 3 });
                 Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 battle.jerk_towards_defender = true;
 
