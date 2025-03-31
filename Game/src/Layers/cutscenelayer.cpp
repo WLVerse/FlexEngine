@@ -322,7 +322,8 @@ namespace Game
         // Ensure we haven't run past the dialogue entries.
         if (m_currSectionIndex >= dialogueAsset.dialogues.size())
         {
-            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+            //Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+            StopCutscene();
             return;
         }
 
