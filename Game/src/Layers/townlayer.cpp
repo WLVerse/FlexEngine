@@ -21,6 +21,7 @@ namespace Game
   // Pause Buttons
   std::string active_pause_button;
   bool is_paused = false;
+  Vector3 original_camera_pos;
 
   void Set_Up_Town_Pause_Menu() {
     #pragma region Load pause menu data
@@ -67,17 +68,24 @@ namespace Game
   }
 
   void Town_Pause_Functionality() {
+    is_paused ^= true;
+    FlexECS::Entity cam = CameraManager::GetMainGameCameraID();
+
+    if (is_paused) {
+      cam.GetComponent<Position>()->position = original_camera_pos;
+      active_pause_button = "Resume Button Sprite";
+    }
+    else {
+      cam.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
+    }
+
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
       bool& state_to_set = entity.GetComponent<Transform>()->is_active;
       if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<SettingsUI>()) state_to_set = false;
       else state_to_set ^= true;
     }
 
-    is_paused ^= true;
-    if (is_paused) {
-      active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
-      FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
-    }
+    if (is_paused) FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
   }
 
   void TownLayer::OnAttach()
@@ -94,6 +102,7 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
+    original_camera_pos = camera.GetComponent<Position>()->position;
     camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
 
     Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 4, 1.2 });
