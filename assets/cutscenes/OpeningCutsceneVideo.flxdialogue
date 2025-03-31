@@ -1,0 +1,61 @@
+[Cutscene_WakingUp]
+Girl: "You're finally awake."
+
+[Static_01]
+You: "Who are you...? What am I doing here?"
+Girl: "You lost your memory? What's the last thing that you remember?"
+You: "I was in a collapsing laboratory... and there was this terrible, anguished wail echoing all around the room, about 'taking revenge'..."
+A sharp pain shot through my head, preventing me from recalling anything further.
+
+[Static_02]
+Boy: "Sounds like you were right, Grace. A Drifter deliberately sabotaged the timeline, and now the world is on the verge of collapsing."
+
+[Static_03]
+The girl known as Grace grimaced, as if her worst fears had come true.
+Grace: "I am Grace. The boy behind me is Ash. Do you at least remember your name?"
+Renko: "My name is... Renko."
+
+[Static_04]
+Grace: "That's a relief."
+
+[Static_03]
+Renko: "What is Ash talking about?"
+Grace: "Drifters are people like you, with the ability to travel back in time. When the timeline began to collapse, I brought you back to the present to help me fix it before it's too late."
+Renko: "What happens if we don't fix it? I mean, I don't even know where I should begin."
+Grace: "If we don't fix it, the world will come to a cataclysmic end. I've tracked the issue to London, 1888. We should be able to manage a one-way trip there using our Chrono Gear."
+
+[Static_05]
+Grace: "Speaking of which, your Chrono Gear is in a terrible state. How did you even manage to get it like that?"
+
+[Cutscene_Watch_01]
+She pointed to a watch-like object on my wrist. 
+
+[Cutscene_Watch_Static]
+It surprising felt like a natural part of my body but...
+She was right, it looked a bit charred around the edges, unlike hers.
+
+[Cutscene_Watch_02]
+I shook my head, unable to give her a response.
+
+[Static_06]
+Grace looked over to Ash with a troubled look.
+Grace: "Can you get it fixed, Ash?"
+Ash: "On it."
+
+[Cutscene_AshLeaving]
+Ash: "Sit tight, I'll have it repaired in no time in my workshop."
+
+[Static_07]
+Grace: "Before we leave, I want to run a simulated training of combat in London, 1888. Confrontation may be inevitable if the perpetrator's goal is revenge."
+
+[Static_08]
+Grace: "Don't be alarmed, I'll be here to guide you every step of the way."
+
+[Cutscene_RobotsEntering_01]
+The sound of metal door parting distracts me from the growing unease in my heart.
+
+[Cutscene_RobotsEntering_02]
+Two robots entered the room, their displays flashing ready for combat.
+
+[Static_09]
+Grace: "I'll activate the simulation now. Renko, prepare for combat!"

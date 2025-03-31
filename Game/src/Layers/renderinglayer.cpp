@@ -178,15 +178,17 @@ namespace Game
 
         if (!video_player.should_play) continue;
 
-        video.m_current_time += deltatime;
+        video.m_current_time += deltatime * video_player.playback_speed;
+        std::cout << video.m_current_time << ", " << video.GetNextFrameTime() << ", " << video.GetLength() << "\n";
         if (video.m_current_time >= video.GetNextFrameTime())
         {
-          if (!video.DecodeNextFrame())
+          if(!video.DecodeNextFrame())
           {
             if (video_player.is_looping)
             {
-              video.Seek(0.0);
+              video.RestartVideo();
             }
+            //video.m_current_time = video.GetNextFrameTime();  //fake pause the video
           }
         }
       }

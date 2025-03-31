@@ -110,5 +110,77 @@ namespace FlexEngine
                 cutscenes[name] = info;
             }
         }
+
+
+
+        // Constructs a Cutscene instance by parsing the provided metadata file.
+        VideoCutscene::VideoCutscene(File& _metadata)
+          : metadata(_metadata)
+        {
+          //Format: videoPath, identifier, time:start-end, timescale:xxx
+          // Read the entire metadata file into a stringstream for line-by-line processing.
+          std::stringstream ss(metadata.Read());
+          std::string line;
+
+          // Process each line in the metadata file.
+          while (std::getline(ss, line))
+          {
+            std::istringstream ss_line(line);
+            std::string token;
+            std::vector<std::string> tokens;
+
+            // Split the line by commas.
+            while (std::getline(ss_line, token, ','))
+            {
+              // Trim whitespace.
+              token.erase(std::remove_if(token.begin(), token.end(), ::isspace), token.end());
+              tokens.push_back(token);
+            }
+
+            // We expect at least 4 tokens: videoPath, identifier, time:[start]-[end], timescale:...
+            if (tokens.size() < 4)
+              continue;
+
+            VideoCutsceneInfo info;
+            info.videoPath = tokens[0]; // First token is the video path.
+            std::string key = tokens[1];  // Second token is used as the key for the map.
+
+            // Parse time range from token 3.
+            // Expected format: "time:0.5-1.2"
+            const std::string timePrefix = "time:";
+            if (tokens[2].find(timePrefix) != 0)
+              continue;
+            std::string timeRange = tokens[2].substr(timePrefix.length());
+            // timeRange should now be in the format "0.5-1.2"
+            size_t dashPos = timeRange.find("-");
+            if (dashPos == std::string::npos)
+              continue;
+            std::string startStr = timeRange.substr(0, dashPos);
+            std::string endStr = timeRange.substr(dashPos + 1);
+
+            // Convert to floats.
+            float startTime = std::stof(startStr);
+            float endTime = std::stof(endStr);
+            // Here we store the times into the struct.
+            // (If these represent time values, consider renaming to startingTime/endingTime.)
+            info.startTime = startTime;
+            info.endingTime = endTime;
+
+            // Parse timescale from token 4.
+            // Expected format: "timescale:0.4" or "timescale:0.4f"
+            const std::string timeScalePrefix = "timescale:";
+            if (tokens[3].find(timeScalePrefix) != 0)
+              continue;
+            std::string timeScaleStr = tokens[3].substr(timeScalePrefix.length());
+            // Remove trailing 'f' if it exists.
+            if (!timeScaleStr.empty() && timeScaleStr.back() == 'f')
+              timeScaleStr.pop_back();
+
+            info.timeScale = std::stof(timeScaleStr);
+
+            // Store the parsed cutscene info into the map using the key from token 2.
+            cutscenes[key] = info;
+          }
+        }
     } // namespace Asset
 } // namespace FlexEngine
