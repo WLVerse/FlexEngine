@@ -28,7 +28,7 @@ namespace FlexEngine
 
     #pragma region Camera Lifetime Management
 
-    void CameraManager::TryMainCamera()
+    bool CameraManager::TryMainCamera()
     {
       for (auto& cam_targets : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
       {

@@ -325,7 +325,8 @@ namespace Game
             // Stage 1: Initiate zoom-out.
             Application::MessagingSystem::Send("CameraZoomStart",
                 std::pair<double, double>{ m_zoomOutDuration + m_zoomInDuration,
-                                           Application::GetCurrentWindow()->GetWidth() * 0.5 });
+                                           CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.5 });
+                                           //Application::GetCurrentWindow()->GetWidth() * 0.5 });
             Log::Info("EncounterBattleTransition: Started zoom-out stage.");
         }
 
