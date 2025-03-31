@@ -137,7 +137,7 @@ namespace Game
         FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
         battleLayer = nullptr;
 
-        town_version = "assets/saves/town_v6_2.flxscene";
+        town_version = "assets/saves/town_v7_2.flxscene";
         townLayer = std::make_shared<TownLayer>();
         FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }

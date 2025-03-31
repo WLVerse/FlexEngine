@@ -37,8 +37,9 @@ namespace FlexEngine
 
         FlexECS::Entity cam_entity = cam_targets;
         Log::Info("Setting main camera with entity name: " + FLX_STRING_GET(*cam_entity.GetComponent<EntityName>()));
-        break;
+        return true;
       }
+      return false;
     }
 
     void CameraManager::RemoveMainCamera()

@@ -75,9 +75,7 @@ namespace Game
       cam.GetComponent<Position>()->position = original_camera_pos;
       active_pause_button = "Resume Button Sprite";
     }
-    else {
-      cam.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
-    }
+    else cam.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
 
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
       bool& state_to_set = entity.GetComponent<Transform>()->is_active;
@@ -91,15 +89,15 @@ namespace Game
   void TownLayer::OnAttach()
   {
     //File& file = File::Open(Path::current("assets/saves/town_v4.flxscene"));
-      File& file = File::Open(Path::current(town_version));
+    File& file = File::Open(Path::current(town_version));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Town BGM").GetComponent<Audio>()->should_play = true;
 
-    if (town_version == "assets/saves/town_v6_2.flxscene")
+    if (town_version == "assets/saves/town_v7_2.flxscene")
     {
-        FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
+      FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position = Vector3(707.943f, -172.714f, 0);
     }
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
     original_camera_pos = camera.GetComponent<Position>()->position;
@@ -107,7 +105,8 @@ namespace Game
 
     Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 4, 1.2 });
     
-    if (town_version == "assets/saves/town_v7.flxscene") Set_Up_Town_Pause_Menu();
+    //if (town_version == "assets/saves/town_v7.flxscene")
+    Set_Up_Town_Pause_Menu();
   }
 
   void TownLayer::OnDetach()
@@ -118,34 +117,44 @@ namespace Game
 
   void TownLayer::Update()
   {
-    if (town_version == "assets/saves/town_v7.flxscene") {
-      std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
+    //if (town_version == "assets/saves/town_v7.flxscene") {
+    std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
+    
+    bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
+    // check for escape key
+    if ((Input::GetKeyDown(GLFW_KEY_ESCAPE) && !is_paused) || resume_game)
+    {
+      Town_Pause_Functionality();
+    }
+    
+    FlexECS::Entity cam = CameraManager::GetMainGameCameraID();
 
-      bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
-      // check for escape key
-      if ((Input::GetKeyDown(GLFW_KEY_ESCAPE) && !is_paused) || resume_game)
-      {
-        Town_Pause_Functionality();
+    if (is_paused) {
+      float w = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
+      float h = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
+      cam.GetComponent<Camera>()->SetOrthographic(-w / 2.f, w / 2.f, -h / 2.f, h / 2.f);
+      if (active_sprite.second) {
+        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
+        active_pause_button = active_sprite.first;
       }
 
-      if (is_paused) {
-        if (active_sprite.second) {
-          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
-          FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
-          FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
-          active_pause_button = active_sprite.first;
-        }
-
-        if (FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x !=
-          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x) {
-          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x +=
-            Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x =
-            std::clamp(FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x,
-            0.f, FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x);
-        }
-        return;
+      if (FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x !=
+        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x) {
+        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x +=
+          Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x =
+          std::clamp(FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x,
+          0.f, FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x);
       }
+      return;
+    }
+    else {
+      cam.GetComponent<Camera>()->SetOrthographic(-cam.GetComponent<Camera>()->GetOrthoWidth() / 2.f,
+      cam.GetComponent<Camera>()->GetOrthoWidth() / 2.f,
+      -cam.GetComponent<Camera>()->GetOrthoHeight() / 2.f,
+      cam.GetComponent<Camera>()->GetOrthoHeight() / 2.f);
     }
     
 #pragma region Camera Follow System
@@ -186,7 +195,7 @@ namespace Game
      Application::MessagingSystem::Send("Enter Boss", true);
    }*/
     static bool startcombat = false;
-    if (town_version == "assets/saves/town_v6_2.flxscene")
+    if (town_version == "assets/saves/town_v7_2.flxscene")
     {
         if (!FlexECS::Scene::GetEntityByName("Jack").GetComponent<Transform>()->is_active && FlexECS::Scene::GetEntityByName("Jack Collider").GetComponent<BoundingBox2D>()->is_colliding)
         {
@@ -228,7 +237,7 @@ namespace Game
 #pragma endregion
 
     // Randomly toggle light on and off between range 1 to 2 seconds only in the other scene, but of course when added this can be added to the other scene as well
-    if (town_version == "assets/saves/town_v6_2.flxscene")
+    if (town_version == "assets/saves/town_v7_2.flxscene")
     {
       static float light_timer = rand() % 1 + 1;
       light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
