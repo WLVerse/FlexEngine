@@ -19,8 +19,7 @@ namespace Game
   extern std::string town_version;
 
   // Pause Buttons
-  std::array<bool, 4> pause_buttons = { false, false, false, false };
-  FlexECS::Entity& active_pause_button = FlexECS::Entity::Null;
+  std::string active_pause_button;
   bool is_paused = false;
 
   void Set_Up_Town_Pause_Menu() {
@@ -97,7 +96,9 @@ namespace Game
     FlexECS::Entity camera = CameraManager::GetMainGameCameraID();
     camera.GetComponent<Position>()->position = FlexECS::Scene::GetEntityByName("Renko").GetComponent<Position>()->position;
 
-    Set_Up_Town_Pause_Menu();
+    Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 4, 1.2 });
+    
+    if (town_version == "assets/saves/town_v7.flxscene") Set_Up_Town_Pause_Menu();
   }
 
   void TownLayer::OnDetach()
@@ -109,10 +110,7 @@ namespace Game
   void TownLayer::Update()
   {
     if (town_version == "assets/saves/town_v7.flxscene") {
-      pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
-      pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active Settings Button");
-      pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active How Button");
-      pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Quit Game Button");
+      std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
 
       bool resume_game = Application::MessagingSystem::Receive<bool>("Resume Game");
       // check for escape key
@@ -122,25 +120,20 @@ namespace Game
       }
 
       if (is_paused) {
-        if (std::any_of(pause_buttons.begin(), pause_buttons.end(), [](bool state) {
-          return state;
-        })) {
-          active_pause_button.GetComponent<Transform>()->is_active = false;
-          if (pause_buttons[0]) active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
-          else if (pause_buttons[1]) active_pause_button = FlexECS::Scene::GetEntityByName("Settings Button Sprite");
-          else if (pause_buttons[2]) active_pause_button = FlexECS::Scene::GetEntityByName("How Button Sprite");
-          else if (pause_buttons[3]) active_pause_button = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
-          active_pause_button.GetComponent<Scale>()->scale.x = 0.f;
-          active_pause_button.GetComponent<Transform>()->is_active = true;
+        if (active_sprite.second) {
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
+          active_pause_button = active_sprite.first;
         }
 
-        if (active_pause_button.GetComponent<Scale>()->scale.x !=
-          active_pause_button.GetComponent<Slider>()->original_scale.x) {
-          active_pause_button.GetComponent<Scale>()->scale.x +=
+        if (FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x !=
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x) {
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x +=
             Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-          active_pause_button.GetComponent<Scale>()->scale.x =
-            std::clamp(active_pause_button.GetComponent<Scale>()->scale.x, 0.f,
-              active_pause_button.GetComponent<Slider>()->original_scale.x);
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x =
+            std::clamp(FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x,
+            0.f, FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x);
         }
         return;
       }
@@ -174,7 +167,7 @@ namespace Game
 
     //camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
     camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -880.f, 730.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -80.f, 730.f);
 
 #pragma endregion
 #pragma region Scene Transition

@@ -28,6 +28,8 @@ namespace Game
     virtual void OnAttach() override;
     virtual void OnDetach() override;
     virtual void Update() override;
+
+    void UpdateCombatCamera();
   };
 
 } // namespace Game

@@ -10,7 +10,6 @@
 
 #include "Layers.h"
 #include "battlestuff.h"
-
 namespace Game
 {
     extern std::string file_name;
@@ -107,12 +106,13 @@ namespace Game
         bool move_resolution = false;
         bool speedbar_animating = false;
         bool end_of_turn = false;
-
+        bool enable_combat_camera = false;
+        bool force_disable_combat_camera = false;
+        bool jerk_towards_defender = false;
         bool change_phase = false;
 
         // Pause Buttons
-        std::array<bool, 4> pause_buttons;
-        FlexECS::Entity& active_pause_button = FlexECS::Entity::Null;
+        std::string active_pause_button;
 
         // Camera Original Ortho dimensions
         float m_originalWidth;
@@ -228,6 +228,17 @@ namespace Game
 
         // get the battle asset
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
+
+        // Retrieve the current camera entity by name (assuming it's named "Camera")
+        FlexECS::Entity currentCamera = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+
+        // Create a new entity for the UI Camera.
+        FlexECS::Entity uiCamera = FlexECS::Scene::CreateEntity("UI Camera");
+        uiCamera.AddComponent<Position>(*currentCamera.GetComponent<Position>());
+        uiCamera.AddComponent<Scale>(*currentCamera.GetComponent<Scale>());
+        uiCamera.AddComponent<Rotation>(*currentCamera.GetComponent<Rotation>());
+        uiCamera.AddComponent<Transform>(*currentCamera.GetComponent<Transform>());
+        uiCamera.AddComponent<Camera>(*currentCamera.GetComponent<Camera>());
 
         battle.battle_num = asset.battle_num;
         battle.is_tutorial = !asset.battle_num;
@@ -723,7 +734,7 @@ namespace Game
         battle.projected_character.AddComponent<Rotation>({});
         battle.projected_character.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_Question Mark.png)") });
         battle.projected_character.AddComponent<Scale>({ Vector3(0.5, 0.5, 0) });
-        battle.projected_character.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_character.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_character.GetComponent<Transform>()->is_active = false;
 
         // Text that just says next for the projected character lol
@@ -738,7 +749,7 @@ namespace Game
                                                                  { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
                                                                  {                            600,                              320 }
                                                                  });
-        battle.projected_character_text.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_character_text.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_character_text.GetComponent<Transform>()->is_active = false;
 
         battle.projected_move = FlexECS::Scene::CreateEntity("move_used_textbox"); // can always use GetEntityByName to find the entity
@@ -746,7 +757,7 @@ namespace Game
         battle.projected_move.AddComponent<Position>({ Vector3(1595, 515, 0) });
         battle.projected_move.AddComponent<Rotation>({});
         battle.projected_move.AddComponent<Scale>({ Vector3(0.2f, 0.3f, 0) });
-        battle.projected_move.AddComponent<ZIndex>({ 21 + index });
+        battle.projected_move.AddComponent<ZIndex>({ 1021 + index });
         battle.projected_move.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
         battle.projected_move.GetComponent<Transform>()->is_active = false;
 
@@ -755,7 +766,7 @@ namespace Game
         battle.projected_move_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
         battle.projected_move_text.AddComponent<Rotation>({});
         battle.projected_move_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-        battle.projected_move_text.AddComponent<ZIndex>({ 22 + index });
+        battle.projected_move_text.AddComponent<ZIndex>({ 1022 + index });
         battle.projected_move_text.AddComponent<Text>({
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(R"()"),
@@ -775,7 +786,7 @@ namespace Game
             tutorial_box.AddComponent<Position>({ Vector3(845, 110, 0) });
             tutorial_box.AddComponent<Rotation>({});
             tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
-            tutorial_box.AddComponent<ZIndex>({ 21 + index });
+            tutorial_box.AddComponent<ZIndex>({ 1021 + index });
             tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
 
             FlexECS::Entity tutorial_press = FlexECS::Scene::CreateEntity("tutorial_press_button"); // can always use GetEntityByName to find the entity
@@ -783,7 +794,7 @@ namespace Game
             tutorial_press.AddComponent<Position>({ Vector3(850, -20, 0) });
             tutorial_press.AddComponent<Rotation>({});
             tutorial_press.AddComponent<Scale>({ Vector3(0.9f, 0.75f, 0) });
-            tutorial_press.AddComponent<ZIndex>({ 21 + index });
+            tutorial_press.AddComponent<ZIndex>({ 1021 + index });
             tutorial_press.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_Win_Text_Press Any Button To Continue.png)") });
 
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
@@ -791,7 +802,7 @@ namespace Game
             battle.tutorial_text.AddComponent<Position>({ Vector3(525, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
-            battle.tutorial_text.AddComponent<ZIndex>({ 22 + index });
+            battle.tutorial_text.AddComponent<ZIndex>({ 1022 + index });
             battle.tutorial_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
@@ -802,6 +813,9 @@ namespace Game
         }
 
         Update_Character_Status();
+
+        //Fade in
+        Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 1, 1.0 });
     }
 
     void Update_Speed_Bar()
@@ -1237,7 +1251,7 @@ namespace Game
     // Just delay the fucking battle start anim
     void Play_Battle_Start() 
     {
-      static float time_played = 3.f;
+      static float time_played = 2.f;
       static bool is_init = false;
 
       if (!is_init)
@@ -1390,7 +1404,7 @@ namespace Game
 
     void Start_Of_Game()
     {
-        File& file = File::Open(Path::current("assets/saves/battlescene_v11.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/battlescene_v12.flxscene"));
 
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
@@ -1559,6 +1573,7 @@ namespace Game
         battle.move_select = true;
         battle.move_resolution = false;
         battle.end_of_turn = false;
+        battle.enable_combat_camera = true;
     }
 
     void Move_Select()
@@ -1661,6 +1676,7 @@ namespace Game
                 {
                     //default select move 1-3
                     battle.move_num = Range<int>(1, 3).Get();
+                    battle.current_move = &battle.current_character->move_three;
                     switch (battle.move_num)
                     {
                     case 1:
@@ -2049,6 +2065,7 @@ namespace Game
             battle.end_of_turn = false;
 
             battle.change_phase = true;
+            
         }
         
     }
@@ -2429,8 +2446,8 @@ namespace Game
                 {
                   switch (battle.move_num)
                   {
-                  case 3:
-                    battle.disable_input_timer -= 0.5f;
+                  case 3: // Renko ult
+                    battle.disable_input_timer += 1.f;
                     break;
 
                   default:
@@ -2708,11 +2725,11 @@ namespace Game
                 // Temporarily move the character if targeting enemy
                 if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
                 {
-                  // Do nothing if enemy targets its own allies
+                    // Do nothing if enemy targets its own allies
                 }
                 else
                 {
-                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
+                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
                         battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };;
 
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
@@ -2752,33 +2769,125 @@ namespace Game
                 current_character_animator.return_to_default = true;
                 current_character_animator.frame_time = 0.f;
                 current_character_animator.current_frame = 0;
+                battle.force_disable_combat_camera = true;
 
                 // Delay for machine gun 
                 if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
-                  battle.disable_input_timer += 1.5f;
+                    battle.disable_input_timer += 1.5f;
                 else battle.disable_input_timer += 0.5f;
             }
         }
-        
+
+        #if 0
+        {
         // Camera Animation
         if (battle.current_move->target[0] == "ALL_ENEMIES" ||
             battle.current_move->target[0] == "ADJACENT_ENEMIES" ||
             battle.current_move->target[0] == "NEXT_ENEMY" ||
             battle.current_move->target[0] == "SINGLE_ENEMY")
         {
+            // First, calculate the attacker and defender positions based on character id.
+            FlexECS::Entity attacker, defender;
             if (battle.current_character->character_id > 2)
             {
-                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
-                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+                attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
             }
             else
             {
-                FlexECS::Entity attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
-                FlexECS::Entity defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+                attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
             }
-            //call camera code based on attackers and defender                                }
+
+            Vector3 attackerPos = attacker.GetComponent<Position>()->position;
+            Vector3 defenderPos = defender.GetComponent<Position>()->position;
+            Vector3 centerPos = (attackerPos + defenderPos) * 0.5f;
+
+            // Compute a normalized direction from center towards defender and offset for jerk.
+            Vector3 direction = (defenderPos - centerPos).Normalize();
+            float jerkDistance = 2.0f; // Adjust as needed.
+            Vector3 jerkPos = centerPos + direction * jerkDistance;
+
+            // A static container to hold active camera animations (lambdas).
+            static std::vector<std::function<bool(float)>> animations;
+
+            // For each camera, create a lambda that tracks its animation progress.
+            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
+            {
+                auto posComp = elem.GetComponent<Position>();
+                Vector3 originalPos = posComp->position;
+
+                // Initialize per-animation state variables.
+                int stage = 0;                      // 0: move to center, 1: jerk toward defender, 2: jerk back, 3: return to original.
+                float elapsed = 0.0f;
+                float durations[4] = { 1.0f, 0.2f, 0.2f, 1.0f };
+
+                // Create a lambda that will be updated every frame.
+                auto anim = [=, &posComp](float deltaTime) mutable -> bool
+                {
+                    // When all stages are done, return true to signal removal.
+                    if (stage >= 4)
+                        return true;
+
+                    // Update the elapsed time.
+                    elapsed += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+                    float t = std::min(elapsed / durations[stage], 1.0f);
+                    Vector3 startPos, targetPos;
+
+                    // Determine the start and target positions for the current stage.
+                    switch (stage)
+                    {
+                    case 0:
+                        startPos = originalPos;
+                        targetPos = centerPos;
+                        break;
+                    case 1:
+                        startPos = centerPos;
+                        targetPos = jerkPos;
+                        break;
+                    case 2:
+                        startPos = jerkPos;
+                        targetPos = centerPos;
+                        break;
+                    case 3:
+                        startPos = centerPos;
+                        targetPos = originalPos;
+                        break;
+                    }
+
+                    // Update the camera position.
+                    posComp->position = Lerp(startPos, targetPos, t);
+
+                    // If the current stage is complete, move to the next one.
+                    if (t >= 1.0f)
+                    {
+                        stage++;
+                        elapsed = 0.0f;
+                    }
+
+                    // Return whether the animation is finished.
+                    return (stage >= 4);
+                };
+
+                // Add the lambda to the animations container.
+                animations.push_back(anim);
+            }
+
+            // Update all active animations. Remove any that have finished.
+            for (auto it = animations.begin(); it != animations.end(); )
+            {
+                if ((*it)(Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime()))
+                    it = animations.erase(it);
+                else
+                    ++it;
+            }
+        }
 
         }
+        #endif
+
+        battle.enable_combat_camera = true;
+        battle.force_disable_combat_camera = false;
 
         //let attack animation play finish
         if (battle.disable_input_timer > 0.f)
@@ -2830,6 +2939,7 @@ namespace Game
                 case 1:
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->audio_file =
                         FLX_STRING_NEW(R"(/audio/chrono gear activation (SCI-FI-POWER-UP_GEN-HDF-20770).wav)");
+                    Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     break;
                 case 2:
@@ -2838,6 +2948,7 @@ namespace Game
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                     { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-75.0f, -100.0f, 0.0f}, {2.0f,2.0f,2.0f} });
+                    Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     break;
                 }
                 break;
@@ -2935,6 +3046,8 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                battle.jerk_towards_defender = true;
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -2972,6 +3085,8 @@ namespace Game
                 //Hit VFX
                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
                 { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                battle.jerk_towards_defender = true;
             }
         }
         else //secondary animation of players getting hit
@@ -3044,6 +3159,7 @@ namespace Game
 
                         // Screen Shake
                         Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                        battle.jerk_towards_defender = true;
 
                         hit_entities.push_back(target_entity);
                     }
@@ -3053,8 +3169,11 @@ namespace Game
                 if (battle.current_character->character_id == 5)
                 {
                     if (battle.move_num == 3)
+                    {
                         Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        Application::MessagingSystem::Send("ActivateJackUlt", true);
+                    }
                 }
                 else
                 {
@@ -3091,14 +3210,19 @@ namespace Game
         
                 // Screen Shake
                 Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 15 });
+                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                battle.jerk_towards_defender = true;
 
                 //Hit VFX
                 //Specific check for Jack's attack
                 if (battle.current_character->character_id == 5)
                 {
                     if (battle.move_num == 3)
-                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                  { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                    {
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
+                        Application::MessagingSystem::Send("ActivateJackUlt", true);
+                    }
                 }
                 else
                 {
@@ -3483,7 +3607,7 @@ namespace Game
 
       battle.is_paused ^= true;
       if (battle.is_paused) {
-        battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+        battle.active_pause_button = "Resume Button Sprite";
         FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
       }
     }
@@ -3503,16 +3627,13 @@ namespace Game
 
     void BattleLayer::Update()
     {
-        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text) =  "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Text>()->text) = "FPS: " + std::to_string(Application::GetCurrentWindow()->GetFramerateController().GetFPS());
         if (Input::GetKeyDown(GLFW_KEY_F1))
         {
-          FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
+            FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
         }
 
-        battle.pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
-        battle.pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active Settings Button");
-        battle.pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active How Button");
-        battle.pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Quit Game Button");
+        std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
 
         /*bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
         bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
@@ -3524,46 +3645,62 @@ namespace Game
         bool target_four_click = Application::MessagingSystem::Receive<bool>("TargetFour clicked");
         bool target_five_click = Application::MessagingSystem::Receive<bool>("TargetFive clicked");*/
 
-       
+        // Special Combat Camera
+        if (battle.enable_combat_camera)
+        {
+            UpdateCombatCamera();
+        }
+
         if (battle.is_win || battle.is_lose)
         {
-          if (Input::AnyKeyDown())
-          {
-              if (battle.is_win)
-              {
-                  switch (battle.battle_num)
-                  {
-                  case 0:
-                      Application::MessagingSystem::Send("Tutorial win to Town", true);
-                      break;
-                  case 1:
-                      Application::MessagingSystem::Send("Battle 1 win to Town", true);
-                      break;
-                  case 2:
-                      Input::Cleanup();
-                      Application::MessagingSystem::Send("Battle Boss win to Menu", true);
-                      break;
-                  }
-              }
-              else
-              {
-                  switch (battle.battle_num)
-                  {
-                  case 0:
-                      Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
-                      break;
-                  case 1:
-                      Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
-                      break;
-                  case 2:
-                      Input::Cleanup();
-                      Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
-                      break;
-                  }
-              }
-          }
-          else return;
+            static bool SendMSG = false;
+            if (Input::AnyKeyDown() && !SendMSG)
+            {
+                //Fade in
+                SendMSG = true;
+                Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
+            }
+            
+            int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+            if (transitionMSG == 2)
+            {
+                if (battle.is_win)
+                {
+                    switch (battle.battle_num)
+                    {
+                    case 0:
+                        Application::MessagingSystem::Send("Tutorial win to Town", true);
+                        break;
+                    case 1:
+                        Application::MessagingSystem::Send("Battle 1 win to Town", true);
+                        break;
+                    case 2:
+                        Input::Cleanup();
+                        Application::MessagingSystem::Send("Battle Boss win to Menu", true);
+                        break;
+                    }
+                }
+                else
+                {
+                    switch (battle.battle_num)
+                    {
+                    case 0:
+                        Application::MessagingSystem::Send("Tutorial lose to Tutorial", true);
+                        break;
+                    case 1:
+                        Application::MessagingSystem::Send("Battle 1 lose to Battle 1", true);
+                        break;
+                    case 2:
+                        Input::Cleanup();
+                        Application::MessagingSystem::Send("Battle Boss lose to Battle Boss", true);
+                        break;
+                    }
+                }
+                SendMSG = false;
+            }
+            else return;
         }
+
 
         // insta win
         if (Input::GetKeyDown(GLFW_KEY_F4))
@@ -3580,26 +3717,22 @@ namespace Game
         }
 
         if (battle.is_paused) {
-          if (std::any_of(battle.pause_buttons.begin(), battle.pause_buttons.end(), [](bool state) {
-            return state;
-          })) {
-            battle.active_pause_button.GetComponent<Transform>()->is_active = false;
-            if (battle.pause_buttons[0]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
-            else if (battle.pause_buttons[1]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Settings Button Sprite");
-            else if (battle.pause_buttons[2]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("How Button Sprite");
-            else if (battle.pause_buttons[3]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
-            battle.active_pause_button.GetComponent<Scale>()->scale.x = 0.f;
-            battle.active_pause_button.GetComponent<Transform>()->is_active = true;
+          if (active_sprite.second) {
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+            FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
+            battle.active_pause_button = active_sprite.first;
           }
 
-          if (battle.active_pause_button.GetComponent<Scale>()->scale.x !=
-            battle.active_pause_button.GetComponent<Slider>()->original_scale.x) {
-            battle.active_pause_button.GetComponent<Scale>()->scale.x += 
+          if (FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x !=
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Slider>()->original_scale.x) {
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x +=
               Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-            battle.active_pause_button.GetComponent<Scale>()->scale.x =
-              std::clamp(battle.active_pause_button.GetComponent<Scale>()->scale.x, 0.f,
-                battle.active_pause_button.GetComponent<Slider>()->original_scale.x);
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x =
+              std::clamp(FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x, 0.f,
+                FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Slider>()->original_scale.x);
           }
+
           return;
         }
 
@@ -3651,9 +3784,10 @@ namespace Game
         }
 
         
+
         if (battle.play_battle_start)
         {
-          Play_Battle_Start();
+           Play_Battle_Start();
         }
         else if (battle.start_of_turn)
         {
@@ -3675,6 +3809,159 @@ namespace Game
         else if (battle.end_of_turn)
         {
             End_Of_Turn();
+        }
+
+    }
+
+    void BattleLayer::UpdateCombatCamera()
+    {
+        // --- Static variables to store original values ---
+        static Vector3 originalPos;
+        static bool hasStoredOriginalPos = false;
+
+        static bool hasStoredOriginalZoom = false;
+        static float originalOrthoWidth = 0.0f;
+        static float originalOrthoHeight = 0.0f;
+        static float currentOrthoWidth = 0.0f;
+        static float baseAspectRatio = 1.0f;
+        static float minOrthoWidth = 0.0f;
+
+        // --- Static variable to handle the jerk effect ---
+        static Vector3 jerkEffect(0, 0, 0);
+
+        // --- Early out if neither combat camera nor force disable is active ---
+        if (!battle.enable_combat_camera && !battle.force_disable_combat_camera)
+            return;
+
+        // --- Get the camera entity and its position component ---
+        FlexECS::Entity cameraEntity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+        auto posComp = cameraEntity.GetComponent<Position>();
+        if (!posComp)
+            return;
+
+        // --- Store original camera position once ---
+        if (!hasStoredOriginalPos)
+        {
+            originalPos = posComp->position;
+            hasStoredOriginalPos = true;
+        }
+
+        // --- Retrieve main camera for zoom controls ---
+        Camera* mainCam = CameraManager::GetMainGameCamera();
+        if (!mainCam)
+            return;
+
+        // --- Store original zoom values once ---
+        if (!hasStoredOriginalZoom)
+        {
+            // Assuming the camera provides these getter functions.
+            originalOrthoWidth = mainCam->GetOrthoWidth();
+            originalOrthoHeight = mainCam->GetOrthoHeight();
+            currentOrthoWidth = originalOrthoWidth;
+            baseAspectRatio = originalOrthoWidth / originalOrthoHeight;
+            minOrthoWidth = originalOrthoWidth * 0.5f; // Example: allow zooming in to half the width.
+            hasStoredOriginalZoom = true;
+        }
+
+        // --- If battle pointers are invalid, force disable the combat camera ---
+        if (!battle.initial_target || !battle.current_character)
+        {
+            battle.force_disable_combat_camera = true;
+        }
+
+        // --- Determine the base target position (for camera movement) ---
+        Vector3 baseTargetPos = originalPos;
+        FlexECS::Entity attacker, defender;
+        if (battle.enable_combat_camera && battle.initial_target && battle.current_character)
+        {
+            if (battle.current_character->character_id > 2)
+            {
+                attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            else
+            {
+                attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
+                defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
+            }
+            if (attacker != FlexECS::Entity::Null && defender != FlexECS::Entity::Null)
+            {
+                if (attacker.GetComponent<Position>() && defender.GetComponent<Position>())
+                {
+                    Vector3 attackerPos = attacker.GetComponent<Position>()->position;
+                    Vector3 defenderPos = defender.GetComponent<Position>()->position;
+                    baseTargetPos = (attackerPos + defenderPos) * 0.5f;
+                }
+            }
+
+        }
+
+        float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+        float lerpSpeed = 5.0f; // Adjust for smoother or snappier interpolation.
+
+        // --- Handle the jerk effect ---
+        // When the jerk flag is set, compute and store a sudden jerk offset.
+        if (battle.jerk_towards_defender && battle.enable_combat_camera && battle.initial_target && battle.current_character)
+        {
+            if (defender.GetComponent<Position>())
+            {
+                Vector3 defenderPos = defender.GetComponent<Position>()->position;
+                Vector3 direction = (defenderPos - baseTargetPos).Normalize();
+                float jerkMagnitude = 400.f; // Adjust for desired sudden jerk intensity.
+                jerkEffect = direction * jerkMagnitude;
+            }
+            // Reset the flag so the jerk is applied only once.
+            battle.jerk_towards_defender = false;
+        }
+        else
+        {
+            // Decay the jerk effect smoothly back to zero.
+            float jerkDecay = 10.0f; // Adjust decay speed as needed.
+            jerkEffect = Lerp(jerkEffect, Vector3(0, 0, 0), 1.0f - exp(-jerkDecay * deltaTime));
+        }
+
+        // Final target position includes both the base target and the jerk offset.
+        Vector3 finalTargetPos = baseTargetPos + jerkEffect;
+
+        // --- Lerp the camera position toward the final target ---
+        posComp->position = Lerp(posComp->position, finalTargetPos, 1.0f - exp(-lerpSpeed * deltaTime));
+
+        // --- Integrate zooming as part of the lerp ---
+        // Define a delta zoom value; for example, a negative value zooms in.
+        float deltaZoom = -500.0f; // Adjust as needed.
+        float targetOrthoWidth = originalOrthoWidth;
+        if (!battle.force_disable_combat_camera && baseTargetPos != originalPos)
+        {
+            // Calculate the target width, ensuring it does not go below the minimum allowed.
+            float newWidth = originalOrthoWidth + deltaZoom;
+            if (newWidth < minOrthoWidth)
+                newWidth = minOrthoWidth;
+            targetOrthoWidth = newWidth;
+        }
+        // If not enabled (or force disabling), target zoom is the original zoom.
+        else
+        {
+            targetOrthoWidth = originalOrthoWidth;
+        }
+        // Lerp the current orthographic width toward the target.
+        currentOrthoWidth = Lerp(currentOrthoWidth, targetOrthoWidth, 1.0f - exp(-lerpSpeed * deltaTime));
+        float effectiveOrthoHeight = currentOrthoWidth / baseAspectRatio;
+        mainCam->SetOrthographic(-currentOrthoWidth / 2, currentOrthoWidth / 2,
+                                   -effectiveOrthoHeight / 2, effectiveOrthoHeight / 2);
+
+        // --- When force disabling, check if both position and zoom have nearly returned to their original values ---
+        if (battle.force_disable_combat_camera)
+        {
+            if ((posComp->position - originalPos).Length() < 0.01f && fabs(currentOrthoWidth - originalOrthoWidth) < 0.01f)
+            {
+                posComp->position = originalPos;
+                currentOrthoWidth = originalOrthoWidth;
+                battle.enable_combat_camera = false;
+                battle.force_disable_combat_camera = false;
+                battle.jerk_towards_defender = false;
+                hasStoredOriginalPos = false;
+                hasStoredOriginalZoom = false;
+            }
         }
     }
 

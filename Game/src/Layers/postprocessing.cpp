@@ -170,6 +170,7 @@ namespace Game
         auto scene = FlexECS::Scene::GetActiveScene();
 
         FunctionQueue prePostProcessingQueue;
+        FlexECS::Entity UICam = FlexECS::Scene::GetActiveScene()->GetEntityByName("UI Camera");
 
         // Render all sprite objects with a z-index lower than the post-process marker's.
         for (auto& element : scene->CachedQuery<Transform, Sprite, Position, Rotation, Scale>())
@@ -177,7 +178,7 @@ namespace Game
             if (!element.GetComponent<Transform>()->is_active)
                 continue;
 
-            int entityZIndex = element.HasComponent<ZIndex>() ? element.GetComponent<ZIndex>()->z : 0;
+           int entityZIndex = element.HasComponent<ZIndex>() ? element.GetComponent<ZIndex>()->z : 0;
 
             if (entityZIndex < postProcessZIndex)
             {
@@ -218,9 +219,16 @@ namespace Game
                 props.alignment = Renderer2DProps::Alignment_TopLeft;
                 props.world_transform = element.GetComponent<Transform>()->transform;
 
-                prePostProcessingQueue.Insert({ [props]() {
-                    OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props);
-                }, "", entityZIndex });
+                if (UICam != FlexECS::Entity::Null && entityZIndex >= 1000)
+                {
+                    prePostProcessingQueue.Insert({ [props, &UICam]() {OpenGLRenderer::DrawTexture2D(*UICam.GetComponent<Camera>(), props); }, "", entityZIndex });
+                }
+                else
+                {
+                    prePostProcessingQueue.Insert({ [props]() {
+                        OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), props);
+                    }, "", entityZIndex });
+                }
             }
         }
 
@@ -274,9 +282,16 @@ namespace Game
                 textProps.m_textboxDimensions = textComponent->textboxDimensions;
                 textProps.m_linespacing = 12.0f;
 
-                prePostProcessingQueue.Insert({ [textProps]() {
-                    OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), textProps);
-                }, "", entityZIndex });
+                if (UICam != FlexECS::Entity::Null && entityZIndex >= 1000)
+                {
+                    prePostProcessingQueue.Insert({ [textProps, &UICam]() {OpenGLRenderer::DrawTexture2D(*UICam.GetComponent<Camera>(), textProps); }, "", entityZIndex });
+                }
+                else
+                {
+                    prePostProcessingQueue.Insert({ [textProps]() {
+                        OpenGLRenderer::DrawTexture2D(*CameraManager::GetMainGameCamera(), textProps);
+                    }, "", entityZIndex });
+                }
             }
         }
 

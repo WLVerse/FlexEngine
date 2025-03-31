@@ -26,15 +26,15 @@ public:
     if (self.GetComponent<Transform>()->is_active) {
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Active Display Mode", true);
+        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> {"Display Mode Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Active Master Volume", true);
+        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_D) || Input::GetKeyDown(GLFW_KEY_A)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Active Return Button", true);
+        Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Return Button Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetKeyDown(GLFW_KEY_ENTER)) {
         Application::QueueCommand(Application::Command::QuitApplication);
@@ -45,7 +45,7 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active
       && !FlexECS::Scene::GetEntityByName("Quit Button Sprite").GetComponent<Transform>()->is_active) {
-      Application::MessagingSystem::Send("Active Quit Button", true);
+      Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Quit Button Sprite", true});
     }
   }
 
