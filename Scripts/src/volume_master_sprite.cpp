@@ -36,19 +36,21 @@ public:
 
       if (Input::GetKeyDown(GLFW_KEY_W)) {
         Input::Cleanup();
-        std::string message_to_send = "Active Return Button";
-        if (FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
-          message_to_send = "Active Display Mode";
+        if (FlexECS::Scene::GetEntityByName("Settings Button Sprite") != FlexECS::Entity::Null) {
+          if (FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active) {
+            Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "Display Mode Sprite", true});
+          }
         }
-        Application::MessagingSystem::Send(message_to_send, true);
+        else Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Return Button Sprite", true});
       }
-      /*if (Input::GetKeyDown(GLFW_KEY_ESCAPE) && FlexECS::Scene::GetEntityByName("Return Button Sprite") == FlexECS::Entity::Null) {
-        Input::Cleanup();
-        self.GetComponent<Transform>()->is_active = false;
-      }*/
       if (Input::GetKeyDown(GLFW_KEY_S)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Active BGM Volume", true);
+        if (FlexECS::Scene::GetEntityByName("Settings Button Sprite") != FlexECS::Entity::Null) {
+          if (FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active) {
+            Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "BGM Volume Sprite", true});
+          }
+        }
+        else Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "BGM Volume Sprite", true});
       }
 
       FlexECS::Entity knob = FlexECS::Scene::GetEntityByName("Master Knob");
@@ -103,9 +105,14 @@ public:
 
   void OnMouseEnter() override
   {
-    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active
-      && !FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active) {
-      Application::MessagingSystem::Send("Active Master Volume", true);
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
+      !self.GetComponent<Transform>()->is_active) {
+      if (FlexECS::Scene::GetEntityByName("Settings Button Sprite") != FlexECS::Entity::Null) {
+        if (FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active) {
+          Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
+        }
+      }
+      else Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
     }
   }
 

@@ -25,7 +25,7 @@ namespace Game
 
   std::array<bool, 6> pause_buttons;
 
-  FlexECS::Entity& active_entity = FlexECS::Entity::Null;
+  std::string active_entity;
 
   void Set_Up_Settings_Menu() {
     std::array<std::string, 9> slider_names = {
@@ -78,7 +78,7 @@ namespace Game
 
     open_settings ^= true;
     if (open_settings) {
-      active_entity = FlexECS::Scene::GetEntityByName("Master Volume Sprite");
+      active_entity = "Master Volume Sprite";
       FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
     }
   }
@@ -103,13 +103,14 @@ namespace Game
     }
 
     FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
-    //Set_Up_Settings_Menu();
+    Set_Up_Settings_Menu();
 
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<VideoPlayer>())
     {
       auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(element.GetComponent<VideoPlayer>()->video_file));
       video.RestartVideo();
     }
+    Application::GetCurrentWindow()->ToggleFullScreen(false);
   }
 
   void MenuLayer::OnDetach()
@@ -122,37 +123,26 @@ namespace Game
   void MenuLayer::Update()
   {
     bool return_to_menu = Application::MessagingSystem::Receive<bool>("Return to Menu");
-    pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Master Volume");
-    pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active BGM Volume");
-    pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active SFX Volume");
-    pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Display Mode");
-    pause_buttons[4] = Application::MessagingSystem::Receive<bool>("Active Return Button");
-    pause_buttons[5] = Application::MessagingSystem::Receive<bool>("Active Quit Button");
+    std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
 
     // check for escape key
     if (return_to_menu) Settings_Menu_Functionality();
 
     if (open_settings) {
-      if (std::any_of(pause_buttons.begin(), pause_buttons.end(), [](bool state) {
-        return state;
-      })) {
-        active_entity.GetComponent<Transform>()->is_active = false;
-        
-        if (pause_buttons[0]) active_entity = FlexECS::Scene::GetEntityByName("Master Volume Sprite");
-        else if (pause_buttons[1]) active_entity = FlexECS::Scene::GetEntityByName("BGM Volume Sprite");
-        else if (pause_buttons[2]) active_entity = FlexECS::Scene::GetEntityByName("SFX Volume Sprite");
-        else if (pause_buttons[3]) active_entity = FlexECS::Scene::GetEntityByName("Display Mode Sprite");
-        else if (pause_buttons[4]) active_entity = FlexECS::Scene::GetEntityByName("Return Button Sprite");
-        else if (pause_buttons[5]) active_entity = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
-          
-        active_entity.GetComponent<Scale>()->scale.x = 0.f;
-        active_entity.GetComponent<Transform>()->is_active = true;
+      if (active_sprite.second) {
+        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
+        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
+        active_entity = active_sprite.first;
       }
       
-      if (active_entity.GetComponent<Scale>()->scale.x != active_entity.GetComponent<Slider>()->original_scale.x) {
-        active_entity.GetComponent<Scale>()->scale.x += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        active_entity.GetComponent<Scale>()->scale.x = std::clamp(active_entity.GetComponent<Scale>()->scale.x,
-          0.f, active_entity.GetComponent<Slider>()->original_scale.x);
+      if (FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x !=
+        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Slider>()->original_scale.x) {
+        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x +=
+          Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
+        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x =
+          std::clamp(FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x,
+          0.f, FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Slider>()->original_scale.x);
       }
 
       return;

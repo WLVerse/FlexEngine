@@ -112,8 +112,7 @@ namespace Game
         bool change_phase = false;
 
         // Pause Buttons
-        std::array<bool, 4> pause_buttons;
-        FlexECS::Entity& active_pause_button = FlexECS::Entity::Null;
+        std::string active_pause_button;
 
         // Camera Original Ortho dimensions
         float m_originalWidth;
@@ -3608,7 +3607,7 @@ namespace Game
 
       battle.is_paused ^= true;
       if (battle.is_paused) {
-        battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
+        battle.active_pause_button = "Resume Button Sprite";
         FlexECS::Scene::GetEntityByName("Resume Button Sprite").GetComponent<Transform>()->is_active = true;
       }
     }
@@ -3617,7 +3616,7 @@ namespace Game
     {
       ClearBattleStruct();
       Start_Of_Game();
-      //Set_Up_Pause_Menu();
+      Set_Up_Pause_Menu();
     }
 
     void BattleLayer::OnDetach()
@@ -3634,10 +3633,7 @@ namespace Game
             FlexECS::Scene::GetEntityByName("FPS Display").GetComponent<Transform>()->is_active ^= true;
         }
 
-        battle.pause_buttons[0] = Application::MessagingSystem::Receive<bool>("Active Resume Button");
-        battle.pause_buttons[1] = Application::MessagingSystem::Receive<bool>("Active Settings Button");
-        battle.pause_buttons[2] = Application::MessagingSystem::Receive<bool>("Active How Button");
-        battle.pause_buttons[3] = Application::MessagingSystem::Receive<bool>("Active Quit Game Button");
+        std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
 
         /*bool move_one_click = Application::MessagingSystem::Receive<bool>("MoveOne clicked");
         bool move_two_click = Application::MessagingSystem::Receive<bool>("MoveTwo clicked");
@@ -3721,26 +3717,22 @@ namespace Game
         }
 
         if (battle.is_paused) {
-          if (std::any_of(battle.pause_buttons.begin(), battle.pause_buttons.end(), [](bool state) {
-            return state;
-          })) {
-            battle.active_pause_button.GetComponent<Transform>()->is_active = false;
-            if (battle.pause_buttons[0]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Resume Button Sprite");
-            else if (battle.pause_buttons[1]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Settings Button Sprite");
-            else if (battle.pause_buttons[2]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("How Button Sprite");
-            else if (battle.pause_buttons[3]) battle.active_pause_button = FlexECS::Scene::GetEntityByName("Quit Button Sprite");
-            battle.active_pause_button.GetComponent<Scale>()->scale.x = 0.f;
-            battle.active_pause_button.GetComponent<Transform>()->is_active = true;
+          if (active_sprite.second) {
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+            FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
+            battle.active_pause_button = active_sprite.first;
           }
 
-          if (battle.active_pause_button.GetComponent<Scale>()->scale.x !=
-            battle.active_pause_button.GetComponent<Slider>()->original_scale.x) {
-            battle.active_pause_button.GetComponent<Scale>()->scale.x += 
+          if (FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x !=
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Slider>()->original_scale.x) {
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x +=
               Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-            battle.active_pause_button.GetComponent<Scale>()->scale.x =
-              std::clamp(battle.active_pause_button.GetComponent<Scale>()->scale.x, 0.f,
-                battle.active_pause_button.GetComponent<Slider>()->original_scale.x);
+            FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x =
+              std::clamp(FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Scale>()->scale.x, 0.f,
+                FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Slider>()->original_scale.x);
           }
+
           return;
         }
 
