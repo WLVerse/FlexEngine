@@ -153,7 +153,7 @@ namespace FlexEngine
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		#pragma endregion
 
-		std::cout << "\nVidinfo:\n" << path.string() << "\n" << m_length << " IS THELENGTH!!!   "<< "AND THE FRAME COUNT IS: " << m_totalframes << "    AND THE TRUE DURATION IS: " << m_format_ctx->duration << "\n\n";
+		//std::cout << "\nVidinfo:\n" << path.string() << "\n" << m_length << " IS THELENGTH!!!   "<< "AND THE FRAME COUNT IS: " << m_totalframes << "    AND THE TRUE DURATION IS: " << m_format_ctx->duration << "\n\n";
 
 		DecodeNextFrame(); // to update texture;
 		return true;
