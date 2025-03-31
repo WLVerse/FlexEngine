@@ -44,6 +44,9 @@ public:
 
   void Update() override
   {
+    if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active) {
+      return;
+    }
     if (Input::GetKey(GLFW_KEY_W))
     {
       if (!self.GetComponent<BoundingBox2D>()->is_colliding) self.GetComponent<Position>()->position.y += movement_speed * dt;

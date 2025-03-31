@@ -34,6 +34,9 @@ public:
 
   void Update() override
   {
+    if (Input::GetMousePositionDelta().x > 0.f || Input::GetMousePositionDelta().y > 0.f) {
+      editing_volume = false;
+    }
     if (self.GetComponent<Transform>()->is_active) {
       if (!is_volume) {
         active_entity = "Master Volume Sprite";
@@ -41,17 +44,11 @@ public:
       }
       if (Input::GetKeyDown(GLFW_KEY_W) && !editing_volume) {
         Input::Cleanup();
-        for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-          entity.GetComponent<Transform>()->is_active = false;
-        }
         FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
         Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Resume Button Sprite", true});
       }
       if (Input::GetKeyDown(GLFW_KEY_S) && !editing_volume) {
         Input::Cleanup();
-        for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-          entity.GetComponent<Transform>()->is_active = false;
-        }
         FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
         Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "How Button Sprite", true});
       }
@@ -59,31 +56,17 @@ public:
         Input::Cleanup();
         if (editing_volume) {
           editing_volume = false;
-          FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = false;
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, PauseHoverUI, SettingsUI>()) {
+            entity.GetComponent<Transform>()->is_active = false;
+          }
         }
         else Application::MessagingSystem::Send("Resume Game", true);
       }
       if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
         Input::Cleanup();
-        active_entity = "Master Volume Sprite";
+        Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
         FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
         editing_volume = true;
-      }
-      std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Volume Sprite");
-      if (active_sprite.second) {
-        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
-        active_entity = active_sprite.first;
-      }
-
-      if (FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x !=
-        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Slider>()->original_scale.x) {
-        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x +=
-          Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
-        FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x =
-          std::clamp(FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Scale>()->scale.x,
-          0.f, FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Slider>()->original_scale.x);
       }
     }
     else {
@@ -95,9 +78,6 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
       !self.GetComponent<Transform>()->is_active) {
-      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, SettingsUI>()) {
-        if (!entity.HasComponent<Slider>() || !entity.HasComponent<Script>()) entity.GetComponent<Transform>()->is_active = true;
-      }
       Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Settings Button Sprite", true});
     }
   }

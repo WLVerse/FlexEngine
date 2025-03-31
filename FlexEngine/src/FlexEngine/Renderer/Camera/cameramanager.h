@@ -20,7 +20,7 @@ namespace FlexEngine
         static bool has_main_camera;
 
         // Tries to find camera if there is none
-        static void TryMainCamera();
+        static bool TryMainCamera();
 
         /*!************************************************************************
         * \brief Gets the Main Game camera if available.
