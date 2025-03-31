@@ -91,8 +91,8 @@ namespace Game
     {
         m_CutsceneActive = false;
 
-        m_currShot.GetComponent<Transform>()->is_active = false;
-        m_nextShot.GetComponent<Transform>()->is_active = false;
+        //m_currShot.GetComponent<Transform>()->is_active = false;
+        //m_nextShot.GetComponent<Transform>()->is_active = false;
         //Additional logic
         Application::MessagingSystem::Send("Start Game", true);
     }
