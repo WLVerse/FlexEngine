@@ -247,6 +247,10 @@ namespace Game
         {
             Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
             startcombat = true;
+            // Awful code to delete renko's script so he can't move haha...
+            FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
+            renko.RemoveComponent<Script>();
+            renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
         }
 
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
@@ -263,6 +267,10 @@ namespace Game
         {
             Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
             startcombat = true;
+                        // Awful code to delete renko's script so he can't move haha...
+            FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
+            renko.RemoveComponent<Script>();
+            renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
         }
 
 
