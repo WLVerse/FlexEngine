@@ -157,7 +157,7 @@ namespace FlexEngine
 
   public:
     Window(const std::string& window_name, const WindowProps& props)
-      : name(window_name), m_props(props)
+      : name(window_name), m_props(props), m_is_full_screen(true)
     {
     }
     ~Window() { if (is_init) Close(); }

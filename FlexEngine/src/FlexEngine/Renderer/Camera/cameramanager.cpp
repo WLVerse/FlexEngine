@@ -65,7 +65,7 @@ namespace FlexEngine
         Log::Debug("Main Game camera set for Entity ID: " + std::to_string(id));
     }
 
-    const Vector4& CameraManager::GetMouseToWorld()
+    Vector4 CameraManager::GetMouseToWorld()
     {
       Vector4 clip = {
         (2.0f * Input::GetMousePosition().x) / Application::GetCurrentWindow()->GetWidth() - 1.0f,
