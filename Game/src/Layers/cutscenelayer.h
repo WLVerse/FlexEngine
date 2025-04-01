@@ -52,8 +52,8 @@ namespace Game
         size_t m_currDialogueIndex = 0;  // Which dialogue line is active.
 
         // Entities used for rendering.
-        FlexECS::Entity m_currShot;
-        FlexECS::Entity m_nextShot;
+        //FlexECS::Entity m_currShot;
+        //FlexECS::Entity m_nextShot;
         FlexECS::Entity m_dialoguebox;
         FlexECS::Entity m_shadowdialoguebox;
         FlexECS::Entity m_dialoguearrow;

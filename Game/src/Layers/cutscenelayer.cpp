@@ -114,25 +114,25 @@ namespace Game
         m_TransitionPhase = TransitionPhase::None;
 
         // Update the sprite components for the current and next shots.
-        auto* currSprite = m_currShot.GetComponent<Sprite>();
-        auto* nextSprite = m_nextShot.GetComponent<Sprite>();
+        //auto* currSprite = m_currShot.GetComponent<Sprite>();
+        //auto* nextSprite = m_nextShot.GetComponent<Sprite>();
 
         // If there are cutscene images available, assign the first image to the current shot
         // and the second image (if available) to the next shot.
-        if (!m_CutsceneImages.empty())
-        {
-            currSprite->sprite_handle = m_CutsceneImages[0];
-            nextSprite->sprite_handle = (m_CutsceneImages.size() > 1) ? m_CutsceneImages[1] : 0;
-        }
-        else
-        {
-            currSprite->sprite_handle = 0;
-            nextSprite->sprite_handle = 0;
-        }
+        //if (!m_CutsceneImages.empty())
+        //{
+        //    currSprite->sprite_handle = m_CutsceneImages[0];
+        //    nextSprite->sprite_handle = (m_CutsceneImages.size() > 1) ? m_CutsceneImages[1] : 0;
+        //}
+        //else
+        //{
+        //    currSprite->sprite_handle = 0;
+        //    nextSprite->sprite_handle = 0;
+        //}
 
-        // Reset opacities to ensure full visibility.
-        currSprite->opacity = 1.0f;
-        nextSprite->opacity = 1.0f;
+        //// Reset opacities to ensure full visibility.
+        //currSprite->opacity = 1.0f;
+        //nextSprite->opacity = 1.0f;
 
         // Mark the cutscene as active and restart it.
         m_CutsceneActive = true;
