@@ -65,6 +65,10 @@ namespace Game
     for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PauseUI, Slider>()) {
       entity.GetComponent<Slider>()->original_scale = entity.GetComponent<Scale>()->scale;
     }
+    if (Application::GetCurrentWindow()->GetFullScreen()) {
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
+    }
+    else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
     #pragma endregion
   }
 

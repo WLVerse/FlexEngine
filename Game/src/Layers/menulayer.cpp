@@ -110,7 +110,10 @@ namespace Game
       auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(element.GetComponent<VideoPlayer>()->video_file));
       video.RestartVideo();
     }
-    Application::GetCurrentWindow()->ToggleFullScreen(false);
+    if (Application::GetCurrentWindow()->GetFullScreen()) {
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
+    }
+    else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
   }
 
   void MenuLayer::OnDetach()
