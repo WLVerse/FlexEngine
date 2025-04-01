@@ -228,7 +228,6 @@ namespace FlexEngine
 			Log::Error("Invalid frame rate.");
 			return false;
 		}
-		std::cout << "FPS: " << fps << "\n";
 
 		//Convert frame number to time in seconds.
 		double targetTime = static_cast<double>(frameNumber) / fps;
