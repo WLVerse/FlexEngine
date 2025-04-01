@@ -223,8 +223,8 @@ namespace Game
                 lerpFactor);
 
     //camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
-    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -80.f, 730.f);
+    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -1080.f, 710.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -275.f, 930.f);
 
 #pragma endregion
 #pragma region Scene Transition
