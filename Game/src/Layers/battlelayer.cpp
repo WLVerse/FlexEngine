@@ -3716,7 +3716,7 @@ namespace Game
     void Pause_Functionality() {
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI>()) {
         bool& state_to_set = entity.GetComponent<Transform>()->is_active;
-        if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<CreditsUI>()) state_to_set = false;
+        if (entity.HasComponent<PauseHoverUI>() || entity.HasComponent<CreditsUI>() || entity.HasComponent<QuitUI>()) state_to_set = false;
         else state_to_set ^= true;
       }
 
@@ -3834,7 +3834,15 @@ namespace Game
         }
 
         if (battle.is_paused) {
-          if (!FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
+
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>()) {
+            if (!entity.GetComponent<Transform>()->is_active) break;
+
+            entity.GetComponent<PostProcessingMarker>()->enableGaussianBlur = true;
+          }
+
+          if (!FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active &&
+            !FlexECS::Scene::GetEntityByName("Quit Game Confirmation Prompt").GetComponent<Transform>()->is_active) {
             if (active_pause_sprite.second) {
               FlexECS::Scene::GetEntityByName(battle.active_pause_button).GetComponent<Transform>()->is_active = false;
               FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
@@ -3882,7 +3890,14 @@ namespace Game
 
           return;
         }
+        else
+        {
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>()) {
+            if (!entity.GetComponent<Transform>()->is_active) break;
 
+            entity.GetComponent<PostProcessingMarker>()->enableGaussianBlur = false;
+          }
+        }
         if (battle.is_tutorial && battle.is_tutorial_running)
         {
             std::string text_to_show;

@@ -405,6 +405,13 @@ namespace FlexEngine
   public:
   };
 
+  class __FLX_API QuitUI
+  {
+    FLX_REFL_SERIALIZABLE
+
+  public:
+  };
+
   class __FLX_API PauseUI
   {
     FLX_REFL_SERIALIZABLE
