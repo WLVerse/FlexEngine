@@ -233,7 +233,7 @@ namespace Game
         auto& asset = FLX_ASSET_GET(Asset::Battle, assetkey);
 
         // Retrieve the current camera entity by name (assuming it's named "Camera")
-        FlexECS::Entity currentCamera = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+        FlexECS::Entity currentCamera = FlexECS::Scene::GetEntityByName("Camera");
 
         // Create a new entity for the UI Camera.
         FlexECS::Entity uiCamera = FlexECS::Scene::CreateEntity("UI Camera");
@@ -3855,7 +3855,7 @@ namespace Game
             return;
 
         // --- Get the camera entity and its position component ---
-        FlexECS::Entity cameraEntity = FlexECS::Scene::GetActiveScene()->GetEntityByName("Camera");
+        FlexECS::Entity cameraEntity = FlexECS::Scene::GetEntityByName("Camera");
         auto posComp = cameraEntity.GetComponent<Position>();
         if (!posComp)
             return;
