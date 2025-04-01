@@ -223,8 +223,8 @@ namespace Game
                 lerpFactor);
 
     //camera.GetComponent<Position>()->position = main_character.GetComponent<Position>()->position;
-    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -680.f, 510.f);
-    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -80.f, 730.f);
+    camera.GetComponent<Position>()->position.x = std::clamp(camera.GetComponent<Position>()->position.x, -1080.f, 710.f);
+    camera.GetComponent<Position>()->position.y = std::clamp(camera.GetComponent<Position>()->position.y, -275.f, 930.f);
 
 #pragma endregion
 #pragma region Scene Transition
@@ -247,6 +247,10 @@ namespace Game
         {
             Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
             startcombat = true;
+            // Awful code to delete renko's script so he can't move haha...
+            FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
+            renko.RemoveComponent<Script>();
+            renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
         }
 
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
@@ -263,6 +267,10 @@ namespace Game
         {
             Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 3, 1.2 });
             startcombat = true;
+                        // Awful code to delete renko's script so he can't move haha...
+            FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
+            renko.RemoveComponent<Script>();
+            renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
         }
 
 

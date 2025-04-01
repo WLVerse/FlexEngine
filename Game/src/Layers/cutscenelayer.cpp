@@ -22,15 +22,20 @@ namespace Game
 
     void CutsceneLayer::OnAttach()
     {
-        File& file = File::Open(Path::current("assets/saves/cutscene.flxscene"));
+        File& file = File::Open(Path::current("assets/saves/cutscene3.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
-        loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
-                     FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
+        CameraManager::TryMainCamera();
+
+        //loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
+        //             FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
+        m_videoplayer = FlexECS::Scene::GetEntityByName("VideoPlayer");
 
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
 
+
+        /*
         // Create the current shot entity.
        // Intentionally setting sprite handle to 0.
         m_currShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Current Shot");
@@ -40,11 +45,12 @@ namespace Game
         m_nextShot = FlexECS::Scene::GetActiveScene()->GetEntityByName("Next Shot");
         if (m_currFrameIndex + 1 < m_CutsceneImages.size())
             m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
+        */
 
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
-        m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
+        //m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
         m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Shadow Dialogue Box");
-        m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
+        //m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
         m_dialoguearrow = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Arrow");
 
         m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
@@ -59,6 +65,9 @@ namespace Game
         
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
+
+        loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxdialogue)"),
+                     FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxvideocutscene)"));
 
         Application::MessagingSystem::Send("TransitionStart", std::pair<int,double>{ 1,1.0 });
     }
@@ -78,21 +87,23 @@ namespace Game
 
         // Reset timers and transition phase.
         UpdateTimings(false);
+
+        m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
+        m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
     }
 
     void CutsceneLayer::StopCutscene()
     {
         m_CutsceneActive = false;
 
-        m_currShot.GetComponent<Transform>()->is_active = false;
-        m_nextShot.GetComponent<Transform>()->is_active = false;
+        //m_currShot.GetComponent<Transform>()->is_active = false;
+        //m_nextShot.GetComponent<Transform>()->is_active = false;
         //Additional logic
         Application::MessagingSystem::Send("Start Game", true);
     }
 
     void CutsceneLayer::RestartCutscene()
     {
-
         // Reload the cutscene assets.
         loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
                      FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
@@ -108,25 +119,25 @@ namespace Game
         m_TransitionPhase = TransitionPhase::None;
 
         // Update the sprite components for the current and next shots.
-        auto* currSprite = m_currShot.GetComponent<Sprite>();
-        auto* nextSprite = m_nextShot.GetComponent<Sprite>();
+        //auto* currSprite = m_currShot.GetComponent<Sprite>();
+        //auto* nextSprite = m_nextShot.GetComponent<Sprite>();
 
         // If there are cutscene images available, assign the first image to the current shot
         // and the second image (if available) to the next shot.
-        if (!m_CutsceneImages.empty())
-        {
-            currSprite->sprite_handle = m_CutsceneImages[0];
-            nextSprite->sprite_handle = (m_CutsceneImages.size() > 1) ? m_CutsceneImages[1] : 0;
-        }
-        else
-        {
-            currSprite->sprite_handle = 0;
-            nextSprite->sprite_handle = 0;
-        }
+        //if (!m_CutsceneImages.empty())
+        //{
+        //    currSprite->sprite_handle = m_CutsceneImages[0];
+        //    nextSprite->sprite_handle = (m_CutsceneImages.size() > 1) ? m_CutsceneImages[1] : 0;
+        //}
+        //else
+        //{
+        //    currSprite->sprite_handle = 0;
+        //    nextSprite->sprite_handle = 0;
+        //}
 
-        // Reset opacities to ensure full visibility.
-        currSprite->opacity = 1.0f;
-        nextSprite->opacity = 1.0f;
+        //// Reset opacities to ensure full visibility.
+        //currSprite->opacity = 1.0f;
+        //nextSprite->opacity = 1.0f;
 
         // Mark the cutscene as active and restart it.
         m_CutsceneActive = true;
@@ -137,7 +148,9 @@ namespace Game
     {
         // Retrieve the dialogue and cutscene assets.
         auto& asset_dialogue = FLX_ASSET_GET(Asset::Dialogue, FLX_STRING_GET(dialogue_file));
-        auto& asset_cutscene = FLX_ASSET_GET(Asset::Cutscene, FLX_STRING_GET(cutscene_file));
+        auto& asset_cutscene = FLX_ASSET_GET(Asset::VideoCutscene, FLX_STRING_GET(cutscene_file));
+        //auto& asset_cutscene = FLX_ASSET_GET(Asset::Cutscene, FLX_STRING_GET(cutscene_file));
+
         m_currDialogueFile = dialogue_file;
         m_currCutsceneFile = cutscene_file;
 
@@ -160,6 +173,7 @@ namespace Game
 
             const auto& info = it->second;
 
+            /*
             // For a single frame cutscene, simply load the image without a frame number.
             if (info.frameStart == info.frameEnd)
             {
@@ -177,6 +191,7 @@ namespace Game
                     m_CutsceneImages.push_back(FLX_STRING_NEW(buffer));
                 }
             }
+            */
 
             // For conversion into Flx_String for easy retrival
             for (const auto& block : entry.blocks)
@@ -190,29 +205,57 @@ namespace Game
             }
         }
 
+        //a one-time setting, initialize, when loading scene
+        auto& dialogueAsset = FLX_ASSET_GET(Asset::Dialogue, FLX_STRING_GET(m_currDialogueFile));
+        auto& cutsceneAsset = FLX_ASSET_GET(Asset::VideoCutscene, FLX_STRING_GET(m_currCutsceneFile));
+        const auto& dialogueEntry = dialogueAsset.dialogues[m_currSectionIndex];
+        const std::string& cutsceneName = dialogueEntry.cutsceneName;
+
+        std::string& videopath = FLX_STRING_GET(m_videoplayer.GetComponent<VideoPlayer>()->video_file);
+        videopath = cutsceneAsset.cutscenes[cutsceneName].videoPath;
+
+        //set time (this actually does nothing)
+        m_videoplayer.GetComponent<VideoPlayer>()->time = cutsceneAsset.cutscenes[cutsceneName].startTime;
+
+        //Seek to correct timing in video
+        auto& video = FLX_ASSET_GET(VideoDecoder, videopath);
+        video.Seek(cutsceneAsset.cutscenes[cutsceneName].startTime);
+        video.DecodeNextFrame();
+
+        //And finally set playback speed.
+        m_videoplayer.GetComponent<VideoPlayer>()->playback_speed = cutsceneAsset.cutscenes[cutsceneName].timeScale;
+        m_videoplayer.GetComponent<VideoPlayer>()->should_play = true;
+
         // Update the timings of cutscene
-        UpdateTimings(false);
+        //UpdateTimings(false);
+        StartCutscene();
     }
 
     // Main update function now becomes a high-level coordinator.
     void CutsceneLayer::Update()
     {
-        if (m_currShot == FlexECS::Entity::Null || m_nextShot == FlexECS::Entity::Null)
-        {
-            Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
-            return;
-        }
+        //if (m_currShot == FlexECS::Entity::Null || m_nextShot == FlexECS::Entity::Null)
+        //{
+            //Log::Debug("Cutscene Shots have been deleted. Please do not delete them.");
+            //return;
+        //}
        
 
         // Handles Transition Messages
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
         if (transitionMSG == 1)
-            StartCutscene();
+        {
+          //StartCutscene();
+        }
         else if (transitionMSG == 2)
-            StopCutscene();
+        {
+          StopCutscene();
+        }
 
         if (!m_CutsceneActive)
-            return;
+        {
+          return;
+        }
 
         float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
@@ -230,11 +273,13 @@ namespace Game
         else
             updateDialogueManual(dt);
 
+        updateVideoPlayback();
+
         // Update image frames.
-        updateImageFrames(dt);
+        //updateImageFrames(dt);
 
         // Update transition effects.
-        updateTransitionPhase(dt);
+        //updateTransitionPhase(dt);
     }
 
     #pragma region Helper Func
@@ -269,7 +314,7 @@ namespace Game
     {
         // Retrieve the dialogue and cutscene assets.
         auto& dialogueAsset = FLX_ASSET_GET(Asset::Dialogue, FLX_STRING_GET(m_currDialogueFile));
-        auto& cutsceneAsset = FLX_ASSET_GET(Asset::Cutscene, FLX_STRING_GET(m_currCutsceneFile));
+        auto& cutsceneAsset = FLX_ASSET_GET(Asset::VideoCutscene, FLX_STRING_GET(m_currCutsceneFile));
 
         // If moving to the next section, update section and reset the current frame index.
         if (toNextSection)
@@ -282,7 +327,8 @@ namespace Game
         // Ensure we haven't run past the dialogue entries.
         if (m_currSectionIndex >= dialogueAsset.dialogues.size())
         {
-            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+            //Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+            StopCutscene();
             return;
         }
 
@@ -291,7 +337,49 @@ namespace Game
         const auto& dialogueEntry = dialogueAsset.dialogues[m_currSectionIndex];
         const std::string& cutsceneName = dialogueEntry.cutsceneName;
 
+        if (toNextSection)
+        {
+          //Change video file of video player,
+          //And seek to the intended frame,
+          //And set timescale
+          //Set path of video to be played
+          std::string& videopath = FLX_STRING_GET(m_videoplayer.GetComponent<VideoPlayer>()->video_file);
+          videopath = cutsceneAsset.cutscenes[cutsceneName].videoPath;
+
+          //set time (this actually does nothing)
+          m_videoplayer.GetComponent<VideoPlayer>()->time = cutsceneAsset.cutscenes[cutsceneName].startTime;
+
+          //Seek to correct timing in video
+          auto& video = FLX_ASSET_GET(VideoDecoder, videopath);
+
+          if (cutsceneAsset.cutscenes[cutsceneName].startTime == 0.0f)
+          {
+            video.RestartVideo();
+          }
+          else if (cutsceneAsset.cutscenes[cutsceneName].endingTime >= 50.0f)
+          {
+            video.SeekEnd();
+          }
+          else
+          {
+            video.Seek(cutsceneAsset.cutscenes[cutsceneName].startTime);
+          }
+
+          //And finally set playback speed.
+          m_videoplayer.GetComponent<VideoPlayer>()->playback_speed = cutsceneAsset.cutscenes[cutsceneName].timeScale;
+          if ((cutsceneAsset.cutscenes[cutsceneName].startTime == cutsceneAsset.cutscenes[cutsceneName].endingTime) || cutsceneAsset.cutscenes[cutsceneName].endingTime >= 50.0f)
+          {
+            m_videoplayer.GetComponent<VideoPlayer>()->should_play = false;
+          }
+          else
+          {
+            m_videoplayer.GetComponent<VideoPlayer>()->should_play = true;
+          }
+          //video.DecodeNextFrame();
+        }
+
         // Look up the cutscene info based on the cutscene name.
+        /*
         auto it = cutsceneAsset.cutscenes.find(cutsceneName);
         if (it != cutsceneAsset.cutscenes.end())
         {
@@ -314,6 +402,7 @@ namespace Game
             m_PerFrameDuration = m_ImageDuration;
             m_frameCount = 1;
         }
+        */
 
         // Reset timers and transition phase.
         m_ElapsedTime = 0.0f;
@@ -358,13 +447,14 @@ namespace Game
             if (m_currDialogueIndex >= dialogueBlock.size())
             {
                 // Dialogue block complete – skip any remaining frames and trigger transition.
-                skipRemainingFrames();
+                //skipRemainingFrames();
                 m_TransitionPhase = TransitionPhase::PreTransition;
                 m_TransitionElapsedTime = 0.0f;
             }
         }
     }
 
+    /*
     // Remove any unplayed frames and update the current and next shots.
     void CutsceneLayer::skipRemainingFrames()
     {
@@ -378,6 +468,7 @@ namespace Game
         else
             m_nextShot.GetComponent<Sprite>()->sprite_handle = 0;
     }
+    */
 
     // Update dialogue in auto–run mode.
     void CutsceneLayer::updateDialogueAuto(float dt)
@@ -454,6 +545,45 @@ namespace Game
         }
     }
 
+    void CutsceneLayer::updateVideoPlayback()
+    {
+      if (m_TransitionPhase == TransitionPhase::None)
+      {
+        //continue playing as per normal
+        //Pause the video by setting shouldplay to false if overshooting time
+        auto& cutsceneAsset = FLX_ASSET_GET(Asset::VideoCutscene, FLX_STRING_GET(m_currCutsceneFile));
+        auto& dialogueAsset = FLX_ASSET_GET(Asset::Dialogue, FLX_STRING_GET(m_currDialogueFile));
+
+        const auto& dialogueEntry = dialogueAsset.dialogues[m_currSectionIndex];
+        const std::string& cutsceneName = dialogueEntry.cutsceneName;
+
+        auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(m_videoplayer.GetComponent<VideoPlayer>()->video_file));
+        if (video.m_current_time > cutsceneAsset.cutscenes[cutsceneName].endingTime)
+        {
+          m_videoplayer.GetComponent<VideoPlayer>()->should_play = false;
+          video.Seek(cutsceneAsset.cutscenes[cutsceneName].endingTime);
+        }
+          
+      }
+      else if (m_TransitionPhase == TransitionPhase::PreTransition)
+      {
+        m_ElapsedTime = 0.0f;
+        UpdateTimings(true); // Prepare next section.
+        m_currDialogueIndex = 0;
+        m_dialogueTimer = 0.0f;
+        m_dialogueHoldTimer = 0.0f;
+        //UpdateTimings(true);
+        //time to switch, set variables
+        //auto videoplayer = m_videoplayer.GetComponent<VideoPlayer>();
+        //auto& video = FLX_ASSET_GET(VideoPlayer, FLX_STRING_GET(videoplayer->video_file));
+        //auto& asset_cutscene = FLX_ASSET_GET(Asset::VideoCutscene, FLX_STRING_GET(m_currCutsceneFile));
+
+        //const auto& dialogueBlock = m_CutsceneDialogue[m_currSectionIndex];
+        //asset_cutscene.cutscenes[dialogueBlock.];
+      }
+    }
+
+    /*
     // Update image frame timing for multi–frame sections.
     void CutsceneLayer::updateImageFrames(float dt)
     {
@@ -492,8 +622,8 @@ namespace Game
             }
         }
     }
-
-
+    */
+    
     // Update transition phases (fade–out and fade–in effects).
     void CutsceneLayer::updateTransitionPhase(float dt)
     {
@@ -501,12 +631,12 @@ namespace Game
         {
             m_TransitionElapsedTime += dt;
             float progress = m_TransitionElapsedTime / m_PreTransitionDuration;
-            float newOpacity = FlexMath::Lerp(1.0f, 0.0f, progress);
-            m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
+            //float newOpacity = FlexMath::Lerp(1.0f, 0.0f, progress);
+            //m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
 
             if (m_TransitionElapsedTime >= m_PreTransitionDuration)
             {
-                SwapShots();
+                //SwapShots();
                 m_TransitionPhase = TransitionPhase::PostTransition;
                 m_TransitionElapsedTime = 0.0f;
             }
@@ -525,7 +655,9 @@ namespace Game
             }
         }
     }
+    
 
+    /*
     void CutsceneLayer::SwapShots()
     {
         // If there is only one (or zero) image left, we have reached the end.
@@ -552,6 +684,9 @@ namespace Game
         std::string txt = FLX_STRING_GET(m_currShot.GetComponent<Sprite>()->sprite_handle);
         std::string txt2 = FLX_STRING_GET(m_nextShot.GetComponent<Sprite>()->sprite_handle);
     }
+    */
+    
+    
     #pragma endregion
 
     #pragma region UI Animation

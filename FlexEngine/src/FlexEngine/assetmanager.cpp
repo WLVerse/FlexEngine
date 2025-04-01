@@ -190,12 +190,20 @@ namespace FlexEngine
         }
         else if (file_extension.string() == ".flxcutscene")
         {
-            // create an asset key
-            AssetKey key = file.path.string().substr(default_directory_length);
-            // load move
-            Asset::Cutscene test = Asset::Cutscene(file);
-            assets.emplace(key, test);
-            //Log::Info("Dialogue file: " + key);
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load move
+          Asset::Cutscene test = Asset::Cutscene(file);
+          assets.emplace(key, test);
+          //Log::Info("Dialogue file: " + key);
+        }
+        else if (file_extension.string() == ".flxvideocutscene")
+        {
+          // create an asset key
+          AssetKey key = file.path.string().substr(default_directory_length);
+          // load move
+          Asset::VideoCutscene cutscene = Asset::VideoCutscene(file);
+          assets.emplace(key, cutscene);
         }
         else { Log::Warning("Unsupported file type: " + file.path.string()); }
       }

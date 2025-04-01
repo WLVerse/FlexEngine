@@ -68,9 +68,10 @@ namespace FlexEngine
 			return false;
 		}
 
-		//Save video info - length and framerate
+		//Save video info - length and framerate and framecount
 		m_length = static_cast<float>(m_format_ctx->duration) / AV_TIME_BASE;
-		
+		m_totalframes = m_format_ctx->streams[m_video_stream_index]->nb_frames;
+
 		//Find out framerate of video
 		//AVStream* video_stream = m_format_ctx->streams[m_video_stream_index];
 		//// Try using avg_frame_rate first
@@ -152,6 +153,9 @@ namespace FlexEngine
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		#pragma endregion
 
+		//std::cout << "\nVidinfo:\n" << path.string() << "\n" << m_length << " IS THELENGTH!!!   "<< "AND THE FRAME COUNT IS: " << m_totalframes << "    AND THE TRUE DURATION IS: " << m_format_ctx->duration << "\n\n";
+
+		DecodeNextFrame(); // to update texture;
 		return true;
 	}
 
@@ -171,6 +175,11 @@ namespace FlexEngine
 	{
 		if (!m_format_ctx || m_video_stream_index == -1) return false;
 
+		if (time >= m_length)
+		{
+			return SeekEnd();
+		}
+
 		// Convert time in seconds to target frame
 		double time_base = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
 		int64_t target_timestamp = static_cast<int64_t>(time / time_base);
@@ -187,7 +196,84 @@ namespace FlexEngine
 		// Reset frame timing
 		m_current_time = time;
 		m_next_frame_time = time;
+		m_is_seeking = true;
 
+		// Optionally decode one frame immediately so that the texture is updated:
+		if (!DecodeNextFrame()) 
+		{
+			//Log::Error("Decoding frame after seek failed!");
+			return false;
+		}
+
+		m_is_seeking = false;
+		return true;
+	}
+
+	bool VideoDecoder::Seek(int frameNumber)
+	{
+		if (!m_format_ctx || m_video_stream_index == -1)
+			return false;
+
+
+		if (av_seek_frame(m_format_ctx, m_video_stream_index, frameNumber, AVSEEK_FLAG_FRAME) < 0)
+		{
+			Log::Error("Seek to Frame " + std::to_string(frameNumber) + " failed!");
+			return false;
+		}
+
+		// Retrieve the video's frame rate from the stream.
+		// Using avg_frame_rate is usually preferred.
+		double fps = av_q2d(m_format_ctx->streams[m_video_stream_index]->avg_frame_rate);
+		if (fps <= 0.0) {
+			Log::Error("Invalid frame rate.");
+			return false;
+		}
+
+		//Convert frame number to time in seconds.
+		double targetTime = static_cast<double>(frameNumber) / fps;
+
+		// Reset frame timing
+		m_current_time = targetTime;
+		m_next_frame_time = targetTime;
+
+		return DecodeNextFrame();
+		// Use the existing Seek(double time) function.
+		//return Seek(targetTime);
+	}
+
+	bool VideoDecoder::SeekEnd()
+	{
+		if (!m_format_ctx || m_video_stream_index == -1)
+			return false;
+
+		// Get the total duration of the video in time_base units
+		int64_t end_timestamp = m_format_ctx->streams[m_video_stream_index]->duration;
+
+		if (end_timestamp <= 0) // If duration is unknown, fallback to format duration
+			end_timestamp = m_format_ctx->duration / av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
+
+		// Seek to the last frame
+		if (av_seek_frame(m_format_ctx, m_video_stream_index, end_timestamp, AVSEEK_FLAG_BACKWARD) < 0)
+		{
+			Log::Debug("Seek to end of video failed!");
+			return false;
+		}
+
+		// Flush codec buffers to clear old frames
+		avcodec_flush_buffers(m_codec_ctx);
+
+		// Reset frame timing
+		m_current_time = static_cast<double>(end_timestamp) * av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
+		m_next_frame_time = m_current_time;
+		m_is_seeking = true;
+
+		// Optionally decode one frame immediately so that the texture is updated:
+		if (!DecodeNextFrame()) 
+		{
+			Log::Debug("Decoding frame after seekend failed!");
+		}
+		//m_current_time = m_next_frame_time;
+		m_is_seeking = false;
 		return true;
 	}
 
@@ -198,7 +284,10 @@ namespace FlexEngine
 
 	bool VideoDecoder::DecodeNextFrame()
 	{
-		if (av_read_frame(m_format_ctx, m_packet) >= 0)
+		double streamTimeBase = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
+
+		// Loop until a frame with pts >= m_current_time is found, or EOF.
+		while (av_read_frame(m_format_ctx, m_packet) >= 0)
 		{
 			if (m_packet->stream_index == m_video_stream_index)
 			{
@@ -206,13 +295,28 @@ namespace FlexEngine
 				{
 					while (avcodec_receive_frame(m_codec_ctx, m_frame) == 0)
 					{
-						// Convert the frame to RGBA format
-						sws_scale(m_sws_ctx, m_frame->data, m_frame->linesize, 0, m_codec_ctx->height, m_rgba_data, m_line_size);
-						
-						// Compute presentation time for this frame:
-						double time_base = av_q2d(m_format_ctx->streams[m_video_stream_index]->time_base);
-						m_next_frame_time = m_frame->pts * time_base;
-						
+						// Convert the frame to RGBA.
+						sws_scale(m_sws_ctx, m_frame->data, m_frame->linesize, 0,
+											m_codec_ctx->height, m_rgba_data, m_line_size);
+
+						double pts = m_frame->pts * streamTimeBase;
+
+						// If we are seeking, discard frames with pts < m_current_time.
+						if (m_is_seeking && pts < m_current_time)
+						{
+							continue;
+						}
+
+						// If we are seeking, force the playback clock to the target.
+						if (m_is_seeking)
+						{
+							m_next_frame_time = m_current_time;
+						}
+						else
+						{
+							m_next_frame_time = pts;
+						}
+
 						av_packet_unref(m_packet);
 						return true;
 					}
@@ -220,13 +324,7 @@ namespace FlexEngine
 			}
 			av_packet_unref(m_packet);
 		}
-		else
-		{
-			return false;	//error, or EOF
-		}
-		
-		//Todo error handling bc idk what 
-		return true;
+		return false; // End of file or error.
 	}
 }
 

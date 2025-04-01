@@ -116,6 +116,8 @@ namespace FlexEngine
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
       m_glfwwindow = glfwCreateWindow(mode->width, mode->height, m_props.title.c_str(), monitor, nullptr);
+      m_props.width = mode->width;
+      m_props.height = mode->height;
       m_is_full_screen = true;
     }
     else
