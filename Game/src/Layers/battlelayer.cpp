@@ -3673,13 +3673,6 @@ namespace Game
       FlexECS::Scene::GetEntityByName("lose audio").GetComponent<Audio>()->should_play = true;
 
       FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
-
-      static float opacity = 1.f;
-      float fade_speed = -1.f;
-      // Pingpong between opacity 0 and 1
-      if (opacity <= 0.f || opacity >= 1.f) 
-        fade_speed *= -1;
-      opacity += fade_speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
     }
 
     void Set_Up_Pause_Menu() {
