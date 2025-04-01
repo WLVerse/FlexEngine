@@ -38,6 +38,8 @@
     <ClCompile Include="src\pause_htp_rightbutton.cpp" />
     <ClCompile Include="src\pause_main_quitbutton.cpp" />
     <ClCompile Include="src\pause_main_returnbutton.cpp" />
+    <ClCompile Include="src\pause_quit_nobutton.cpp" />
+    <ClCompile Include="src\pause_quit_yesbutton.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
     <ClCompile Include="src\targetfive.cpp" />
     <ClCompile Include="src\targetfour.cpp" />

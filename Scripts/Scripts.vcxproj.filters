@@ -135,5 +135,11 @@
     <ClCompile Include="src\pause_htp_rightbutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\pause_quit_yesbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_quit_nobutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
