@@ -86,6 +86,7 @@ namespace Game
         // game state
         bool is_player_turn = false;
         float disable_input_timer = 0.f;
+        float anim_timer = 0.f;
 
         bool is_paused = false;
         //bool is_end = false;
@@ -180,6 +181,7 @@ namespace Game
 
       battle.is_player_turn = false;
       battle.disable_input_timer = 0.f;
+      battle.anim_timer = 0.f;
 
       battle.is_paused = false;
       battle.is_win = false;
@@ -2046,6 +2048,27 @@ namespace Game
         //confirm the use of move for AI or player
         if (!battle.is_player_turn || battle.is_player_turn && Input::GetKeyDown(GLFW_KEY_SPACE) && battle.initial_target != nullptr)
         {
+            if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
+            {
+                //disable move UI
+                for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
+                    entity.GetComponent<Transform>()->is_active = false;
+                //disable target UI
+                for (FlexECS::Entity& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
+                    entity.GetComponent<Transform>()->is_active = false;
+                //disable move text
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
+
+                //disable projected character icon
+                battle.projected_character.GetComponent<Transform>()->is_active = false;
+                battle.projected_character_text.GetComponent<Transform>()->is_active = false;
+            }
+
+            battle.disable_input_timer = 1.0f;
+            battle.anim_timer = battle.disable_input_timer;
             if (battle.current_character->attack_buff_duration > 0)
                 battle.current_character->attack_buff_duration -= 1;
 
@@ -2073,6 +2096,72 @@ namespace Game
 
     void Move_Resolution()
     {
+        if (battle.anim_timer > 0.0f)
+        battle.anim_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+
+        if (battle.is_player_turn)
+        {
+            // Temporarily move the character if targeting enemy
+            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+            {
+                // If targeting allies, does nothing
+            }
+            else
+            {
+                float time_elapsed = battle.anim_timer;
+                if (time_elapsed > 1.0f)
+                {
+                    time_elapsed = 1.0f;
+                }
+                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
+                if (percent_moved > 1.0f)
+                {
+                    percent_moved = 1.0f;
+                }
+                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
+
+                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot];
+
+                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
+
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
+
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+            }
+        }
+        else
+        {
+            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+            {
+                // If targeting allies, does nothing
+            }
+            else
+            {
+                float time_elapsed = battle.anim_timer;
+                if (time_elapsed > 1.0f)
+                {
+                    time_elapsed = 1.0f;
+                }
+                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
+                if (percent_moved > 1.0f)
+                {
+                    percent_moved = 1.0f;
+                }
+                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };
+
+                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
+
+                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+            }
+        }
+        if (battle.disable_input_timer > .0f)
+        {
+            return;
+        }
         if (battle.change_phase)
         {
             Log::Debug("Move Resolution");
@@ -2088,30 +2177,6 @@ namespace Game
 
             if (battle.is_player_turn) //disable move selection UI + resolve all move effects + play attack animation
             {
-                //disable move UI
-                for (FlexECS::Entity &entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, MoveUI>())
-                    entity.GetComponent<Transform>()->is_active = false;
-                //disable target UI
-                for (FlexECS::Entity &entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, CharacterSlot>())
-                    entity.GetComponent<Transform>()->is_active = false;
-                //disable move text
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 1 Text").GetComponent<Text>()->text) = "";
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 2 Text").GetComponent<Text>()->text) = "";
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move 3 Text").GetComponent<Text>()->text) = "";
-                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Move Description Text").GetComponent<Text>()->text) = "";
-
-                //disable projected character icon
-                battle.projected_character.GetComponent<Transform>()->is_active = false;
-                battle.projected_character_text.GetComponent<Transform>()->is_active = false;
-
-                //Turn off damage and targetting previews
-                /*for (auto character : battle.drifters_and_enemies)
-                {
-                    if (character.character_id <= 2) continue;
-
-                    auto entity = FlexECS::Scene::GetEntityByName(character.name + " DamagePreview");
-                    entity.GetComponent<Transform>()->is_active = false;
-                }*/
                 for (int i = 1; i < 6; i++)
                 {
                     auto entity = FlexECS::Scene::GetEntityByName("Enemy Healthbar Preview " + std::to_string(i));
@@ -2373,19 +2438,6 @@ namespace Game
                 //add speed based on move used
                 battle.current_character->current_speed = battle.current_move->speed + battle.current_character->speed_change;
                 battle.current_character->speed_change = 0;
-
-                // Temporarily move the character if targeting enemy
-                if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-                {
-                  // If targeting allies, does nothing
-                }
-                else
-                {
-                    FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
-                        battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
-                    FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
-                }
-
                 //apply player attack animation based on move used
                 auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1) ).GetComponent<Animator>();
                 switch (battle.move_num)
@@ -2886,6 +2938,64 @@ namespace Game
 
         }
         #endif
+        if (battle.is_player_turn)
+        {// Temporarily move the character if targeting enemy
+            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+            {
+                // If targeting allies, does nothing
+            }
+            else
+            {
+                float time_elapsed = battle.disable_input_timer;
+                if (time_elapsed > 1.0f)
+                {
+                    time_elapsed = 1.0f;
+                }
+                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
+                if (percent_moved > 1.0f)
+                {
+                    percent_moved = 1.0f;
+                }
+                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
+
+                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot];
+
+                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
+
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
+
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+            }
+        }
+        else
+        {
+            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
+            {
+                // If targeting allies, does nothing
+            }
+            else
+            {
+                float time_elapsed = battle.disable_input_timer;
+                if (time_elapsed > 1.0f)
+                {
+                    time_elapsed = 1.0f;
+                }
+                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
+                if (percent_moved > 1.0f)
+                {
+                    percent_moved = 1.0f;
+                }
+                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };
+
+                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
+
+                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
+
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+            }
+        }
 
         battle.enable_combat_camera = true;
         battle.force_disable_combat_camera = false;
@@ -3817,7 +3927,7 @@ namespace Game
         if (battle.disable_input_timer > 0.f)
         {
             battle.disable_input_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-            return;
+            //return;
         }
 
         
