@@ -3647,6 +3647,8 @@ namespace Game
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->return_to_default = false;
         overlay.GetComponent<Animator>()->current_frame = 0;
+
+        FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Transform>()->is_active = true;
         FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->should_play = false;
         FlexECS::Scene::GetEntityByName("win audio").GetComponent<Audio>()->audio_file =
             FLX_STRING_NEW(R"(/audio/Win Musical SFX.wav)");
@@ -3678,7 +3680,6 @@ namespace Game
       if (opacity <= 0.f || opacity >= 1.f) 
         fade_speed *= -1;
       opacity += fade_speed * Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-      //FlexECS::Scene::GetEntityByName("Press any button").GetComponent<Text>()->color = opacity;
     }
 
     void Set_Up_Pause_Menu() {
