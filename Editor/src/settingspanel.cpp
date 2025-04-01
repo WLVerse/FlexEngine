@@ -105,6 +105,7 @@ namespace Editor {
         ImGui::Separator();
         if (ImGui::Button("Save Settings", ImVec2(180, 30)))
         {
+            Application::GetCurrentWindow()->ToggleFullScreen(FlexPrefs::GetBool("game.fullscreen"));
             FlexPrefs::Save();
         }
         ImGui::End();
