@@ -724,6 +724,9 @@ namespace Game
             }
             if (character.character_id == 5)
             {
+                FlexECS::Scene::GetEntityByName("Enemy 3").GetComponent<Position>()->position =
+                battle.sprite_slot_positions[4] + Vector3{ -25, 90, 0 };
+
                 character.protect_buff_duration = 4;
             }
         }
@@ -1995,6 +1998,11 @@ namespace Game
                         transform.is_active = (character_slot.slot_number == (battle.target_num + 1));
                     }
                     else transform.is_active = (character_slot.slot_number == (battle.target_num + 3));
+
+                    if (battle.initial_target->character_id == 5 && transform.is_active)
+                    {
+                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(0, 80, 0);
+                    }
                 }
                 else
                     transform.is_active = false;
@@ -2115,16 +2123,16 @@ namespace Game
         if (battle.anim_timer > 0.0f)
         battle.anim_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
+
         if (battle.is_player_turn)
-        {
-            // Temporarily move the character if targeting enemy
+        {// Temporarily move the character if targeting enemy
             if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
             {
                 // If targeting allies, does nothing
             }
             else
             {
-                float time_elapsed = battle.anim_timer;
+                float time_elapsed = battle.disable_input_timer;
                 if (time_elapsed > 1.0f)
                 {
                     time_elapsed = 1.0f;
@@ -2135,8 +2143,15 @@ namespace Game
                     percent_moved = 1.0f;
                 }
                 Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
+                if (battle.initial_target->character_id == 5)
+                {
+                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 120, 0 };
+                }
 
-                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot];
+                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 90, 0 };
+
+                if (battle.current_character->character_id == 2)
+                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 10, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
@@ -2153,7 +2168,7 @@ namespace Game
             }
             else
             {
-                float time_elapsed = battle.anim_timer;
+                float time_elapsed = battle.disable_input_timer;
                 if (time_elapsed > 1.0f)
                 {
                     time_elapsed = 1.0f;
@@ -2166,6 +2181,9 @@ namespace Game
                 Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };
 
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
+
+                if (battle.current_character->character_id == 5)
+                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
@@ -2791,19 +2809,6 @@ namespace Game
                 battle.current_character->current_speed = battle.current_move->speed + battle.current_character->speed_change;
                 battle.current_character->speed_change = 0;
 
-                // Temporarily move the character if targeting enemy
-                if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-                {
-                    // Do nothing if enemy targets its own allies
-                }
-                else
-                {
-                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
-                        battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };;
-
-                    FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
-                }
-
                 // play the attack animation
                 auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Animator>();
                 switch (battle.current_character->character_id)
@@ -2954,64 +2959,6 @@ namespace Game
 
         }
         #endif
-        if (battle.is_player_turn)
-        {// Temporarily move the character if targeting enemy
-            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-            {
-                // If targeting allies, does nothing
-            }
-            else
-            {
-                float time_elapsed = battle.disable_input_timer;
-                if (time_elapsed > 1.0f)
-                {
-                    time_elapsed = 1.0f;
-                }
-                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
-                if (percent_moved > 1.0f)
-                {
-                    percent_moved = 1.0f;
-                }
-                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
-
-                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot];
-
-                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
-
-                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
-
-                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
-            }
-        }
-        else
-        {
-            if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
-            {
-                // If targeting allies, does nothing
-            }
-            else
-            {
-                float time_elapsed = battle.disable_input_timer;
-                if (time_elapsed > 1.0f)
-                {
-                    time_elapsed = 1.0f;
-                }
-                float percent_moved = ((1.0f - time_elapsed) / 1.0f) * 3;
-                if (percent_moved > 1.0f)
-                {
-                    percent_moved = 1.0f;
-                }
-                Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot] + Vector3{ 120, 0, 0 };
-
-                Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
-
-                Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
-
-                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
-
-                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
-            }
-        }
 
         battle.enable_combat_camera = true;
         battle.force_disable_combat_camera = false;
@@ -3542,6 +3489,11 @@ namespace Game
                 {
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = 
                         battle.sprite_slot_positions[battle.current_character->current_slot + 2];
+                    if (battle.current_character->character_id == 5)
+                    {
+                        FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
+                            battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };;
+                    }
 
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 10;
                 }
