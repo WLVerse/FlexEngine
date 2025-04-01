@@ -118,16 +118,12 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-    {
-      // TODO: Insert Quit Game Function
-      // Application::MessagingSystem::Send("MoveOne clicked", true);
-    }
+
   }
 
   void OnMouseExit() override
   {
-    // FlexECS::Scene::GetEntityByName("BGM Volume Sprite").GetComponent<Transform>()->is_active = false;
+
   }
 };
 

@@ -56,17 +56,19 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-      Vector4 clip = {
-        (2.0f * Input::GetMousePosition().x) / Application::GetCurrentWindow()->GetWidth() - 1.0f,
-        1.0f - (2.0f * Input::GetMousePosition().y) / Application::GetCurrentWindow()->GetHeight(),
-        1.0f,
-        1.0f
-      };
+    if (FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
+      if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        Vector4 clip = {
+          (2.0f * Input::GetMousePosition().x) / Application::GetCurrentWindow()->GetWidth() - 1.0f,
+          1.0f - (2.0f * Input::GetMousePosition().y) / Application::GetCurrentWindow()->GetHeight(),
+          1.0f,
+          1.0f
+        };
 
-      Vector4 new_pos = CameraManager::GetMainGameCamera()->GetProjViewMatrix().Inverse() * clip;
+        Vector4 new_pos = CameraManager::GetMainGameCamera()->GetProjViewMatrix().Inverse() * clip;
 
-      FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x = new_pos.x;
+        FlexECS::Scene::GetEntityByName("SFX Knob").GetComponent<Position>()->position.x = new_pos.x;
+      }
     }
   }
 

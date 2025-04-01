@@ -116,16 +116,12 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
-    {
-      // TODO: Insert Quit Game Function
-      // Application::MessagingSystem::Send("MoveOne clicked", true);
-    }
+
   }
 
   void OnMouseExit() override
   {
-    //self.GetComponent<Transform>()->is_active = false;
+
   }
 };
 

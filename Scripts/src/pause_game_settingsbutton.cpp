@@ -34,9 +34,6 @@ public:
 
   void Update() override
   {
-    if (Input::GetMousePositionDelta().x > 0.f || Input::GetMousePositionDelta().y > 0.f) {
-      editing_volume = false;
-    }
     if (self.GetComponent<Transform>()->is_active) {
       if (!is_volume) {
         active_entity = "Master Volume Sprite";
@@ -71,6 +68,7 @@ public:
     }
     else {
       if (is_volume) is_volume = false;
+      if (editing_volume) editing_volume = false;
     }
   }
 
@@ -84,7 +82,11 @@ public:
 
   void OnMouseStay() override
   {
-
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active) {
+      Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
+      FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
+      editing_volume = true;
+    }
   }
 
   void OnMouseExit() override

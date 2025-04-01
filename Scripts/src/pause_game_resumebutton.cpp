@@ -56,8 +56,7 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
-      FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active) {
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active) {
       Application::MessagingSystem::Send("Resume Game", true);
     }
   }
