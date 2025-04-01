@@ -27,28 +27,6 @@ namespace Game
 
   void AudioLayer::Update()
   {
-    //if (Input::GetKeyDown(GLFW_KEY_2))
-    //{
-    //  for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
-    //  {
-    //    if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
-
-    //    Audio& audio = *element.GetComponent<Audio>();
-    //    audio.change_mode = true;
-    //  }
-    //}
-
-    //if (Input::GetKeyDown(GLFW_KEY_3))
-    //{
-    //  for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
-    //  {
-    //    if (!element.GetComponent<Transform>()->is_active) continue; // skip non active entities
-
-    //    Audio& audio = *element.GetComponent<Audio>();
-    //    audio.should_play = true;
-    //  }
-    //}
-
     // Audio
     for (auto& element : FlexECS::Scene::GetActiveScene()->CachedQuery<Audio>())
     {

@@ -177,6 +177,7 @@ namespace FlexEngine
     bool should_play = true;
     bool is_looping = false;
     float time = 0.f;
+    float playback_speed = 1.0f;
   };
 
 

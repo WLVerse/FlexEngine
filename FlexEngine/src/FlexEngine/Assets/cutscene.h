@@ -63,5 +63,23 @@ namespace FlexEngine
             Cutscene(File& _metadata);
         };
 
+
+        struct VideoCutsceneInfo
+        {
+          std::string videoPath;
+          float startTime;
+          float endingTime;
+          float timeScale;
+        };
+
+        struct __FLX_API VideoCutscene
+        {
+          File& metadata;  ///< Reference to the file containing cutscene metadata.
+          // Key = cutscene name, Value = CutsceneInfo (frame range and timing data)
+          std::unordered_map<std::string, VideoCutsceneInfo> cutscenes;
+
+          VideoCutscene(File& _metadata);
+        };
+
     } // namespace Asset
 } // namespace FlexEngine

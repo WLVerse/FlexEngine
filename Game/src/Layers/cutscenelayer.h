@@ -39,8 +39,12 @@ namespace Game
         // Containers for cutscene images and dialogue.
         std::vector<FlexECS::Scene::StringIndex> m_CutsceneImages;
         std::vector<std::vector<FlexECS::Scene::StringIndex>> m_CutsceneDialogue;
+        std::vector<std::string> m_dialogue_scenes; //each element is a key to cutsceneasset.cutscenes
+        //std::unordered_map<std::string, Asset::VideoCutsceneInfo> m_cutscene_info;
 
         #pragma region Variables
+
+        FlexECS::Entity m_videoplayer;
 
         // Index management for sections, frames, and dialogue lines.
         size_t m_currSectionIndex = 0;   // Which cutscene section is active.
@@ -48,8 +52,8 @@ namespace Game
         size_t m_currDialogueIndex = 0;  // Which dialogue line is active.
 
         // Entities used for rendering.
-        FlexECS::Entity m_currShot;
-        FlexECS::Entity m_nextShot;
+        //FlexECS::Entity m_currShot;
+        //FlexECS::Entity m_nextShot;
         FlexECS::Entity m_dialoguebox;
         FlexECS::Entity m_shadowdialoguebox;
         FlexECS::Entity m_dialoguearrow;
@@ -121,6 +125,9 @@ namespace Game
 
         // Handles manual input-based progression of dialogue.
         void updateDialogueManual(float dt);
+
+        // Handles The changing of video if needed
+        void updateVideoPlayback();
 
         // Updates image frames when the section includes multiple image frames.
         void updateImageFrames(float dt);

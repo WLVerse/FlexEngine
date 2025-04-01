@@ -65,11 +65,15 @@ namespace FlexEngine
     double GetNextFrameTime() const { return m_next_frame_time; }
 
     bool Seek(double time);
+    bool Seek(int frame);
+    bool SeekEnd();
     bool RestartVideo();
     bool DecodeNextFrame();
     void Bind(const Asset::Shader& shader, const char* name, unsigned int texture_unit) const;
 
-    double m_current_time = 0.0;
+    double m_current_time = 0.0;  //updated in renderinglayer
+
+    bool m_is_seeking = false;
 
   private:
     std::string m_filepath; //filepath to video to decode
