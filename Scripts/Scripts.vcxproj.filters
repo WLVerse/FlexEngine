@@ -126,5 +126,14 @@
     <ClCompile Include="src\volume_sfx_knob.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\pause_htp_leftbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenu_optionsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pause_htp_rightbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

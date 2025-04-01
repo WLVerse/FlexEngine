@@ -55,14 +55,17 @@ public:
         }
       }
       else {
-        if (Input::GetKeyDown(GLFW_KEY_A)) {
+        bool return_page = Application::MessagingSystem::Receive<bool>("HTPReturnPage");
+        bool next_page = Application::MessagingSystem::Receive<bool>("HTPNextPage");
+
+        if (Input::GetKeyDown(GLFW_KEY_A) || return_page) {
           if (active_page != 1) {
             FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
             --active_page;
             FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = true;
           }
         }
-        if (Input::GetKeyDown(GLFW_KEY_D)) {
+        if (Input::GetKeyDown(GLFW_KEY_D) || next_page) {
           if (active_page != 5) {
             FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
             ++active_page;

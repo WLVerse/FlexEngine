@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cutscene_autoplaybutton.cpp" />
+    <ClCompile Include="src\mainmenu_optionsbutton.cpp" />
     <ClCompile Include="src\mainmenu_playbutton.cpp" />
     <ClCompile Include="src\mainmenu_quitbutton.cpp" />
     <ClCompile Include="src\moveone.cpp" />
@@ -33,6 +34,8 @@
     <ClCompile Include="src\pause_game_quitbutton.cpp" />
     <ClCompile Include="src\pause_game_resumebutton.cpp" />
     <ClCompile Include="src\pause_game_settingsbutton.cpp" />
+    <ClCompile Include="src\pause_htp_leftbutton.cpp" />
+    <ClCompile Include="src\pause_htp_rightbutton.cpp" />
     <ClCompile Include="src\pause_main_quitbutton.cpp" />
     <ClCompile Include="src\pause_main_returnbutton.cpp" />
     <ClCompile Include="src\playanimation.cpp" />
