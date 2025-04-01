@@ -269,6 +269,7 @@ namespace Game
             }
             auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
             character.name = character_asset.character_name;
+            ReplaceUnderscoresWithSpaces(character.name);
             character.health = character_asset.health;
             character.speed = character_asset.speed;
             character.character_id = character_asset.character_id;
@@ -283,6 +284,7 @@ namespace Game
 
                 _Move move_one;
                 move_one.name = move_one_asset.name;
+                ReplaceUnderscoresWithSpaces(move_one.name);
                 move_one.speed = move_one_asset.speed;
 
                 move_one.effect = move_one_asset.effect;
@@ -292,13 +294,13 @@ namespace Game
                 move_one.description = move_one_asset.description;
                 character.move_one = move_one;
             }
-
             if (character_asset.move_two != "None")
             {
                 auto& move_two_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_two);
 
                 _Move move_two;
                 move_two.name = move_two_asset.name;
+                ReplaceUnderscoresWithSpaces(move_two.name);
                 move_two.speed = move_two_asset.speed;
 
                 move_two.effect = move_two_asset.effect;
@@ -308,13 +310,13 @@ namespace Game
                 move_two.description = move_two_asset.description;
                 character.move_two = move_two;
             }
-
             if (character_asset.move_three != "None")
             {
                 auto& move_three_asset = FLX_ASSET_GET(Asset::Move, character_asset.move_three);
 
                 _Move move_three;
                 move_three.name = move_three_asset.name;
+                ReplaceUnderscoresWithSpaces(move_three.name);
                 move_three.speed = move_three_asset.speed;
 
                 move_three.effect = move_three_asset.effect;
@@ -487,8 +489,8 @@ namespace Game
                 continue;
             }
             auto& character_asset = FLX_ASSET_GET(Asset::Character, *slot);
-
             character.name = character_asset.character_name;
+            ReplaceUnderscoresWithSpaces(character.name);
             character.health = character_asset.health;
             character.speed = character_asset.speed;
             character.character_id = character_asset.character_id;
@@ -503,6 +505,7 @@ namespace Game
 
                 _Move move_one;
                 move_one.name = move_one_asset.name;
+                ReplaceUnderscoresWithSpaces(move_one.name);
                 move_one.speed = move_one_asset.speed;
 
                 move_one.effect = move_one_asset.effect;
@@ -519,6 +522,7 @@ namespace Game
 
                 _Move move_two;
                 move_two.name = move_two_asset.name;
+                ReplaceUnderscoresWithSpaces(move_two.name);
                 move_two.speed = move_two_asset.speed;
 
                 move_two.effect = move_two_asset.effect;
@@ -535,6 +539,7 @@ namespace Game
 
                 _Move move_three;
                 move_three.name = move_three_asset.name;
+                ReplaceUnderscoresWithSpaces(move_three.name);
                 move_three.speed = move_three_asset.speed;
 
                 move_three.effect = move_three_asset.effect;
@@ -2132,7 +2137,7 @@ namespace Game
             }
             else
             {
-                float time_elapsed = battle.disable_input_timer;
+                float time_elapsed = battle.anim_timer;
                 if (time_elapsed > 1.0f)
                 {
                     time_elapsed = 1.0f;
@@ -2168,7 +2173,7 @@ namespace Game
             }
             else
             {
-                float time_elapsed = battle.disable_input_timer;
+                float time_elapsed = battle.anim_timer;
                 if (time_elapsed > 1.0f)
                 {
                     time_elapsed = 1.0f;
@@ -2851,114 +2856,6 @@ namespace Game
                 else battle.disable_input_timer += 0.5f;
             }
         }
-
-        #if 0
-        {
-        // Camera Animation
-        if (battle.current_move->target[0] == "ALL_ENEMIES" ||
-            battle.current_move->target[0] == "ADJACENT_ENEMIES" ||
-            battle.current_move->target[0] == "NEXT_ENEMY" ||
-            battle.current_move->target[0] == "SINGLE_ENEMY")
-        {
-            // First, calculate the attacker and defender positions based on character id.
-            FlexECS::Entity attacker, defender;
-            if (battle.current_character->character_id > 2)
-            {
-                attacker = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1));
-                defender = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.initial_target->current_slot + 1));
-            }
-            else
-            {
-                attacker = FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1));
-                defender = FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.initial_target->current_slot + 1));
-            }
-
-            Vector3 attackerPos = attacker.GetComponent<Position>()->position;
-            Vector3 defenderPos = defender.GetComponent<Position>()->position;
-            Vector3 centerPos = (attackerPos + defenderPos) * 0.5f;
-
-            // Compute a normalized direction from center towards defender and offset for jerk.
-            Vector3 direction = (defenderPos - centerPos).Normalize();
-            float jerkDistance = 2.0f; // Adjust as needed.
-            Vector3 jerkPos = centerPos + direction * jerkDistance;
-
-            // A static container to hold active camera animations (lambdas).
-            static std::vector<std::function<bool(float)>> animations;
-
-            // For each camera, create a lambda that tracks its animation progress.
-            for (auto& elem : FlexECS::Scene::GetActiveScene()->CachedQuery<Position, Camera>())
-            {
-                auto posComp = elem.GetComponent<Position>();
-                Vector3 originalPos = posComp->position;
-
-                // Initialize per-animation state variables.
-                int stage = 0;                      // 0: move to center, 1: jerk toward defender, 2: jerk back, 3: return to original.
-                float elapsed = 0.0f;
-                float durations[4] = { 1.0f, 0.2f, 0.2f, 1.0f };
-
-                // Create a lambda that will be updated every frame.
-                auto anim = [=, &posComp](float deltaTime) mutable -> bool
-                {
-                    // When all stages are done, return true to signal removal.
-                    if (stage >= 4)
-                        return true;
-
-                    // Update the elapsed time.
-                    elapsed += Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
-                    float t = std::min(elapsed / durations[stage], 1.0f);
-                    Vector3 startPos, targetPos;
-
-                    // Determine the start and target positions for the current stage.
-                    switch (stage)
-                    {
-                    case 0:
-                        startPos = originalPos;
-                        targetPos = centerPos;
-                        break;
-                    case 1:
-                        startPos = centerPos;
-                        targetPos = jerkPos;
-                        break;
-                    case 2:
-                        startPos = jerkPos;
-                        targetPos = centerPos;
-                        break;
-                    case 3:
-                        startPos = centerPos;
-                        targetPos = originalPos;
-                        break;
-                    }
-
-                    // Update the camera position.
-                    posComp->position = Lerp(startPos, targetPos, t);
-
-                    // If the current stage is complete, move to the next one.
-                    if (t >= 1.0f)
-                    {
-                        stage++;
-                        elapsed = 0.0f;
-                    }
-
-                    // Return whether the animation is finished.
-                    return (stage >= 4);
-                };
-
-                // Add the lambda to the animations container.
-                animations.push_back(anim);
-            }
-
-            // Update all active animations. Remove any that have finished.
-            for (auto it = animations.begin(); it != animations.end(); )
-            {
-                if ((*it)(Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime()))
-                    it = animations.erase(it);
-                else
-                    ++it;
-            }
-        }
-
-        }
-        #endif
 
         battle.enable_combat_camera = true;
         battle.force_disable_combat_camera = false;
