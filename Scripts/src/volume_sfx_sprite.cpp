@@ -107,9 +107,7 @@ public:
     if (FlexECS::Scene::GetEntityByName("Pause Menu Background").GetComponent<Transform>()->is_active &&
       !self.GetComponent<Transform>()->is_active) {
       if (FlexECS::Scene::GetEntityByName("Settings Button Sprite") != FlexECS::Entity::Null) {
-        if (FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active) {
-          Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "SFX Volume Sprite", true});
-        }
+        Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "SFX Volume Sprite", true});
       }
       else Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "SFX Volume Sprite", true});
     }
@@ -117,16 +115,12 @@ public:
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
-    {
-      // TODO: Insert Quit Game Function
-      // Application::MessagingSystem::Send("MoveOne clicked", true);
-    }
+
   }
 
   void OnMouseExit() override
   {
-    /*self.GetComponent<Transform>()->is_active = false;*/
+
   }
 };
 

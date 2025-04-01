@@ -31,29 +31,49 @@ public:
   void Update() override
   {
     if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
-      if (Input::GetKeyDown(GLFW_KEY_A)) Application::GetCurrentWindow()->ToggleFullScreen(true);
+      if (Input::GetKeyDown(GLFW_KEY_A)) {
+        self.GetComponent<Scale>()->scale = Vector3(0.75f, 0.75f, 1.0f);
+        Application::GetCurrentWindow()->ToggleFullScreen(!Application::GetCurrentWindow()->GetFullScreen());
+        if (Application::GetCurrentWindow()->GetFullScreen()) {
+          FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
+        }
+        else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
+      }
+      if (Input::GetKeyUp(GLFW_KEY_A)) {
+        self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+      }
     }
   }
 
   void OnMouseEnter() override
   {
-    self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
+    if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
+      self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
+    }
   }
 
   void OnMouseStay() override
   {
-    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
+      FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
       self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
-      Application::GetCurrentWindow()->ToggleFullScreen(true);
+      Application::GetCurrentWindow()->ToggleFullScreen(!Application::GetCurrentWindow()->GetFullScreen());
+      if (Application::GetCurrentWindow()->GetFullScreen()) {
+        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
+      }
+      else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
     }
-    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT) &&
+      FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
       self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
     }
   }
 
   void OnMouseExit() override
   {
-    self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+    if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
+      self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+    }
   }
 };
 

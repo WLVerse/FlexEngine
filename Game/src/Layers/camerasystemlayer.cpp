@@ -54,7 +54,8 @@ namespace Game
         // Try to set up the main camera if not already done.
         if (!CameraManager::has_main_camera)
         {
-            CameraManager::TryMainCamera();
+            bool camera_found = CameraManager::TryMainCamera();
+            if (camera_found) m_zoomBase = CameraManager::GetMainGameCamera()->GetOrthoWidth();
         }
 
         float deltaTime = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();

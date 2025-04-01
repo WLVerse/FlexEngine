@@ -104,7 +104,7 @@ namespace Game
       FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
       battleLayer = nullptr;
       
-      town_version = "assets/saves/town_v6.flxscene";
+      town_version = "assets/saves/town_v7.flxscene";
       townLayer = std::make_shared<TownLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
@@ -137,7 +137,7 @@ namespace Game
         FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
         battleLayer = nullptr;
 
-        town_version = "assets/saves/town_v6_2.flxscene";
+        town_version = "assets/saves/town_v7_2.flxscene";
         townLayer = std::make_shared<TownLayer>();
         FLX_COMMAND_ADD_WINDOW_LAYER("Game", townLayer);
     }
@@ -192,17 +192,6 @@ namespace Game
       menuLayer = std::make_shared<MenuLayer>();
       FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     }
-    #endif
-
-    #if 0
-    if (Input::GetKeyDown(GLFW_KEY_L))
-        Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 2, 10.0 });
-    if (Input::GetKeyDown(GLFW_KEY_P))
-        Application::MessagingSystem::Send("CameraShakeLerpStart", std::pair<double, double>{ 2, 10.0 });
-    if (Input::GetKeyDown(GLFW_KEY_O))
-        Application::MessagingSystem::Send("CameraZoomAutoReturnStart", std::tuple<double, double, double>{ 1, 2.0, rand() % 800 + 1000 });
-    if (Input::GetKeyDown(GLFW_KEY_U))
-        Application::MessagingSystem::Send("CameraZoomStart", std::pair<double, double>{ 2, rand() % 800 + 1000 });
     #endif
   }
 } // namespace Game

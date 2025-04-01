@@ -110,7 +110,10 @@ namespace Game
       auto& video = FLX_ASSET_GET(VideoDecoder, FLX_STRING_GET(element.GetComponent<VideoPlayer>()->video_file));
       video.RestartVideo();
     }
-    Application::GetCurrentWindow()->ToggleFullScreen(false);
+    if (Application::GetCurrentWindow()->GetFullScreen()) {
+      FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
+    }
+    else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
   }
 
   void MenuLayer::OnDetach()
@@ -123,10 +126,11 @@ namespace Game
   void MenuLayer::Update()
   {
     bool return_to_menu = Application::MessagingSystem::Receive<bool>("Return to Menu");
+    bool start_options = Application::MessagingSystem::Receive<bool>("OptionStart");
     std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
 
     // check for escape key
-    if (return_to_menu) Settings_Menu_Functionality();
+    if (return_to_menu || start_options) Settings_Menu_Functionality();
 
     if (open_settings) {
       if (active_sprite.second) {
@@ -170,7 +174,7 @@ namespace Game
       // shit copy paste
       if (selected_button == 0)
       {
-          Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+        Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
       }
       else if (selected_button == 1) Settings_Menu_Functionality();
       else if (selected_button == 2)
