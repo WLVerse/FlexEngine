@@ -16,6 +16,7 @@ namespace Game
    std::string town_version = "";
   std::shared_ptr<GameLayer> gameLayer = nullptr;
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
+  std::shared_ptr<EndingCutsceneLayer> endingCutsceneLayer = nullptr;
   std::shared_ptr<MenuLayer> menuLayer = nullptr;
   std::shared_ptr<TownLayer> townLayer = nullptr;
   std::shared_ptr<BattleLayer> battleLayer = nullptr;
@@ -164,15 +165,37 @@ namespace Game
         FLX_COMMAND_ADD_WINDOW_LAYER("Game", battleLayer);
     }
 
-    // boss to menu
-    if (Application::MessagingSystem::Receive<bool>("Battle Boss win to Menu") && battleLayer != nullptr)
+    // boss to cutscene
+    if (Application::MessagingSystem::Receive<bool>("Battle Boss win to Ending Cutscene") && battleLayer != nullptr)
     {
-        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
-        battleLayer = nullptr;
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+      battleLayer = nullptr;
 
-        menuLayer = std::make_shared<MenuLayer>();
-        FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+      endingCutsceneLayer = std::make_shared<EndingCutsceneLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", endingCutsceneLayer);
     }
+
+    // Final cutscene to main menu
+    if (Application::MessagingSystem::Receive<bool>("Ending Cutscene to Menu") && endingCutsceneLayer != nullptr)
+    {
+      FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", endingCutsceneLayer);
+      endingCutsceneLayer = nullptr;
+
+      menuLayer = std::make_shared<MenuLayer>();
+      FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
+
+    // boss to menu
+    //if (Application::MessagingSystem::Receive<bool>("Battle Boss win to Menu") && battleLayer != nullptr)
+    //{
+    //    FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", battleLayer);
+    //    battleLayer = nullptr;
+
+    //    menuLayer = std::make_shared<MenuLayer>();
+    //    FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    //}
+
+
 
     #if 0
     if (Application::MessagingSystem::Receive<bool>("Game win to menu"))

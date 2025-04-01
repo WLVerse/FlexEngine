@@ -3794,7 +3794,7 @@ namespace Game
                         break;
                     case 2:
                         Input::Cleanup();
-                        Application::MessagingSystem::Send("Battle Boss win to Menu", true);
+                        Application::MessagingSystem::Send("Battle Boss win to Ending Cutscene", true);
                         break;
                     }
                 }
