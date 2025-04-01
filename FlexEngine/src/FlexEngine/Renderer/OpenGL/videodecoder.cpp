@@ -211,7 +211,6 @@ namespace FlexEngine
 
 	bool VideoDecoder::Seek(int frameNumber)
 	{
-		Log::Info("SEEK CALLED!");
 		if (!m_format_ctx || m_video_stream_index == -1)
 			return false;
 
