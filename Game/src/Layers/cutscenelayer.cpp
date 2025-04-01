@@ -49,9 +49,9 @@ namespace Game
         */
 
         m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
-        m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
+        //m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
         m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Shadow Dialogue Box");
-        m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(Application::GetCurrentWindow()->GetWidth() * 0.8f, 70.0f);
+        //m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
         m_dialoguearrow = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Arrow");
 
         m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
@@ -85,6 +85,9 @@ namespace Game
 
         // Reset timers and transition phase.
         UpdateTimings(false);
+
+        m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
+        m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
     }
 
     void CutsceneLayer::StopCutscene()
