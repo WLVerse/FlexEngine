@@ -16,6 +16,9 @@ using namespace FlexEngine;
 
 class ExitButtonScript : public IScript
 {
+private:
+  bool is_quit_mode = false;
+  bool to_quit = true;
 public:
   ExitButtonScript()
   {
@@ -38,12 +41,61 @@ public:
         Input::Cleanup();
         Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "Resume Button Sprite", true});
       }
-      if (Input::GetKeyDown(GLFW_KEY_ENTER) || Input::GetKeyDown(GLFW_KEY_SPACE)) {
-        Application::QueueCommand(Application::Command::QuitApplication);
+      if (Input::GetKeyDown(GLFW_KEY_ENTER) || Input::GetKeyDown(GLFW_KEY_SPACE) ||
+        Application::MessagingSystem::Receive<bool>("Cancel Quit")) {
+        Input::Cleanup();
+        if (is_quit_mode) {
+          if (FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active) {
+            Application::QueueCommand(Application::Command::QuitApplication);
+          }
+          if (FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Transform>()->is_active) {
+            for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, QuitUI>()) {
+              entity.GetComponent<Transform>()->is_active = false;
+            }
+            is_quit_mode = false;
+          }
+        }
+        else {
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, QuitUI>()) {
+            if (entity.HasComponent<PauseHoverUI>()) entity.GetComponent<Transform>()->is_active = false;
+            else entity.GetComponent<Transform>()->is_active = true;
+          }
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active = true;
+          is_quit_mode = true;
+        }
       }
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
         Input::Cleanup();
-        Application::MessagingSystem::Send("Resume Game", true);
+        if (is_quit_mode) {
+          for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, QuitUI>()) {
+            entity.GetComponent<Transform>()->is_active = false;
+          }
+          is_quit_mode = false;
+        }
+        else Application::MessagingSystem::Send("Resume Game", true);
+      }
+      if (is_quit_mode) {
+        if (Input::GetKeyDown(GLFW_KEY_A) || Input::GetKeyDown(GLFW_KEY_D)) {
+          Input::Cleanup();
+          if (FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active) {
+            FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Scale>()->scale.x = 0.f;
+          }
+          else FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active ^= true;
+          FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Transform>()->is_active ^= true;
+        }
+        if (Application::MessagingSystem::Receive<bool>("Quit Yes") &&
+          FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Transform>()->is_active) {
+          FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active = true;
+        }
+        if (Application::MessagingSystem::Receive<bool>("Quit No") && 
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active) {
+          FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName("Quit Game No Sprite").GetComponent<Transform>()->is_active = true;
+        }
       }
     }
   }
@@ -59,7 +111,12 @@ public:
   void OnMouseStay() override
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active) {
-      Application::QueueCommand(Application::Command::QuitApplication);
+      for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, QuitUI>()) {
+        if (entity.HasComponent<PauseHoverUI>()) entity.GetComponent<Transform>()->is_active = false;
+        else entity.GetComponent<Transform>()->is_active = true;
+      }
+      FlexECS::Scene::GetEntityByName("Quit Game Yes Sprite").GetComponent<Transform>()->is_active = true;
+      is_quit_mode = true;
     }
   }
 
