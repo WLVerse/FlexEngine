@@ -25,12 +25,11 @@ namespace Game
         File& file = File::Open(Path::current("assets/saves/cutscene3.flxscene"));
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
+        CameraManager::TryMainCamera();
+
         //loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxdialogue)"),
         //             FLX_STRING_NEW(R"(/cutscenes/OpeningCutscene.flxcutscene)"));
         m_videoplayer = FlexECS::Scene::GetEntityByName("VideoPlayer");
-
-        loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxdialogue)"),
-                     FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxvideocutscene)"));
 
         m_currFrameIndex = 0;
         m_currSectionIndex = 0;
@@ -66,6 +65,9 @@ namespace Game
         
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
+
+        loadCutscene(FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxdialogue)"),
+                     FLX_STRING_NEW(R"(/cutscenes/OpeningCutsceneVideo.flxvideocutscene)"));
 
         Application::MessagingSystem::Send("TransitionStart", std::pair<int,double>{ 1,1.0 });
     }
