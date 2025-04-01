@@ -139,10 +139,17 @@ namespace Game
 
       if (!FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
         if (active_pause_sprite.second) {
+
           FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
           FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
           FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Transform>()->is_active = true;
           active_pause_button = active_pause_sprite.first;
+
+          if (active_pause_button != "Settings Button Sprite") {
+            for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, PauseHoverUI, SettingsUI>()) {
+              entity.GetComponent<Transform>()->is_active = false;
+            }
+          }
         }
 
         if (active_volume_sprite.second) {

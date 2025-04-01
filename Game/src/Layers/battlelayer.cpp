@@ -3726,6 +3726,12 @@ namespace Game
               FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
               FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Transform>()->is_active = true;
               battle.active_pause_button = active_pause_sprite.first;
+
+              if (battle.active_pause_button != "Settings Button Sprite") {
+                for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, PauseHoverUI, SettingsUI>()) {
+                  entity.GetComponent<Transform>()->is_active = false;
+                }
+              }
             }
 
             if (active_volume_sprite.second) {
