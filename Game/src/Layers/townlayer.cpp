@@ -132,20 +132,35 @@ namespace Game
     
     FlexECS::Entity cam = CameraManager::GetMainGameCameraID();
 
-    if (is_paused && !FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
+    if (is_paused) {
       float w = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
       float h = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
       cam.GetComponent<Camera>()->SetOrthographic(-w / 2.f, w / 2.f, -h / 2.f, h / 2.f);
 
-      if (active_pause_sprite.second) {
-        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Transform>()->is_active = true;
-        active_pause_button = active_pause_sprite.first;
+      if (!FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active) {
+        if (active_pause_sprite.second) {
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Transform>()->is_active = true;
+          active_pause_button = active_pause_sprite.first;
+        }
+
+        if (active_volume_sprite.second) {
+          if (active_pause_button != "Settings Button Sprite") {
+            FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
+            FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
+            FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active = true;
+            active_pause_button = "Settings Button Sprite";
+          }
+          FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Transform>()->is_active = false;
+          FlexECS::Scene::GetEntityByName(active_volume_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
+          FlexECS::Scene::GetEntityByName(active_volume_sprite.first).GetComponent<Transform>()->is_active = true;
+          active_volume_button = active_volume_sprite.first;
+        }
       }
 
       if (FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x !=
-        FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x) {
+          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x) {
         FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x +=
           Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
         FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Scale>()->scale.x =
@@ -153,21 +168,8 @@ namespace Game
           0.f, FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Slider>()->original_scale.x);
       }
 
-      if (active_volume_sprite.second) {
-        if (active_pause_button != "Settings Button Sprite") {
-          FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
-          FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Scale>()->scale.x = 0.f;
-          FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Transform>()->is_active = true;
-          active_pause_button = "Settings Button Sprite";
-        }
-        FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Transform>()->is_active = false;
-        FlexECS::Scene::GetEntityByName(active_volume_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
-        FlexECS::Scene::GetEntityByName(active_volume_sprite.first).GetComponent<Transform>()->is_active = true;
-        active_volume_button = active_volume_sprite.first;
-      }
-
       if (FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Scale>()->scale.x !=
-        FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Slider>()->original_scale.x) {
+          FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Slider>()->original_scale.x) {
         FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Scale>()->scale.x +=
           Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() * 10.f;
         FlexECS::Scene::GetEntityByName(active_volume_button).GetComponent<Scale>()->scale.x =
