@@ -1254,16 +1254,21 @@ namespace Game
     // Just delay the fucking battle start anim
     void Play_Battle_Start() 
     {
-      static float time_played = 2.f;
+      static float time_played = 1.2f;
       static bool is_init = false;
 
+      // Welcome to hackland, to loop different animations many times. After all this function holds everything
+      static int loop_count = 1;
+      static constexpr int max_loop_count = 9;
+
+      // Setup
       if (!is_init)
       {
-        time_played = 3.f;
+        time_played = 0.24f;
         is_init = true;
         FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
         overlay.GetComponent<Animator>()->spritesheet_handle
-          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/UI_BattleStart_Spritesheet.flxspritesheet)");
+          = FLX_STRING_NEW(R"(/images/Screen_Overlays/BattleStart/BattleStart_SpSh_01.flxspritesheet)");
         overlay.GetComponent<Transform>()->is_active = true;
         overlay.GetComponent<Animator>()->should_play = true;
         overlay.GetComponent<Animator>()->is_looping = false;
@@ -1273,9 +1278,19 @@ namespace Game
 
       if (time_played > 0.f)
       {
-        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
-
+        // Continue playing
         time_played -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+      }
+      else if (loop_count < max_loop_count)
+      {
+        time_played = 0.24f;
+        ++loop_count;
+        // Time to progress to the next animation set, reset the frame
+        FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
+        overlay.GetComponent<Animator>()->spritesheet_handle
+          = FLX_STRING_NEW("/images/Screen_Overlays/BattleStart/BattleStart_SpSh_0" + std::to_string(loop_count) + ".flxspritesheet");
+        overlay.GetComponent<Animator>()->current_frame = 0;
+        overlay.GetComponent<Animator>()->should_play = true;
       }
       else
       {
@@ -1285,6 +1300,7 @@ namespace Game
         battle.start_of_turn = true;
         FlexECS::Entity overlay = FlexECS::Scene::GetEntityByName("Combat Overlay");
         overlay.GetComponent<Transform>()->is_active = false;
+        loop_count = 1;
       }
     }
 
