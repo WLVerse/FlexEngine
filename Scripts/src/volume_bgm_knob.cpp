@@ -41,9 +41,9 @@ public:
         new_position.x += Input::GetMousePositionDelta().x;
         new_position.x = std::clamp(new_position.x, slider_details->min_position, slider_details->max_position);
       }
-      if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
-        is_draggable = false;
-      }
+    }
+    else {
+      if (is_draggable) is_draggable = false;
     }
   }
 
