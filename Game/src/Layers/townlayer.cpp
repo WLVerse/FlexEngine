@@ -137,7 +137,7 @@ namespace Game
     FlexECS::Entity cam = CameraManager::GetMainGameCameraID();
 
     if (is_paused) {
-      cam.GetComponent<Camera>()->SetOrthographic(-1920 / 2.f, 1080 / 2.f, -1920 / 2.f, 1080 / 2.f);
+      cam.GetComponent<Camera>()->SetOrthographic(-1920 / 2.f, 1920 / 2.f, -1080 / 2.f, 1080 / 2.f);
 
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>()) {
         if (!entity.GetComponent<Transform>()->is_active) break;
