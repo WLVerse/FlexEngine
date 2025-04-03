@@ -27,7 +27,96 @@ namespace FlexEngine
   std::array<bool, GLFW_MOUSE_BUTTON_LAST>  Input::m_mouse_button{};
   Vector2                                   Input::m_scroll_offset{};
 
+  std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> Input::m_gamepad_prev_buttons = { false };
+
   #pragma endregion
+
+  void Input::UpdateGamepadInput()
+  {
+    if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1)) 
+    {
+      //std::cout << "1) Gamepad connected!\n";
+      GLFWgamepadstate state;
+      if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state)) 
+      {
+        for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) 
+        {
+          std::cout << i << "\n";
+          bool is_down = (state.buttons[i] == GLFW_PRESS);
+          bool is_pressed = is_down && !m_gamepad_prev_buttons[i];
+          bool is_up = !is_down && m_gamepad_prev_buttons[i];
+
+          m_gamepad_prev_buttons[i] = is_down;
+
+          //Hijack time
+          if (i == GLFW_GAMEPAD_BUTTON_A) 
+          {
+            if (is_down)    m_key[GLFW_KEY_SPACE] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_SPACE] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_SPACE] = true;
+              m_key[GLFW_KEY_SPACE] = false;
+            }
+
+          }
+          else if (i == GLFW_GAMEPAD_BUTTON_DPAD_UP)
+          {
+            if (is_down)    m_key[GLFW_KEY_W] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_W] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_W] = true;
+              m_key[GLFW_KEY_W] = false;
+            }
+          }
+          else if (i == GLFW_GAMEPAD_BUTTON_DPAD_DOWN)
+          {
+            if (is_down)    m_key[GLFW_KEY_S] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_S] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_S] = true;
+              m_key[GLFW_KEY_S] = false;
+            }
+          }
+          else if (i == GLFW_GAMEPAD_BUTTON_DPAD_LEFT)
+          {
+            if (is_down)
+            {
+              m_key[GLFW_KEY_A] = true;
+            }
+            if (is_pressed) m_key_down[GLFW_KEY_A] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_A] = true;
+              m_key[GLFW_KEY_A] = false;
+            }
+          }
+          else if (i == GLFW_GAMEPAD_BUTTON_DPAD_RIGHT)
+          {
+            if (is_down)    m_key[GLFW_KEY_D] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_D] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_D] = true;
+              m_key[GLFW_KEY_D] = false;
+            }
+          }
+          else if (i == GLFW_GAMEPAD_BUTTON_START)
+          {
+            if (is_down)    m_key[GLFW_KEY_ESCAPE] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_ESCAPE] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_ESCAPE] = true;
+              m_key[GLFW_KEY_ESCAPE] = false;
+            }
+          }
+        }
+      }
+    }
+  }
 
   void Input::Cleanup()
   {

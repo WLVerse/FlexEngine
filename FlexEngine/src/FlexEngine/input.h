@@ -30,6 +30,7 @@ namespace FlexEngine
   {
   // public functions
   public:
+    static void UpdateGamepadInput(); //call after glfwPollEvents()
     static void Cleanup(); // cleans the input state, should be called once per frame at the end
 
     static bool GetKeyDown(int key)             { return m_key_down[key]; }
@@ -71,6 +72,8 @@ namespace FlexEngine
     static std::array<bool, GLFW_MOUSE_BUTTON_LAST> m_mouse_button;
 
     static Vector2                                  m_scroll_offset;
+
+    static std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> m_gamepad_prev_buttons;
 
   // callback functions for glfw
   public:
