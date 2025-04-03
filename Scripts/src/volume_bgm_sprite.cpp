@@ -17,7 +17,6 @@ using namespace FlexEngine;
 class BGMButtonScript : public IScript
 {
 private:
-  bool is_exit = false;
   bool inc_selected = false;
   bool dec_selected = false;
   float timer = 0.f;
@@ -102,6 +101,10 @@ public:
 
       knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
+    else {
+      if (inc_selected) inc_selected = false;
+      if (dec_selected) dec_selected = false;
+    }
   }
 
   void OnMouseEnter() override
@@ -113,7 +116,6 @@ public:
       }
       else Application::MessagingSystem::Send("Pause Sprite", std::pair <std::string, bool> { "BGM Volume Sprite", true});
     }
-    
   }
 
   void OnMouseStay() override

@@ -137,9 +137,7 @@ namespace Game
     FlexECS::Entity cam = CameraManager::GetMainGameCameraID();
 
     if (is_paused) {
-      float w = static_cast<float>(Application::GetCurrentWindow()->GetWidth());
-      float h = static_cast<float>(Application::GetCurrentWindow()->GetHeight());
-      cam.GetComponent<Camera>()->SetOrthographic(-w / 2.f, w / 2.f, -h / 2.f, h / 2.f);
+      cam.GetComponent<Camera>()->SetOrthographic(-1920 / 2.f, 1920 / 2.f, -1080 / 2.f, 1080 / 2.f);
 
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>()) {
         if (!entity.GetComponent<Transform>()->is_active) break;
