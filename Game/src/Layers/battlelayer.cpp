@@ -535,7 +535,7 @@ namespace Game
             if (character.character_id == 5)
             {
                 FlexECS::Scene::GetEntityByName("Enemy 3").GetComponent<Position>()->position =
-                battle.sprite_slot_positions[4] + Vector3{ -25, 90, 0 };
+                battle.sprite_slot_positions[4] + Vector3{ -100, 60, 0 };
 
                 character.protect_buff_duration = 4;
                 character.shield_buff_duration = 4;
@@ -604,7 +604,7 @@ namespace Game
             tutorial_box.AddComponent<Rotation>({});
             tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
             tutorial_box.AddComponent<ZIndex>({ 1021 + index });
-            tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
+            tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
 
             FlexECS::Entity tutorial_press = FlexECS::Scene::CreateEntity("tutorial_press_button"); // can always use GetEntityByName to find the entity
             tutorial_press.AddComponent<Transform>({});
@@ -640,7 +640,7 @@ namespace Game
             boss_box.AddComponent<Rotation>({});
             boss_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
             boss_box.AddComponent<ZIndex>({ 1021 + index });
-            boss_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
+            boss_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
             boss_box.GetComponent<Transform>()->is_active = false;
 
             FlexECS::Entity fade = FlexECS::Scene::CreateEntity("fade_to_black"); // can always use GetEntityByName to find the entity
@@ -2015,7 +2015,7 @@ namespace Game
 
                     if (battle.initial_target->character_id == 5 && transform.is_active)
                     {
-                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(0, 80, 0);
+                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(-75, 50, 0);
                     }
                 }
                 else
@@ -2264,7 +2264,7 @@ namespace Game
                 Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
                 if (battle.initial_target->character_id == 5)
                 {
-                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 120, 0 };
+                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -195, 90, 0 };
                 }
 
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 90, 0 };
@@ -2303,7 +2303,7 @@ namespace Game
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
 
                 if (battle.current_character->character_id == 5)
-                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };
+                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
