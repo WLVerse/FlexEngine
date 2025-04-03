@@ -535,7 +535,7 @@ namespace Game
             if (character.character_id == 5)
             {
                 FlexECS::Scene::GetEntityByName("Enemy 3").GetComponent<Position>()->position =
-                battle.sprite_slot_positions[4] + Vector3{ -100, 60, 0 };
+                battle.sprite_slot_positions[4] + Vector3{ -25, 90, 0 };
 
                 character.protect_buff_duration = 4;
                 character.shield_buff_duration = 4;
@@ -604,7 +604,7 @@ namespace Game
             tutorial_box.AddComponent<Rotation>({});
             tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
             tutorial_box.AddComponent<ZIndex>({ 1021 + index });
-            tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
+            tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
 
             FlexECS::Entity tutorial_press = FlexECS::Scene::CreateEntity("tutorial_press_button"); // can always use GetEntityByName to find the entity
             tutorial_press.AddComponent<Transform>({});
@@ -640,7 +640,7 @@ namespace Game
             boss_box.AddComponent<Rotation>({});
             boss_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
             boss_box.AddComponent<ZIndex>({ 1021 + index });
-            boss_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
+            boss_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_MenuBox.png)") });
             boss_box.GetComponent<Transform>()->is_active = false;
 
             FlexECS::Entity fade = FlexECS::Scene::CreateEntity("fade_to_black"); // can always use GetEntityByName to find the entity
@@ -671,7 +671,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-              {                           1200,                              320 }
+              {                           1400,                              320 }
             });
 
 
@@ -2015,7 +2015,7 @@ namespace Game
 
                     if (battle.initial_target->character_id == 5 && transform.is_active)
                     {
-                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(25, 50, 0);
+                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(0, 80, 0);
                     }
                 }
                 else
@@ -2264,7 +2264,7 @@ namespace Game
                 Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
                 if (battle.initial_target->character_id == 5)
                 {
-                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -95, 90, 0 };
+                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 120, 0 };
                 }
 
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 90, 0 };
@@ -2303,7 +2303,7 @@ namespace Game
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
 
                 if (battle.current_character->character_id == 5)
-                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };
+                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
@@ -3041,7 +3041,8 @@ namespace Game
                         FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-100.0f, -100.0f, 0}, {2.0f,2.0f,2.0f} });
+                    //{ {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-100.0f, -100.0f, 0}, {2.0f,2.0f,2.0f} });
+                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, { -75.0f, -100.0f, 0 }, { 2.0f,2.0f,2.0f } });
                     Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     break;
                 }
@@ -3097,13 +3098,15 @@ namespace Game
                                 if (character.character_id == 5)
                                 {
                                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                    { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    //{ {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    { {target_entity}, VFXPresets.vfx_player_attack, { -10.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
                                     Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                                 }
                                 else
                                 {
                                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                    { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    //{ {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    { { target_entity }, VFXPresets.vfx_player_attack, { }, { 5.0f, 5.0f, 5.0f } });
                                     Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                                 }
                             }
@@ -3147,13 +3150,15 @@ namespace Game
                             if (character.character_id == 5)
                             {
                                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                { { target_entity }, VFXPresets.vfx_player_attack, { -10.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
                                 Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                             }
                             else
                             {
                                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                { { target_entity }, VFXPresets.vfx_player_attack, { }, { 5.0f, 5.0f, 5.0f } });
                                 Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                             }
                         }
@@ -3204,13 +3209,15 @@ namespace Game
                 if (battle.initial_target->character_id == 5)
                 {
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    //{ {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    { { target_entity }, VFXPresets.vfx_player_attack, { -10.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
                     Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 }
                 else
                 {
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    //{ {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    { { target_entity }, VFXPresets.vfx_player_attack, { }, { 5.0f, 5.0f, 5.0f } });
                     Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 }
                 battle.jerk_towards_defender = true;
@@ -3298,7 +3305,9 @@ namespace Game
                                 case 1:
 
                                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                    { {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                    //{ {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+
+                                    { { target_entity }, VFXPresets.vfx_jack_ult, { -90.0f, 0.0f, 0.0f }, { 2.0f, 2.0f, 2.0f } });
                                     Application::MessagingSystem::Send("ActivateJackUlt", true);
                                     break;
                                 case 2:
@@ -3315,11 +3324,13 @@ namespace Game
                             {
                             case 1:
                                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                { {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                { {target_entity}, VFXPresets.vfx_enemy_attack1, {-60.0f, -80.0f, 0}, { 2.0f, 2.0f, 0 } });
                                 break;
                             case 2:
                                 Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                { {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                { {target_entity}, VFXPresets.vfx_enemy_attack1, { -60.0f, -30.0f, 0 }, { 2.0f, 2.0f, 0 } });
                                 break;
                             }
                         }
@@ -3372,7 +3383,9 @@ namespace Game
                         case 1:
 
                             Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                            { {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                            //{ {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+
+                            { { target_entity }, VFXPresets.vfx_jack_ult, { -90.0f, 0.0f, 0.0f}, { 2.0f, 2.0f, 2.0f } });
                             Application::MessagingSystem::Send("ActivateJackUlt", true);
                             break;
                         case 2:
@@ -3389,11 +3402,13 @@ namespace Game
                     {
                     case 1:
                         Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                        { {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                        { {target_entity}, VFXPresets.vfx_enemy_attack1, {-60.0f, -80.0f, 0}, { 2.0f, 2.0f, 0 } });
                         break;
                     case 2:
                         Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                        { {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                //{ {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                        { {target_entity}, VFXPresets.vfx_enemy_attack1, { -60.0f, -30.0f, 0 }, { 2.0f, 2.0f, 0 } });
                         break;
                     }
                 }
@@ -3590,7 +3605,7 @@ namespace Game
                     if (battle.current_character->character_id == 5)
                     {
                         FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
-                            battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };;
+                            battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };;
                     }
 
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 10;
