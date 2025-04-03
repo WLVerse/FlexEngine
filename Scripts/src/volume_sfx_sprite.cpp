@@ -100,6 +100,10 @@ public:
       }
       knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
+    else {
+      if (inc_selected) inc_selected = false;
+      if (dec_selected) dec_selected = false;
+    }
   }
 
   void OnMouseEnter() override
