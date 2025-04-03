@@ -580,7 +580,7 @@ namespace Game
 
         battle.projected_move_text = FlexECS::Scene::CreateEntity("move_used_text"); // can always use GetEntityByName to find the entity
         battle.projected_move_text.AddComponent<Transform>({});
-        battle.projected_move_text.AddComponent<Position>({ Vector3(1475, 500, 0) });
+        battle.projected_move_text.AddComponent<Position>({ Vector3(1595, 500, 0) });
         battle.projected_move_text.AddComponent<Rotation>({});
         battle.projected_move_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
         battle.projected_move_text.AddComponent<ZIndex>({ 1022 + index });
@@ -588,7 +588,7 @@ namespace Game
           FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
           FLX_STRING_NEW(R"()"),
           Vector3(1.0f, 1.0, 1.0f),
-          { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+          { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
           {                           1400,                              320 }
         });
         battle.projected_move_text.GetComponent<Transform>()->is_active = false;
@@ -616,7 +616,7 @@ namespace Game
 
             battle.tutorial_text = FlexECS::Scene::CreateEntity("tutorial_text"); // can always use GetEntityByName to find the entity
             battle.tutorial_text.AddComponent<Transform>({});
-            battle.tutorial_text.AddComponent<Position>({ Vector3(525, 100, 0) });
+            battle.tutorial_text.AddComponent<Position>({ Vector3(845, 100, 0) });
             battle.tutorial_text.AddComponent<Rotation>({});
             battle.tutorial_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             battle.tutorial_text.AddComponent<ZIndex>({ 1022 + index });
@@ -624,7 +624,7 @@ namespace Game
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+              { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
               {                           1400,                              320 }
             });
         }
@@ -648,7 +648,7 @@ namespace Game
             fade.AddComponent<Position>({ Vector3(845, 110, 0) });
             fade.AddComponent<Rotation>({});
             fade.AddComponent<Scale>({ Vector3(2000.f, 2000.f, 0) });
-            fade.AddComponent<ZIndex>({ 1021 + index });
+            fade.AddComponent<ZIndex>({ 996 });
             fade.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_SpeedBar_AllyProfile_Empty.png)") });
             fade.GetComponent<Transform>()->is_active = false;
 
@@ -662,7 +662,7 @@ namespace Game
 
             FlexECS::Entity boss_text = FlexECS::Scene::CreateEntity("boss_text"); // can always use GetEntityByName to find the entity
             boss_text.AddComponent<Transform>({});
-            boss_text.AddComponent<Position>({ Vector3(525, 100, 0) });
+            boss_text.AddComponent<Position>({ Vector3(845, 100, 0) });
             boss_text.AddComponent<Rotation>({});
             boss_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
             boss_text.AddComponent<ZIndex>({ 1022 + index });
@@ -670,8 +670,32 @@ namespace Game
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
-              { Renderer2DText::Alignment_Left, Renderer2DText::Alignment_Center },
+              { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
               {                           1400,                              320 }
+            });
+
+
+            FlexECS::Entity boss_dialogue_box = FlexECS::Scene::CreateEntity("boss_dialogue_textbox"); // can always use GetEntityByName to find the entity
+            boss_dialogue_box.AddComponent<Transform>({});
+            boss_dialogue_box.AddComponent<Position>({ Vector3(1225, 600, 0) });
+            boss_dialogue_box.AddComponent<Rotation>({});
+            boss_dialogue_box.AddComponent<Scale>({ Vector3(1.0f, 1.0f, 0) });
+            boss_dialogue_box.AddComponent<ZIndex>({ 998 });
+            boss_dialogue_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/UI_BattleScreen_DialogueBubble.png)") });
+            boss_dialogue_box.GetComponent<Transform>()->is_active = false;
+
+            FlexECS::Entity boss_dialogue_text = FlexECS::Scene::CreateEntity("boss_dialogue_text"); // can always use GetEntityByName to find the entity
+            boss_dialogue_text.AddComponent<Transform>({});
+            boss_dialogue_text.AddComponent<Position>({ Vector3(1225, 590, 0) });
+            boss_dialogue_text.AddComponent<Rotation>({});
+            boss_dialogue_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
+            boss_dialogue_text.AddComponent<ZIndex>({ 999 });
+            boss_dialogue_text.AddComponent<Text>({
+              FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
+              FLX_STRING_NEW(R"()"),
+              Vector3(1.0f, 1.0, 1.0f),
+              { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
+              {                           700,                              320 }
             });
         }
 
@@ -1464,6 +1488,7 @@ namespace Game
             Log::Debug("Move Select");
             battle.change_phase = false;
 
+            battle.anim_timer = 1.0f;
             //skip turn if stunned, go straight to end of turn resolution
             if (battle.current_character->stun_debuff_duration > 0 && !(battle.current_character->character_id == 5))
             {
@@ -1568,25 +1593,26 @@ namespace Game
                         {
                         case 1:
                             battle.current_move = &battle.current_character->move_one;
-                            FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                            FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Once I get rid of you, Renko... The world will return to normal.";
-                            battle.disable_input_timer += 5.0f;
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Time to end this, Renko.";
+                            battle.disable_input_timer += 2.5f;
                             break;
                         case 2:
                             battle.current_move = &battle.current_character->move_two;
-                            FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                            FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Stay out of my way, Grace. If you get in my way, I will remove you too.";
-                            battle.disable_input_timer += 5.0f;
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Out of my way, Grace.";
+                            battle.disable_input_timer += 2.0f;
                             break;
                         case 3:
                             battle.current_move = &battle.current_character->move_three;
-                            FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                            FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: No one will hear you scream...";
-                            battle.disable_input_timer += 5.0f;
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "No one will hear you scream...";
+                            FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position += Vector3(0, 10, 0);
                             battle.is_boss_running = false;
+                            battle.disable_input_timer += 2.0f;
                             break;
                         }
                     }
@@ -1601,9 +1627,9 @@ namespace Game
                         battle.current_move = &battle.current_character->move_one;
                         battle.move_num = 1;
 
-                        FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                        FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                         //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: You should just perish.";
+                        FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "You should just perish.";
                         battle.disable_input_timer += 3.0f;
                     }
                     else
@@ -2089,6 +2115,47 @@ namespace Game
             }
         }
 
+
+        if (battle.is_boss && battle.current_character->character_id == 5 && battle.boss_move == 3)
+        {
+            if (battle.disable_input_timer > .0f)
+            {
+                FlexECS::Scene::GetEntityByName("Drifter 1").GetComponent<ZIndex>()->z = 997;
+
+                FlexECS::Scene::GetEntityByName("Drifter 2").GetComponent<ZIndex>()->z = 997;
+
+                FlexECS::Scene::GetEntityByName("Enemy 3").GetComponent<ZIndex>()->z = 999;
+
+                FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Transform>()->is_active = true;
+
+                float t = ((2.01f - battle.disable_input_timer) / 2.0f);
+                FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity = 0.1f + t * (0.9f);
+                if (FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity > 1.0f)
+                {
+                    FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity = 1.0f;
+                }
+            }
+            if (FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity > 0.5f && battle.anim_timer)
+            {
+                battle.anim_timer = 0.0f;
+                auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Animator>();
+
+                current_character_animator.spritesheet_handle =
+                    FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
+
+                current_character_animator.should_play = true;
+                current_character_animator.is_looping = false;
+                current_character_animator.return_to_default = false;
+                current_character_animator.frame_time = 0.f;
+                current_character_animator.current_frame = 0;
+            }
+        }
+
+        if (battle.disable_input_timer > .0f)
+        {
+            return;
+        }
+
         //confirm the use of move for AI or player
         if (!battle.is_player_turn || battle.is_player_turn && Input::GetKeyDown(GLFW_KEY_SPACE) && battle.initial_target != nullptr)
         {
@@ -2111,8 +2178,35 @@ namespace Game
                 battle.projected_character_text.GetComponent<Transform>()->is_active = false;
             }
 
-            battle.disable_input_timer = 1.0f;
-            battle.anim_timer = battle.disable_input_timer;
+            if (battle.is_boss)
+            {
+                FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = false;
+                //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = false;
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "";
+                FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = false;
+                //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = false;
+                FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "";
+                FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<ZIndex>()->z = 999;
+                if (battle.current_character->character_id == 5 && battle.move_num == 3)
+                {
+                    FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position -= Vector3(0, 10, 0);
+                    auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Animator>();
+
+                    current_character_animator.spritesheet_handle =
+                        FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Loop.flxspritesheet)");
+
+                    current_character_animator.should_play = true;
+                    current_character_animator.is_looping = true;
+                    current_character_animator.return_to_default = false;
+                    current_character_animator.frame_time = 0.f;
+                    current_character_animator.current_frame = 0;
+                }
+            }
+
+            if (battle.disable_input_timer <= 0.0f)
+            {
+                battle.disable_input_timer = 1.0f;
+            }
 
             if (battle.current_character->stun_debuff_duration > 0)
                 battle.current_character->stun_debuff_duration -= 1;
@@ -2153,6 +2247,7 @@ namespace Game
             if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
             {
                 // If targeting allies, does nothing
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 999;
             }
             else
             {
@@ -2181,7 +2276,7 @@ namespace Game
 
                 FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
 
-                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+                FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 999;
             }
         }
         else
@@ -2189,6 +2284,7 @@ namespace Game
             if (battle.current_move->target[0] == "ALL_ALLIES" || battle.current_move->target[0] == "NEXT_ALLY" || battle.current_move->target[0] == "SINGLE_ALLY" || battle.current_move->target[0] == "SELF")
             {
                 // If targeting allies, does nothing
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 999;
             }
             else
             {
@@ -2213,21 +2309,8 @@ namespace Game
 
                 FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position = interpolated_position;
 
-                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 50;
+                FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 999;
             }
-        }
-
-        if (battle.is_boss && battle.current_character->character_id == 5 && battle.boss_move == 3)
-        {
-            FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Transform>()->is_active = true;
-
-            float t = ((5.01f - battle.disable_input_timer) / 5.0f);
-            FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity = 0.1f + t * (0.9f);
-            if (FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity > 1.0f)
-            {
-                FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Sprite>()->opacity = 1.0f;
-            }
-
         }
 
         if (battle.disable_input_timer > .0f)
@@ -2852,34 +2935,43 @@ namespace Game
                 case 3:
                     current_character_animator.spritesheet_handle =
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_01_Attack_Anim_Sheet.flxspritesheet)");
+
+                    current_character_animator.should_play = true;
+                    current_character_animator.is_looping = false;
+                    current_character_animator.return_to_default = true;
+                    current_character_animator.frame_time = 0.f;
+                    current_character_animator.current_frame = 0;
+                    battle.force_disable_combat_camera = true;
                     break;
                 case 4:
                     current_character_animator.spritesheet_handle =
                         FLX_STRING_NEW(R"(/images/spritesheets/Char_Enemy_02_Attack_Anim_Sheet.flxspritesheet)");
+                    current_character_animator.should_play = true;
+                    current_character_animator.is_looping = false;
+                    current_character_animator.return_to_default = true;
+                    current_character_animator.frame_time = 0.f;
+                    current_character_animator.current_frame = 0;
+                    battle.force_disable_combat_camera = true;
                     break;
                 case 5:
                     if (battle.move_num == 3)
                     {
-                        current_character_animator.spritesheet_handle =
-                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
+                        //current_character_animator.spritesheet_handle =
+                            //FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Ult_Anim_Sheet.flxspritesheet)");
                     }
                     else
                     {
                         current_character_animator.spritesheet_handle =
                             FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Attack_Anim_Sheet.flxspritesheet)");
+                        current_character_animator.should_play = true;
+                        current_character_animator.is_looping = false;
+                        current_character_animator.return_to_default = true;
+                        current_character_animator.frame_time = 0.f;
+                        current_character_animator.current_frame = 0;
+                        battle.force_disable_combat_camera = true;
                     }
                     break;
                 }
-                /*float animation_time =
-                    FLX_ASSET_GET(Asset::Spritesheet, FLX_STRING_GET(current_character_animator.spritesheet_handle))
-                    .total_frame_time;*/
-
-                current_character_animator.should_play = true;
-                current_character_animator.is_looping = false;
-                current_character_animator.return_to_default = true;
-                current_character_animator.frame_time = 0.f;
-                current_character_animator.current_frame = 0;
-                battle.force_disable_combat_camera = true;
 
                 // Delay for machine gun 
                 if (battle.current_character->character_id == 3 || battle.current_character->character_id == 4)
@@ -2949,7 +3041,7 @@ namespace Game
                         FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-160.0f, -100.0f, 0}, {2.0f,2.0f,2.0f} });
+                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-100.0f, -100.0f, 0}, {2.0f,2.0f,2.0f} });
                     Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     break;
                 }
@@ -3198,6 +3290,7 @@ namespace Game
 
                         if (battle.current_character->character_id == 5)
                         {
+                            battle.disable_input_timer += 0.5f;
                             if (battle.move_num == 3)
                             {
                                 switch (character.current_slot + 1)
@@ -3205,7 +3298,7 @@ namespace Game
                                 case 1:
 
                                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                                    { {target_entity}, VFXPresets.vfx_jack_ult, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                    { {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
                                     Application::MessagingSystem::Send("ActivateJackUlt", true);
                                     break;
                                 case 2:
@@ -3271,6 +3364,7 @@ namespace Game
                 //Specific check for Jack's attack
                 if (battle.current_character->character_id == 5)
                 {
+                    battle.disable_input_timer += 2.0f;
                     if (battle.move_num == 3)
                     {
                         switch (battle.initial_target->current_slot + 1)
@@ -3278,7 +3372,7 @@ namespace Game
                         case 1:
 
                             Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                            { {target_entity}, VFXPresets.vfx_jack_ult, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                            { {target_entity}, VFXPresets.vfx_jack_ult, { -100.0f, -20.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
                             Application::MessagingSystem::Send("ActivateJackUlt", true);
                             break;
                         case 2:
@@ -3331,7 +3425,7 @@ namespace Game
               battle.tutorial_info++;
           }
         }
-        if (battle.is_boss)
+        if (battle.is_boss && battle.move_num == 3)
         {
             FlexECS::Scene::GetEntityByName("fade_to_black").GetComponent<Transform>()->is_active = false;
         }
@@ -3528,32 +3622,51 @@ namespace Game
                 case 1:
                     FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "You feel a chill down your spine. You feel like Jack is preparing to do something.";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "A chill runs down your spine. You feel like Jack is plotting something.";
                     break;
                 case 2:
                     FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "A murderous intent surges from Jack. He is intent on finishing off Renko next turn.";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "You see murderous intent in Jack's eyes. Grace needs to recover in time to shield Renko.";
                     break;
                 case 3:
-                    FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                    FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Why do you still protect the culprit who destroyed the timeline, Grace?";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Why do you shield him still, Grace?";
                     for (auto& character : battle.drifters_and_enemies)
                     {
                         if (character.character_id == 1 && !character.is_alive)
                         {
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: It was for the best, Grace.";
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "It was for the best, Grace.";
                         }
+                    }
+                    if (battle.move_num == 3)
+                    {
+                        auto& current_character_animator = *FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Animator>();
+
+                        current_character_animator.spritesheet_handle =
+                            FLX_STRING_NEW(R"(/images/spritesheets/Char_Jack_Idle_Anim_Sheet.flxspritesheet)");
+
+                        current_character_animator.should_play = true;
+                        current_character_animator.is_looping = true;
+                        current_character_animator.return_to_default = true;
+                        current_character_animator.frame_time = 0.f;
+                        current_character_animator.current_frame = 0;
+
+                        FlexECS::Scene::GetEntityByName("Drifter 1").GetComponent<ZIndex>()->z = 10;
+                        FlexECS::Scene::GetEntityByName("Drifter 2").GetComponent<ZIndex>()->z = 10;
+                        FlexECS::Scene::GetEntityByName("Enemy 3").GetComponent<ZIndex>()->z = 10;
                     }
                     break;
                 default:
-                    FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
+                    FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: You only delay the inevitable.";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "You only delay the inevitable.";
                 }
-                battle.disable_input_timer += 2.f;
+                battle.disable_input_timer += 3.0f;
             }
+
+            battle.force_disable_combat_camera = true;
         }
 
         //let death animation play finish
@@ -3563,6 +3676,9 @@ namespace Game
         }
         if (battle.is_boss)
         {
+            FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = false;
+            //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = false;
+            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "";
             FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = false;
             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = false;
             FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "";
