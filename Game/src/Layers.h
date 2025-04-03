@@ -9,6 +9,7 @@
 #include "Layers/battlelayer.h"
 #include "Layers/camerasystemlayer.h"
 #include "Layers/cutscenelayer.h"
+#include "Layers/endingcutscenelayer.h"
 #include "Layers/gamelayer.h"
 #include "Layers/menulayer.h"
 #include "Layers/physicslayer.h"
