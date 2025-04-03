@@ -671,7 +671,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-              {                           1400,                              320 }
+              {                           1200,                              320 }
             });
 
 
@@ -2015,7 +2015,7 @@ namespace Game
 
                     if (battle.initial_target->character_id == 5 && transform.is_active)
                     {
-                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(-75, 50, 0);
+                        entity.GetComponent<Position>()->position = battle.sprite_slot_positions[4] + Vector3(25, 50, 0);
                     }
                 }
                 else
@@ -2264,7 +2264,7 @@ namespace Game
                 Vector3 new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -120, 0, 0 };
                 if (battle.initial_target->character_id == 5)
                 {
-                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -195, 90, 0 };
+                    new_position = battle.sprite_slot_positions[battle.initial_target->current_slot + 2] + Vector3{ -95, 90, 0 };
                 }
 
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 90, 0 };
@@ -3590,7 +3590,7 @@ namespace Game
                     if (battle.current_character->character_id == 5)
                     {
                         FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<Position>()->position =
-                            battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -25, 90, 0 };;
+                            battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };;
                     }
 
                     FlexECS::Scene::GetEntityByName("Enemy " + std::to_string(battle.current_character->current_slot + 1)).GetComponent<ZIndex>()->z = 10;
