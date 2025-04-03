@@ -1570,15 +1570,15 @@ namespace Game
                             battle.current_move = &battle.current_character->move_one;
                             FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Once I get rid of you, Renko… The world will return to normal.";
-                            battle.disable_input_timer += 3.0f;
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Once I get rid of you, Renko... The world will return to normal.";
+                            battle.disable_input_timer += 5.0f;
                             break;
                         case 2:
                             battle.current_move = &battle.current_character->move_two;
                             FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
                             FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Stay out of my way, Grace. If you get in my way, I will remove you too.";
-                            battle.disable_input_timer += 3.0f;
+                            battle.disable_input_timer += 5.0f;
                             break;
                         case 3:
                             battle.current_move = &battle.current_character->move_three;
@@ -2949,7 +2949,7 @@ namespace Game
                         FLX_STRING_NEW(R"(/audio/Big Hammer Ground Hit_1.wav)");
                     FlexECS::Scene::GetEntityByName("Play SFX").GetComponent<Audio>()->should_play = true;
                     Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-75.0f, -100.0f, 0.0f}, {2.0f,2.0f,2.0f} });
+                    { {FlexECS::Scene::GetEntityByName("Drifter " + std::to_string(battle.current_character->current_slot + 1))}, VFXPresets.vfx_grace_ult, {-160.0f, -100.0f, 0}, {2.0f,2.0f,2.0f} });
                     Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
                     break;
                 }
@@ -2960,7 +2960,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
-              std::vector<FlexECS::Entity> hit_entities;
+              //std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id > 2)
@@ -3001,7 +3001,19 @@ namespace Game
                                 target_animator.frame_time = 0.f;
                                 target_animator.current_frame = 0;
 
-                                hit_entities.push_back(target_entity);
+                                //hit_entities.push_back(target_entity);
+                                if (character.character_id == 5)
+                                {
+                                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                    { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                                }
+                                else
+                                {
+                                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                    { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                    Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                                }
                             }
                         }
                         else
@@ -3039,16 +3051,28 @@ namespace Game
                             target_animator.frame_time = 0.f;
                             target_animator.current_frame = 0;
 
-                            hit_entities.push_back(target_entity);
+                            //hit_entities.push_back(target_entity);
+                            if (character.character_id == 5)
+                            {
+                                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                            }
+                            else
+                            {
+                                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                            }
                         }
                     }
                 }
                 battle.disable_input_timer += 0.5f;
 
                 //Hit VFX
-                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                { {hit_entities}, VFXPresets.vfx_player_attack, {}, {5.0f, 5.0f, 5.0f} });
-                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                //Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                //{ {hit_entities}, VFXPresets.vfx_player_attack, {-300.0f, 0, 0}, {5.0f, 5.0f, 5.0f} });
+                //Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
                 battle.jerk_towards_defender = true;
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
@@ -3085,9 +3109,18 @@ namespace Game
                 battle.disable_input_timer += 0.5f;
 
                 //Hit VFX
-                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                { {target_entity}, VFXPresets.vfx_player_attack, {}, { 5.0f, 5.0f, 5.0f } });
-                Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                if (battle.initial_target->character_id == 5)
+                {
+                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                    { {target_entity}, VFXPresets.vfx_player_attack, { -400.0f, 50.0f, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                }
+                else
+                {
+                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                    { {target_entity}, VFXPresets.vfx_player_attack, { -300.0f, 0, 0 }, { 5.0f, 5.0f, 5.0f } });
+                    Application::MessagingSystem::Send("ActivateChromaticAlteration", true);
+                }
                 battle.jerk_towards_defender = true;
             }
         }
@@ -3126,7 +3159,7 @@ namespace Game
             float animation_time = .0f;
             if (battle.current_move->target[0] == "ADJACENT_ENEMIES" || battle.current_move->target[0] == "ALL_ENEMIES")
             {
-              std::vector<FlexECS::Entity> hit_entities;
+              //std::vector<FlexECS::Entity> hit_entities;
                 for (auto& character : battle.drifters_and_enemies)
                 {
                     if (character.is_alive && character.character_id <= 2)
@@ -3163,25 +3196,44 @@ namespace Game
                         Application::MessagingSystem::Send("CameraShakeStart", std::pair<double, double>{ 0.5, 0.5 });
                         battle.jerk_towards_defender = true;
 
-                        hit_entities.push_back(target_entity);
+                        if (battle.current_character->character_id == 5)
+                        {
+                            if (battle.move_num == 3)
+                            {
+                                switch (character.current_slot + 1)
+                                {
+                                case 1:
+
+                                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                    { {target_entity}, VFXPresets.vfx_jack_ult, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                    Application::MessagingSystem::Send("ActivateJackUlt", true);
+                                    break;
+                                case 2:
+                                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                    { {target_entity}, VFXPresets.vfx_jack_ult, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                    Application::MessagingSystem::Send("ActivateJackUlt", true);
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            switch (character.current_slot + 1)
+                            {
+                            case 1:
+                                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                { {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                break;
+                            case 2:
+                                Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                                { {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                                break;
+                            }
+                        }
+                        //hit_entities.push_back(target_entity);
                     }
                 }
                 battle.disable_input_timer += animation_time - 0.1f;// +1.f;
-
-                if (battle.current_character->character_id == 5)
-                {
-                    if (battle.move_num == 3)
-                    {
-                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                        { {hit_entities}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
-                        Application::MessagingSystem::Send("ActivateJackUlt", true);
-                    }
-                }
-                else
-                {
-                    Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                    { hit_entities, VFXPresets.vfx_enemy_attack1, {}, { 2.0f, 2.0f, 2.0f } });
-                }
             }
             else if (battle.current_move->target[0] == "SINGLE_ENEMY" || battle.current_move->target[0] == "NEXT_ENEMY")
             {
@@ -3221,15 +3273,35 @@ namespace Game
                 {
                     if (battle.move_num == 3)
                     {
-                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                        { {target_entity}, VFXPresets.vfx_jack_ult, {}, { 2.0f, 2.0f, 2.0f } });
-                        Application::MessagingSystem::Send("ActivateJackUlt", true);
+                        switch (battle.initial_target->current_slot + 1)
+                        {
+                        case 1:
+
+                            Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                            { {target_entity}, VFXPresets.vfx_jack_ult, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                            Application::MessagingSystem::Send("ActivateJackUlt", true);
+                            break;
+                        case 2:
+                            Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                            { {target_entity}, VFXPresets.vfx_jack_ult, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                            Application::MessagingSystem::Send("ActivateJackUlt", true);
+                            break;
+                        }
                     }
                 }
                 else
                 {
-                  Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
-                  { {target_entity}, VFXPresets.vfx_enemy_attack1, {}, { 2.0f, 2.0f, 2.0f } });
+                    switch (battle.initial_target->current_slot + 1)
+                    {
+                    case 1:
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {target_entity}, VFXPresets.vfx_enemy_attack1, { 350.0f, -280.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                        break;
+                    case 2:
+                        Application::MessagingSystem::Send("Spawn VFX", std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+                        { {target_entity}, VFXPresets.vfx_enemy_attack1, { 440.0f, 180.0f, 0 }, { 2.0f, 2.0f, 2.0f } });
+                        break;
+                    }
                 }
             }
         }
@@ -3466,12 +3538,12 @@ namespace Game
                 case 3:
                     FlexECS::Scene::GetEntityByName("boss_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Why do you still protect the person who doomed us all, Grace?";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Why do you still protect the culprit who destroyed the timeline, Grace?";
                     for (auto& character : battle.drifters_and_enemies)
                     {
                         if (character.character_id == 1 && !character.is_alive)
                         {
-                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: Letting Renko die... it's for the better, Grace.";
+                            FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: It was for the best, Grace.";
                         }
                     }
                     break;
@@ -3480,7 +3552,7 @@ namespace Game
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
                     FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_text").GetComponent<Text>()->text) = "Jack: You only delay the inevitable.";
                 }
-                battle.disable_input_timer += 3.f;
+                battle.disable_input_timer += 2.f;
             }
         }
 
