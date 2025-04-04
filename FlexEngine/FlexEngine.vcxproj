@@ -146,7 +146,7 @@ xcopy "$(SolutionDir)third_party\lib\ffmpeg\binaries\*.dll" "$(OutDir)" /e /r /y
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CONSOLE;GLAD_GLAPI_EXPORT;GLAD_GLAPI_EXPORT_BUILD;FLX_BUILD_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CONSOLE;GLAD_GLAPI_EXPORT;GLAD_GLAPI_EXPORT_BUILD;FLX_BUILD_DLL;NDEBUG;GAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)FlexEngine\src;$(SolutionDir)FlexEngine\src\FlexEngine;$(SolutionDir)third_party\ImGui\src;$(SolutionDir)third_party\inc;$(SolutionDir)third_party\inc\fmod\core;$(SolutionDir)third_party\inc\fmod\studio;$(SolutionDir)third_party\inc\glm;$(SolutionDir)third_party\inc\RapidJSON;$(SolutionDir)third_party\inc\stb</AdditionalIncludeDirectories>
