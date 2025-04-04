@@ -625,7 +625,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-              {                           1400,                              320 }
+              {                           1200,                              320 }
             });
         }
 
