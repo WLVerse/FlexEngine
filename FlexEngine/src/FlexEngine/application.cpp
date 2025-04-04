@@ -375,6 +375,7 @@ namespace FlexEngine
       // poll IO events (keys pressed/released, mouse moved etc.)
       // this is suggested to always come first in the loop
       glfwPollEvents();
+      Input::UpdateGamepadInput();
 
       // run the layerstack
       Application::GetLayerStack().Update();
