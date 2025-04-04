@@ -1457,7 +1457,7 @@ namespace Game
         }
 
         //tutorial only
-        if (battle.is_tutorial_running)
+        if (battle.is_tutorial_running && battle.tutorial_info == 0)
         {
             for (int key = GLFW_KEY_SPACE; key < GLFW_KEY_LAST; key++)
             {
@@ -3433,7 +3433,7 @@ namespace Game
         }
 
         //tutorial code
-        if (battle.is_tutorial_running)
+        if (battle.is_tutorial_running && battle.tutorial_info == 4)
         {
           if (Input::AnyKeyDown())
           {
@@ -3680,8 +3680,6 @@ namespace Game
                 }
                 battle.disable_input_timer += 3.0f;
             }
-
-            battle.force_disable_combat_camera = true;
         }
 
         //let death animation play finish
@@ -3752,6 +3750,19 @@ namespace Game
                 }
             }
         }
+        if (battle.is_tutorial && enemy_count == 0)
+        {
+                battle.tutorial_info = 6;
+                if (Input::AnyKeyDown())
+                {
+                    FlexECS::Scene::GetEntityByName("tutorial_text").GetComponent<Transform>()->is_active = false;
+                    FlexECS::Scene::GetEntityByName("tutorial_textbox").GetComponent<Transform>()->is_active = false;
+                    FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
+                    battle.is_tutorial = false;
+                }
+                return;
+        }
+
         if (!player_count)
         {
             Lose_Battle();
@@ -3918,13 +3929,14 @@ namespace Game
 
         if (battle.is_win || battle.is_lose)
         {
+
             static bool SendMSG = false;
-            if (Input::AnyKeyDown() && !SendMSG)
-            {
-                //Fade in
-                SendMSG = true;
-                Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
-            }
+                if (Input::AnyKeyDown() && !SendMSG)
+                {
+                    //Fade in
+                    SendMSG = true;
+                    Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
+                }
             
             int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
             if (transitionMSG == 2)
@@ -4057,19 +4069,25 @@ namespace Game
                 text_to_show = "Press W & S to swap moves. Press A & D to swap targets. Try it out!";
                 break;
             case 2:
-                text_to_show = "The smaller icon of your character on the turn bar indicates your next turn. Stronger moves tend to put you further back on the turn bar.";
+                text_to_show = "The smaller icon of your character on the turn bar shows when your next turn will be. More powerful moves usually puts you further back in the turn order.";
                 break;
             case 3:
                 text_to_show = "Press SPACEBAR to confirm your move.";
+                FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
                 break;
             case 4:
               text_to_show = "You're a natural. Looks like we may still have a shot at saving the world after all. Now, finish this!";
+              FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = true;
                 break;
             case 5:
               text_to_show = "";
-                battle.is_tutorial_running = false;
                 FlexECS::Scene::GetEntityByName("tutorial_textbox").GetComponent<Transform>()->is_active = false;
                 FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
+                break;
+            case 6:
+                text_to_show = "I'll end the simulation now and bring you to the real London now. Good work, Renko.";
+                FlexECS::Scene::GetEntityByName("tutorial_textbox").GetComponent<Transform>()->is_active = true;
+                FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = true;
                 break;
             default:
               text_to_show = "";

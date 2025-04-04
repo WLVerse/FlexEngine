@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Speed_Up
 Value: 2
 Target: NEXT_ALLY
-Description: Deal damage to an enemy. Accelerate the next turn of your other ally.
+Description: Deal damage to an enemy and hasten your other ally's next turn.
