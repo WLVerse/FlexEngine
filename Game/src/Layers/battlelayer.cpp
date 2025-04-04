@@ -697,6 +697,11 @@ namespace Game
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
               {                           700,                              320 }
             });
+
+            // Boss exclusive background
+            FlexECS::Entity bg = FlexECS::Scene::GetEntityByName("Background");
+            bg.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/Battle_Scene_Extended_02.png)");
+            bg.GetComponent<Position>()->position += Vector3{ 0, 100, 0 }; // Offset up a bit
         }
 
         Update_Character_Status();
