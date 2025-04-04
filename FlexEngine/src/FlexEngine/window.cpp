@@ -219,14 +219,14 @@ namespace FlexEngine
 
     m_frameratecontroller.BeginFrame();
 
-    #ifndef IMGUI_DISABLE
+    #ifndef GAME
     ImGuiWrapper::BeginFrame();
     #endif
 
     // update layer stack
     m_layerstack.Update();
 
-    #ifndef IMGUI_DISABLE
+    #ifndef GAME
     ImGuiWrapper::EndFrame();
     #endif
 

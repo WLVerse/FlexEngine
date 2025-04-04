@@ -61,21 +61,21 @@ namespace Game
     auto& layerstack = Application::GetCurrentWindow()->GetLayerStack();
 
     // guard: DLL does not exist
-    if (!std::filesystem::exists(from))
-    {
-      Log::Error("DLL for hotloading does not exist. Remember to build the scripting sln first.");
-      layerstack.RemoveLayer(this->GetName()); // Remove self
-      return;
-    }
+    //if (!std::filesystem::exists(from))
+    //{
+    //  Log::Error("DLL for hotloading does not exist. Remember to build the scripting sln first.");
+    //  layerstack.RemoveLayer(this->GetName()); // Remove self
+    //  return;
+    //}
 
     // Copy the DLL to the hot loading directory
-    bool success = std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
-    if (!success)
-    {
-      Log::Error("Failed to copy DLL for hotloading.");
-      layerstack.RemoveLayer(this->GetName()); // Remove self
-      return;
-    }
+    //bool success = std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+    //if (!success)
+    //{
+    //  Log::Error("Failed to copy DLL for hotloading.");
+    //  layerstack.RemoveLayer(this->GetName()); // Remove self
+    //  return;
+    //}
 
     // Load the scripting DLL
     LPCSTR dll_path = to.c_str();
