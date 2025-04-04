@@ -110,7 +110,14 @@ namespace FlexEngine
     }
 
     // Fullscreen overrides any option
-    if (FlexPrefs::GetBool("game.fullscreen"))
+    bool should_fs = false;
+    #ifdef GAME_BUILD
+    should_fs = FlexPrefs::GetBool("game.fullscreen");
+    #else
+    should_fs = FlexPrefs::GetBool("editor.fullscreen");
+    #endif
+
+    if (should_fs)
     {
       GLFWmonitor* monitor = glfwGetPrimaryMonitor();
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -128,6 +135,7 @@ namespace FlexEngine
 
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);
+    glfwSwapInterval(FlexPrefs::GetBool("game.vsync") ? 1 : 0);
 
     // load all OpenGL function pointers (glad)
     FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
