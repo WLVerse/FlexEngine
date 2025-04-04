@@ -129,6 +129,8 @@ namespace FlexEngine
     }
     else
     {
+      m_props.width = 1600.f;
+      m_props.height = 900.f;
       m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
       m_is_full_screen = false;
     }
@@ -356,6 +358,10 @@ namespace FlexEngine
     {
       GLFWmonitor* monitor = glfwGetPrimaryMonitor();
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      // Just toggle windowed to 1600x900
+      m_props.width = 1600.f;
+      m_props.height = 900.f;
 
       glfwSetWindowMonitor(m_glfwwindow, nullptr, 0, 0, m_props.width, m_props.height, 0);
       glfwSetWindowPos(m_glfwwindow, mode->width / 2 - m_props.width/2, mode->height/2 - m_props.height/2); // Center to the screen
