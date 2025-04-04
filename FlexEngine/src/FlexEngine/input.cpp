@@ -28,7 +28,11 @@ namespace FlexEngine
   Vector2                                   Input::m_scroll_offset{};
 
   std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> Input::m_gamepad_prev_buttons = { false };
-  bool                                           Input::m_gamepad_connected = { false };
+  bool Input::m_gamepad_connected = { false };
+  bool Input::m_gamepad_lstick_up = { false };
+  bool Input::m_gamepad_lstick_down = { false };
+  bool Input::m_gamepad_lstick_left = { false };
+  bool Input::m_gamepad_lstick_right = { false };
 
   #pragma endregion
 
@@ -40,6 +44,7 @@ namespace FlexEngine
       GLFWgamepadstate state;
       if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state)) 
       {
+        //buttons 
         for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) 
         {
           bool is_down = (state.buttons[i] == GLFW_PRESS);
@@ -114,6 +119,53 @@ namespace FlexEngine
             }
           }
         }
+
+        //axises
+        float lx = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+        float ly = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+        // Left
+        bool left = lx < -0.5;
+        if (left)              m_key[GLFW_KEY_A] = true;
+        if (left && !m_gamepad_lstick_left)  m_key_down[GLFW_KEY_A] = true;
+        if (!left && m_gamepad_lstick_left)
+        {
+          m_key_up[GLFW_KEY_A] = true;
+          m_key[GLFW_KEY_A] = false;
+        }
+        m_gamepad_lstick_left = left;
+
+        // Right
+        bool right = lx > 0.5;
+        if (right)               m_key[GLFW_KEY_D] = true;
+        if (right && !m_gamepad_lstick_right) m_key_down[GLFW_KEY_D] = true;
+        if (!right && m_gamepad_lstick_right)
+        {
+          m_key_up[GLFW_KEY_D] = true;
+          m_key[GLFW_KEY_D] = false;
+        }
+        m_gamepad_lstick_right = right;
+
+        // Up
+        bool up = ly < -0.5;
+        if (up)            m_key[GLFW_KEY_W] = true;
+        if (up && !m_gamepad_lstick_up)   m_key_down[GLFW_KEY_W] = true;
+        if (!up && m_gamepad_lstick_up)
+        {
+          m_key_up[GLFW_KEY_W] = true;
+          m_key[GLFW_KEY_W] = false;
+        }
+        m_gamepad_lstick_up = up;
+
+        // Down
+        bool down = ly > 0.5;
+        if (down)              m_key[GLFW_KEY_S] = true;
+        if (down && !m_gamepad_lstick_down)  m_key_down[GLFW_KEY_S] = true;
+        if (!down && m_gamepad_lstick_down)
+        {
+          m_key_up[GLFW_KEY_S] = true;
+          m_key[GLFW_KEY_S] = false;
+        }
+        m_gamepad_lstick_down = down;
       }
     }
     if (!connected && m_gamepad_connected)
@@ -121,6 +173,10 @@ namespace FlexEngine
       //gamepad disconnected
       //Reset everything to prevent problems on dis/re/connection
       m_gamepad_prev_buttons.fill(false);
+      m_gamepad_lstick_up = false;
+      m_gamepad_lstick_down = false;
+      m_gamepad_lstick_left = false;
+      m_gamepad_lstick_right = false;
       m_key[GLFW_KEY_ESCAPE] = false;
       m_key[GLFW_KEY_W] = false;
       m_key[GLFW_KEY_A] = false;

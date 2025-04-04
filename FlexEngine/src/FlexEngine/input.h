@@ -75,6 +75,10 @@ namespace FlexEngine
 
     static std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> m_gamepad_prev_buttons;
     static bool                                           m_gamepad_connected;
+    static bool m_gamepad_lstick_up;
+    static bool m_gamepad_lstick_down;
+    static bool m_gamepad_lstick_left;
+    static bool m_gamepad_lstick_right;
 
   // callback functions for glfw
   public:
