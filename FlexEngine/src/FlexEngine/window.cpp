@@ -360,6 +360,7 @@ namespace FlexEngine
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
       // Just toggle windowed to 1600x900
+      // TODO: all options are: "1920x1080", "1600x900", "1366x768", "1280x720"
       m_props.width = 1600.f;
       m_props.height = 900.f;
 
