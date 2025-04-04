@@ -37,6 +37,10 @@ public:
 
       Vector3& new_position = self.GetComponent<Position>()->position;
 
+      if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+        is_draggable = false;
+      }
+
       if (is_draggable) {
         new_position.x += Input::GetMousePositionDelta().x;
         new_position.x = std::clamp(new_position.x, slider_details->min_position, slider_details->max_position);

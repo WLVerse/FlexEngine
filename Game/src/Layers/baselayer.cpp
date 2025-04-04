@@ -14,6 +14,7 @@ namespace Game
 {
    std::string file_name = "";
    std::string town_version = "";
+  std::shared_ptr<SplashScreenLayer> splashscreenLayer = nullptr;
   std::shared_ptr<GameLayer> gameLayer = nullptr;
   std::shared_ptr<CutsceneLayer> cutsceneLayer = nullptr;
   std::shared_ptr<EndingCutsceneLayer> endingCutsceneLayer = nullptr;
@@ -47,8 +48,15 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<ScriptingLayer>());
 // Start with the menu layer
 #if 1
+    #if 1 // Start from menu
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    #endif
+
+    #if 0 // Start from splash screen
+    splashscreenLayer = std::make_shared<SplashScreenLayer>();
+    FLX_COMMAND_ADD_WINDOW_LAYER("Game", splashscreenLayer);
+    #endif
 #else
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<BattleLayer>());
 #endif

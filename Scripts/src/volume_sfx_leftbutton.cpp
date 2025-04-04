@@ -20,6 +20,7 @@ class SFXDecreaseScript : public IScript
 private:
   float timer = 0.f;
   bool to_spam = false;
+  std::pair<bool, bool> is_selected = std::make_pair(false, false);
 public:
   SFXDecreaseScript()
   {
@@ -33,10 +34,57 @@ public:
 
   void Update() override
   {
-    if (timer > 0.f) {
-      timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
+    if (timer != 0.f) {
+      (timer > 0.f) ? timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime() : timer = 0.f;
     }
-    else timer = 0.f;
+
+    if (FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
+      FlexECS::Entity knob = FlexECS::Scene::GetEntityByName("SFX Knob");
+
+      FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("SFX Slider Fill");
+      FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
+
+      float& knob_pos = knob.GetComponent<Position>()->position.x;
+      float current_volume_value = (knob_pos - slider_details->min_position) / slider_details->slider_length;
+
+      if ((Input::GetKeyDown(GLFW_KEY_A) || is_selected.first) && current_volume_value > 0.f) {
+        if (is_selected.first) {
+          self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+          is_selected.first = false;
+        }
+        else {
+          self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
+        }
+        current_volume_value -= 0.01f;
+        timer = 0.5f;
+        to_spam = true;
+      }
+
+      if (to_spam) {
+        if (Input::GetKeyUp(GLFW_KEY_A) || current_volume_value < 0.f || Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
+          if (is_selected.second) {
+            self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
+            is_selected.second = false;
+          }
+          else {
+            self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
+          }
+          to_spam = false;
+          timer = 0.f;
+        }
+        if (timer == 0.f) {
+          current_volume_value > 0.f ? current_volume_value -= 0.01f : current_volume_value = 0.f;
+        }
+      }
+
+      current_volume_value = std::clamp(current_volume_value, 0.f, 1.f);
+      knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
+    }
+    else {
+      if (to_spam) to_spam = false;
+      if (is_selected.first) is_selected.first = false;
+      if (is_selected.second) is_selected.second = false;
+    }
   }
 
   void OnMouseEnter() override
@@ -49,30 +97,10 @@ public:
   void OnMouseStay() override
   {
     if (FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
-      FlexECS::Entity knob = FlexECS::Scene::GetEntityByName("SFX Knob");
-
-      FlexECS::Entity slider_fill = FlexECS::Scene::GetEntityByName("SFX Slider Fill");
-      FlexEngine::Slider* slider_details = slider_fill.GetComponent<Slider>();
-
-      float& knob_pos = knob.GetComponent<Position>()->position.x;
-      float current_volume_value = (knob_pos - slider_details->min_position) / slider_details->slider_length;
-
-      if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-      {
-        self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
-        current_volume_value = std::clamp(current_volume_value -= 0.01f, 0.f, 1.f);
-        timer = 0.5f;
-        to_spam = true;
+      if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        is_selected.first = true;
+        is_selected.second = true;
       }
-      if (Input::GetMouseButtonUp(GLFW_MOUSE_BUTTON_LEFT)) {
-        self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.0f);
-        to_spam = false;
-        timer = 0.f;
-      }
-      if (timer == 0.f && to_spam) {
-        current_volume_value = std::clamp(current_volume_value -= 0.01f, 0.f, 1.f);
-      }
-      knob_pos = current_volume_value * slider_details->slider_length + slider_details->min_position;
     }
   }
 
@@ -80,7 +108,6 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
       self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
-      to_spam = false;
     }
   }
 };
