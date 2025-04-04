@@ -74,6 +74,7 @@ namespace FlexEngine
     static Vector2                                  m_scroll_offset;
 
     static std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> m_gamepad_prev_buttons;
+    static bool                                           m_gamepad_connected;
 
   // callback functions for glfw
   public:

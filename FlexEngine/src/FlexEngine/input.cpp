@@ -28,20 +28,20 @@ namespace FlexEngine
   Vector2                                   Input::m_scroll_offset{};
 
   std::array<bool, GLFW_GAMEPAD_BUTTON_LAST + 1> Input::m_gamepad_prev_buttons = { false };
+  bool                                           Input::m_gamepad_connected = { false };
 
   #pragma endregion
 
   void Input::UpdateGamepadInput()
   {
-    if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1)) 
+    bool connected = glfwJoystickIsGamepad(GLFW_JOYSTICK_1);
+    if (connected) 
     {
-      //std::cout << "1) Gamepad connected!\n";
       GLFWgamepadstate state;
       if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state)) 
       {
         for (int i = 0; i <= GLFW_GAMEPAD_BUTTON_LAST; i++) 
         {
-          std::cout << i << "\n";
           bool is_down = (state.buttons[i] == GLFW_PRESS);
           bool is_pressed = is_down && !m_gamepad_prev_buttons[i];
           bool is_up = !is_down && m_gamepad_prev_buttons[i];
@@ -116,6 +116,19 @@ namespace FlexEngine
         }
       }
     }
+    if (!connected && m_gamepad_connected)
+    {
+      //gamepad disconnected
+      //Reset everything to prevent problems on dis/re/connection
+      m_gamepad_prev_buttons.fill(false);
+      m_key[GLFW_KEY_ESCAPE] = false;
+      m_key[GLFW_KEY_W] = false;
+      m_key[GLFW_KEY_A] = false;
+      m_key[GLFW_KEY_S] = false;
+      m_key[GLFW_KEY_D] = false;
+      m_key[GLFW_KEY_SPACE] = false;
+    }
+    m_gamepad_connected = connected;
   }
 
   void Input::Cleanup()
