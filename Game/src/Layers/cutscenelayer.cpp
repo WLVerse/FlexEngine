@@ -340,6 +340,12 @@ namespace Game
 
         if (toNextSection)
         {
+          // Play sound for door opening...
+          if (cutsceneName == "Cutscene_AshLeaving" || cutsceneName == "Cutscene_RobotsEntering_01")
+          {
+            FlexECS::Scene::GetEntityByName("DoorOpen").GetComponent<Audio>()->should_play = true;
+          }
+
           //Change video file of video player,
           //And seek to the intended frame,
           //And set timescale
