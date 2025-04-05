@@ -143,7 +143,7 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    FlexECS::Scene::StringIndex sprite_handle;
+    FlexECS::Scene::StringIndex sprite_handle = 0;
     Vector2 scale = Vector2(100.0f, 100.0f);
     bool center_aligned = false;
     float opacity = 1.0f;
@@ -283,11 +283,11 @@ namespace FlexEngine
 
   public:
     Vector2 size = Vector2::One;
-    Vector2 min;
-    Vector2 max;
-    bool is_colliding;
-    bool is_mouse_over;
-    bool is_mouse_over_cached;
+    Vector2 min = Vector2::Zero;
+    Vector2 max = Vector2::Zero;
+    bool is_colliding = false;
+    bool is_mouse_over = false;
+    bool is_mouse_over_cached = false;
   };
 
   // unused
@@ -305,8 +305,8 @@ namespace FlexEngine
     FLX_REFL_SERIALIZABLE
 
   public:
-    Vector2 velocity;
-    bool is_static;
+    Vector2 velocity = Vector2::Zero;
+    bool is_static = false;
   };
 
   /**************

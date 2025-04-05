@@ -6,6 +6,8 @@
 // AUTHORS
 // [70%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
 //   - Main Author
+// [30%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Sub Author (Combat Cam & Visual Effects - PP)
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"

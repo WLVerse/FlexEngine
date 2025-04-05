@@ -1,14 +1,19 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.h
-// 
+//
 // Rendering layer for the game.
+// Handles transformation updates, animation, video playback, sprite/text rendering, batching,
+// and both local and global post-processing.
+// Implements hotloading of the rendering DLL for live updates.
 //
 // AUTHORS
-// [50%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// [50%] Soh Wei Jie (weijie.soh\@digipen.edu)
-//   - Sub Author
-// 
+// [25%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author (Animator && framework)
+// [45%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Sub Author (PP & Batching)
+// [30%] Rocky (rocky.sutarius\@digipen.edu)
+//   - Sub Author (Video Player)
+//
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once

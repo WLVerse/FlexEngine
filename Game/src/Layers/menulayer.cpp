@@ -121,6 +121,8 @@ namespace Game
       FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Fullscreen";
     }
     else FLX_STRING_GET(FlexECS::Scene::GetEntityByName("Display Mode Value").GetComponent<Text>()->text) = "Windowed";
+
+    Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 1, 1.0 });
   }
 
   void MenuLayer::OnDetach()

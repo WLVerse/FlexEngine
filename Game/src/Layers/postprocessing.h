@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// postprocessing.h
+//
+// Declares the PostProcessing class which manages both local and global
+// post-processing effects within the editor, including initialization,
+// per-frame updates, and rendering pipelines.
+//
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #pragma once
 
 #include <FlexEngine.h>
@@ -9,26 +21,46 @@ namespace Game
     class PostProcessing
     {
     public:
-        PostProcessing() = default;
-        ~PostProcessing() = default;
-
+        // Function: PostProcessing::Init
+        // Description: Initialize shaders, framebuffers, and settings for
+        //              the post-processing pipeline.
         static void Init();
+
+        // Function: PostProcessing::Exit
+        // Description: Release post-processing resources and clean up state.
         static void Exit();
+
+        // Function: PostProcessing::Update
+        // Description: Execute per-frame post-processing steps:
+        //              process local effects and apply global effects.
         static void Update();
 
+        // Function: PostProcessing::GetGlobalSettings
+        // Description: Retrieve the current global post-processing settings.
         static Renderer2D_GlobalPPSettings GetGlobalSettings();
+
+        // Function: PostProcessing::GetPostProcessZIndex
+        // Description: Get the Z-index threshold at which post-processing
+        //              rendering occurs.
         static int GetPostProcessZIndex();
+
     private:
-        // Process entities for local post-processing (per-object effects)
+        // Function: PostProcessing::ProcessLocalPostProcessing
+        // Description: Iterate over entities marked for local post-processing
+        //              and prepare them for individual effects.
         static void ProcessLocalPostProcessing();
 
-        // Starts applying local post-processing (applied to individual entity)
+        // Function: PostProcessing::DrawLocalPostProcessing
+        // Description: Apply local post-processing effect for a single entity.
         static void DrawLocalPostProcessing(FlexECS::Entity& entity);
 
-        // Starts applying global post-processing (applied to the full scene)
+        // Function: PostProcessing::DrawGlobalPostProcessing
+        // Description: Render the full scene with global post-processing shaders.
         static void DrawGlobalPostProcessing();
 
-        // Redraws a texture to current framebuffer
+        // Function: PostProcessing::ReplicateFrameBufferAttachment
+        // Description: Copy the given texture into the current framebuffer
+        //              for subsequent post-processing passes.
         static void ReplicateFrameBufferAttachment(GLuint texture);
 
         static Renderer2D_GlobalPPSettings m_globalsettings;

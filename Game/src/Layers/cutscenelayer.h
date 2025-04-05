@@ -118,7 +118,7 @@ namespace Game
         void advanceDialogue();
 
         // Immediately jumps to the last frame in the current section.
-        void skipRemainingFrames();
+        //void skipRemainingFrames();
 
         // Automatically progresses dialogue when autoplay is enabled.
         void updateDialogueAuto(float dt);
@@ -130,13 +130,13 @@ namespace Game
         void updateVideoPlayback();
 
         // Updates image frames when the section includes multiple image frames.
-        void updateImageFrames(float dt);
+        //void updateImageFrames(float dt);
 
         // Controls transition effects such as fade-out and fade-in between shots.
         void updateTransitionPhase(float dt);
 
         // Swaps the current cutscene shot entity with the next shot.
-        void SwapShots();
+        //void SwapShots();
 
         // Updates timing values and per-frame duration when transitioning between sections.
         void UpdateTimings(bool toNextSection = false);
