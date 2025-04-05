@@ -26,6 +26,7 @@
 
 #include "input.h"
 #include "Renderer/OpenGL/openglrenderer.h"
+#include "FMOD/FMODWrapper.h"
 
 #include "flexprefs.h"  
 
@@ -63,9 +64,9 @@ namespace
     }
   }
 
-  void WindowFocusCallBack(GLFWwindow*, int)
+  void WindowFocusCallBack(GLFWwindow* window, int focused)
   {
-    //FlexEngine::FMODWrapper::Core::WindowFocusCallback(window, focused);
+    FlexEngine::FMODWrapper::Core::WindowFocusCallback(window, focused);
     // Commented out as it causes tab down when clicking outside window
     /*if (focused)
     {
