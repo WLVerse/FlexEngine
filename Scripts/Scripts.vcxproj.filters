@@ -141,5 +141,11 @@
     <ClCompile Include="src\pause_quit_nobutton.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\mainmenu_howbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mainmenu_creditsbutton.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

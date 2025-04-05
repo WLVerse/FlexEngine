@@ -23,20 +23,20 @@ public:
 
   void OnMouseEnter() override
   {
-    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Hover.png)");
+    Application::MessagingSystem::Send("Menu Buttons", std::make_pair(0, true));
   }
 
   void OnMouseStay() override
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-      Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
+      Application::MessagingSystem::Send("StartTransitionToGame", true);
     }
   }
 
   void OnMouseExit() override
   {
-    self.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/MainMenu/UI_Main_Menu_Button_Normal.png)");
+
   }
 };
 

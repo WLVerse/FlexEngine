@@ -57,6 +57,7 @@ public:
   void OnMouseStay() override
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active) {
+      FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
       Application::MessagingSystem::Send("Resume Game", true);
     }
   }
