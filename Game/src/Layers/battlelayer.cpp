@@ -717,7 +717,7 @@ namespace Game
             firefly.GetComponent<Transform>()->is_active = false;
             
             // Boss battle has its own music
-            FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/bgm/boss(Egress)_inD.wav)");
+            FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/bgm/boss (Egress).wav)");
         }
 
         Update_Character_Status();
