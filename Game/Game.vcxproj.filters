@@ -61,6 +61,7 @@
     <ClInclude Include="src\Layers\endingcutscenelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\baselayer.cpp">
@@ -108,5 +109,15 @@
     <ClCompile Include="src\Layers\endingcutscenelayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GameResources.rc">
+      <Filter>src</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\GameInstaller\INSTALLERFILES\Icon.ico">
+      <Filter>src</Filter>
+    </Image>
   </ItemGroup>
 </Project>
