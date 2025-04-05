@@ -53,7 +53,7 @@ public:
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-      Application::QueueCommand(Application::Command::QuitApplication);
+      Application::MessagingSystem::Send("Quit Confirmation Start", true);
     }
   }
 
