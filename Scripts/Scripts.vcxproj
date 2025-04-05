@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\cutscene_autoplaybutton.cpp" />
+    <ClCompile Include="src\mainmenu_creditsbutton.cpp" />
+    <ClCompile Include="src\mainmenu_howbutton.cpp" />
     <ClCompile Include="src\mainmenu_optionsbutton.cpp" />
     <ClCompile Include="src\mainmenu_playbutton.cpp" />
     <ClCompile Include="src\mainmenu_quitbutton.cpp" />
