@@ -48,12 +48,12 @@ namespace Game
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", std::make_shared<ScriptingLayer>());
 // Start with the menu layer
 #if 1
-    #if 1 // Start from menu
+    #if 0 // Start from menu
     menuLayer = std::make_shared<MenuLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
     #endif
 
-    #if 0 // Start from splash screen
+    #if 1 // Start from splash screen
     splashscreenLayer = std::make_shared<SplashScreenLayer>();
     FLX_COMMAND_ADD_WINDOW_LAYER("Game", splashscreenLayer);
     #endif
@@ -74,6 +74,15 @@ namespace Game
   void BaseLayer::Update()
   {
     Application::GetCurrentWindow()->Update();
+
+    if (Application::MessagingSystem::Receive<bool>("Start Menu") && splashscreenLayer != nullptr)
+    {
+        FLX_COMMAND_REMOVE_WINDOW_LAYER("Game", splashscreenLayer);
+        splashscreenLayer = nullptr;
+
+        menuLayer = std::make_shared<MenuLayer>();
+        FLX_COMMAND_ADD_WINDOW_LAYER("Game", menuLayer);
+    }
 
     // Test to switch to cutscene layer
     if (Application::MessagingSystem::Receive<bool>("Start Cutscene") && menuLayer != nullptr)
