@@ -131,6 +131,7 @@ namespace Game
     // check for escape key
     if ((Input::GetKeyDown(GLFW_KEY_ESCAPE) && !is_paused) || resume_game)
     {
+      FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
       Town_Pause_Functionality();
     }
     
@@ -147,7 +148,7 @@ namespace Game
       if (!FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active &&
             !FlexECS::Scene::GetEntityByName("Quit Game Confirmation Prompt").GetComponent<Transform>()->is_active) {
         if (active_pause_sprite.second) {
-
+          FlexECS::Scene::GetEntityByName("ButtonHover").GetComponent<Audio>()->should_play = true;
           FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
           FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
           FlexECS::Scene::GetEntityByName(active_pause_sprite.first).GetComponent<Transform>()->is_active = true;
@@ -161,6 +162,7 @@ namespace Game
         }
 
         if (active_volume_sprite.second) {
+          FlexECS::Scene::GetEntityByName("ButtonHover").GetComponent<Audio>()->should_play = true;
           if (active_pause_button != "Settings Button Sprite") {
             FlexECS::Scene::GetEntityByName(active_pause_button).GetComponent<Transform>()->is_active = false;
             FlexECS::Scene::GetEntityByName("Settings Button Sprite").GetComponent<Scale>()->scale.x = 0.f;

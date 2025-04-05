@@ -63,6 +63,7 @@ public:
     if (FlexECS::Scene::GetEntityByName("SFX Volume Sprite").GetComponent<Transform>()->is_active) {
       if (!is_draggable) self.GetComponent<Scale>()->scale = Vector3(1.25f, 1.25f, 1.25f);
       if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
         is_draggable = true;
       }
