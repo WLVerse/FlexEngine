@@ -2,12 +2,16 @@
 // WLVERSE [https://wlverse.web.app]
 // movevfx.cpp
 //
-// This script handles the move vfx that is needed by the game. It works by
-// sending a spawn vfx message via the messaging system
-// 
+// Implements MoveVFXSystemScript to manage movement-related VFX, including
+// spawning pooled effect entities, updating effect timers, and applying
+// chromatic aberration, pseudo-color distortion, and Jack Ult post-processing
+// effects via the messaging system.
+//
 // AUTHORS
-// [100%]  (rocky.sutarius@digipen.edu)
+// [50%] Rocky (rocky.sutarius@digipen.edu)
 //   - Main Author
+// [50%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Sub Author
 //
 // Copyright (c) 2025 DigiPen, All rights reserved.
 /////////////////////////////////////////////////////////////////////////////
@@ -15,13 +19,15 @@
 #include <FlexEngine.h>
 using namespace FlexEngine;
 
-// Helper function to process an effect's activation and timer update.
+// Function: ProcessEffect
+// Description: If 'active' is true, calls updateFunc(timer), increments 'timer'
+//              by dt, and deactivates/resets when timer >= duration.
 template<typename Func>
 void ProcessEffect(bool& active, float& timer, float duration, float dt, Func updateFunc)
 {
     if (active)
     {
-        updateFunc(timer);  // Call the effect-specific update with the current timer.
+        updateFunc(timer);
         timer += dt;
         if (timer >= duration)
         {
@@ -37,149 +43,126 @@ private:
     std::vector<std::pair<FlexECS::Entity, bool>> m_vfx_pool;
 
     // --- Effect Timers and State ---
-    bool m_chromaticActive = false;
+    bool  m_chromaticActive = false;
     float m_chromaticTimer = 0.0f;
     const float m_chromaticDuration = 0.5f; // seconds
 
-    bool m_pseudoColorActive = false;
+    bool  m_pseudoColorActive = false;
     float m_pseudoColorTimer = 0.0f;
     const float m_pseudoColorDuration = 0.2f; // seconds
 
-    bool m_jackUltActive = false;
+    bool  m_jackUltActive = false;
     float m_jackUltTimer = 0.0f;
     const float m_jackUltDuration = 1.2f; // seconds
 
-    // --- Effect Functions ---
-
-    // Chromatic Aberration update function. Note that it receives the elapsed time.
+    // Function: UpdateChromaticEffect
+    // Description: Applies chromatic aberration effect over 'totalDuration'
+    //              based on 'elapsedTime', updating intensity and enabling it.
     void UpdateChromaticEffect(float elapsedTime, float totalDuration)
     {
-        // Clamp elapsedTime if needed.
         float clampedTime = (elapsedTime > totalDuration) ? totalDuration : elapsedTime;
-
-        // Calculate half duration for ramp up and down.
         float halfDuration = totalDuration / 2.0f;
         constexpr float targetIntensity = 0.8f;
-
-        // Calculate the current intensity based on elapsed time.
         float currentIntensity = (clampedTime <= halfDuration)
             ? FlexMath::Lerp(0.0f, targetIntensity, clampedTime / halfDuration)
             : FlexMath::Lerp(targetIntensity, 0.0f, (clampedTime - halfDuration) / halfDuration);
 
-        // Process each entity with a PostProcessingMarker and Transform in the active scene.
         auto activeScene = FlexECS::Scene::GetActiveScene();
         if (activeScene)
         {
             for (auto& element : activeScene->CachedQuery<PostProcessingMarker, Transform>())
             {
-                // Ensure the entity has the chromatic aberration component.
                 if (!element.HasComponent<PostProcessingChromaticAbberation>())
-                {
                     element.AddComponent<PostProcessingChromaticAbberation>({});
-                }
 
                 auto aberration = element.GetComponent<PostProcessingChromaticAbberation>();
                 aberration->intensity = currentIntensity;
                 aberration->edgeRadius = Vector2(0.02f, 0.02f);
                 aberration->edgeSoftness = Vector2(0.3f, 0.3f);
-                // Enable chromatic aberration on the marker.
                 element.GetComponent<PostProcessingMarker>()->enableChromaticAberration = true;
             }
         }
     }
 
-    // Stub for pseudo color distortion effect.
+    // Function: UpdatePseudoColorEffect
+    // Description: Toggles pseudo-color distortion for duration, then reverts
+    //              saturation, contrast, and brightness instantly.
     void UpdatePseudoColorEffect(float elapsedTime, float totalDuration)
     {
-        bool enableEffect = elapsedTime < (totalDuration-0.05f); // True if still in effect duration
-
+        bool enableEffect = elapsedTime < (totalDuration - 0.05f);
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>())
         {
-            if (!entity.GetComponent<Transform>()->is_active)
-                continue;
-
-            // Ensure the entity has a Color Grading component
+            if (!entity.GetComponent<Transform>()->is_active) continue;
             if (!entity.HasComponent<PostProcessingColorGrading>())
-            {
                 entity.AddComponent<PostProcessingColorGrading>({});
-            }
 
             auto colorGrading = entity.GetComponent<PostProcessingColorGrading>();
-            if (!colorGrading)
-                continue;
+            if (!colorGrading) continue;
 
             if (enableEffect)
             {
-                // (Bright Distortion)
-                colorGrading->saturation = 0.3f; 
-                colorGrading->contrast = -0.9f;   
-                colorGrading->brightness = 0.2f; 
+                colorGrading->saturation = 0.3f;
+                colorGrading->contrast = -0.9f;
+                colorGrading->brightness = 0.2f;
             }
             else
             {
-                // **Revert to normal instantly**
                 colorGrading->saturation = 3.0f;
                 colorGrading->contrast = 1.5f;
                 colorGrading->brightness = 0.8f;
             }
-
-            // Enable the effect marker
             entity.GetComponent<PostProcessingMarker>()->enableColorGrading = enableEffect;
         }
     }
 
-    // Stub for Jack Ult effects.
+    // Function: UpdateJackUltEffect
+    // Description: Applies Jack Ult color grading effect over duration, and
+    //              triggers pseudo-color distortion near the end.
     void UpdateJackUltEffect(float elapsedTime, float totalDuration)
     {
-        float progress = FlexMath::Clamp(elapsedTime / totalDuration, 0.0f, 1.0f); // Normalize progress (0 to 1)
-
+        float progress = FlexMath::Clamp(elapsedTime / totalDuration, 0.0f, 1.0f);
         for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<PostProcessingMarker, Transform>())
         {
-            if (!entity.GetComponent<Transform>()->is_active)
-                continue;
-
-            // Ensure the entity has a Color Grading component
+            if (!entity.GetComponent<Transform>()->is_active) continue;
             if (!entity.HasComponent<PostProcessingColorGrading>())
-            {
                 entity.AddComponent<PostProcessingColorGrading>({});
-            }
 
             auto colorGrading = entity.GetComponent<PostProcessingColorGrading>();
-            if (!colorGrading)
-                continue;
+            if (!colorGrading) continue;
 
-            // **Lerp to target values**
             colorGrading->brightness = 0.0f;
             colorGrading->saturation = 1.0f;
             colorGrading->contrast = FlexMath::Lerp(1.0f, 3.7f, progress);
-
-            // Enable the effect marker
             entity.GetComponent<PostProcessingMarker>()->enableColorGrading = true;
         }
 
-        // **Trigger pseudo color distortion at the start of the effect**
-        if (elapsedTime >= totalDuration - 0.3f) // Ensure it only triggers once
-        {
+        if (elapsedTime >= totalDuration - 0.3f)
             Application::MessagingSystem::Send("ActivatePseudoColorDistortion", true);
-        }
     }
 
 public:
+    // Function: MoveVFXSystemScript
+    // Description: Registers this script instance with the engine on creation.
     MoveVFXSystemScript()
     {
         ScriptRegistry::RegisterScript(this);
     }
 
+    // Function: GetName
+    // Description: Returns the unique name of this script.
     std::string GetName() const override
     {
         return "MoveVFXSystem";
     }
 
+    // Function: Update
+    // Description: Main per-frame update: initializes pool, handles spawn messages,
+    //              moves finished VFX off-screen, and processes effect timers.
     void Update() override
     {
         float dt = Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
 
-        // --- VFX Pool Initialization and Spawn ---
+        // Pool initialization
         if (Application::MessagingSystem::Receive<bool>("Initialize VFX"))
         {
             m_vfx_pool.resize(7);
@@ -197,32 +180,34 @@ public:
                 auto& animator = *m_vfx_pool[i].first.GetComponent<Animator>();
                 animator.should_play = false;
                 animator.is_looping = false;
-
                 m_vfx_pool[i].second = false;
             }
         }
-        //                                                                  list of targets               //vfx key  //positionoffset  //scale
-        auto vfx_targets = Application::MessagingSystem::Receive<std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>>("Spawn VFX");
-        if (std::get<0>(vfx_targets).size() > 0)
+
+        // Spawn VFX
+        auto vfx_targets = Application::MessagingSystem::Receive<
+            std::tuple<std::vector<FlexECS::Entity>, std::string, Vector3, Vector3>
+        >("Spawn VFX");
+        if (!std::get<0>(vfx_targets).empty())
         {
             for (size_t i = 0; i < std::get<0>(vfx_targets).size(); i++)
             {
                 auto target_entity = std::get<0>(vfx_targets)[i];
                 for (auto& e : m_vfx_pool)
                 {
-                    if (e.second == true)
-                        continue;
+                    if (e.second) continue;
 
-                    e.first.GetComponent<Position>()->position = target_entity.GetComponent<Position>()->position;
-                    e.first.GetComponent<Position>()->position += std::get<2>(vfx_targets);
+                    e.first.GetComponent<Position>()->position =
+                        target_entity.GetComponent<Position>()->position + std::get<2>(vfx_targets);
                     e.first.GetComponent<Scale>()->scale = std::get<3>(vfx_targets);
 
-                    e.first.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(std::get<1>(vfx_targets));
-                    e.first.GetComponent<Animator>()->should_play = true;
-                    e.first.GetComponent<Animator>()->is_looping = false;
-                    e.first.GetComponent<Animator>()->return_to_default = true;
-                    e.first.GetComponent<Animator>()->frame_time = 0.f;
-                    e.first.GetComponent<Animator>()->current_frame = 0;
+                    auto anim = e.first.GetComponent<Animator>();
+                    anim->spritesheet_handle = FLX_STRING_NEW(std::get<1>(vfx_targets));
+                    anim->should_play = true;
+                    anim->is_looping = false;
+                    anim->return_to_default = true;
+                    anim->frame_time = 0.0f;
+                    anim->current_frame = 0;
 
                     e.second = true;
                     break;
@@ -230,16 +215,10 @@ public:
             }
         }
 
-        //>>>>TAKE NOTE:<<<<<<
-        //>>>>THIS IS A HACK<<<<< BECAUSE I DONT WANNA WAKE PEOPLE UP AT 3:08AM
-        // Partially a graphics problem. After animation finishes, if it doesnt have a default animation,
-        // A black box is shown.
-        // Thus, we just move the black box far away lmao
+        // Cleanup finished VFX
         for (auto& e : m_vfx_pool)
         {
-            if (!e.second)
-                continue;
-
+            if (!e.second) continue;
             Animator& animator = *e.first.GetComponent<Animator>();
             if ((animator.current_frame >= animator.total_frames - 1) &&
                 (animator.total_frames != 0) &&
@@ -250,45 +229,35 @@ public:
             }
         }
 
-        // --- Effects Update ---
-
-        // Chromatic Alteration:
-        bool startchromaticalteration = Application::MessagingSystem::Receive<bool>("ActivateChromaticAlteration");
-        if (startchromaticalteration)
-        {
+        // Chromatic Aberration
+        if (Application::MessagingSystem::Receive<bool>("ActivateChromaticAlteration"))
             m_chromaticActive = true;
-        }
         ProcessEffect(m_chromaticActive, m_chromaticTimer, m_chromaticDuration, dt,
-          [this](float elapsed)
-        {
-            UpdateChromaticEffect(elapsed, m_chromaticDuration);
-        });
+                      [this](float elapsed) { UpdateChromaticEffect(elapsed, m_chromaticDuration); });
 
-        // Pseudo Color Distortion:
-        bool startDistortion = Application::MessagingSystem::Receive<bool>("ActivatePseudoColorDistortion");
-        if (startDistortion)
-        {
+        // Pseudo-Color Distortion
+        if (Application::MessagingSystem::Receive<bool>("ActivatePseudoColorDistortion"))
             m_pseudoColorActive = true;
-        }
         ProcessEffect(m_pseudoColorActive, m_pseudoColorTimer, m_pseudoColorDuration, dt,
-          [this](float elapsed) {
-            UpdatePseudoColorEffect(elapsed, m_pseudoColorDuration);
-        });
+                      [this](float elapsed) { UpdatePseudoColorEffect(elapsed, m_pseudoColorDuration); });
 
-        // Jack Ult Effects:
-        bool startJackUltEffects = Application::MessagingSystem::Receive<bool>("ActivateJackUlt");
-        if (startJackUltEffects)
-        {
+        // Jack Ult Effects
+        if (Application::MessagingSystem::Receive<bool>("ActivateJackUlt"))
             m_jackUltActive = true;
-        }
         ProcessEffect(m_jackUltActive, m_jackUltTimer, m_jackUltDuration, dt,
-          [this](float elapsed) {
-            UpdateJackUltEffect(elapsed, m_jackUltDuration);
-        });
+                      [this](float elapsed) { UpdateJackUltEffect(elapsed, m_jackUltDuration); });
     }
 
+    // Function: OnMouseEnter
+    // Description: Mouse enter event stub (unused).
     void OnMouseEnter() override {}
+
+    // Function: OnMouseStay
+    // Description: Mouse stay event stub (unused).
     void OnMouseStay() override {}
+
+    // Function: OnMouseExit
+    // Description: Mouse exit event stub (unused).
     void OnMouseExit() override {}
 };
 
