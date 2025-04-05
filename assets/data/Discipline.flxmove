@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Attack_Up
 Value: 3
 Target: NEXT_ALLY
-Description: Deal damage to an enemy and increase ATK of your other ally for 2 turns.
+Description: Deal damage to an enemy and increase your other ally's ATK for 2 turns.

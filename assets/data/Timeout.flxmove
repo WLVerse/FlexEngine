@@ -6,4 +6,4 @@ Target: SINGLE_ENEMY
 Effect: Speed_Down
 Value: 3
 Target: SINGLE_ENEMY
-Description: Stun an enemy and delay their next turn.
+Description: Stun an enemy (except bosses) and delay their next turn.

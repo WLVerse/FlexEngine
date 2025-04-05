@@ -9,4 +9,4 @@ Target: ALL_ENEMIES
 Effect: Damage
 Value: 10
 Target: SINGLE_ENEMY
-Description: Strip all buffs from all enemies and deal damage to them, doubled against targeted enemy.
+Description: Strip buffs from all enemies and deal damage to them, doubled against targeted enemy.
