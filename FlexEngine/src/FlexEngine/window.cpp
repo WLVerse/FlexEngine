@@ -110,7 +110,14 @@ namespace FlexEngine
     }
 
     // Fullscreen overrides any option
-    if (FlexPrefs::GetBool("game.fullscreen"))
+    bool should_fs = false;
+    #ifdef GAME_BUILD
+    should_fs = FlexPrefs::GetBool("game.fullscreen");
+    #else
+    should_fs = FlexPrefs::GetBool("editor.fullscreen");
+    #endif
+
+    if (should_fs)
     {
       GLFWmonitor* monitor = glfwGetPrimaryMonitor();
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -122,12 +129,15 @@ namespace FlexEngine
     }
     else
     {
+      m_props.width = 1600.f;
+      m_props.height = 900.f;
       m_glfwwindow = glfwCreateWindow(m_props.width, m_props.height, m_props.title.c_str(), nullptr, nullptr);
       m_is_full_screen = false;
     }
 
     FLX_NULLPTR_ASSERT(m_glfwwindow, "Failed to create GLFW window");
     glfwMakeContextCurrent(m_glfwwindow);
+    glfwSwapInterval(FlexPrefs::GetBool("game.vsync") ? 1 : 0);
 
     // load all OpenGL function pointers (glad)
     FLX_CORE_ASSERT(gladLoadGL(), "Failed to initialize GLAD!");
@@ -348,6 +358,11 @@ namespace FlexEngine
     {
       GLFWmonitor* monitor = glfwGetPrimaryMonitor();
       const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+      // Just toggle windowed to 1600x900
+      // TODO: all options are: "1920x1080", "1600x900", "1366x768", "1280x720"
+      m_props.width = 1600.f;
+      m_props.height = 900.f;
 
       glfwSetWindowMonitor(m_glfwwindow, nullptr, 0, 0, m_props.width, m_props.height, 0);
       glfwSetWindowPos(m_glfwwindow, mode->width / 2 - m_props.width/2, mode->height/2 - m_props.height/2); // Center to the screen

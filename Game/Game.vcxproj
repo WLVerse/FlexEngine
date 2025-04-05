@@ -135,7 +135,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GAME_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -173,6 +173,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClInclude Include="src\Layers\postprocessing.h" />
     <ClInclude Include="src\Layers\renderinglayer.h" />
     <ClInclude Include="src\Layers\scriptinglayer.h" />
+    <ClInclude Include="src\Layers\splashscreenlayer.h" />
     <ClInclude Include="src\Layers\townlayer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +191,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ClCompile Include="src\Layers\postprocessing.cpp" />
     <ClCompile Include="src\Layers\renderinglayer.cpp" />
     <ClCompile Include="src\Layers\scriptinglayer.cpp" />
+    <ClCompile Include="src\Layers\splashscreenlayer.cpp" />
     <ClCompile Include="src\Layers\townlayer.cpp" />
   </ItemGroup>
   <ItemGroup>

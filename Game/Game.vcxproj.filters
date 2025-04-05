@@ -61,6 +61,9 @@
     <ClInclude Include="src\Layers\endingcutscenelayer.h">
       <Filter>src\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Layers\splashscreenlayer.h">
+      <Filter>src\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +110,9 @@
       <Filter>src\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Layers\endingcutscenelayer.cpp">
+      <Filter>src\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Layers\splashscreenlayer.cpp">
       <Filter>src\Layers</Filter>
     </ClCompile>
   </ItemGroup>

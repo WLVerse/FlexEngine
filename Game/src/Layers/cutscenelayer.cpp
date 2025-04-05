@@ -47,21 +47,22 @@ namespace Game
             m_nextShot.GetComponent<Sprite>()->sprite_handle = m_CutsceneImages[m_currFrameIndex];
         */
 
-        m_dialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Box");
+        auto activeScene = FlexECS::Scene::GetActiveScene();
+        m_dialoguebox = activeScene->GetEntityByName("Dialogue Box");
         //m_dialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
-        m_shadowdialoguebox = FlexECS::Scene::GetActiveScene()->GetEntityByName("Shadow Dialogue Box");
+        m_shadowdialoguebox = activeScene->GetEntityByName("Shadow Dialogue Box");
         //m_shadowdialoguebox.GetComponent<Text>()->textboxDimensions = Vector2(CameraManager::GetMainGameCamera()->GetOrthoWidth() * 0.8f, 70.0f);
-        m_dialoguearrow = FlexECS::Scene::GetActiveScene()->GetEntityByName("Dialogue Arrow");
+        m_dialoguearrow = activeScene->GetEntityByName("Dialogue Arrow");
 
-        m_autoplayText = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Text");
-        m_autoplayBtn = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay");
-        m_autoplaySymbolAuto = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Auto");
-        m_autoplaySymbolPlaying = FlexECS::Scene::GetActiveScene()->GetEntityByName("Autoplay Symbol Playing");
+        m_autoplayText = activeScene->GetEntityByName("Autoplay Text");
+        m_autoplayBtn = activeScene->GetEntityByName("Autoplay");
+        m_autoplaySymbolAuto = activeScene->GetEntityByName("Autoplay Symbol Auto");
+        m_autoplaySymbolPlaying = activeScene->GetEntityByName("Autoplay Symbol Playing");
 
-        m_skiptext = FlexECS::Scene::GetActiveScene()->GetEntityByName("Skip Text");
-        m_instructiontxt = FlexECS::Scene::GetActiveScene()->GetEntityByName("Instruction Text");
-        m_instructiontxtopacityblk = FlexECS::Scene::GetActiveScene()->GetEntityByName("Instruction Text Opacity Block");
-        m_skipwheel = FlexECS::Scene::GetActiveScene()->GetEntityByName("Skip Wheel");
+        m_skiptext = activeScene->GetEntityByName("Skip Text");
+        m_instructiontxt = activeScene->GetEntityByName("Instruction Text");
+        m_instructiontxtopacityblk = activeScene->GetEntityByName("Instruction Text Opacity Block");
+        m_skipwheel = activeScene->GetEntityByName("Skip Wheel");
         
         auto& font = FLX_ASSET_GET(Asset::Font, R"(/fonts/Electrolize/Electrolize-Regular.ttf)");
         font.SetFontSize(30);
@@ -171,7 +172,7 @@ namespace Game
                 continue;
             }
 
-            const auto& info = it->second;
+            //const auto& info = it->second;
 
             /*
             // For a single frame cutscene, simply load the image without a frame number.
@@ -339,6 +340,12 @@ namespace Game
 
         if (toNextSection)
         {
+          // Play sound for door opening...
+          if (cutsceneName == "Cutscene_AshLeaving" || cutsceneName == "Cutscene_RobotsEntering_01")
+          {
+            FlexECS::Scene::GetEntityByName("DoorOpen").GetComponent<Audio>()->should_play = true;
+          }
+
           //Change video file of video player,
           //And seek to the intended frame,
           //And set timescale
@@ -630,7 +637,7 @@ namespace Game
         if (m_TransitionPhase == TransitionPhase::PreTransition)
         {
             m_TransitionElapsedTime += dt;
-            float progress = m_TransitionElapsedTime / m_PreTransitionDuration;
+            //float progress = m_TransitionElapsedTime / m_PreTransitionDuration;
             //float newOpacity = FlexMath::Lerp(1.0f, 0.0f, progress);
             //m_currShot.GetComponent<Sprite>()->opacity = newOpacity;
 
