@@ -23,6 +23,9 @@ namespace Game
   int selected_button = 0;
   bool open_settings = false;
 
+  Audio* button_hover_audio;
+  Audio* button_click_audio;
+
   std::array<bool, 6> pause_buttons;
 
   std::string active_entity;
@@ -94,6 +97,10 @@ namespace Game
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Start Game"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Settings"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Quit Game"));
+
+    // Set up button hover and click audio
+    button_hover_audio = FlexECS::Scene::GetEntityByName("ButtonHover").GetComponent<Audio>();
+    button_click_audio = FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>();
     
     // find camera
     for (auto& entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Camera>())
@@ -132,6 +139,7 @@ namespace Game
     // check for escape key
     if (return_to_menu || start_options) Settings_Menu_Functionality();
 
+    // Enable the settings menu
     if (open_settings) {
       if (active_sprite.second) {
         FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
@@ -159,6 +167,8 @@ namespace Game
       if (selected_button > 2)
         selected_button = 0;
       FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
+
+      button_hover_audio->should_play = true;
     }
     else if (Input::GetKeyDown(GLFW_KEY_W))
     {
@@ -167,10 +177,14 @@ namespace Game
       if (selected_button < 0)
         selected_button = 2;
       FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
+
+      button_hover_audio->should_play = true;
     }
 
     if (Input::GetKeyDown(GLFW_KEY_SPACE))
     {
+      button_click_audio->should_play = true;
+
       // shit copy paste
       if (selected_button == 0)
       {
