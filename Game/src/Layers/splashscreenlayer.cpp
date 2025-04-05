@@ -1,8 +1,25 @@
+/////////////////////////////////////////////////////////////////////////////
+// WLVERSE [https://wlverse.web.app]
+// splashscreenlayer.cpp
+//
+// Implements SplashScreenLayer which manages the editor splash screen.
+// Loads splash scene, fades logo in/out, initializes and ramps post-processing
+// effects, and handles transition messaging.
+//
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
+/////////////////////////////////////////////////////////////////////////////
+
 #include "FlexEngine.h"
 #include "Layers.h"
 
 namespace Game
 {
+    // Function: SplashScreenLayer::OnAttach
+    // Description: Load splash scene, set active scene and camera, cache logo entity,
+    //              reset logo opacity, elapsed timers, and flags.
     void SplashScreenLayer::OnAttach()
     {
         File& file = File::Open(Path::current("assets/saves/DigipenSplashScreen.flxscene"));
@@ -21,10 +38,16 @@ namespace Game
         m_logoFadedOut = false;
     }
 
+    // Function: SplashScreenLayer::OnDetach
+    // Description: Cleanup when layer is detached. Currently no actions required.
     void SplashScreenLayer::OnDetach()
     {
     }
 
+    // Function: SplashScreenLayer::Update
+    // Description: Per-frame update to fade logo in, initialize post-processing
+    //              once, ramp chromatic aberration and bloom effects, send
+    //              transition start message, and handle transition completion.
     void SplashScreenLayer::Update()
     {
         auto activeScene = FlexECS::Scene::GetActiveScene();
@@ -86,8 +109,16 @@ namespace Game
 
             if (auto aberration = element.GetComponent<PostProcessingChromaticAbberation>())
             {
-                aberration->intensity = FlexMath::Lerp(m_chromaticStartIntensity, m_chromaticTargetIntensity, normalizedProgress);
-                float amount = static_cast<float>(rand() % static_cast<int>(FlexMath::Lerp(1.0f, m_glitchMaxOffset, normalizedProgress)));
+                aberration->intensity = FlexMath::Lerp(
+                    m_chromaticStartIntensity,
+                    m_chromaticTargetIntensity,
+                    normalizedProgress
+                );
+                float amount = static_cast<float>(
+                    rand() % static_cast<int>(
+                        FlexMath::Lerp(1.0f, m_glitchMaxOffset, normalizedProgress)
+                        )
+                );
                 aberration->redOffset.x = amount;
                 aberration->greenOffset.x = 0.0f;
                 aberration->blueOffset.x = -amount;
@@ -98,24 +129,34 @@ namespace Game
                 float bloomIntensity = m_bloomStart;
                 if (m_totalElapsed > bloomDelay)
                 {
-                    float bloomProgress = (m_totalElapsed - bloomDelay) / (m_effectRampDuration - bloomDelay);
-                    bloomIntensity = FlexMath::Lerp(m_bloomStart, m_bloomTarget, std::min(bloomProgress, 1.0f));
+                    float bloomProgress = (m_totalElapsed - bloomDelay)
+                        / (m_effectRampDuration - bloomDelay);
+                    bloomIntensity = FlexMath::Lerp(
+                        m_bloomStart,
+                        m_bloomTarget,
+                        std::min(bloomProgress, 1.0f)
+                    );
                 }
                 bloom->intensity = bloomIntensity;
             }
         }
 
-        // Trigger transition at 50% of effect duration.
+        // Trigger transition at 25% of effect duration.
         if (m_totalElapsed >= m_effectRampDuration * 0.25f && !m_transitionSent)
         {
-            Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 1.0 });
+            Application::MessagingSystem::Send(
+                "TransitionStart",
+                std::pair<int, double>{ 2, 1.0 }
+            );
             m_transitionSent = true;
         }
 
         // Wait for transition completion.
         if (m_transitionSent && !m_logoFadedOut)
         {
-            int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
+            int transitionMSG = Application::MessagingSystem::Receive<int>(
+                "TransitionCompleted"
+            );
             if (transitionMSG == 2)
             {
                 Application::MessagingSystem::Send("Start Menu", true);
@@ -123,4 +164,4 @@ namespace Game
             }
         }
     }
-}
+} // namespace Game

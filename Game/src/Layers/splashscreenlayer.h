@@ -1,3 +1,15 @@
+// WLVERSE [https://wlverse.web.app]
+// splashscreenlayer.h
+//
+// Declares the SplashScreenLayer class which manages the editor splash screen.
+// Handles chromatic aberration, glitch offset, bloom ramp, logo fade-in/out,
+// and sends a transition message when complete.
+//
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
+
 #pragma once
 
 #include <FlexEngine.h>
@@ -5,11 +17,12 @@ using namespace FlexEngine;
 
 namespace Game
 {
+    // Renders and updates the splash screen sequence
     class SplashScreenLayer : public FlexEngine::Layer
     {
         float m_totalElapsed = 0.0f;
-        bool m_postProcessInitialized = false;
-        bool m_transitionSent = false; // Ensures transition is sent only once.
+        bool  m_postProcessInitialized = false;
+        bool  m_transitionSent = false; // Ensures transition is sent only once.
 
         // Transition parameters
         float m_effectRampDuration = 10.0f;  // Duration for ramping effects
@@ -37,8 +50,20 @@ namespace Game
         SplashScreenLayer() : Layer("Splash Screen Layer") {}
         ~SplashScreenLayer() = default;
 
+        // Function: SplashScreenLayer::OnAttach
+        // Description: Called when the layer is attached; creates the logo entity,
+        //              initializes post-processing resources.
         virtual void OnAttach() override;
+
+        // Function: SplashScreenLayer::OnDetach
+        // Description: Called when the layer is detached; releases post-processing
+        //              resources and removes the logo entity.
         virtual void OnDetach() override;
+
+        // Function: SplashScreenLayer::Update
+        // Description: Updates elapsed time each frame, animates chromatic aberration,
+        //              glitch offset, bloom intensity, logo fade-in/out, and sends
+        //              the transition message when the splash sequence completes.
         virtual void Update() override;
     };
-}
+} // namespace Game

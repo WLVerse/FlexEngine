@@ -1,15 +1,18 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.cpp
 //
-// Rendering layer for the editor.
-//
-// Very rough implementation of hotloading a rendering DLL.
+// Rendering layer for the game.
+// Handles transformation updates, animation, video playback, sprite/text rendering, batching,
+// and both local and global post-processing.
+// Implements hotloading of the rendering DLL for live updates.
 //
 // AUTHORS
-// [50%] Chan Wen Loong (wenloong.c\@digipen.edu)
-//   - Main Author
-// [50%] Soh Wei Jie (weijie.soh\@digipen.edu)
-//   - Sub Author
+// [25%] Chan Wen Loong (wenloong.c\@digipen.edu)
+//   - Main Author (Animator && framework)
+// [45%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Sub Author (PP & Batching)
+// [30%] Rocky (rocky.sutarius\@digipen.edu)
+//   - Sub Author (Video Player)
 //
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
@@ -19,18 +22,28 @@
 
 namespace Game
 {
+  // Function: RenderingLayer::OnAttach
+  // Description: Called when the rendering layer is attached; enables blending
+  //              and initializes post-processing.
   void RenderingLayer::OnAttach()
   {
     OpenGLRenderer::EnableBlending();
     PostProcessing::Init();
   }
 
+  // Function: RenderingLayer::OnDetach
+  // Description: Called when the rendering layer is detached; disables blending
+  //              and shuts down post-processing.
   void RenderingLayer::OnDetach()
   {
     OpenGLRenderer::DisableBlending();
     PostProcessing::Exit();
   }
 
+  // Function: RenderingLayer::Update
+  // Description: Performs per-frame updates including transform calculations,
+  //              animator & video systems, post-processing update, and final
+  //              rendering (batched or unbatched).
   void RenderingLayer::Update()
   {
       #pragma region Transformation Calculations
@@ -450,6 +463,9 @@ namespace Game
   }
 
   #pragma region Batch helper
+  // Function: RenderingLayer::AddBatchToQueue
+  // Description: Inserts a batched draw call into the provided queue using
+  //              the current texture key and accumulated batch data.
   void RenderingLayer::AddBatchToQueue(FunctionQueue& queue, const std::string& texture, const Renderer2DSpriteBatch& batch)
   {
       if (!batch.m_zindex.empty())
@@ -462,6 +478,9 @@ namespace Game
       }
   }
 
+  // Function: RenderingLayer::AddEntityToBatch
+  // Description: Appends an entity’s transform, opacity, and UV data to the
+  //              sprite batch for later drawing.
   void RenderingLayer::AddEntityToBatch(FlexECS::Entity& entity, Renderer2DSpriteBatch& batch)
   {
       auto z_index = entity.HasComponent<ZIndex>() ? entity.GetComponent<ZIndex>()->z : 0;
