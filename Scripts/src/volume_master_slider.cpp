@@ -51,6 +51,7 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active) {
       if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         Vector4 clip = {
           (2.0f * Input::GetMousePosition().x) / Application::GetCurrentWindow()->GetWidth() - 1.0f,
           1.0f - (2.0f * Input::GetMousePosition().y) / Application::GetCurrentWindow()->GetHeight(),

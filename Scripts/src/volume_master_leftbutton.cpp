@@ -48,6 +48,7 @@ public:
       float current_volume_value = (knob_pos - slider_details->min_position) / slider_details->slider_length;
 
       if ((Input::GetKeyDown(GLFW_KEY_A) || is_selected.first) && current_volume_value > 0.f) {
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         if (is_selected.first) {
           self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
           is_selected.first = false;
@@ -98,6 +99,7 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active) {
       if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         is_selected.first = true;
         is_selected.second = true;
       }

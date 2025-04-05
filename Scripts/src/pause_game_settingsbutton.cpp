@@ -52,6 +52,7 @@ public:
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
         Input::Cleanup();
         if (editing_volume) {
+          FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
           editing_volume = false;
           for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, PauseHoverUI, SettingsUI>()) {
             entity.GetComponent<Transform>()->is_active = false;
@@ -61,6 +62,7 @@ public:
       }
       if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
         Input::Cleanup();
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         Application::MessagingSystem::Send("Volume Sprite", std::pair <std::string, bool> { "Master Volume Sprite", true});
         FlexECS::Scene::GetEntityByName("Master Volume Sprite").GetComponent<Transform>()->is_active = true;
         editing_volume = true;

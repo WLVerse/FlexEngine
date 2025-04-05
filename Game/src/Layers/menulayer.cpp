@@ -96,12 +96,14 @@ namespace Game
   #pragma region Quit Confirmation
 
   void Quit_Menu_No() {
+    button_hover_audio->should_play = true;
     FlexECS::Scene::GetEntityByName("Quit Yes Sprite").GetComponent<Transform>()->is_active = false;
     FlexECS::Scene::GetEntityByName("Quit No Sprite").GetComponent<Scale>()->scale.x = 0.f;
     FlexECS::Scene::GetEntityByName("Quit No Sprite").GetComponent<Transform>()->is_active = true;
   }
 
   void Quit_Menu_Yes() {
+    button_hover_audio->should_play = true;
     FlexECS::Scene::GetEntityByName("Quit No Sprite").GetComponent<Transform>()->is_active = false;
     FlexECS::Scene::GetEntityByName("Quit Yes Sprite").GetComponent<Scale>()->scale.x = 0.f;
     FlexECS::Scene::GetEntityByName("Quit Yes Sprite").GetComponent<Transform>()->is_active = true;
@@ -109,12 +111,15 @@ namespace Game
 
   void Quit_Menu_Functionality() {
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE) || Application::MessagingSystem::Receive<bool>("Cancel Quit")) {
+      button_click_audio->should_play = true;
+      Input::Cleanup();
       for (auto& ui : FlexECS::Scene::GetActiveScene()->CachedQuery<QuitUI>()) {
         ui.GetComponent<Transform>()->is_active = false;
       }
       confirm_quit = false;
     }
     if (Input::GetKeyDown(GLFW_KEY_SPACE) || Input::GetKeyDown(GLFW_KEY_ENTER)) {
+      button_click_audio->should_play = true;
       Input::Cleanup();
       if (yes_or_no == true) {
         Application::QueueCommand(Application::Command::QuitApplication);
@@ -164,6 +169,7 @@ namespace Game
     bool next_page = Application::MessagingSystem::Receive<bool>("HTPNextPage");
 
     if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+      button_click_audio->should_play = true;
       Input::Cleanup();
       for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<CreditsUI>()) {
         entity.GetComponent<Transform>()->is_active = false;
@@ -172,6 +178,7 @@ namespace Game
       selected_button = 1;
     }
     if (Input::GetKeyDown(GLFW_KEY_A) || return_page) {
+      button_click_audio->should_play = true;
       Input::Cleanup();
       if (selected_button != 1) {
         FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(selected_button)).GetComponent<Transform>()->is_active = false;
@@ -180,6 +187,7 @@ namespace Game
       }
     }
     if (Input::GetKeyDown(GLFW_KEY_D) || next_page) {
+      button_click_audio->should_play = true;
       Input::Cleanup();
       if (selected_button != 5) {
         FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(selected_button)).GetComponent<Transform>()->is_active = false;
@@ -201,6 +209,7 @@ namespace Game
   void Credits_Functionality() {
     if (active_credit.first.GetComponent<Sprite>()->opacity >= 1.f && !active_credit.second) {
       if (Input::AnyKeyDown() || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        button_click_audio->should_play = true;
         Input::Cleanup();
         active_credit.second = true;
       }
@@ -216,6 +225,7 @@ namespace Game
       active_credit = std::make_pair(FlexECS::Scene::GetEntityByName("Credits Page " + std::to_string(selected_button)), false);
     }
     if (Input::AnyKeyDown() || Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+      button_click_audio->should_play = true;
       if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
         for (int i = 1; i < 4; i++) {
           FlexECS::Scene::GetEntityByName("Credits Page " + std::to_string(i)).GetComponent<Sprite>()->opacity = 0.f;
@@ -307,7 +317,8 @@ namespace Game
     std::pair<int, bool> mouse_input = Application::MessagingSystem::Receive<std::pair<int, bool>>("Menu Buttons");
 
     // Enable the quit menu
-    if (button_quit && !confirm_quit && !open_controls && !start_credits && !open_settings) {
+    if (button_quit && !confirm_quit && !open_controls && !start_credits) {
+      button_click_audio->should_play = true;
       Quit_Menu_Set_Up();
     }
     
@@ -319,6 +330,7 @@ namespace Game
 
     // Enable the How To Play
     if (button_how && !confirm_quit && !open_controls && !start_credits && !open_settings) {
+      button_click_audio->should_play = true;
       How_To_Play_Set_Up();
     }
 
@@ -330,6 +342,7 @@ namespace Game
 
     // Enable the Credits
     if (button_credits && !confirm_quit && !open_controls && !start_credits && !open_settings) {
+      button_click_audio->should_play = true;
       Credits_Set_Up();
     }
 
@@ -341,12 +354,14 @@ namespace Game
 
     // Enable & Disable the settings menu
     if (return_to_menu || (start_options && !confirm_quit && !open_controls && !start_credits && !open_settings)) {
+      button_click_audio->should_play = true;
       Settings_Menu_Functionality();
     }
 
     // Settings Menu Functionality
     if (open_settings) {
       if (active_sprite.second) {
+        button_hover_audio->should_play = true;
         FlexECS::Scene::GetEntityByName(active_entity).GetComponent<Transform>()->is_active = false;
         FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Scale>()->scale.x = 0.f;
         FlexECS::Scene::GetEntityByName(active_sprite.first).GetComponent<Transform>()->is_active = true;
@@ -367,6 +382,7 @@ namespace Game
 
     // Enable Gameplay
     if (button_play && !confirm_quit && !open_controls && !start_credits && !open_settings) {
+      button_click_audio->should_play = true;
       Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
     }
 
@@ -374,6 +390,7 @@ namespace Game
       FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Normal.png";
       selected_button = mouse_input.first;
       FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
+      button_hover_audio->should_play = true;
     }
 
     if (Input::GetKeyDown(GLFW_KEY_S))
