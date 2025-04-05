@@ -9,7 +9,8 @@ namespace Game
         FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
         CameraManager::TryMainCamera();
 
-        m_logo = FlexECS::Scene::GetActiveScene()->GetEntityByName("Logo");
+        auto activeScene = FlexECS::Scene::GetActiveScene();
+        m_logo = activeScene->GetEntityByName("Logo");
         m_logo.GetComponent<Sprite>()->opacity = 0.0f;
 
         m_logoFadeElapsed = 0.0f;
