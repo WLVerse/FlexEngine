@@ -259,6 +259,8 @@ namespace Game
             FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
             renko.RemoveComponent<Script>();
             renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+
+            FlexECS::Scene::GetEntityByName("TransitionSound").GetComponent<Audio>()->should_play = true;
         }
 
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
@@ -279,6 +281,8 @@ namespace Game
             FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
             renko.RemoveComponent<Script>();
             renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+
+            FlexECS::Scene::GetEntityByName("TransitionSound").GetComponent<Audio>()->should_play = true;
         }
 
 
