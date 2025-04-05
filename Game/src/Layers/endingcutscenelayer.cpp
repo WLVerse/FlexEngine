@@ -19,12 +19,13 @@
 
 namespace Game
 {
-
   void EndingCutsceneLayer::OnAttach()
   {
     File& file = File::Open(Path::current("assets/saves/endingcutscene.flxscene"));
     FlexECS::Scene::SetActiveScene(FlexECS::Scene::Load(file));
 
+    // Play cutscene audio
+    FlexECS::Scene::GetEntityByName("CutsceneAudio").GetComponent<Audio>()->should_play = true;
 
     m_skiptext = FlexECS::Scene::GetEntityByName("Skip Text");
     m_instructiontxt = FlexECS::Scene::GetEntityByName("Instruction Text");
