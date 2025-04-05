@@ -1,9 +1,9 @@
 Name: Revolution
-Speed: 4
+Speed: 5
 Effect: Damage
 Value: 10
 Target: ALL_ENEMIES
 Effect: Protect
-Value: 1
+Value: 2
 Target: SELF
-Description: Deal damage to all enemies and protect yourself from debuffs for 1 turn.
+Description: Deal damage to all enemies and protect yourself from debuffs for 2 turns.

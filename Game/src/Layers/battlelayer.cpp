@@ -2291,7 +2291,7 @@ namespace Game
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 90, 0 };
 
                 if (battle.current_character->character_id == 2)
-                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 10, 0 };
+                    original_position = battle.sprite_slot_positions[battle.current_character->current_slot] + Vector3{ 100, 10, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
@@ -2324,7 +2324,7 @@ namespace Game
                 Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2];
 
                 if (battle.current_character->character_id == 5)
-                    Vector3 original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };
+                    original_position = battle.sprite_slot_positions[battle.current_character->current_slot + 2] + Vector3{ -100, 60, 0 };
 
                 Vector3 interpolated_position = original_position * (1.0f - percent_moved) + new_position * percent_moved;
 
@@ -3668,7 +3668,7 @@ namespace Game
                 case 3:
                     FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
-                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Why do you shield him still, Grace?";
+                    FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Why do you protect him still, Grace?";
                     for (auto& character : battle.drifters_and_enemies)
                     {
                         if (character.character_id == 1 && !character.is_alive)
