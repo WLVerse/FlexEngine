@@ -67,9 +67,9 @@ namespace FlexEngine
         struct VideoCutsceneInfo
         {
           std::string videoPath;
-          float startTime;
-          float endingTime;
-          float timeScale;
+          float startTime = 0.0f;
+          float endingTime = 0.0f;
+          float timeScale = 0.0f;
         };
 
         struct __FLX_API VideoCutscene

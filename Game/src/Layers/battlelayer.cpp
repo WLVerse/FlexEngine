@@ -6,6 +6,8 @@
 // AUTHORS
 // [70%] Ng Jia Cheng (n.jiacheng\@digipen.edu)
 //   - Main Author
+// [30%] Soh Wei Jie (weijie.soh@digipen.edu)
+//   - Sub Author (Combat Cam & Visual Effects - PP)
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #include "Layers.h"
@@ -592,7 +594,7 @@ namespace Game
           {                           1400,                              320 }
         });
         battle.projected_move_text.GetComponent<Transform>()->is_active = false;
-
+        
         if (battle.is_tutorial)
         {
             battle.is_tutorial_running = true;
@@ -625,8 +627,13 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-              {                           1400,                              320 }
+              {                           1200,                              320 }
             });
+            
+            FlexECS::Entity firefly = FlexECS::Scene::GetEntityByName("Fireflies");
+            firefly.GetComponent<Transform>()->is_active = false;
+            firefly = FlexECS::Scene::GetEntityByName("Fireflies2");
+            firefly.GetComponent<Transform>()->is_active = false;
         }
 
         if (battle.is_boss)
@@ -697,6 +704,20 @@ namespace Game
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
               {                           700,                              320 }
             });
+
+            // Boss exclusive background
+            FlexECS::Entity bg = FlexECS::Scene::GetEntityByName("Background");
+            bg.GetComponent<Sprite>()->sprite_handle = FLX_STRING_NEW(R"(/images/Battle_Scene_Extended_02.png)");
+            bg.GetComponent<Position>()->position += Vector3{ 0, 100, 0 }; // Offset up a bit
+
+            // This only for battle scene 1
+            FlexECS::Entity firefly = FlexECS::Scene::GetEntityByName("Fireflies");
+            firefly.GetComponent<Transform>()->is_active = false;
+            firefly = FlexECS::Scene::GetEntityByName("Fireflies2");
+            firefly.GetComponent<Transform>()->is_active = false;
+            
+            // Boss battle has its own music
+            FlexECS::Scene::GetEntityByName("Background Music").GetComponent<Audio>()->audio_file = FLX_STRING_NEW(R"(/audio/bgm/boss(Egress)_inD.wav)");
         }
 
         Update_Character_Status();

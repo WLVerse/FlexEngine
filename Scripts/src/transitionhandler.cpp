@@ -2,16 +2,16 @@
 // WLVERSE [https://wlverse.web.app]
 // transitionhandler.cpp
 //
-// Provides transition effects and a script to manage them, including fade-in
-// and fade-out effects using easing functions.
+// This module provides transition effects and a script to manage them,
+// including fade-in and fade-out transitions using easing functions.
+// It defines the ITransitionEffect interface and several concrete 
+// implementations (FadeTransition, EncounterBattleTransition, 
+// EncounterBattleTransitionReverse) as well as the TransitionHandlerScript 
+// which queues, updates, and notifies upon transition completion.
 //
-// This module defines the ITransitionEffect interface, a concrete FadeTransition
-// implementation, and the TransitionHandlerScript, which queues and processes
-// transitions while sending notifications upon completion.
-//
-// AUTHORS
+// AUTHORS:
 // [100%] Soh Wei Jie (weijie_soh\@digipen.edu)
-//   - Main Author
+//     - Main Author
 //
 // Copyright (c) 2025 DigiPen, All rights reserved.
 /////////////////////////////////////////////////////////////////////////////

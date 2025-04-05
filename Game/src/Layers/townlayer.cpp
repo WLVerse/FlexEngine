@@ -259,6 +259,8 @@ namespace Game
             FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
             renko.RemoveComponent<Script>();
             renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+
+            FlexECS::Scene::GetEntityByName("TransitionSound").GetComponent<Audio>()->should_play = true;
         }
 
         int transitionMSG = Application::MessagingSystem::Receive<int>("TransitionCompleted");
@@ -279,6 +281,8 @@ namespace Game
             FlexECS::Entity renko = FlexECS::Scene::GetEntityByName("Renko");
             renko.RemoveComponent<Script>();
             renko.GetComponent<Animator>()->spritesheet_handle = FLX_STRING_NEW(R"(/images/spritesheets/Char_Renko_Idle_Relaxed_Right_Anim_Sheet.flxspritesheet)");
+
+            FlexECS::Scene::GetEntityByName("TransitionSound").GetComponent<Audio>()->should_play = true;
         }
 
 
@@ -294,7 +298,7 @@ namespace Game
     // Randomly toggle light on and off between range 1 to 2 seconds only in the other scene, but of course when added this can be added to the other scene as well
     if (town_version == "assets/saves/town_v7_2.flxscene")
     {
-      static float light_timer = rand() % 1 + 1;
+      static float light_timer = (float)(rand() % 1 + 1);
       light_timer -= Application::GetCurrentWindow()->GetFramerateController().GetDeltaTime();
       if (light_timer <= 0)
       {
@@ -302,7 +306,7 @@ namespace Game
         FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active = 
           !FlexECS::Scene::GetEntityByName("Flicker").GetComponent<Transform>()->is_active;
       
-        light_timer = rand() % 1 + 1;
+        light_timer = (float)(rand() % 1 + 1);
       }
     }
     

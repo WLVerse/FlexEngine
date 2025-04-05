@@ -1,14 +1,27 @@
 // WLVERSE [https://wlverse.web.app]
 // renderinglayer.h
 //
-// Rendering layer for the editor. 
-// 
-// Implements the main renderers for the editor and game. 
+// Rendering layer for the editor.
+//
+// Implements the main renderers for the editor and game.
+// This layer loop runs in this order
+// 1. Transformation Calculations
+// 2. Update Animator System (ie delta time)
+// 3. Sprite Renderer System (Sprites and Animations included)
+// 4. Text Renderer System
+// 5. PP System
+// The framebuffers used are "scene" and "game", and nothing is rendered to the default framebuffer. (Editor property)
 //
 // AUTHORS
-// [100%] Chan Wen Loong (wenloong.c\@digipen.edu)
+// [60%] Yew Chong (yewchong.k\@digipen.edu)
 //   - Main Author
+// 
+// [10%] Wen Loong (wenloong.l\@digipen.edu)
+//   - Added animation rendering
 //
+// [30%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Added batching && PP
+// 
 // Copyright (c) 2025 DigiPen, All rights reserved.
 
 #pragma once

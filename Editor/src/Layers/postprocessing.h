@@ -1,3 +1,14 @@
+// WLVERSE [https://wlverse.web.app]
+// postprocessing.h
+//
+// Declares the PostProcessing class which manages both local and global
+// post-processing effects within the editor, including initialization,
+// per-frame updates, and rendering pipelines.
+//
+// [100%] Soh Wei Jie (weijie.soh\@digipen.edu)
+//   - Main Author
+// 
+// Copyright (c) 2025 DigiPen, All rights reserved.
 #pragma once
 
 #include <FlexEngine.h>
