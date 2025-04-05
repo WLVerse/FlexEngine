@@ -298,12 +298,16 @@ namespace Game
   {
     bool return_to_menu = Application::MessagingSystem::Receive<bool>("Return to Menu");
     bool start_options = Application::MessagingSystem::Receive<bool>("OptionStart");
+    bool button_quit = Application::MessagingSystem::Receive<bool>("Quit Confirmation Start");
+    bool button_how = Application::MessagingSystem::Receive<bool>("How To Play Start");
+    bool button_credits = Application::MessagingSystem::Receive<bool>("Start Credits");
+    bool button_play = Application::MessagingSystem::Receive<bool>("StartTransitionToGame");
 
     std::pair<std::string, bool> active_sprite = Application::MessagingSystem::Receive<std::pair<std::string, bool>>("Pause Sprite");
     std::pair<int, bool> mouse_input = Application::MessagingSystem::Receive<std::pair<int, bool>>("Menu Buttons");
 
     // Enable the quit menu
-    if (Application::MessagingSystem::Receive<bool>("Quit Confirmation Start")) {
+    if (button_quit && !confirm_quit && !open_controls && !start_credits && !open_settings) {
       Quit_Menu_Set_Up();
     }
     
@@ -314,7 +318,7 @@ namespace Game
     }
 
     // Enable the How To Play
-    if (Application::MessagingSystem::Receive<bool>("How To Play Start")) {
+    if (button_how && !confirm_quit && !open_controls && !start_credits && !open_settings) {
       How_To_Play_Set_Up();
     }
 
@@ -325,7 +329,7 @@ namespace Game
     }
 
     // Enable the Credits
-    if (Application::MessagingSystem::Receive<bool>("Start Credits")) {
+    if (button_credits && !confirm_quit && !open_controls && !start_credits && !open_settings) {
       Credits_Set_Up();
     }
 
@@ -336,7 +340,9 @@ namespace Game
     }
 
     // Enable & Disable the settings menu
-    if (return_to_menu || start_options) Settings_Menu_Functionality();
+    if (return_to_menu || (start_options && !confirm_quit && !open_controls && !start_credits && !open_settings)) {
+      Settings_Menu_Functionality();
+    }
 
     // Settings Menu Functionality
     if (open_settings) {
@@ -357,6 +363,11 @@ namespace Game
       }
 
       return;
+    }
+
+    // Enable Gameplay
+    if (button_play && !confirm_quit && !open_controls && !start_credits && !open_settings) {
+      Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
     }
 
     if (mouse_input.second) {
@@ -384,10 +395,6 @@ namespace Game
       FLX_STRING_GET(menu_buttons[selected_button].GetComponent<Sprite>()->sprite_handle) = "/images/MainMenu/UI_Main_Menu_Button_Hover.png";
 
       button_hover_audio->should_play = true;
-    }
-
-    if (Application::MessagingSystem::Receive<bool>("StartTransitionToGame")) {
-      Application::MessagingSystem::Send("TransitionStart", std::pair<int, double>{ 2, 0.5 });
     }
 
     if (Input::GetKeyDown(GLFW_KEY_SPACE))
