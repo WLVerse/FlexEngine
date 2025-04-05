@@ -283,22 +283,4 @@ float FMODWrapper::Core::GetGroupVolume(CHANNELGROUP channelGroup)
   return volume;
 }
 
-}// namespace FlexEngine
-
-  //// Sample code to get if the channel is playing...
-  //bool b;
-  //channel->isPlaying(&b);
-
-  //// Stop the channel
-  //channel->stop();
-
-  //// Channel represents an instance of sound being played...
-  //channel->setVolume(0.5f);
-
-  //// Channel groups are like a mixer, you can control the volume of a group of sounds
-  //FMOD::ChannelGroup* musicGroup = nullptr;
-  //fmod_system->createChannelGroup("Music", &musicGroup);
-
-  //// Volume controls group wise
-  //musicGroup->setVolume(0.7f);  // Set volume for the entire group
-  //musicGroup->stop();
+}
