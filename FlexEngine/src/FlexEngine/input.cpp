@@ -118,6 +118,16 @@ namespace FlexEngine
               m_key[GLFW_KEY_ESCAPE] = false;
             }
           }
+          else
+          {
+            if (is_down)    m_key[GLFW_KEY_CAPS_LOCK] = true;
+            if (is_pressed) m_key_down[GLFW_KEY_CAPS_LOCK] = true;
+            if (is_up)
+            {
+              m_key_up[GLFW_KEY_CAPS_LOCK] = true;
+              m_key[GLFW_KEY_CAPS_LOCK] = false;
+            }
+          }
         }
 
         //axises
