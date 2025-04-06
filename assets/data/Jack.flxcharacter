@@ -1,6 +1,6 @@
 CharacterName: Jack The Ripper
 CharacterID: 5
-Health: 100
+Health: 120
 Speed: 0
 MoveOne: /data/Dominate.flxmove
 MoveTwo: /data/Immobilize.flxmove

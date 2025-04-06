@@ -28,6 +28,7 @@ FMOD::Studio::System* FMODWrapper::fmod_studio_system = NULL;
 FMOD_RESULT FMODWrapper::result;
 FMOD::ChannelGroup* FMODWrapper::bgm_group = nullptr;
 FMOD::ChannelGroup* FMODWrapper::sfx_group = nullptr;
+bool FMODWrapper::is_paused = false;
 
 // Static initialization for core
 std::map<std::string, FMOD::Channel*> FMODWrapper::Core::channels;
@@ -97,6 +98,8 @@ void FMODWrapper::Update()
 
 void FMODWrapper::Core::PlaySound(std::string const& identifier, Asset::Sound const& asset, CHANNELGROUP cg)
 {
+  if (FMODWrapper::is_paused) return; // Don't play if paused
+
   // Play the sound given a sound handle and a channel...
   if (channels.find(identifier) == channels.end()) // not already used identifier
   {
@@ -244,10 +247,12 @@ void FMODWrapper::Core::WindowFocusCallback([[maybe_unused]] GLFWwindow* window,
 {
   if (focused == GLFW_FALSE)
   {
+    is_paused = true;
     StopAll();
   }
   else
   {
+    is_paused = false;
     ResumeAll();
   }
 }

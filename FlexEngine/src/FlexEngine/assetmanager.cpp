@@ -232,11 +232,12 @@ namespace FlexEngine
     }
   }
 
-  void AssetManager::LoadFileFromPath(Path path, Path _default_directory)
+  void AssetManager::LoadFileFromPath(std::filesystem::path filepath)
   {
-    File file = File::Open(path);
+    std::filesystem::path absolute = std::filesystem::absolute(std::filesystem::current_path() / "assets");
+    absolute /= filepath;
+    File file = File::Open(absolute);
 
-    std::size_t default_directory_length = _default_directory.string().length();
 
     auto file_extension = file.path.extension();
 
@@ -244,8 +245,7 @@ namespace FlexEngine
         file_extension.string() == ".png")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
-
+      AssetKey key = "/" + filepath.string();
       // load texture
       assets.emplace(key, Asset::Texture());
       Asset::Texture& texture = std::get<Asset::Texture>(assets[key]);
@@ -255,7 +255,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".flxshader")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
 
       // load shader
       assets.emplace(key, Asset::Shader());
@@ -266,7 +266,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".mp3" || file_extension.string() == ".wav")
     {
       FLX_FLOW_BEGINSCOPE();
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
       assets[key] = Asset::Sound{ key }; // create sound asserts on FMOD side and shouldn't need here
       Log::Info("Loaded sound path: " + key);
       FLX_FLOW_ENDSCOPE();
@@ -274,7 +274,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".ttf")
     {
       FLX_FLOW_BEGINSCOPE();
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
       assets[key] = Asset::Font{ key };
       FLX_FLOW_ENDSCOPE();
       Log::Info("Loaded font path: " + key);
@@ -282,7 +282,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".flxspritesheet")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
 
       // load spritesheet
       assets.emplace(key, Asset::Spritesheet(file));
@@ -291,7 +291,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".flxbattle")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
       // load battle
       assets.emplace(key, Asset::Battle(file));
       Log::Info("Loaded battle: " + key);
@@ -299,7 +299,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".flxcharacter")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
       // load character
       assets.emplace(key, Asset::Character(file));
       Log::Info("Loaded character: " + key);
@@ -307,7 +307,7 @@ namespace FlexEngine
     else if (file_extension.string() == ".flxmove")
     {
       // create an asset key
-      AssetKey key = file.path.string().substr(default_directory_length);
+      AssetKey key = "/" + filepath.string();
       // load move
       assets.emplace(key, Asset::Move(file));
       Log::Info("Loaded move: " + key);

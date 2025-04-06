@@ -1,5 +1,5 @@
 Name: Timeout
-Speed: 7
+Speed: 6
 Effect: Stun
 Value: 1
 Target: SINGLE_ENEMY

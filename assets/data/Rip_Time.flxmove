@@ -1,6 +1,6 @@
 Name: Rip_Time
-Speed: 10
+Speed: 5
 Effect: Damage
-Value: 100
+Value: 140
 Target: SINGLE_ENEMY
 Description: Deal damage to an enemy.

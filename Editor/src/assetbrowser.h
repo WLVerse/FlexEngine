@@ -126,22 +126,21 @@ namespace Editor
 		const std::filesystem::path m_root_directory = "assets";
 
 		#pragma region -.-
-		const std::filesystem::path m_resources_root = "/resources";
 
-		const std::filesystem::path m_audio_image = "/resources/assetbrowser_audio.png";
-		const std::filesystem::path m_audio_image_key = "/assetbrowser_audio.png";
+		const std::filesystem::path m_audio_image = "resources/assetbrowser_audio.png";
+		const std::filesystem::path m_audio_image_key = "/resources/assetbrowser_audio.png";
 
-		const std::filesystem::path m_folder_image = "/resources/assetbrowser_folder.png";
-		const std::filesystem::path m_folder_image_key = "/assetbrowser_folder.png";
+		const std::filesystem::path m_folder_image = "resources/assetbrowser_folder.png";
+		const std::filesystem::path m_folder_image_key = "/resources/assetbrowser_folder.png";
 
 		const std::filesystem::path m_flxprefab_image = "resources/assetbrowser_flxprefab.png";
-		const std::filesystem::path m_flxprefab_image_key = "/assetbrowser_flxprefab.png";
+		const std::filesystem::path m_flxprefab_image_key = "/resources/assetbrowser_flxprefab.png";
 
-		const std::filesystem::path m_shader_image = "/resources/assetbrowser_shader.png";
-		const std::filesystem::path m_shader_image_key = "/assetbrowser_shader.png";
+		const std::filesystem::path m_shader_image = "resources/assetbrowser_shader.png";
+		const std::filesystem::path m_shader_image_key = "/resources/assetbrowser_shader.png";
 
-		const std::filesystem::path m_font_image = "/resources/assetbrowser_font.png";
-		const std::filesystem::path m_font_image_key = "/assetbrowser_font.png";
+		const std::filesystem::path m_font_image = "resources/assetbrowser_font.png";
+		const std::filesystem::path m_font_image_key = "/resources/assetbrowser_font.png";
 		#pragma endregion
 	};
 
