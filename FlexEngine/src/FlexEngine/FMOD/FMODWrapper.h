@@ -51,6 +51,8 @@ class __FLX_API FMODWrapper
   // Supported channel groups
   static FMOD::ChannelGroup* bgm_group;
   static FMOD::ChannelGroup* sfx_group;
+
+  static bool is_paused = false;
   
 public:
 
