@@ -35,6 +35,8 @@
 #include <GLFW/glfw3native.h>
 #endif
 
+#include "../../Game/resource.h"
+
 //#include "FMOD/FMODWrapper.h"
 
 FlexEngine::OpenGLFrameBufferManager FlexEngine::Window::FrameBufferManager;
@@ -157,20 +159,17 @@ namespace FlexEngine
 
     //Register this window as a drag drop target
     HRESULT result = OleInitialize(NULL);
-
     if (!SUCCEEDED(result))
     {
       Log::Error("OleInitialize failed!");
     }
+    
     m_dropmanager.Initialize(glfwGetWin32Window(m_glfwwindow));
-
-
     result = RegisterDragDrop(m_dropmanager.m_hwnd, &m_dropmanager);
     if (!SUCCEEDED(result))
     {
       Log::Error("RegisterDragDrop failed!");
     }
-
 
 
 

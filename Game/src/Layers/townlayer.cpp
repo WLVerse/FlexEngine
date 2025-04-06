@@ -139,6 +139,7 @@ namespace Game
       { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
       {                           1400,                              320 }
     });
+    dialogue_info = 0;
     /*
     character_icon = FlexECS::Scene::CreateEntity("dialogue_icon"); // can always use GetEntityByName to find the entity
     character_icon.AddComponent<Transform>({});

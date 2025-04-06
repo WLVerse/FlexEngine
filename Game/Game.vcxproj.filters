@@ -122,7 +122,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\GameInstaller\INSTALLERFILES\Icon.ico">
+    <Image Include="Icon.ico">
       <Filter>src</Filter>
     </Image>
   </ItemGroup>

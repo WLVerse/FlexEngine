@@ -198,7 +198,7 @@ xcopy /E /I /Y "$(SolutionDir)assets" "$(OutDir)assets"</Command>
     <ResourceCompile Include="GameResources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\GameInstaller\INSTALLERFILES\Icon.ico" />
+    <Image Include="Icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
