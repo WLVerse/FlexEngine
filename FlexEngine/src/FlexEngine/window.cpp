@@ -112,11 +112,11 @@ namespace FlexEngine
 
     // Fullscreen overrides any option
     bool should_fs = false;
-    #ifdef GAME_BUILD
+    //#ifdef GAME_BUILD
     should_fs = FlexPrefs::GetBool("game.fullscreen");
-    #else
-    should_fs = FlexPrefs::GetBool("editor.fullscreen");
-    #endif
+    //#else
+    //should_fs = FlexPrefs::GetBool("editor.fullscreen");
+    //#endif
 
     if (should_fs)
     {
