@@ -1,8 +1,7 @@
-Editor can be run in Debug and Release mode. Use project configuration debug and release.
-Game can be run using project configuration Release-Game.
-Debug-MemLeak is a copy of debug with mem leak code added
+Editor and Game can be built in Debug and Release mode. 
+To run either project, set either of them to be the startup project. This will automatically compile the Scripting and Engine project when building them as well.
 
 Debug Mode features:
 - Logger to console
 
-Make sure to set ChronoDrift as the startup project to run the final product if it isn't already set.
+Make sure to set Game as the startup project to run the final product if it isn't already set.

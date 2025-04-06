@@ -2,7 +2,7 @@
     "flexprefs": {
         "editor.cameraSpeed": 0.10000000149011612,
         "editor.batching": false,
-        "editor.fullscreen": false,
+        "editor.fullscreen": true,
         "game.batching": false,
         "game.vsync": false,
         "game.resolutionIndex": 3,

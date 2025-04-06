@@ -1,6 +1,6 @@
 CharacterName: Rampaging_Robot_2
 CharacterID: 3
-Health: 50
+Health: 40
 Speed: 5
 MoveOne: /data/Self_Repair.flxmove
 MoveTwo: /data/Weakening_Shot.flxmove

@@ -1,9 +1,6 @@
 Name: Exterminate
 Speed: 7
-Effect: Strip
-Value: 0
-Target: SINGLE_ENEMY
 Effect: Damage
-Value: 10
+Value: 12
 Target: SINGLE_ENEMY
-Description: Strip all buffs from an enemy and deal damage to them.
+Description: Deal damage to an enemy.
