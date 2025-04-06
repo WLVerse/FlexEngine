@@ -262,7 +262,6 @@ namespace Game
     
     // Trigger music to start
     FlexECS::Scene::GetEntityByName("Main Menu BGM").GetComponent<Audio>()->should_play = true;
-    FlexECS::Scene::GetEntityByName("BlowWindBlow").GetComponent<Audio>()->should_play = true;
 
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("Start Game Sprite"));
     menu_buttons.emplace_back(FlexECS::Scene::GetEntityByName("How To Play Sprite"));
