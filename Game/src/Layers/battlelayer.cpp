@@ -3701,7 +3701,7 @@ namespace Game
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
                     FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "You only delay the inevitable.";
                     
-                    (FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position) = Vector3{ 1225, 610, 0 };
+                    (FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position) = Vector3{ 1225, 605, 0 };
                 }
                 battle.disable_input_timer += 3.0f;
             }
