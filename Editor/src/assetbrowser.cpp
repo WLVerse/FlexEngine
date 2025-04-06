@@ -30,11 +30,11 @@ namespace Editor
 		
 		Application::GetCurrentWindow()->m_dropmanager.RegisterFileDropCallback(std::bind(&AssetBrowser::OnFileDropped, this, std::placeholders::_1));
 
-		AssetManager::LoadFileFromPath(m_audio_image, m_resources_root);
-		AssetManager::LoadFileFromPath(m_folder_image, m_resources_root);
-		AssetManager::LoadFileFromPath(m_flxprefab_image, m_resources_root);
-		AssetManager::LoadFileFromPath(m_shader_image, m_resources_root);
-		AssetManager::LoadFileFromPath(m_font_image, m_resources_root);
+		AssetManager::LoadFileFromPath(m_audio_image);
+		AssetManager::LoadFileFromPath(m_folder_image);
+		AssetManager::LoadFileFromPath(m_flxprefab_image);
+		AssetManager::LoadFileFromPath(m_shader_image);
+		AssetManager::LoadFileFromPath(m_font_image);
 	}
 
 	void AssetBrowser::Update()
@@ -811,7 +811,7 @@ namespace Editor
 				assetkey_dest /= std::filesystem::path(m_selected_folder->path);
 				assetkey_dest /= src.filename();
 
-				AssetManager::LoadFileFromPath(assetkey_dest, m_root_directory);
+				AssetManager::LoadFileFromPath(assetkey_dest);
 			}
 		}
 		LoadAllDirectories();
