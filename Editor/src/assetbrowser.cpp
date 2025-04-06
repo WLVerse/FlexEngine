@@ -275,7 +275,6 @@ namespace Editor
 					std::string payload(file.generic_string());
 					payload.insert(0, "/");	//to fit the AssetKey format
 					std::string extension = file.extension().string();
-					std::cout << extension << "\n";
 					//hardcode for now
 					if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
 					{
@@ -780,13 +779,23 @@ namespace Editor
 		}
 
 		//Check folder to put file in
-		std::filesystem::path destination = m_root_directory;
+		std::filesystem::path abs_destination = std::filesystem::current_path() / "assets";
 		if (m_selected_folder)
 		{
-			destination /= std::filesystem::path(m_selected_folder->path);
+			abs_destination /= std::filesystem::path(m_selected_folder->path);
 		}
 		else
 		{
+			return;
+		}
+
+		//Check if "../../assets" directory exists, this is for vcxproject things
+		//If not present, no point in drag dropping anyway
+		std::filesystem::path project_assets_dir = std::filesystem::current_path() / ".." / ".." / "assets" / std::filesystem::path(m_selected_folder->path);
+		bool project_assets_dest_exists = std::filesystem::exists(project_assets_dir);
+		if (!project_assets_dest_exists)
+		{
+			Log::Info("Cannot find assets folder.");
 			return;
 		}
 
@@ -797,17 +806,29 @@ namespace Editor
 		{
 			std::filesystem::path src(file);
 
-			destination /= src.filename();
+			std::filesystem::path file_destination = abs_destination / src.filename();
 
-			if (!CopyFileA(src.string().c_str(), destination.string().c_str(), FALSE))
+			std::filesystem::path project_assets_dest = project_assets_dir / src.filename();
+			//Copy file to both x64 and assets
+			if (!CopyFileA(src.string().c_str(), project_assets_dest.string().c_str(), FALSE))
 			{
-				Log::Error("Failed to copy file.");
+				Log::Error("Failed to copy file to assets folder.");
 			}
 			else
 			{
-				Log::Info("Successfully copied file.");
+				Log::Info("Successfully copied file to assets.");
+			}
+
+			//Copy file to both x64 and assets
+			if (!CopyFileA(src.string().c_str(), file_destination.string().c_str(), FALSE))
+			{
+				Log::Error("Failed to copy file to x64 folder.");
+			}
+			else
+			{
+				Log::Info("Successfully copied file to x64.");
 				//Create assetkey
-				std::filesystem::path assetkey_dest = "../../assets";
+				std::filesystem::path assetkey_dest = "";
 				assetkey_dest /= std::filesystem::path(m_selected_folder->path);
 				assetkey_dest /= src.filename();
 
