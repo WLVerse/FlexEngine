@@ -15,23 +15,29 @@ Chrono Drift by WLVerse - CSD2401BF24-A
 - Lee Xiang              (lee.x@digipen.edu) Art Lead, Character Artist
 - Loy Soong Yi, Samuel   (s.loy@digipen.edu) Artist, Environment Artist
 
-All content © 2024 DigiPen (SINGAPORE) Corporation, all rights reserved.
+All content © 2025 DigiPen (SINGAPORE) Corporation, all rights reserved.
 
 ========================================================================
 Brief:
 - Chrono Drift is a turn-based strategy game that focuses
-  on exploring predictive gameplay. Players will make use of the speed stack to create   strategies to deal more damage or survive lethal attacks from enemies.
-
-- Base speed + action speed = final speed
+  on exploring predictive gameplay. Players will make use of the speed stack to create strategies to deal more damage or survive lethal attacks from enemies.
 
 ========================================================================
 Controls:
 - Control + Q to quit the game.
-- Click on buttons to use your move, alternatively you can simply just press 1 for move 1, 2 for move 2 and 3 for move 3.
+ 
+Town, Exploration Controls:
+- WASD to move
+
+In Battle:
+- W and S to select moves
 - A and D to change targets
-- F11 to fullscreen the game, Esc to unfullscreen the game.
-- R to reset the battle.
-- Z to instantly win the game, X to turn on god mode.
+- Spacebar to confirm move
+
+Cheats, debug(during battle only):
+- F1 to turn on FPS display
+- F4 to instantly win the game, F5 to lose(restart battle).
+- X to turn on god mode.
 ========================================================================
 
 Links!
