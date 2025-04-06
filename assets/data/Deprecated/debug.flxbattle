@@ -1,9 +1,0 @@
-DrifterSlotOne: /data/Renko.flxcharacter
-DrifterSlotTwo: /data/Grace.flxcharacter
-EnemySlotOne: /data/EnemyOne.flxcharacter
-EnemySlotTwo: /data/EnemyOneAlt.flxcharacter
-EnemySlotThree: /data/Jack.flxcharacter
-EnemySlotFour: /data/EnemyTwo.flxcharacter
-EnemySlotFive: /data/EnemyTwoAlt.flxcharacter
-BossBattle: 3
-Tutorial: 0

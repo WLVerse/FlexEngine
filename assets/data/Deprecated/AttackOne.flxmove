@@ -1,6 +1,0 @@
-Name: AttackOne
-Speed: 5
-Effect: Strip
-Value: 0
-Target: ALL_ENEMIES
-Description: Heal 5 HP to all allies.
