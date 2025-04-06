@@ -47,6 +47,7 @@ public:
           Application::MessagingSystem::Send("Resume Game", true);
         }
         if (Input::GetKeyDown(GLFW_KEY_SPACE)) {
+          FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
           is_tutorial = true;
           active_page = 1;
           FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active = true;
@@ -59,6 +60,7 @@ public:
         bool next_page = Application::MessagingSystem::Receive<bool>("HTPNextPage");
 
         if (Input::GetKeyDown(GLFW_KEY_A) || return_page) {
+          FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
           if (active_page != 1) {
             FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
             --active_page;
@@ -66,6 +68,7 @@ public:
           }
         }
         if (Input::GetKeyDown(GLFW_KEY_D) || next_page) {
+          FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
           if (active_page != 5) {
             FlexECS::Scene::GetEntityByName("Tutorial P" + std::to_string(active_page)).GetComponent<Transform>()->is_active = false;
             ++active_page;
@@ -73,6 +76,7 @@ public:
           }
         }
         if (Input::GetKeyDown(GLFW_KEY_ESCAPE)) {
+          FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
           Input::Cleanup();
           for (FlexECS::Entity entity : FlexECS::Scene::GetActiveScene()->CachedQuery<Transform, PauseUI, CreditsUI>()) {
             entity.GetComponent<Transform>()->is_active = false;
@@ -95,6 +99,7 @@ public:
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) && self.GetComponent<Transform>()->is_active)
     {
+      FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
       is_tutorial = true;
       active_page = 1;
       FlexECS::Scene::GetEntityByName("How To Play Background").GetComponent<Transform>()->is_active = true;

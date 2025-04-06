@@ -32,6 +32,7 @@ public:
   {
     if (FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
       if (Input::GetKeyDown(GLFW_KEY_D)) {
+        FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
         self.GetComponent<Scale>()->scale = Vector3(0.75f, 0.75f, 1.0f);
         Application::GetCurrentWindow()->ToggleFullScreen(!Application::GetCurrentWindow()->GetFullScreen());
         if (Application::GetCurrentWindow()->GetFullScreen()) {
@@ -56,6 +57,7 @@ public:
   {
     if (Input::GetMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT) &&
       FlexECS::Scene::GetEntityByName("Display Mode Sprite").GetComponent<Transform>()->is_active) {
+      FlexECS::Scene::GetEntityByName("ButtonPress").GetComponent<Audio>()->should_play = true;
       self.GetComponent<Scale>()->scale = Vector3(1.0f, 1.0f, 1.0f);
       Application::GetCurrentWindow()->ToggleFullScreen(!Application::GetCurrentWindow()->GetFullScreen());
       if (Application::GetCurrentWindow()->GetFullScreen()) {
