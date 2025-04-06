@@ -1,7 +1,7 @@
 Name: Weakening_Shot
 Speed: 8
 Effect: Damage
-Value: 10
+Value: 8
 Target: SINGLE_ENEMY
 Effect: Attack_Down
 Value: 3

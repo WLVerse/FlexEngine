@@ -1,7 +1,7 @@
 Name: Covering_Fire
-Speed: 10
+Speed: 6
 Effect: Damage
-Value: 10
+Value: 8
 Target: SINGLE_ENEMY
 Effect: Shield
 Value: 1

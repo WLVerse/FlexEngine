@@ -1,7 +1,7 @@
 Name: Dominate
 Speed: 5
 Effect: Damage
-Value: 15
+Value: 10
 Target: ALL_ENEMIES
 Effect: Attack_Down
 Value: 2

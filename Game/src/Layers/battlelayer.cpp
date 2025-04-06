@@ -604,7 +604,7 @@ namespace Game
             tutorial_box.AddComponent<Transform>({});
             tutorial_box.AddComponent<Position>({ Vector3(845, 110, 0) });
             tutorial_box.AddComponent<Rotation>({});
-            tutorial_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
+            tutorial_box.AddComponent<Scale>({ Vector3(0.65f, 0.65f, 0) });
             tutorial_box.AddComponent<ZIndex>({ 1021 + index });
             tutorial_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
 
@@ -627,7 +627,7 @@ namespace Game
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-              {                           1200,                              320 }
+              {                           1300,                              320 }
             });
             
             FlexECS::Entity firefly = FlexECS::Scene::GetEntityByName("Fireflies");
@@ -645,7 +645,7 @@ namespace Game
             boss_box.AddComponent<Transform>({});
             boss_box.AddComponent<Position>({ Vector3(845, 110, 0) });
             boss_box.AddComponent<Rotation>({});
-            boss_box.AddComponent<Scale>({ Vector3(0.6f, 0.6f, 0) });
+            boss_box.AddComponent<Scale>({ Vector3(0.65f, 0.65f, 0) });
             boss_box.AddComponent<ZIndex>({ 1021 + index });
             boss_box.AddComponent<Sprite>({ FLX_STRING_NEW(R"(/images/battle ui/Battle_UI_DialogueBox.png)") });
             boss_box.GetComponent<Transform>()->is_active = false;
@@ -671,14 +671,14 @@ namespace Game
             boss_text.AddComponent<Transform>({});
             boss_text.AddComponent<Position>({ Vector3(845, 100, 0) });
             boss_text.AddComponent<Rotation>({});
-            boss_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
+            boss_text.AddComponent<Scale>({ Vector3(.48f, .48f, 0) });
             boss_text.AddComponent<ZIndex>({ 1022 + index });
             boss_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
               FLX_STRING_NEW(R"()"),
               Vector3(1.0f, 1.0, 1.0f),
               { Renderer2DText::Alignment_Center, Renderer2DText::Alignment_Center },
-               {                           1200,                              320 }
+               {                           1300,                              320 }
             });
 
 
@@ -695,7 +695,7 @@ namespace Game
             boss_dialogue_text.AddComponent<Transform>({});
             boss_dialogue_text.AddComponent<Position>({ Vector3(1225, 590, 0) });
             boss_dialogue_text.AddComponent<Rotation>({});
-            boss_dialogue_text.AddComponent<Scale>({ Vector3(.5f, .5f, 0) });
+            boss_dialogue_text.AddComponent<Scale>({ Vector3(.48f, .48f, 0) });
             boss_dialogue_text.AddComponent<ZIndex>({ 999 });
             boss_dialogue_text.AddComponent<Text>({
               FLX_STRING_NEW(R"(/fonts/Electrolize/Electrolize-Regular.ttf)"),
@@ -1073,11 +1073,11 @@ namespace Game
                     if (battle.current_move->target[k] == "SINGLE_ENEMY" && battle.initial_target->current_slot == target.current_slot)
                     {
                         float current_damage = static_cast<float>(battle.current_move->value[k]);
-                        if (battle.current_character->attack_buff_duration > 0)
+                        if (battle.current_character->attack_buff_duration > 1)
                         {
                             current_damage += current_damage / 2;
                         }
-                        if (battle.current_character->attack_debuff_duration > 0)
+                        if (battle.current_character->attack_debuff_duration > 1)
                         {
                             current_damage -= current_damage / 2;
                         }
@@ -1090,11 +1090,11 @@ namespace Game
                     else if (battle.current_move->target[k] == "ALL_ENEMIES")
                     {
                         float current_damage = static_cast<float>(battle.current_move->value[k]);
-                        if (battle.current_character->attack_buff_duration > 0)
+                        if (battle.current_character->attack_buff_duration > 1)
                         {
                             current_damage += current_damage / 2;
                         }
-                        if (battle.current_character->attack_debuff_duration > 0)
+                        if (battle.current_character->attack_debuff_duration > 1)
                         {
                             current_damage -= current_damage / 2;
                         }
@@ -1616,6 +1616,7 @@ namespace Game
                             battle.current_move = &battle.current_character->move_one;
                             FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                             //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
+                            (FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position) = Vector3{ 1225, 600, 0 };
                             FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "Time to end this, Renko.";
                             battle.disable_input_timer += 2.5f;
                             break;
@@ -1640,7 +1641,7 @@ namespace Game
                     else if (battle.is_boss)
                     {
                         battle.boss_move++;
-                        if (battle.boss_move > 4)
+                        if (battle.boss_move > 3)
                         {
                             battle.boss_move = 0;
                             battle.is_boss_running = true;
@@ -1650,6 +1651,7 @@ namespace Game
 
                         FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                         //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
+                        (FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position) = Vector3{ 1225, 600, 0 };
                         FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "You should just perish.";
                         battle.disable_input_timer += 3.0f;
                     }
@@ -3698,6 +3700,8 @@ namespace Game
                     FlexECS::Scene::GetEntityByName("boss_dialogue_textbox").GetComponent<Transform>()->is_active = true;
                     //FlexECS::Scene::GetEntityByName("boss_press_button").GetComponent<Transform>()->is_active = true;
                     FLX_STRING_GET(FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Text>()->text) = "You only delay the inevitable.";
+                    
+                    (FlexECS::Scene::GetEntityByName("boss_dialogue_text").GetComponent<Position>()->position) = Vector3{ 1225, 610, 0 };
                 }
                 battle.disable_input_timer += 3.0f;
             }
@@ -4088,20 +4092,25 @@ namespace Game
             {
             case 0:
                 text_to_show = "The turn bar shows the order in which characters will take their turns, from left to right.";
+                battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 105, 0);
                 break;
             case 1:
                 text_to_show = "Press W & S to swap moves. Press A & D to swap targets. Try it out!";
+                battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 100, 0);
                 break;
             case 2:
-                text_to_show = "The smaller icon of your character on the turn bar shows when your next turn will be. More powerful moves usually puts you further back in the turn order.";
+                text_to_show = "The smaller icon of your character on the turn bar shows when your next turn will be. Stronger moves puts you further back in the turn order.";
+                battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 105, 0);
                 break;
             case 3:
                 text_to_show = "Press SPACEBAR to confirm your move.";
                 FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
+                battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 100, 0);
                 break;
             case 4:
               text_to_show = "You're a natural. Looks like we may still have a shot at saving the world after all. Now, finish this!";
               FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = true;
+              battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 105, 0);
                 break;
             case 5:
               text_to_show = "";
@@ -4109,9 +4118,10 @@ namespace Game
                 FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = false;
                 break;
             case 6:
-                text_to_show = "I'll end the simulation now and bring you to the real London now. Good work, Renko.";
+                text_to_show = "I'll end the simulation now and bring you to the London in the past now. Good work, Renko.";
                 FlexECS::Scene::GetEntityByName("tutorial_textbox").GetComponent<Transform>()->is_active = true;
                 FlexECS::Scene::GetEntityByName("tutorial_press_button").GetComponent<Transform>()->is_active = true;
+                battle.tutorial_text.GetComponent<Position>()->position = Vector3(845, 100, 0);
                 break;
             default:
               text_to_show = "";
