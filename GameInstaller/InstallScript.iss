@@ -13,7 +13,7 @@ AppId={{CE403582-3267-42D9-BA72-2607FC5F74C9}
 ; Standard app data stuff
 ; !!NOTE!!: Replace all instances of "GameTest" with your game name.
 AppName=ChronoDrift
-AppVerName=ChronoDrift Version 0.1
+AppVerName=ChronoDrift Version 1.0
 AppPublisher=DigiPen Institute of Technology
 AppPublisherURL=http://www.digipen.edu/
 AppSupportURL=http://www.digipen.edu/
@@ -45,14 +45,6 @@ SolidCompression=yes
 ; in the Program Files, or change the registry. This is done to allow installation on Sandbox
 ; or other intermediate directory
 PrivilegesRequired=none
-
-[Dirs]
-; Create directories in user/Documents folder
-Name: "{userdocs}\ChronoDrift"
-
-[UninstallDelete]
-; Clean up the directory during uninstall
-Type: filesandordirs; Name: "{userdocs}\ChronoDrift"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -94,12 +86,13 @@ Source: .\REDIST\VC_redist.x64.exe; DestDir: {tmp}; Flags: ignoreversion
 ; Directory Notes
 ;   {group} is the start menu location that the game will install shortcuts to.
 ;   {commondesktop} is your Windows desktop directory.
+; I found that the school computers do not allow this,
+; but {userdesktop} is the user's desktop directory, so we write to that instead.
 [Icons]
 Name: {group}\ChronoDrift; Filename: {app}\ChronoDrift.exe; WorkingDir: {app}; IconFilename: "{app}\Icon.ico"
-Name: {group}\{cm:UninstallProgram,ChronoDrift}; Filename: {uninstallexe}
 Name: {group}\{cm:UninstallProgram,ChronoDrift}; Filename: {uninstallexe};  IconFilename: "{app}\Icon.ico"
-Name: {commondesktop}\ChronoDrift; Filename: {app}\ChronoDrift.exe; Tasks: desktopicon; WorkingDir: {app}; IconFilename: "{app}\Icon.ico"
-
+Name: {userdesktop}\ChronoDrift; Filename: {app}\ChronoDrift.exe; Tasks: desktopicon; WorkingDir: {app}; IconFilename: "{app}\Icon.ico"
+;Name: {commondesktop}\ChronoDrift; Filename: {app}\ChronoDrift.exe; Tasks: desktopicon; WorkingDir: {app}; IconFilename: "{app}\Icon.ico"
 ; List of items to execute in the installer.
 ; Note that this will run all executables in their silent versions as required by the TCRs.
 ;

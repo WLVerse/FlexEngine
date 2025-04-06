@@ -55,7 +55,7 @@ namespace Game
     if (!std::filesystem::exists(Path::current("hotload"))) std::filesystem::create_directory(Path::current("hotload"));
 
     // Get the path of the DLL
-    std::string from = Path::current("Scripts.dll");
+    //std::string from = Path::current("Scripts.dll");
     std::string to = Path::current("hotload/Scripts.dll");
 
     auto& layerstack = Application::GetCurrentWindow()->GetLayerStack();
